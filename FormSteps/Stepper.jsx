@@ -7,7 +7,7 @@ import Stepper from "@material-ui/core/Stepper";
 import Step from "@material-ui/core/Step";
 import StepLabel from "@material-ui/core/StepLabel";
 import Grid from "@material-ui/core/Grid";
-import { I18n } from "react-i18next";
+import { Translation } from "react-i18next";
 
 const styles = theme => ({});
 
@@ -28,11 +28,11 @@ class StepperComponents extends React.Component {
             return stepper ? (
               <Step key={key}>
                 <StepLabel>
-                  <I18n ns={label.ns ? label.ns : ns}>
+                  <Translation ns={label.ns ? label.ns : ns}>
                     {l => {
                       return l(message);
                     }}
-                  </I18n>
+                  </Translation>
                 </StepLabel>
               </Step>
             ) : null;

@@ -1,16 +1,16 @@
-import React from "react";
-import PropTypes from "prop-types";
-import compose from "recompose/compose";
-import { withStyles } from "@material-ui/core/styles";
+import React from 'react';
+import PropTypes from 'prop-types';
+import compose from 'recompose/compose';
+import { withStyles } from '@material-ui/core/styles';
 
-import Grid from "@material-ui/core/Grid";
-import Paper from "@material-ui/core/Paper";
-import Typography from "@material-ui/core/Typography";
+import Grid from '@material-ui/core/Grid';
+import Paper from '@material-ui/core/Paper';
+import Typography from '@material-ui/core/Typography';
+import { Translation } from 'react-i18next';
 
-import FieldsRender from "../FieldsRender/index";
-import FooterSteps from "./FooterSteps";
-import StepperComponents from "./Stepper";
-import { I18n } from "react-i18next";
+import FieldsRender from '../FieldsRender/index';
+import FooterSteps from './FooterSteps';
+import StepperComponents from './Stepper';
 
 const styles = theme => ({
   root: {
@@ -18,15 +18,11 @@ const styles = theme => ({
     paddingTop: theme.spacing.unit * 2,
     paddingBottom: theme.spacing.unit * 4,
     margin: theme.spacing.unit * 2,
-    width: "100%"
-  }
+    width: '100%',
+  },
 });
 
 class FormSteps extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const { props } = this;
     const {
@@ -42,7 +38,7 @@ class FormSteps extends React.Component {
       isNew,
       footer,
       footerSteps,
-      id
+      id,
     } = props;
 
     const {
@@ -54,7 +50,7 @@ class FormSteps extends React.Component {
       ns = props.ns,
       transPosition = false,
       validate,
-      elevation = 0
+      elevation = 0,
     } = getSteps()[activeStep] || {};
 
     const itemsStepper = getSteps().map(step => {
@@ -65,16 +61,18 @@ class FormSteps extends React.Component {
       <React.Fragment>
         <Grid container spacing={24}>
           {stepper && (
-            <StepperComponents {...{ ns, activeStep, itemsStepper }} />
+            <StepperComponents
+              {...{ ns, activeStep, itemsStepper }}
+            />
           )}
           <Paper className={classes.root} elevation={elevation}>
             {header && label.message && (
               <Typography variant="h5" gutterBottom>
-                <I18n ns={label.ns ? label.ns : ns}>
+                <Translation ns={label.ns ? label.ns : ns}>
                   {l => {
                     return l(label.message);
                   }}
-                </I18n>
+                </Translation>
               </Typography>
             )}
             {render
@@ -148,7 +146,7 @@ class FormSteps extends React.Component {
                 activeStep,
                 loading,
                 isNew,
-                id
+                id,
               }}
             />
           </Grid>
@@ -168,7 +166,7 @@ FormSteps.propTypes = {
   footerSteps: PropTypes.object,
   getSteps: PropTypes.func.isRequired,
   handleNextStep: PropTypes.func.isRequired,
-  handleBackStep: PropTypes.func.isRequired
+  handleBackStep: PropTypes.func.isRequired,
 };
 
 FormSteps.defaultProps = {
@@ -176,7 +174,9 @@ FormSteps.defaultProps = {
   renderSteps: false,
   header: true,
   footerSteps: {},
-  ns: "inputs"
+  ns: 'inputs',
 };
 
-export default compose(withStyles(styles, { name: "formSteps" }))(FormSteps);
+export default compose(withStyles(styles, { name: 'formSteps' }))(
+  FormSteps,
+);

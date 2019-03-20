@@ -73,7 +73,7 @@ class FooterSteps extends React.Component {
                 <div className={classes.wrapper}>
                   <Button
                     variant="contained"
-                    color="secondary"
+                    color="primary"
                     disabled={loading}
                     onClick={() =>
                       handleNextStep(activeStep, getSteps(), {

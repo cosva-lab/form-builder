@@ -85,7 +85,7 @@ class BoxStacker extends React.Component {
           >
             <Button
               variant="outlined"
-              color="secondary"
+              color="primary"
               onClick={() => addBox(fields)}
             >
               <MessagesTranslate ns={ns} type={buttonTitle} />

@@ -1,25 +1,21 @@
-import React from "react";
-import PropTypes from "prop-types";
-import compose from "recompose/compose";
-import { withStyles } from "@material-ui/core/styles";
+import React from 'react';
+import PropTypes from 'prop-types';
+import compose from 'recompose/compose';
+import { withStyles } from '@material-ui/core/styles';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Checkbox from '@material-ui/core/Checkbox';
 
-import Input from "../../Forms/Input";
-import BoxForm from "../../Forms/Table/BoxForm";
-import DropdownList from "../../DropdownList/DropdownList";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import Checkbox from "@material-ui/core/Checkbox";
+import Input from '../Input';
+import DropdownList from '../../DropdownList/DropdownList';
+/* import BoxForm from '../../Forms/Table/BoxForm'; */
 
 const styles = theme => ({
   input: {
-    marginBottom: theme.spacing.unit * 1
-  }
+    marginBottom: theme.spacing.unit * 1,
+  },
 });
 
-class FormInput extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
+class FormInput extends React.PureComponent {
   render() {
     const {
       InputProps,
@@ -43,33 +39,31 @@ class FormInput extends React.Component {
       <React.Fragment>
         {(() => {
           switch (type) {
-            case "text":
-            case "number":
-            case "email":
-            case "password":
-            case "time":
-            case "date":
+            case 'text':
+            case 'number':
+            case 'email':
+            case 'password':
+            case 'time':
+            case 'date':
               return (
                 <Input
                   className={classes.input}
                   {...{
-                    ...propsRest,
                     InputProps,
                     label,
                     name,
                     value,
                     type,
                     error: {
-                      state: state,
-                      message: message
+                      state,
+                      message,
                     },
-                    type,
                     disabled,
-                    handleChange
+                    handleChange,
                   }}
                 />
               );
-            case "list":
+            case 'list':
               return (
                 <DropdownList
                   search={search}
@@ -87,15 +81,9 @@ class FormInput extends React.Component {
                   {...{ ...propsRest, label, name }}
                 />
               );
-            case "table":
-              return (
-                <BoxForm
-                  value={value}
-                  {...{ ...propsRest, label, name }}
-                  onChange={handleChange}
-                />
-              );
-            case "checkbox":
+            case 'table':
+              return <div>34234</div>;
+            case 'checkbox':
               return (
                 <FormControlLabel
                   control={
@@ -105,7 +93,7 @@ class FormInput extends React.Component {
                         const { target } = e;
                         const { name, checked, type } = target;
                         handleChange({
-                          target: { name, checked, type }
+                          target: { name, checked, type },
                         });
                       }}
                       name={name}
@@ -116,7 +104,7 @@ class FormInput extends React.Component {
                   label={label}
                 />
               );
-            case "render":
+            case 'render':
               return (
                 <FormControlLabel
                   control={
@@ -126,7 +114,7 @@ class FormInput extends React.Component {
                         const { target } = e;
                         const { name, checked, type } = target;
                         handleChange({
-                          target: { name, checked, type }
+                          target: { name, checked, type },
                         });
                       }}
                       name={name}
@@ -149,28 +137,29 @@ class FormInput extends React.Component {
 FormInput.propTypes = {
   helpMessage: PropTypes.bool.isRequired,
   InputProps: PropTypes.object.isRequired,
-  type: PropTypes.string,
   type: PropTypes.oneOf([
-    "time",
-    "text",
-    "number",
-    "email",
-    "date",
-    "password",
-    "list",
-    "table",
-    "checkbox",
-    "render"
+    'time',
+    'text',
+    'number',
+    'email',
+    'date',
+    'password',
+    'list',
+    'table',
+    'checkbox',
+    'render',
   ]),
-  handleChange: PropTypes.func.isRequired
+  handleChange: PropTypes.func.isRequired,
 };
 
 FormInput.defaultProps = {
-  type: "text",
+  type: 'text',
   disabled: false,
   helpMessage: true,
   InputProps: {},
-  route: ""
+  route: '',
 };
 
-export default compose(withStyles(styles, { name: "formInput" }))(FormInput);
+export default compose(withStyles(styles, { name: 'formInput' }))(
+  FormInput,
+);
