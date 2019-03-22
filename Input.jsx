@@ -78,14 +78,12 @@ class Input extends React.PureComponent {
     return (
       <FormControl fullWidth>
         <TextField
-          onBlur={({ target }) => {
-            if (target.value !== value || target.value === '') {
-              this.animation = false;
-              handleChange({
-                target: { name, value, type },
-                waitTime: false,
-              });
-            }
+          onBlur={() => {
+            this.animation = false;
+            handleChange({
+              target: { name, value, type },
+              waitTime: false,
+            });
           }}
           label={label}
           name={name}

@@ -159,7 +159,7 @@ class FieldRender extends React.PureComponent {
       render = false,
       ...rest
     } = this.props;
-    const { ns, searchId, serverConfig, type, xl } = rest;
+    const { ns, searchId, serverConfig, type } = rest;
     const { message = name, ns: nsLabel = ns } = label;
     if (!state) return null;
     if (render) return { ...render, key: FieldRenderKey };
@@ -172,10 +172,6 @@ class FieldRender extends React.PureComponent {
             <FormInput
               error={error}
               {...{
-                sm,
-                md,
-                lg,
-                xl,
                 ns,
                 name,
                 value,
