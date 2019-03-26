@@ -71,14 +71,14 @@ class FieldRender extends React.PureComponent {
       value,
       validChange,
       validate,
-      error: this.verifyError(
+      error: this.verifyError({
         error,
         validation,
         value,
         validChange,
         changed,
         validate,
-      ),
+      }),
     };
   }
 
@@ -95,14 +95,14 @@ class FieldRender extends React.PureComponent {
       value,
       validChange,
       validate,
-      error: this.verifyError(
+      error: this.verifyError({
         error,
         validation,
         value,
         validChange,
         changed,
         validate,
-      ),
+      }),
     });
   }
 
@@ -110,28 +110,53 @@ class FieldRender extends React.PureComponent {
     const { validation } = this.props;
     const { validChange, validate } = this.state;
     const { value } = target;
+    this.setState(
+      {
+        value,
+        error: this.verifyError({
+          validation,
+          value,
+          validChange,
+          changed: true,
+          validate,
+        }),
+      },
+      () => {
+        if (!waitTime) {
+          this.sendChange();
+        }
+      },
+    );
+  };
+
+  validateField = ({ waitTime }) => {
+    const { validation } = this.props;
+    const { validChange, validate, value } = this.state;
     this.setState({
-      value,
-      error: new InputValidator(validation).validate({
+      error: this.verifyError({
+        validation,
         value,
         validChange,
         changed: true,
         validate,
-      }).error,
+      }),
     });
-    if (!waitTime) {
-      this.props.handleChange({ target });
-    }
   };
 
-  verifyError(
-    error,
+  sendChange = () => {
+    const { value } = this.state;
+    const { name } = this.props;
+    this.props.handleChange({ target: { value, name } });
+  };
+
+  verifyError({
+    error = {},
     validation,
     value,
     validChange,
     changed,
     validate,
-  ) {
+  }) {
     if (error.state) return error;
     return new InputValidator(validation).validate({
       value,
@@ -157,9 +182,12 @@ class FieldRender extends React.PureComponent {
       waitTime,
       FieldRenderKey,
       render = false,
+      ns,
+      searchId,
+      serverConfig,
+      type,
       ...rest
     } = this.props;
-    const { ns, searchId, serverConfig, type } = rest;
     const { message = name, ns: nsLabel = ns } = label;
     if (!state) return null;
     if (render) return { ...render, key: FieldRenderKey };
@@ -178,6 +206,7 @@ class FieldRender extends React.PureComponent {
                 type,
                 search,
                 waitTime,
+                validateField: this.validateField,
                 searchId,
                 serverConfig,
                 transPosition,

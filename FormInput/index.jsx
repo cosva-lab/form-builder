@@ -6,17 +6,19 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import Input from '../Input';
 import DropdownList from '../../DropdownList/DropdownList';
+import File from './File';
 /* import BoxForm from '../../Forms/Table/BoxForm'; */
 
 const styles = theme => ({
   input: {
-    marginBottom: theme.spacing.unit * 1,
+    marginBottom: theme.spacing.unit * 0,
   },
 });
 
 class FormInput extends React.PureComponent {
   render() {
     const {
+      multiple,
       InputProps,
       label,
       helpMessage,
@@ -28,6 +30,7 @@ class FormInput extends React.PureComponent {
       searchId,
       search,
       error,
+      validateField,
       waitTime,
       renderItem,
       disabled,
@@ -46,6 +49,24 @@ class FormInput extends React.PureComponent {
           <Input
             className={classes.input}
             {...{
+              waitTime,
+              InputProps,
+              label,
+              name,
+              value,
+              type,
+              error,
+              disabled,
+              handleChange,
+            }}
+          />
+        );
+      case 'file':
+        return (
+          <File
+            {...{
+              validateField,
+              multiple,
               waitTime,
               InputProps,
               label,
@@ -132,6 +153,7 @@ FormInput.propTypes = {
   type: PropTypes.oneOf([
     'time',
     'text',
+    'file',
     'number',
     'email',
     'date',
@@ -142,6 +164,7 @@ FormInput.propTypes = {
     'render',
   ]),
   handleChange: PropTypes.func,
+  validateField: PropTypes.func,
   error: PropTypes.shape({
     state: PropTypes.bool,
     message: PropTypes.string,
@@ -150,13 +173,14 @@ FormInput.propTypes = {
   transPosition: PropTypes.string,
   label: PropTypes.string,
   name: PropTypes.string,
-  value: PropTypes.string,
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
   search: PropTypes.shape({
     state: PropTypes.bool,
     value: PropTypes.number,
   }),
   classes: PropTypes.shape({ input: PropTypes.string }),
   disabled: PropTypes.bool,
+  multiple: PropTypes.bool,
   route: PropTypes.string,
   waitTime: PropTypes.bool,
   searchId: PropTypes.string,
@@ -165,6 +189,7 @@ FormInput.propTypes = {
 FormInput.defaultProps = {
   type: 'text',
   disabled: false,
+  multiple: false,
   helpMessage: true,
   waitTime: true,
   InputProps: {},

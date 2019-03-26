@@ -2,53 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import compose from 'recompose/compose';
 import withStyles from '@material-ui/core/styles/withStyles';
-import { withTranslation } from 'react-i18next';
 import TextField from '@material-ui/core/TextField';
 import FormControl from '@material-ui/core/FormControl';
-import Grow from '@material-ui/core/Grow';
-import Loading from '../Loading';
-
-const Animation = ({ children }) => (
-  <Grow
-    in
-    style={{ transformOrigin: '0 0 0' }}
-    {...{ timeout: 1000 }}
-  >
-    {children}
-  </Grow>
-);
-Animation.propTypes = {
-  children: PropTypes.node,
-};
-
-function getMessage(message, ns, attribute) {
-  return message ? (
-    <React.Suspense
-      fallback={
-        <Animation>
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'center',
-            }}
-          >
-            <Loading size={20} />
-          </div>
-        </Animation>
-      }
-    >
-      {React.createElement(
-        withTranslation(ns)(({ t }) =>
-          t(message, {
-            ...attribute,
-          }),
-        ),
-      )}
-    </React.Suspense>
-  ) : (
-    message
-  );
-}
+import {
+  Animation,
+  getMessage,
+} from '../MessagesTranslate/Animation';
 
 class Input extends React.PureComponent {
   animation = true;
