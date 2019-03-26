@@ -13,6 +13,7 @@ class FieldRender extends React.PureComponent {
     helpMessage: PropTypes.bool,
     handleChange: PropTypes.func.isRequired,
     name: PropTypes.string.isRequired,
+    type: PropTypes.string,
     value: PropTypes.any,
     ns: PropTypes.string,
     transPosition: PropTypes.oneOfType([
@@ -43,6 +44,8 @@ class FieldRender extends React.PureComponent {
     lg: PropTypes.number,
     xs: PropTypes.number,
     waitTime: PropTypes.bool,
+    accept: PropTypes.string,
+    extensions: PropTypes.array,
   };
 
   static defaultProps = {
@@ -178,7 +181,6 @@ class FieldRender extends React.PureComponent {
       search,
       helpMessage,
       state = true,
-      validation,
       waitTime,
       FieldRenderKey,
       render = false,
@@ -186,7 +188,8 @@ class FieldRender extends React.PureComponent {
       searchId,
       serverConfig,
       type,
-      ...rest
+      accept,
+      extensions,
     } = this.props;
     const { message = name, ns: nsLabel = ns } = label;
     if (!state) return null;
@@ -213,6 +216,8 @@ class FieldRender extends React.PureComponent {
                 label: t(`${transPosition}${message}`),
                 helpMessage,
                 handleChange: this.handleChange,
+                accept,
+                extensions,
               }}
             />
           )}

@@ -35,6 +35,8 @@ class FormInput extends React.PureComponent {
       renderItem,
       disabled,
       classes,
+      accept,
+      extensions,
       ...propsRest
     } = this.props;
     const { state, message } = error;
@@ -76,6 +78,8 @@ class FormInput extends React.PureComponent {
               error,
               disabled,
               handleChange,
+              accept,
+              extensions,
             }}
           />
         );
@@ -178,6 +182,8 @@ FormInput.propTypes = {
     state: PropTypes.bool,
     value: PropTypes.number,
   }),
+  accept: PropTypes.string,
+  extensions: PropTypes.array,
   classes: PropTypes.shape({ input: PropTypes.string }),
   disabled: PropTypes.bool,
   multiple: PropTypes.bool,
