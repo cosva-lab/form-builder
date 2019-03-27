@@ -195,7 +195,7 @@ FormInput.propTypes = {
 FormInput.defaultProps = {
   type: 'text',
   disabled: false,
-  multiple: false,
+  multiple: true,
   helpMessage: true,
   waitTime: true,
   InputProps: {},

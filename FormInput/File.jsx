@@ -111,7 +111,11 @@ class File extends React.PureComponent {
       () => {
         const { handleChange, name, type, extensions } = this.props;
         handleChange({
-          target: { name, value: this.state.value, type },
+          target: {
+            name,
+            value: this.state.value.map(({ file }) => file),
+            type,
+          },
           waitTime: false,
         });
         // eslint-disable-next-line no-param-reassign
@@ -137,7 +141,11 @@ class File extends React.PureComponent {
       () => {
         const { handleChange, name, type } = this.props;
         handleChange({
-          target: { name, value: this.state.value, type },
+          target: {
+            name,
+            value: this.state.value.map(({ file }) => file),
+            type,
+          },
           waitTime: false,
         });
       },
@@ -147,7 +155,7 @@ class File extends React.PureComponent {
   hasExtension(fileName, exts = ['.*']) {
     return new RegExp(
       `(${exts.join('|').replace(/\./g, '\\.')})$`,
-    ).test(fileName);
+    ).test(fileName.toLowerCase());
   }
 
   render() {
@@ -266,10 +274,16 @@ class File extends React.PureComponent {
                 {value.length > 0 && (
                   <React.Fragment>
                     <Grid container spacing={24} alignItems="stretch">
-                      {value.map(({ file }, key) => {
+                      {value.map(({ file, id }, key) => {
                         const { name: nameFile } = file;
                         return (
-                          <Grid key={key} item sm={6} md={4} xs>
+                          <Grid
+                            key={key}
+                            item
+                            {...(multiple
+                              ? { sm: 6, md: 4, xs: true }
+                              : { xs: 12 })}
+                          >
                             <Grow in>
                               <PaperStyled
                                 p={{
@@ -279,7 +293,9 @@ class File extends React.PureComponent {
                                 <Grid
                                   container
                                   spacing={16}
-                                  style={{ position: 'relative' }}
+                                  style={{
+                                    position: 'relative',
+                                  }}
                                 >
                                   <Grid
                                     item
@@ -331,7 +347,7 @@ class File extends React.PureComponent {
                                       aria-label="More"
                                       aria-haspopup="true"
                                       onClick={() =>
-                                        this.deleteFile(key)
+                                        this.deleteFile(id)
                                       }
                                     >
                                       <DeleteIcon />
