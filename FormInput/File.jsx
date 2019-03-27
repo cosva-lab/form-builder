@@ -1,5 +1,6 @@
 import React from 'react';
 import uuid from 'uuid';
+import { lookup } from 'mime-types';
 import PropTypes from 'prop-types';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import Zoom from '@material-ui/core/Zoom';
@@ -12,32 +13,18 @@ import styled from 'styled-components';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import CloudUploadIcon from '@material-ui/icons/CloudUpload';
-import { Paper } from '@material-ui/core';
+import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
-import {
-  spacing,
-  palette,
-  sizing,
-  flexbox,
-  display,
-  positions,
-} from '@material-ui/system';
+import spacing from '@material-ui/system/spacing';
 import DeleteIcon from '@material-ui/icons/Delete';
 import {
   getMessage,
   Animation,
 } from '../../MessagesTranslate/Animation';
 
-export const PaperStyled = styled(Paper)(
-  spacing,
-  palette,
-  sizing,
-  flexbox,
-  display,
-  positions,
-);
+export const PaperStyled = styled(Paper)(spacing);
 
-const styles = () => ({
+const stylesComponent = () => ({
   image: {
     width: 220,
     height: 125,
@@ -158,19 +145,59 @@ class File extends React.PureComponent {
     ).test(fileName.toLowerCase());
   }
 
+  getExtension(fileName) {
+    return fileName.split('.').pop();
+  }
+
+  getThumbnail(file) {
+    const {
+      classes: { img },
+    } = this.props;
+    const { name } = file;
+    switch (lookup(name)) {
+      case 'image/png':
+      case 'image/jpeg':
+      case 'image/svg+xml':
+        return (
+          <img
+            className={img}
+            alt="complex"
+            src={URL.createObjectURL(file)}
+          />
+        );
+
+      default:
+        return (
+          <div className={img}>
+            <Typography
+              style={{
+                color: 'rgba(51,51,51,0.4)',
+              }}
+              align="center"
+              inline={false}
+              className="cosva-farm"
+              variant="h1"
+            />
+          </div>
+        );
+    }
+  }
+
+  preventDefault = evt => {
+    evt.preventDefault();
+    evt.stopPropagation();
+  };
+
   render() {
     const {
-      name,
       classes,
       accept,
       extensions,
       multiple,
-      type,
       error,
-      handleChange,
       validateField,
     } = this.props;
-    const { fileName, styles, value } = this.state;
+    const { styles, value } = this.state;
     const { state, message, ns, attribute } = error;
     return (
       <React.Fragment>
@@ -196,21 +223,16 @@ class File extends React.PureComponent {
         >
           <Paper elevation={2}>
             <Grid
-              onDragEnter={e => {
-                e.preventDefault();
-                e.stopPropagation();
-              }}
+              onDragEnter={this.preventDefault}
               onDragLeave={e => {
                 this.setState({
                   styles: {},
                 });
-                e.preventDefault();
-                e.stopPropagation();
+                this.preventDefault(e);
               }}
               onDragOver={e => {
-                e.preventDefault();
-                e.stopPropagation();
-                const { backgroundColor } = this.state.styles;
+                this.preventDefault(e);
+                const { backgroundColor } = styles;
                 if (!backgroundColor) {
                   this.setState({
                     styles: {
@@ -220,8 +242,7 @@ class File extends React.PureComponent {
                 }
               }}
               onDrop={e => {
-                e.preventDefault();
-                e.stopPropagation();
+                this.preventDefault(e);
                 const { files: filesTransfer } = e.dataTransfer;
                 if (filesTransfer && filesTransfer.length > 0) {
                   this.handleChange({
@@ -278,6 +299,7 @@ class File extends React.PureComponent {
                         const { name: nameFile } = file;
                         return (
                           <Grid
+                            // eslint-disable-next-line react/no-array-index-key
                             key={key}
                             item
                             {...(multiple
@@ -314,13 +336,7 @@ class File extends React.PureComponent {
                                         });
                                       }}
                                     >
-                                      <img
-                                        className={classes.img}
-                                        alt="complex"
-                                        src={URL.createObjectURL(
-                                          file,
-                                        )}
-                                      />
+                                      {this.getThumbnail(file)}
                                     </Grid>
                                   </Grid>
                                   {!this.hasExtension(
@@ -375,7 +391,6 @@ class File extends React.PureComponent {
               style={{
                 display: 'none',
               }}
-              id={`${name}-file`}
               multiple
               type="file"
             />
@@ -409,6 +424,6 @@ class File extends React.PureComponent {
   }
 }
 
-export default compose(withStyles(styles, { name: 'FileInput' }))(
-  File,
-);
+export default compose(
+  withStyles(stylesComponent, { name: 'FileInput' }),
+)(File);

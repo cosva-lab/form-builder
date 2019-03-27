@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import compose from 'recompose/compose';
 import withStyles from '@material-ui/core/styles/withStyles';
 import Grid from '@material-ui/core/Grid';
-import pink from '@material-ui/core/colors/pink';
 import { Translation } from 'react-i18next';
 import FormInput from '../FormInput/index';
 import InputValidator from '../../Validator/InputValidator';
@@ -132,7 +131,7 @@ class FieldRender extends React.PureComponent {
     );
   };
 
-  validateField = ({ waitTime }) => {
+  validateField = () => {
     const { validation } = this.props;
     const { validChange, validate, value } = this.state;
     this.setState({
@@ -232,36 +231,6 @@ const styles = theme => ({
     ...theme.mixins.gutters(),
     paddingTop: theme.spacing.unit * 2,
     paddingBottom: theme.spacing.unit * 2,
-  },
-  buttons: {
-    display: 'flex',
-    justifyContent: 'flex-end',
-  },
-  card: {
-    marginTop: theme.spacing.unit * 1,
-    marginBottom: theme.spacing.unit * 2,
-  },
-  wrapper: {
-    position: 'relative',
-  },
-  buttonProgress: {
-    color: pink[500],
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    marginTop: -12,
-    marginLeft: -12,
-  },
-  avatar: {
-    margin: 10,
-  },
-  bigAvatar: {
-    width: 80,
-    height: 80,
-  },
-  clap: {
-    display: 'flex',
-    justifyContent: 'center',
   },
 });
 

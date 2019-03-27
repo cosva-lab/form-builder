@@ -1,21 +1,17 @@
-import React from "react";
-import PropTypes from "prop-types";
-import compose from "recompose/compose";
-import { withStyles } from "@material-ui/core/styles";
+import React from 'react';
+import PropTypes from 'prop-types';
+import compose from 'recompose/compose';
+import { withStyles } from '@material-ui/core/styles';
 
-import Stepper from "@material-ui/core/Stepper";
-import Step from "@material-ui/core/Step";
-import StepLabel from "@material-ui/core/StepLabel";
-import Grid from "@material-ui/core/Grid";
-import { Translation } from "react-i18next";
+import Stepper from '@material-ui/core/Stepper';
+import Step from '@material-ui/core/Step';
+import StepLabel from '@material-ui/core/StepLabel';
+import Grid from '@material-ui/core/Grid';
+import { Translation } from 'react-i18next';
 
-const styles = theme => ({});
+const styles = () => ({});
 
-class StepperComponents extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
+class StepperComponents extends React.PureComponent {
   render() {
     const { props } = this;
     const { itemsStepper, ns, activeStep } = props;
@@ -29,9 +25,7 @@ class StepperComponents extends React.Component {
               <Step key={key}>
                 <StepLabel>
                   <Translation ns={label.ns ? label.ns : ns}>
-                    {l => {
-                      return l(message);
-                    }}
+                    {l => l(message)}
                   </Translation>
                 </StepLabel>
               </Step>
@@ -46,9 +40,9 @@ class StepperComponents extends React.Component {
 StepperComponents.propTypes = {
   ns: PropTypes.string.isRequired,
   activeStep: PropTypes.number.isRequired,
-  itemsStepper: PropTypes.array.isRequired
+  itemsStepper: PropTypes.array.isRequired,
 };
 
-export default compose(withStyles(styles, { name: "Stepper" }))(
-  StepperComponents
+export default compose(withStyles(styles, { name: 'Stepper' }))(
+  StepperComponents,
 );

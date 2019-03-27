@@ -129,18 +129,6 @@ class InputSwitch extends React.PureComponent {
   }
 }
 
-/* export default props => (
-  <Suspense fallback={<Loading />}>
-    {React.createElement(
-      compose(
-        withStyles(styles, { name: 'Input' }),
-        withTranslation(),
-      )(InputSwitch),
-      props,
-    )}
-  </Suspense>
-); */
-
 export default compose(withStyles(styles, { name: 'Input' }))(
   InputSwitch,
 );

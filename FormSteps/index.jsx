@@ -69,48 +69,41 @@ class FormSteps extends React.Component {
             {header && label.message && (
               <Typography variant="h5" gutterBottom>
                 <Translation ns={label.ns ? label.ns : ns}>
-                  {l => {
-                    return l(label.message);
-                  }}
+                  {l => l(label.message)}
                 </Translation>
               </Typography>
             )}
-            {render
-              ? (() => {
-                  const { state, components } = render;
-                  return Object.keys(components).map((step, key) => {
-                    if (state == step) {
-                      return (
-                        <Grid item xs={12} key={key}>
-                          {components[step]}
-                        </Grid>
-                      );
-                    } else {
-                      return null;
-                    }
-                  });
-                })()
-              : null}
-            {renderSteps
-              ? (() => {
-                  return Object.keys(renderSteps).map((step, key) => {
-                    if (activeStep == step) {
-                      return (
-                        <Grid item xs={12} key={key}>
-                          {renderSteps[step]}
-                        </Grid>
-                      );
-                    } else {
-                      return null;
-                    }
-                  });
-                })()
-              : null}
-            {renderStep ? (
+            {render &&
+              (() => {
+                const { state, components } = render;
+                return Object.keys(components).map((step, key) => {
+                  if (state === step) {
+                    return (
+                      <Grid item xs={12} key={key}>
+                        {components[step]}
+                      </Grid>
+                    );
+                  }
+                  return null;
+                });
+              })()}
+            {renderSteps &&
+              (() =>
+                Object.keys(renderSteps).map((step, key) => {
+                  if (activeStep === step) {
+                    return (
+                      <Grid item xs={12} key={key}>
+                        {renderSteps[step]}
+                      </Grid>
+                    );
+                  }
+                  return null;
+                }))()}
+            {renderStep && (
               <Grid item xs={12}>
                 {renderStep}
               </Grid>
-            ) : null}
+            )}
             <Grid item xs={12}>
               <Grid
                 container
