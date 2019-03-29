@@ -44,6 +44,11 @@ class FieldRender extends React.PureComponent {
     xs: PropTypes.number,
     waitTime: PropTypes.bool,
     accept: PropTypes.string,
+    component: PropTypes.oneOfType([
+      PropTypes.func,
+      PropTypes.node,
+      PropTypes.object,
+    ]),
     extensions: PropTypes.array,
   };
 
@@ -108,7 +113,7 @@ class FieldRender extends React.PureComponent {
     });
   }
 
-  handleChange = ({ target, waitTime }) => {
+  handleChange = ({ target, waitTime = false }) => {
     const { validation } = this.props;
     const { validChange, validate } = this.state;
     const { value } = target;
@@ -189,6 +194,7 @@ class FieldRender extends React.PureComponent {
       type,
       accept,
       extensions,
+      component,
     } = this.props;
     const { message = name, ns: nsLabel = ns } = label;
     if (!state) return null;
@@ -217,6 +223,7 @@ class FieldRender extends React.PureComponent {
                 handleChange: this.handleChange,
                 accept,
                 extensions,
+                component,
               }}
             />
           )}

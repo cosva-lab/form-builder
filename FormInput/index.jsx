@@ -7,7 +7,8 @@ import Checkbox from '@material-ui/core/Checkbox';
 import Input from '../Input';
 import DropdownList from '../../DropdownList/DropdownList';
 import File from './File';
-/* import BoxForm from '../../Forms/Table/BoxForm'; */
+import Chips from './Chips';
+/* import BoxForm from '../Table/BoxForm'; */
 
 const styles = theme => ({
   input: {
@@ -33,6 +34,7 @@ class FormInput extends React.PureComponent {
       validateField,
       waitTime,
       renderItem,
+      component,
       disabled,
       classes,
       accept,
@@ -102,7 +104,30 @@ class FormInput extends React.PureComponent {
           />
         );
       case 'table':
-        return <div>34234</div>;
+        return null;
+      /* return (
+          <BoxForm
+            value={value}
+            {...{ ...propsRest, label, name }}
+            onChange={handleChange}
+          />
+        ); */
+      case 'chips':
+        return (
+          <Chips
+            {...{
+              waitTime,
+              InputProps,
+              label,
+              name,
+              value,
+              type,
+              error,
+              disabled,
+              handleChange,
+            }}
+          />
+        );
       case 'checkbox':
         return (
           <FormControlLabel
@@ -124,27 +149,24 @@ class FormInput extends React.PureComponent {
             label={label}
           />
         );
-      case 'render':
-        return (
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={value}
-                onChange={e => {
-                  const { target } = e;
-                  const { name, checked, type } = target;
-                  handleChange({
-                    target: { name, checked, type },
-                  });
-                }}
-                name={name}
-                {...propsRest}
-                disabled={disabled}
-              />
-            }
-            label={label}
-          />
-        );
+      case 'component':
+        if (React.isValidElement(component)) {
+          return component;
+        }
+        if (typeof component === 'function') {
+          return React.createElement(component, {
+            waitTime,
+            InputProps,
+            label,
+            name,
+            value,
+            type,
+            error,
+            disabled,
+            handleChange,
+          });
+        }
+        return null;
       default:
         return null;
     }
@@ -164,8 +186,9 @@ FormInput.propTypes = {
     'password',
     'list',
     'table',
+    'chips',
     'checkbox',
-    'render',
+    'component',
   ]),
   handleChange: PropTypes.func,
   validateField: PropTypes.func,
@@ -187,6 +210,11 @@ FormInput.propTypes = {
   classes: PropTypes.shape({ input: PropTypes.string }),
   disabled: PropTypes.bool,
   multiple: PropTypes.bool,
+  component: PropTypes.oneOfType([
+    PropTypes.func,
+    PropTypes.node,
+    PropTypes.object,
+  ]),
   route: PropTypes.string,
   waitTime: PropTypes.bool,
   searchId: PropTypes.string,

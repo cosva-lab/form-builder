@@ -303,7 +303,7 @@ class File extends React.PureComponent {
                             key={key}
                             item
                             {...(multiple
-                              ? { sm: 6, md: 4, xs: true }
+                              ? { sm: 6, md: 6, lg: 4, xs: true }
                               : { xs: 12 })}
                           >
                             <Grow in>

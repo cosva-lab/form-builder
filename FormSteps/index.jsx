@@ -88,17 +88,16 @@ class FormSteps extends React.Component {
                 });
               })()}
             {renderSteps &&
-              (() =>
-                Object.keys(renderSteps).map((step, key) => {
-                  if (activeStep === step) {
-                    return (
-                      <Grid item xs={12} key={key}>
-                        {renderSteps[step]}
-                      </Grid>
-                    );
-                  }
-                  return null;
-                }))()}
+              Object.keys(renderSteps).map((step, key) => {
+                if (activeStep === step) {
+                  return (
+                    <Grid item xs={12} key={key}>
+                      {renderSteps[step]}
+                    </Grid>
+                  );
+                }
+                return null;
+              })}
             {renderStep && (
               <Grid item xs={12}>
                 {renderStep}

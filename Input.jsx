@@ -34,6 +34,7 @@ class Input extends React.PureComponent {
       ...rest
     } = this.props;
     const { state, message, ns, attribute } = error;
+    console.log(label, 34234323423);
     return (
       <FormControl fullWidth>
         <TextField
