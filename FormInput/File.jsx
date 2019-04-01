@@ -1,6 +1,6 @@
 import React from 'react';
 import uuid from 'uuid';
-import { lookup } from 'mime-types';
+import { lookup, contentType } from 'mime-types';
 import PropTypes from 'prop-types';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import Zoom from '@material-ui/core/Zoom';
@@ -52,14 +52,21 @@ const DefaultImage = ({ classes }) => (
     />
   </div>
 );
+DefaultImage.propTypes = {
+  classes: PropTypes.object,
+};
 
 class File extends React.PureComponent {
   static propTypes = {
     label: PropTypes.oneOfType([PropTypes.string, PropTypes.object])
       .isRequired,
+    subLabel: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.object,
+    ]).isRequired,
     name: PropTypes.string.isRequired,
     type: PropTypes.string.isRequired,
-    accept: PropTypes.string,
+    accept: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
     extensions: PropTypes.array,
     autoComplete: PropTypes.string,
     value: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
@@ -68,6 +75,8 @@ class File extends React.PureComponent {
     classes: PropTypes.object,
     waitTime: PropTypes.bool,
     multiple: PropTypes.bool,
+    validateExtensions: PropTypes.bool,
+    validateAccept: PropTypes.bool,
     handleChange: PropTypes.func.isRequired,
     validateField: PropTypes.func,
   };
@@ -75,6 +84,8 @@ class File extends React.PureComponent {
   static defaultProps = {
     accept: '*',
     extensions: ['.*'],
+    validateExtensions: true,
+    validateAccept: true,
   };
 
   state = { fileName: '', value: [], styles: {} };
@@ -113,7 +124,7 @@ class File extends React.PureComponent {
         };
       },
       () => {
-        const { handleChange, name, type, extensions } = this.props;
+        const { handleChange, name, type } = this.props;
         handleChange({
           target: {
             name,
@@ -125,7 +136,7 @@ class File extends React.PureComponent {
         // eslint-disable-next-line no-param-reassign
         target.value = '';
         this.state.value.forEach(({ file, id }) => {
-          if (!this.hasExtension(file.name, extensions)) {
+          if (!this.validateFile(file.name)) {
             this.deleteFile(id);
           }
         });
@@ -152,10 +163,39 @@ class File extends React.PureComponent {
     );
   };
 
-  hasExtension(fileName, exts = ['.*']) {
-    return new RegExp(
-      `(${exts.join('|').replace(/\./g, '\\.')})$`,
-    ).test(fileName.toLowerCase());
+  validateFile(fileName) {
+    const {
+      validateExtensions,
+      validateAccept,
+      extensions,
+    } = this.props;
+    let { accept } = this.props;
+    if (typeof accept === 'string') {
+      accept = [accept];
+    }
+    const hasExtensions = () =>
+      new RegExp(
+        `(${extensions.join('|').replace(/\./g, '\\.')})$`,
+      ).test(fileName.toLowerCase());
+
+    const acceptValidate = () =>
+      Boolean(
+        accept.find(a => {
+          if (!contentType(fileName)) return false;
+          return contentType(fileName).match(new RegExp(`${a}.*`));
+        }),
+      );
+
+    if (validateExtensions && validateAccept) {
+      return hasExtensions && acceptValidate();
+    }
+    if (validateExtensions && !validateAccept) {
+      return hasExtensions;
+    }
+    if (!validateExtensions && validateAccept) {
+      return acceptValidate();
+    }
+    return true;
   }
 
   getExtension(fileName) {
@@ -192,14 +232,18 @@ class File extends React.PureComponent {
   render() {
     const {
       classes,
-      accept,
-      extensions,
       multiple,
       error,
       validateField,
+      label,
+      subLabel,
     } = this.props;
+    let { accept } = this.props;
+    if (typeof accept === 'string') {
+      accept = [accept];
+    }
     const { styles, value } = this.state;
-    const { state, message, ns, attribute } = error;
+    const { state, message, ns, props } = error;
     return (
       <React.Fragment>
         <Paper
@@ -287,9 +331,19 @@ class File extends React.PureComponent {
                       }}
                       align="center"
                       inline={false}
+                      variant="h5"
+                    >
+                      {label}
+                    </Typography>
+                    <Typography
+                      style={{
+                        color: 'rgba(51,51,51,0.4)',
+                      }}
+                      align="center"
+                      inline={false}
                       variant="h6"
                     >
-                      {'placeHolder'}
+                      {subLabel}
                     </Typography>
                   </React.Fragment>
                 )}
@@ -298,16 +352,13 @@ class File extends React.PureComponent {
                     <Grid container spacing={16} alignItems="stretch">
                       {value.map(({ file, id }, key) => {
                         const { name: nameFile } = file;
-                        const invalid = !this.hasExtension(
-                          nameFile,
-                          extensions,
-                        );
+                        const invalid = !this.validateFile(nameFile);
                         return (
                           <Grid
                             // eslint-disable-next-line react/no-array-index-key
                             key={key}
                             item
-                            {...(multiple
+                            {...(multiple && value.length > 1
                               ? { sm: 6, md: 6, lg: 6, xs: true }
                               : { xs: 12 })}
                           >
@@ -391,7 +442,7 @@ class File extends React.PureComponent {
               onChange={({ target }) => {
                 this.handleChange(target);
               }}
-              accept={accept}
+              accept={accept.join(',')}
               style={{
                 display: 'none',
               }}
@@ -419,7 +470,7 @@ class File extends React.PureComponent {
               }}
               component="div"
             >
-              {getMessage({ message, ns, attribute })}
+              {getMessage({ message, ns, props })}
             </FormHelperText>
           </Animation>
         )}
