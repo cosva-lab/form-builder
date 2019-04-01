@@ -39,6 +39,7 @@ class FormInput extends React.PureComponent {
       classes,
       accept,
       extensions,
+      actions,
       ...propsRest
     } = this.props;
     const { state, message } = error;
@@ -117,6 +118,7 @@ class FormInput extends React.PureComponent {
           <Chips
             {...{
               waitTime,
+              actions,
               InputProps,
               label,
               name,
@@ -176,6 +178,7 @@ class FormInput extends React.PureComponent {
 FormInput.propTypes = {
   helpMessage: PropTypes.bool,
   InputProps: PropTypes.object,
+  actions: PropTypes.object,
   type: PropTypes.oneOf([
     'time',
     'text',
@@ -198,7 +201,8 @@ FormInput.propTypes = {
   }),
   ns: PropTypes.string,
   transPosition: PropTypes.string,
-  label: PropTypes.string,
+  label: PropTypes.oneOfType([PropTypes.string, PropTypes.object])
+    .isRequired,
   name: PropTypes.string,
   value: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
   search: PropTypes.shape({
