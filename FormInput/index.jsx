@@ -7,6 +7,7 @@ import Checkbox from '@material-ui/core/Checkbox';
 import Input from '../Input';
 import DropdownList from '../../DropdownList/DropdownList';
 import File from './File';
+import ListSwitch from './listSwitch';
 import Chips from './Chips';
 /* import BoxForm from '../Table/BoxForm'; */
 
@@ -22,6 +23,7 @@ class FormInput extends React.PureComponent {
       multiple,
       InputProps,
       label,
+      subLabel,
       helpMessage,
       handleChange,
       type,
@@ -40,6 +42,9 @@ class FormInput extends React.PureComponent {
       accept,
       extensions,
       actions,
+      validation,
+      validateExtensions,
+      validateAccept,
       ...propsRest
     } = this.props;
     const { state, message } = error;
@@ -69,6 +74,29 @@ class FormInput extends React.PureComponent {
       case 'file':
         return (
           <File
+            {...{
+              validateField,
+              multiple,
+              waitTime,
+              InputProps,
+              label,
+              subLabel,
+              name,
+              value,
+              type,
+              error,
+              disabled,
+              handleChange,
+              accept,
+              extensions,
+              validateExtensions,
+              validateAccept,
+            }}
+          />
+        );
+      case 'listSwitch':
+        return (
+          <ListSwitch
             {...{
               validateField,
               multiple,
@@ -164,6 +192,7 @@ class FormInput extends React.PureComponent {
             value,
             type,
             error,
+            validation,
             disabled,
             handleChange,
           });
@@ -179,6 +208,7 @@ FormInput.propTypes = {
   helpMessage: PropTypes.bool,
   InputProps: PropTypes.object,
   actions: PropTypes.object,
+  validation: PropTypes.array.isRequired,
   type: PropTypes.oneOf([
     'time',
     'text',
@@ -192,6 +222,7 @@ FormInput.propTypes = {
     'chips',
     'checkbox',
     'component',
+    'listSwitch',
   ]),
   handleChange: PropTypes.func,
   validateField: PropTypes.func,
@@ -209,8 +240,10 @@ FormInput.propTypes = {
     state: PropTypes.bool,
     value: PropTypes.number,
   }),
-  accept: PropTypes.string,
+  accept: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
   extensions: PropTypes.array,
+  validateExtensions: PropTypes.bool,
+  validateAccept: PropTypes.bool,
   classes: PropTypes.shape({ input: PropTypes.string }),
   disabled: PropTypes.bool,
   multiple: PropTypes.bool,

@@ -1,6 +1,6 @@
 import React from 'react';
 import uuid from 'uuid';
-import { lookup, contentType } from 'mime-types';
+import { lookup } from 'mime-types';
 import PropTypes from 'prop-types';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import Zoom from '@material-ui/core/Zoom';
@@ -181,8 +181,8 @@ class File extends React.PureComponent {
     const acceptValidate = () =>
       Boolean(
         accept.find(a => {
-          if (!contentType(fileName)) return false;
-          return contentType(fileName).match(new RegExp(`${a}.*`));
+          if (!lookup(fileName)) return false;
+          return lookup(fileName).match(new RegExp(`${a}.*`));
         }),
       );
 
