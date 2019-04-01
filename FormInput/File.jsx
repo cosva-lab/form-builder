@@ -13,6 +13,7 @@ import styled from 'styled-components';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import CloudUploadIcon from '@material-ui/icons/CloudUpload';
+import BrokenImageIcon from '@material-ui/icons/BrokenImage';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import spacing from '@material-ui/system/spacing';
@@ -37,9 +38,25 @@ const stylesComponent = () => ({
   },
 });
 
+const DefaultImage = ({ classes }) => (
+  <div className={classes.img}>
+    <Typography
+      style={{
+        color: 'rgba(51,51,51,0.4)',
+      }}
+      align="center"
+      inline={false}
+      component={BrokenImageIcon}
+      /* className="cosva-farm" */
+      variant="h1"
+    />
+  </div>
+);
+
 class File extends React.PureComponent {
   static propTypes = {
-    label: PropTypes.string.isRequired,
+    label: PropTypes.oneOfType([PropTypes.string, PropTypes.object])
+      .isRequired,
     name: PropTypes.string.isRequired,
     type: PropTypes.string.isRequired,
     accept: PropTypes.string,
@@ -107,13 +124,9 @@ class File extends React.PureComponent {
         });
         // eslint-disable-next-line no-param-reassign
         target.value = '';
-        let count = 1;
         this.state.value.forEach(({ file, id }) => {
           if (!this.hasExtension(file.name, extensions)) {
-            setTimeout(() => {
-              this.deleteFile(id);
-              // eslint-disable-next-line no-plusplus
-            }, 1000 * count++);
+            this.deleteFile(id);
           }
         });
       },
@@ -149,37 +162,25 @@ class File extends React.PureComponent {
     return fileName.split('.').pop();
   }
 
-  getThumbnail(file) {
-    const {
-      classes: { img },
-    } = this.props;
+  getThumbnail(file, { invalid }) {
+    const { classes } = this.props;
     const { name } = file;
+    if (invalid) {
+      return <DefaultImage {...{ classes }} />;
+    }
     switch (lookup(name)) {
       case 'image/png':
       case 'image/jpeg':
       case 'image/svg+xml':
         return (
           <img
-            className={img}
+            className={classes.img}
             alt="complex"
             src={URL.createObjectURL(file)}
           />
         );
-
       default:
-        return (
-          <div className={img}>
-            <Typography
-              style={{
-                color: 'rgba(51,51,51,0.4)',
-              }}
-              align="center"
-              inline={false}
-              className="cosva-farm"
-              variant="h1"
-            />
-          </div>
-        );
+        return <DefaultImage {...{ classes }} />;
     }
   }
 
@@ -260,7 +261,7 @@ class File extends React.PureComponent {
                 value.length === 0 ? this.showOpenFileDlg : undefined
               }
               style={{
-                minHeight: '200px',
+                minHeight: '170px',
                 padding: '20px',
                 ...styles,
               }}
@@ -294,16 +295,20 @@ class File extends React.PureComponent {
                 )}
                 {value.length > 0 && (
                   <React.Fragment>
-                    <Grid container spacing={24} alignItems="stretch">
+                    <Grid container spacing={16} alignItems="stretch">
                       {value.map(({ file, id }, key) => {
                         const { name: nameFile } = file;
+                        const invalid = !this.hasExtension(
+                          nameFile,
+                          extensions,
+                        );
                         return (
                           <Grid
                             // eslint-disable-next-line react/no-array-index-key
                             key={key}
                             item
                             {...(multiple
-                              ? { sm: 6, md: 6, lg: 4, xs: true }
+                              ? { sm: 6, md: 6, lg: 6, xs: true }
                               : { xs: 12 })}
                           >
                             <Grow in>
@@ -336,13 +341,12 @@ class File extends React.PureComponent {
                                         });
                                       }}
                                     >
-                                      {this.getThumbnail(file)}
+                                      {this.getThumbnail(file, {
+                                        invalid,
+                                      })}
                                     </Grid>
                                   </Grid>
-                                  {!this.hasExtension(
-                                    nameFile,
-                                    extensions,
-                                  ) && (
+                                  {invalid && (
                                     <Zoom in>
                                       <div
                                         style={{
@@ -415,7 +419,7 @@ class File extends React.PureComponent {
               }}
               component="div"
             >
-              {getMessage(message, ns, attribute)}
+              {getMessage({ message, ns, attribute })}
             </FormHelperText>
           </Animation>
         )}
