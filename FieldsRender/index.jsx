@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import compose from 'recompose/compose';
 import withStyles from '@material-ui/core/styles/withStyles';
 import Grid from '@material-ui/core/Grid';
-import { Translation } from 'react-i18next';
 import FormInput from '../FormInput/index';
 import InputValidator from '../../Validator/InputValidator';
 import { getMessage } from '../../MessagesTranslate/Animation';
