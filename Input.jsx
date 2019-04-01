@@ -31,12 +31,16 @@ class Input extends React.PureComponent {
       value,
       InputProps,
       waitTime,
+      fullWidth,
       ...rest
     } = this.props;
     const { state, message, ns, attribute } = error;
-    console.log(label, 34234323423);
     return (
-      <FormControl fullWidth>
+      <FormControl
+        {...{ fullWidth }}
+        className={classes.formControl}
+        variant="outlined"
+      >
         <TextField
           onBlur={() => {
             this.animation = false;
@@ -61,7 +65,7 @@ class Input extends React.PureComponent {
               return child;
             },
           }}
-          helperText={getMessage(message, ns, attribute)}
+          helperText={getMessage({ message, ns, attribute })}
           InputProps={InputProps}
           onChange={({ target }) => {
             const { value: targetValue } = target;
@@ -83,10 +87,12 @@ const styles = theme => ({
     paddingTop: theme.spacing.unit * 2,
     paddingBottom: theme.spacing.unit * 2,
   },
+  formControl: {},
 });
 
 Input.propTypes = {
-  label: PropTypes.string.isRequired,
+  label: PropTypes.oneOfType([PropTypes.string, PropTypes.object])
+    .isRequired,
   name: PropTypes.string.isRequired,
   type: PropTypes.oneOf([
     'text',
@@ -100,7 +106,8 @@ Input.propTypes = {
   error: PropTypes.object,
   InputProps: PropTypes.object,
   waitTime: PropTypes.bool,
-  classes: PropTypes.object.isRequired,
+  fullWidth: PropTypes.bool,
+  classes: PropTypes.object,
   handleChange: PropTypes.func.isRequired,
 };
 
@@ -113,6 +120,7 @@ Input.defaultProps = {
     message: '',
   },
   waitTime: true,
+  fullWidth: true,
   autoComplete: '',
   InputProps: {},
 };
