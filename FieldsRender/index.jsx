@@ -6,6 +6,7 @@ import Grid from '@material-ui/core/Grid';
 import { Translation } from 'react-i18next';
 import FormInput from '../FormInput/index';
 import InputValidator from '../../Validator/InputValidator';
+import { getMessage } from '../../MessagesTranslate/Animation';
 
 class FieldRender extends React.PureComponent {
   static propTypes = {
@@ -36,6 +37,10 @@ class FieldRender extends React.PureComponent {
     error: PropTypes.shape({
       state: PropTypes.bool,
       message: PropTypes.string,
+    }),
+    actions: PropTypes.shape({
+      onDelete: PropTypes.func,
+      onAdd: PropTypes.func,
     }),
     render: PropTypes.bool,
     sm: PropTypes.number,
@@ -114,26 +119,30 @@ class FieldRender extends React.PureComponent {
   }
 
   handleChange = ({ target, waitTime = false }) => {
-    const { validation } = this.props;
-    const { validChange, validate } = this.state;
-    const { value } = target;
-    this.setState(
-      {
-        value,
-        error: this.verifyError({
-          validation,
+    if (waitTime) {
+      const { validation } = this.props;
+      const { validChange, validate } = this.state;
+      const { value } = target;
+      this.setState(
+        {
           value,
-          validChange,
-          changed: true,
-          validate,
-        }),
-      },
-      () => {
-        if (!waitTime) {
-          this.sendChange();
-        }
-      },
-    );
+          error: this.verifyError({
+            validation,
+            value,
+            validChange,
+            changed: true,
+            validate,
+          }),
+        },
+        () => {
+          if (!waitTime) {
+            this.sendChange();
+          }
+        },
+      );
+    } else {
+      this.props.handleChange({ target });
+    }
   };
 
   validateField = () => {
@@ -195,6 +204,7 @@ class FieldRender extends React.PureComponent {
       accept,
       extensions,
       component,
+      actions,
     } = this.props;
     const { message = name, ns: nsLabel = ns } = label;
     if (!state) return null;
@@ -203,31 +213,32 @@ class FieldRender extends React.PureComponent {
     if (transPosition !== '') transPosition += '.';
     return (
       <Grid item sm={sm} md={md} lg={lg} xs={xs}>
-        <Translation ns={nsLabel}>
-          {t => (
-            <FormInput
-              error={error}
-              {...{
-                ns,
-                name,
-                value,
-                type,
-                search,
-                waitTime,
-                validateField: this.validateField,
-                searchId,
-                serverConfig,
-                transPosition,
-                label: t(`${transPosition}${message}`),
-                helpMessage,
-                handleChange: this.handleChange,
-                accept,
-                extensions,
-                component,
-              }}
-            />
-          )}
-        </Translation>
+        <FormInput
+          error={error}
+          label={getMessage({
+            message: `${transPosition}${message}`,
+            ns: nsLabel,
+            styles: { top: '-8px', position: 'absolute' },
+          })}
+          {...{
+            ns,
+            name,
+            value,
+            type,
+            search,
+            waitTime,
+            validateField: this.validateField,
+            searchId,
+            serverConfig,
+            transPosition,
+            helpMessage,
+            handleChange: this.handleChange,
+            accept,
+            extensions,
+            component,
+            actions,
+          }}
+        />
       </Grid>
     );
   }
