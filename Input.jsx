@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import compose from 'recompose/compose';
+import classNames from 'classnames';
 import withStyles from '@material-ui/core/styles/withStyles';
 import TextField from '@material-ui/core/TextField';
 import FormControl from '@material-ui/core/FormControl';
@@ -10,6 +11,10 @@ import {
 } from '../MessagesTranslate/Animation';
 
 class Input extends React.PureComponent {
+  state = {
+    blur: this.props.type !== 'date',
+  };
+
   animation = true;
 
   componentDidUpdate(newProps) {
@@ -32,14 +37,30 @@ class Input extends React.PureComponent {
       InputProps,
       waitTime,
       fullWidth,
+      className,
+      disabled,
+      autoComplete,
       ...rest
     } = this.props;
-    const { state, message, ns, attribute } = error;
+    const { state, message, ns, props } = error;
+    const { blur } = this.state;
     return (
       <FormControl
         {...{ fullWidth }}
         className={classes.formControl}
         variant="outlined"
+        onFocus={() => {
+          if (!value) {
+            setTimeout(() => {
+              this.setState({ blur: false });
+            }, 100);
+          }
+        }}
+        onBlur={() => {
+          if (!value) {
+            this.setState({ blur: true });
+          }
+        }}
       >
         <TextField
           onBlur={() => {
@@ -64,9 +85,19 @@ class Input extends React.PureComponent {
               }
               return child;
             },
+            style: {},
           }}
-          helperText={getMessage({ message, ns, attribute })}
+          helperText={getMessage({ message, ns, props })}
           InputProps={InputProps}
+          InputLabelProps={{
+            shrink: this.props.type === 'date' ? true : undefined,
+            FormLabelClasses: {
+              root: classNames(classes.InputLabelProps, {
+                [classes.widthFull]: !blur,
+                [classes.widthNormal]: blur,
+              }),
+            },
+          }}
           onChange={({ target }) => {
             const { value: targetValue } = target;
             handleChange({
@@ -74,7 +105,12 @@ class Input extends React.PureComponent {
               waitTime,
             });
           }}
-          {...rest}
+          value={value}
+          {...{
+            className,
+            disabled,
+            autoComplete,
+          }}
         />
       </FormControl>
     );
@@ -88,6 +124,13 @@ const styles = theme => ({
     paddingBottom: theme.spacing.unit * 2,
   },
   formControl: {},
+  widthFull: { width: '133%' },
+  widthNormal: { width: '100%' },
+  InputLabelProps: {
+    overflow: 'hidden',
+    whiteSpace: 'nowrap',
+    textOverflow: 'ellipsis',
+  },
 });
 
 Input.propTypes = {
@@ -115,7 +158,7 @@ Input.defaultProps = {
   type: 'text',
   error: {
     ns: 'validations',
-    attribute: '',
+    props: '',
     state: false,
     message: '',
   },
@@ -125,19 +168,4 @@ Input.defaultProps = {
   InputProps: {},
 };
 
-// eslint-disable-next-line react/no-multi-comp
-class InputSwitch extends React.PureComponent {
-  render() {
-    const { type } = this.props;
-    if (type === 'date') {
-      return (
-        <Input InputLabelProps={{ shrink: true }} {...this.props} />
-      );
-    }
-    return <Input {...this.props} />;
-  }
-}
-
-export default compose(withStyles(styles, { name: 'Input' }))(
-  InputSwitch,
-);
+export default compose(withStyles(styles, { name: 'Input' }))(Input);
