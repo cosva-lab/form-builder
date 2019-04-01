@@ -20,10 +20,15 @@ class FieldRender extends React.PureComponent {
       PropTypes.bool,
     ]),
     label: PropTypes.shape({
-      message: PropTypes.string.isRequired,
+      message: PropTypes.string,
       ns: PropTypes.string,
       notPos: PropTypes.bool,
     }).isRequired,
+    subLabel: PropTypes.shape({
+      message: PropTypes.string,
+      ns: PropTypes.string,
+      notPos: PropTypes.bool,
+    }),
     search: PropTypes.shape({
       state: PropTypes.bool.isRequired,
       value: PropTypes.number.isRequired,
@@ -47,13 +52,15 @@ class FieldRender extends React.PureComponent {
     lg: PropTypes.number,
     xs: PropTypes.number,
     waitTime: PropTypes.bool,
-    accept: PropTypes.string,
     component: PropTypes.oneOfType([
       PropTypes.func,
       PropTypes.node,
       PropTypes.object,
     ]),
+    accept: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
     extensions: PropTypes.array,
+    validateExtensions: PropTypes.bool,
+    validateAccept: PropTypes.bool,
   };
 
   static defaultProps = {
@@ -199,13 +206,22 @@ class FieldRender extends React.PureComponent {
       ns,
       searchId,
       serverConfig,
+      subLabel,
       type,
       accept,
       extensions,
       component,
       actions,
+      validation,
+      validateExtensions,
+      validateAccept,
     } = this.props;
-    const { message = name, ns: nsLabel = ns } = label;
+    const { message = name, ns: nsLabel = ns, props } = label;
+    const {
+      message: messageSubLabel = '',
+      ns: nsSubLabel = ns,
+      props: propsSubLabel,
+    } = subLabel || {};
     if (!state) return null;
     if (render) return { ...render, key: FieldRenderKey };
     let { transPosition = '' } = this.props;
@@ -218,6 +234,13 @@ class FieldRender extends React.PureComponent {
             message: `${transPosition}${message}`,
             ns: nsLabel,
             styles: { top: '-8px', position: 'absolute' },
+            props,
+          })}
+          subLabel={getMessage({
+            message: `${transPosition}${messageSubLabel}`,
+            ns: nsSubLabel,
+            styles: { top: '-8px', position: 'absolute' },
+            propsSubLabel,
           })}
           {...{
             ns,
@@ -236,6 +259,9 @@ class FieldRender extends React.PureComponent {
             extensions,
             component,
             actions,
+            validation,
+            validateExtensions,
+            validateAccept,
           }}
         />
       </Grid>
