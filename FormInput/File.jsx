@@ -60,32 +60,42 @@ class File extends React.PureComponent {
   static propTypes = {
     label: PropTypes.oneOfType([PropTypes.string, PropTypes.object])
       .isRequired,
-    subLabel: PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.object,
-    ]).isRequired,
+    extraProps: PropTypes.shape({
+      subLabel: PropTypes.shape({
+        message: PropTypes.string,
+        ns: PropTypes.string,
+        notPos: PropTypes.bool,
+      }),
+      message: PropTypes.string,
+      props: PropTypes.object,
+      accept: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.array,
+      ]),
+      extensions: PropTypes.array,
+      multiple: PropTypes.bool,
+      validateExtensions: PropTypes.bool,
+      validateAccept: PropTypes.bool,
+    }),
     name: PropTypes.string.isRequired,
     type: PropTypes.string.isRequired,
-    accept: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
-    extensions: PropTypes.array,
-    autoComplete: PropTypes.string,
     value: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
     error: PropTypes.object,
     InputProps: PropTypes.object,
     classes: PropTypes.object,
     waitTime: PropTypes.bool,
-    multiple: PropTypes.bool,
-    validateExtensions: PropTypes.bool,
-    validateAccept: PropTypes.bool,
     handleChange: PropTypes.func.isRequired,
     validateField: PropTypes.func,
+    ns: PropTypes.string,
   };
 
   static defaultProps = {
-    accept: '*',
-    extensions: ['.*'],
-    validateExtensions: true,
-    validateAccept: true,
+    extraProps: {
+      accept: '*',
+      extensions: ['.*'],
+      validateExtensions: true,
+      validateAccept: true,
+    },
   };
 
   state = { fileName: '', value: [], styles: {} };
@@ -164,12 +174,13 @@ class File extends React.PureComponent {
   };
 
   validateFile(fileName) {
+    const { extraProps } = this.props;
     const {
-      validateExtensions,
-      validateAccept,
+      validateExtensions = true,
+      validateAccept = true,
       extensions,
-    } = this.props;
-    let { accept } = this.props;
+    } = extraProps;
+    let { accept } = extraProps;
     if (typeof accept === 'string') {
       accept = [accept];
     }
@@ -182,7 +193,9 @@ class File extends React.PureComponent {
       Boolean(
         accept.find(a => {
           if (!lookup(fileName)) return false;
-          return lookup(fileName).match(new RegExp(`${a}.*`));
+          return lookup(fileName).match(
+            new RegExp(`${a.replace(/(\.\*|\.|\*)$/, '')}.*`),
+          );
         }),
       );
 
@@ -232,18 +245,26 @@ class File extends React.PureComponent {
   render() {
     const {
       classes,
-      multiple,
       error,
-      validateField,
       label,
-      subLabel,
+      extraProps,
+      validateField,
+      ns,
     } = this.props;
-    let { accept } = this.props;
+    const { multiple, subLabel } = extraProps;
+
+    const {
+      message: messageSubLabel = '',
+      ns: nsSubLabel = ns,
+      props: propsSubLabel,
+    } = subLabel || {};
+
+    let { accept } = extraProps;
     if (typeof accept === 'string') {
       accept = [accept];
     }
     const { styles, value } = this.state;
-    const { state, message, ns, props } = error;
+    const { state, message, ns: nsError, props } = error;
     return (
       <React.Fragment>
         <Paper
@@ -343,7 +364,12 @@ class File extends React.PureComponent {
                       inline={false}
                       variant="h6"
                     >
-                      {subLabel}
+                      {getMessage({
+                        message: `${messageSubLabel}`,
+                        ns: nsSubLabel,
+                        styles: { top: '-8px', position: 'absolute' },
+                        propsSubLabel,
+                      })}
                     </Typography>
                   </React.Fragment>
                 )}
@@ -470,7 +496,7 @@ class File extends React.PureComponent {
               }}
               component="div"
             >
-              {getMessage({ message, ns, props })}
+              {getMessage({ message, ns: nsError, props })}
             </FormHelperText>
           </Animation>
         )}

@@ -24,11 +24,6 @@ class FieldRender extends React.PureComponent {
       ns: PropTypes.string,
       notPos: PropTypes.bool,
     }).isRequired,
-    subLabel: PropTypes.shape({
-      message: PropTypes.string,
-      ns: PropTypes.string,
-      notPos: PropTypes.bool,
-    }),
     search: PropTypes.shape({
       state: PropTypes.bool.isRequired,
       value: PropTypes.number.isRequired,
@@ -57,10 +52,7 @@ class FieldRender extends React.PureComponent {
       PropTypes.node,
       PropTypes.object,
     ]),
-    accept: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
-    extensions: PropTypes.array,
-    validateExtensions: PropTypes.bool,
-    validateAccept: PropTypes.bool,
+    extraProps: PropTypes.object,
   };
 
   static defaultProps = {
@@ -206,22 +198,13 @@ class FieldRender extends React.PureComponent {
       ns,
       searchId,
       serverConfig,
-      subLabel,
       type,
-      accept,
-      extensions,
       component,
       actions,
       validation,
-      validateExtensions,
-      validateAccept,
+      extraProps,
     } = this.props;
     const { message = name, ns: nsLabel = ns, props } = label;
-    const {
-      message: messageSubLabel = '',
-      ns: nsSubLabel = ns,
-      props: propsSubLabel,
-    } = subLabel || {};
     if (!state) return null;
     if (render) return { ...render, key: FieldRenderKey };
     let { transPosition = '' } = this.props;
@@ -236,12 +219,6 @@ class FieldRender extends React.PureComponent {
             styles: { top: '-8px', position: 'absolute' },
             props,
           })}
-          subLabel={getMessage({
-            message: `${transPosition}${messageSubLabel}`,
-            ns: nsSubLabel,
-            styles: { top: '-8px', position: 'absolute' },
-            propsSubLabel,
-          })}
           {...{
             ns,
             name,
@@ -255,13 +232,10 @@ class FieldRender extends React.PureComponent {
             transPosition,
             helpMessage,
             handleChange: this.handleChange,
-            accept,
-            extensions,
             component,
             actions,
             validation,
-            validateExtensions,
-            validateAccept,
+            extraProps,
           }}
         />
       </Grid>

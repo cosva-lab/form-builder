@@ -5,6 +5,7 @@ import withStyles from '@material-ui/core/styles/withStyles';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import Input from '../Input';
+import AutoComplete from './autoComplete';
 import DropdownList from '../../DropdownList/DropdownList';
 import File from './File';
 import ListSwitch from './listSwitch';
@@ -23,7 +24,6 @@ class FormInput extends React.PureComponent {
       multiple,
       InputProps,
       label,
-      subLabel,
       helpMessage,
       handleChange,
       type,
@@ -39,12 +39,11 @@ class FormInput extends React.PureComponent {
       component,
       disabled,
       classes,
-      accept,
       extensions,
       actions,
       validation,
-      validateExtensions,
-      validateAccept,
+      extraProps,
+      ns,
       ...propsRest
     } = this.props;
     const { state, message } = error;
@@ -59,6 +58,7 @@ class FormInput extends React.PureComponent {
           <Input
             className={classes.input}
             {...{
+              ns,
               waitTime,
               InputProps,
               label,
@@ -75,22 +75,20 @@ class FormInput extends React.PureComponent {
         return (
           <File
             {...{
+              ns,
               validateField,
               multiple,
               waitTime,
               InputProps,
               label,
-              subLabel,
               name,
               value,
               type,
               error,
               disabled,
               handleChange,
-              accept,
               extensions,
-              validateExtensions,
-              validateAccept,
+              extraProps,
             }}
           />
         );
@@ -98,6 +96,7 @@ class FormInput extends React.PureComponent {
         return (
           <ListSwitch
             {...{
+              ns,
               validateField,
               multiple,
               waitTime,
@@ -109,7 +108,6 @@ class FormInput extends React.PureComponent {
               error,
               disabled,
               handleChange,
-              accept,
               extensions,
             }}
           />
@@ -129,7 +127,25 @@ class FormInput extends React.PureComponent {
             message={message}
             onChange={handleChange}
             disabled={disabled}
-            {...{ ...propsRest, label, name }}
+            {...{ ns, ...propsRest, label, name }}
+          />
+        );
+      case 'autoComplete':
+        return (
+          <AutoComplete
+            {...{
+              ns,
+              extraProps,
+              waitTime,
+              InputProps,
+              label,
+              name,
+              value,
+              type,
+              error,
+              disabled,
+              handleChange,
+            }}
           />
         );
       case 'table':
@@ -137,7 +153,7 @@ class FormInput extends React.PureComponent {
       /* return (
           <BoxForm
             value={value}
-            {...{ ...propsRest, label, name }}
+            {...{ns, ...propsRest, label, name }}
             onChange={handleChange}
           />
         ); */
@@ -145,6 +161,7 @@ class FormInput extends React.PureComponent {
         return (
           <Chips
             {...{
+              ns,
               waitTime,
               actions,
               InputProps,
@@ -207,7 +224,9 @@ class FormInput extends React.PureComponent {
 FormInput.propTypes = {
   helpMessage: PropTypes.bool,
   InputProps: PropTypes.object,
+  extraProps: PropTypes.object,
   actions: PropTypes.object,
+  props: PropTypes.object,
   validation: PropTypes.array.isRequired,
   type: PropTypes.oneOf([
     'time',
@@ -219,6 +238,7 @@ FormInput.propTypes = {
     'password',
     'list',
     'table',
+    'autoComplete',
     'chips',
     'checkbox',
     'component',
@@ -240,10 +260,7 @@ FormInput.propTypes = {
     state: PropTypes.bool,
     value: PropTypes.number,
   }),
-  accept: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
   extensions: PropTypes.array,
-  validateExtensions: PropTypes.bool,
-  validateAccept: PropTypes.bool,
   classes: PropTypes.shape({ input: PropTypes.string }),
   disabled: PropTypes.bool,
   multiple: PropTypes.bool,
@@ -264,6 +281,7 @@ FormInput.defaultProps = {
   helpMessage: true,
   waitTime: true,
   InputProps: {},
+  extraProps: {},
   route: '',
 };
 
