@@ -11,7 +11,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import CancelIcon from '@material-ui/icons/Cancel';
 import { emphasize } from '@material-ui/core/styles/colorManipulator';
 
-const styles = ({ spacing, palette, zIndex: { modal } }) => ({
+const styles = ({ spacing, palette }) => ({
   input: {
     display: 'flex',
     padding: 0,
@@ -19,7 +19,7 @@ const styles = ({ spacing, palette, zIndex: { modal } }) => ({
   valueContainer: {
     display: 'flex',
     flexWrap: 'wrap',
-    flex: modal + 1,
+    flex: 1,
     alignItems: 'center',
     overflow: 'hidden',
   },
@@ -192,19 +192,17 @@ class AutoComplete extends React.Component {
     const { multiple, options } = extraProps;
     const selectStyles = {
       witdh: 100,
-      input: base => {
-        return {
-          ...base,
-          color: theme.palette.text.primary,
-          '& input': {
-            font: 'inherit',
-          },
-        };
-      },
-      menu: base => {
-        console.log(base);
-        return { margin: 432432 };
-      },
+      input: base => ({
+        ...base,
+        color: theme.palette.text.primary,
+        '& input': {
+          font: 'inherit',
+        },
+      }),
+      menuPortal: base => ({
+        ...base,
+        zIndex: theme.zIndex.modal + 1,
+      }),
     };
     if (multiple) {
       return (
