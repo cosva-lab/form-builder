@@ -12,12 +12,6 @@ import ListSwitch from './listSwitch';
 import Chips from './Chips';
 /* import BoxForm from '../Table/BoxForm'; */
 
-const styles = theme => ({
-  input: {
-    marginBottom: theme.spacing.unit * 0,
-  },
-});
-
 class FormInput extends React.PureComponent {
   render() {
     const {
@@ -38,7 +32,6 @@ class FormInput extends React.PureComponent {
       renderItem,
       component,
       disabled,
-      classes,
       extensions,
       actions,
       validation,
@@ -56,7 +49,6 @@ class FormInput extends React.PureComponent {
       case 'date':
         return (
           <Input
-            className={classes.input}
             {...{
               ns,
               waitTime,
@@ -202,16 +194,7 @@ class FormInput extends React.PureComponent {
         }
         if (typeof component === 'function') {
           return React.createElement(component, {
-            waitTime,
-            InputProps,
-            label,
-            name,
-            value,
-            type,
-            error,
-            validation,
-            disabled,
-            handleChange,
+            ...this.props,
           });
         }
         return null;
@@ -261,7 +244,6 @@ FormInput.propTypes = {
     value: PropTypes.number,
   }),
   extensions: PropTypes.array,
-  classes: PropTypes.shape({ input: PropTypes.string }),
   disabled: PropTypes.bool,
   multiple: PropTypes.bool,
   component: PropTypes.oneOfType([
@@ -285,6 +267,4 @@ FormInput.defaultProps = {
   route: '',
 };
 
-export default compose(withStyles(styles, { name: 'formInput' }))(
-  FormInput,
-);
+export default compose()(FormInput);

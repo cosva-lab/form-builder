@@ -10,6 +10,8 @@ import Chip from '@material-ui/core/Chip';
 import MenuItem from '@material-ui/core/MenuItem';
 import CancelIcon from '@material-ui/icons/Cancel';
 import { emphasize } from '@material-ui/core/styles/colorManipulator';
+import NoSsr from '@material-ui/core/NoSsr';
+/* import MenuList from '@material-ui/core/MenuList'; */
 
 const styles = ({ spacing, palette }) => ({
   input: {
@@ -56,18 +58,6 @@ const styles = ({ spacing, palette }) => ({
     height: spacing.unit * 2,
   },
 });
-
-function NoOptionsMessage(props) {
-  return (
-    <Typography
-      color="textSecondary"
-      className={props.selectProps.classes.noOptionsMessage}
-      {...props.innerProps}
-    >
-      {props.children}
-    </Typography>
-  );
-}
 
 function inputComponent({ inputRef, ...props }) {
   return <div ref={inputRef} {...props} />;
@@ -168,7 +158,6 @@ const components = {
   Control,
   Menu,
   MultiValue,
-  NoOptionsMessage,
   Option,
   Placeholder,
   SingleValue,
@@ -189,7 +178,22 @@ class AutoComplete extends React.Component {
 
   render() {
     const { classes, theme, extraProps } = this.props;
-    const { multiple, options } = extraProps;
+    const {
+      multiple,
+      options,
+      filterOption = undefined,
+      onKeyDown,
+      inputValue,
+      NoOptionsMessage = props => (
+        <Typography
+          color="textSecondary"
+          className={props.selectProps.classes.noOptionsMessage}
+          {...props.innerProps}
+        >
+          {props.children}
+        </Typography>
+      ),
+    } = extraProps;
     const selectStyles = {
       witdh: 100,
       input: base => ({
@@ -206,37 +210,47 @@ class AutoComplete extends React.Component {
     };
     if (multiple) {
       return (
+        <NoSsr>
+          <Select
+            classes={classes}
+            styles={selectStyles}
+            menuPortalTarget={document.querySelector(
+              '.MuiDialogContent-root-302',
+            )}
+            textFieldProps={{
+              label: 'Label',
+              InputLabelProps: {
+                shrink: true,
+              },
+            }}
+            options={options}
+            components={{ ...components, NoOptionsMessage }}
+            value={this.state.multi}
+            onChange={this.handleChange('multi')}
+            placeholder="Select multiple countries"
+            isMulti
+            defaultInputValue={inputValue}
+          />
+        </NoSsr>
+      );
+    }
+    return (
+      <NoSsr>
         <Select
           classes={classes}
           styles={selectStyles}
           menuPortalTarget={document.body}
-          textFieldProps={{
-            label: 'Label',
-            InputLabelProps: {
-              shrink: true,
-            },
-          }}
           options={options}
-          components={components}
-          value={this.state.multi}
-          onChange={this.handleChange('multi')}
-          placeholder="Select multiple countries"
-          isMulti
+          components={{ ...components, NoOptionsMessage }}
+          value={this.state.single}
+          onChange={this.handleChange('single')}
+          onKeyDown={onKeyDown}
+          placeholder="Search a country (start with a)"
+          isClearable
+          filterOption={filterOption}
+          defaultInputValue={inputValue}
         />
-      );
-    }
-    return (
-      <Select
-        classes={classes}
-        styles={selectStyles}
-        menuPortalTarget={document.body}
-        options={options}
-        components={components}
-        value={this.state.single}
-        onChange={this.handleChange('single')}
-        placeholder="Search a country (start with a)"
-        isClearable
-      />
+      </NoSsr>
     );
   }
 }
@@ -247,11 +261,15 @@ AutoComplete.propTypes = {
   extraProps: PropTypes.shape({
     multiple: PropTypes.string,
     options: PropTypes.array,
+    NoOptionsMessage: PropTypes.func,
   }),
 };
 
 AutoComplete.default = {
-  extraProps: { multiple: false, options: [] },
+  extraProps: {
+    multiple: false,
+    options: [],
+  },
 };
 
 export default withStyles(styles, { withTheme: true })(AutoComplete);
