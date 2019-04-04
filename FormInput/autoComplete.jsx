@@ -177,7 +177,14 @@ class AutoComplete extends React.Component {
   };
 
   render() {
-    const { classes, theme, extraProps } = this.props;
+    const {
+      classes,
+      theme,
+      extraProps,
+      name,
+      value,
+      handleChange,
+    } = this.props;
     const {
       multiple,
       options,
@@ -225,7 +232,7 @@ class AutoComplete extends React.Component {
             }}
             options={options}
             components={{ ...components, NoOptionsMessage }}
-            value={this.state.multi}
+            value={value}
             onChange={this.handleChange('multi')}
             placeholder="Select multiple countries"
             isMulti
@@ -242,13 +249,14 @@ class AutoComplete extends React.Component {
           menuPortalTarget={document.body}
           options={options}
           components={{ ...components, NoOptionsMessage }}
-          value={this.state.single}
-          onChange={this.handleChange('single')}
+          value={value}
+          onChange={option => {
+            handleChange({ target: { name, value: option } });
+          }}
           onKeyDown={onKeyDown}
           placeholder="Search a country (start with a)"
           isClearable
           filterOption={filterOption}
-          defaultInputValue={inputValue}
         />
       </NoSsr>
     );

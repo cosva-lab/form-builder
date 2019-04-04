@@ -11,6 +11,7 @@ class FieldRender extends React.PureComponent {
   static propTypes = {
     helpMessage: PropTypes.bool,
     handleChange: PropTypes.func.isRequired,
+    actionsExtra: PropTypes.object,
     name: PropTypes.string.isRequired,
     type: PropTypes.string,
     value: PropTypes.any,
@@ -187,6 +188,7 @@ class FieldRender extends React.PureComponent {
     const { lg = md } = this.props;
     const { xs = lg } = this.props;
     const {
+      actionsExtra,
       name,
       label,
       search,
@@ -220,6 +222,7 @@ class FieldRender extends React.PureComponent {
             props,
           })}
           {...{
+            actionsExtra,
             ns,
             name,
             value,
@@ -258,6 +261,7 @@ class FieldsRender extends React.PureComponent {
       fields,
       validate,
       handleChange,
+      actionsExtra,
       ns,
       transPosition,
       allProps,
@@ -337,6 +341,7 @@ class FieldsRender extends React.PureComponent {
             label,
             helpMessage,
             validate,
+            actionsExtra,
             handleChange,
             search,
           }}
@@ -352,6 +357,7 @@ class FieldsRender extends React.PureComponent {
 
 FieldsRender.propTypes = {
   handleChange: PropTypes.func.isRequired,
+  actionsExtra: PropTypes.object,
   validate: PropTypes.bool.isRequired,
   ns: PropTypes.string,
   transPosition: PropTypes.oneOfType([

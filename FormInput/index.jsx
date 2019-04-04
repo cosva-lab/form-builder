@@ -15,6 +15,7 @@ import Chips from './Chips';
 class FormInput extends React.PureComponent {
   render() {
     const {
+      actionsExtra,
       multiple,
       InputProps,
       label,
@@ -190,7 +191,9 @@ class FormInput extends React.PureComponent {
         );
       case 'component':
         if (React.isValidElement(component)) {
-          return component;
+          return React.cloneElement(component, {
+            ...this.props,
+          });
         }
         if (typeof component === 'function') {
           return React.createElement(component, {
@@ -228,6 +231,7 @@ FormInput.propTypes = {
     'listSwitch',
   ]),
   handleChange: PropTypes.func,
+  actionsExtra: PropTypes.object,
   validateField: PropTypes.func,
   error: PropTypes.shape({
     state: PropTypes.bool,
@@ -238,7 +242,11 @@ FormInput.propTypes = {
   label: PropTypes.oneOfType([PropTypes.string, PropTypes.object])
     .isRequired,
   name: PropTypes.string,
-  value: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
+  value: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.array,
+    PropTypes.object,
+  ]),
   search: PropTypes.shape({
     state: PropTypes.bool,
     value: PropTypes.number,
