@@ -251,7 +251,9 @@ class AutoComplete extends React.Component {
           components={{ ...components, NoOptionsMessage }}
           value={value}
           onChange={option => {
-            handleChange({ target: { name, value: option } });
+            handleChange({
+              target: { name, value: option, type: 'autoComplete' },
+            });
           }}
           onKeyDown={onKeyDown}
           placeholder="Search a country (start with a)"
