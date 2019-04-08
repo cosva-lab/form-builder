@@ -100,6 +100,7 @@ function Option(props) {
 function Placeholder(props) {
   return (
     <Typography
+      component="div"
       color="textSecondary"
       className={props.selectProps.classes.placeholder}
       {...props.innerProps}
@@ -165,10 +166,7 @@ const components = {
 };
 
 class AutoComplete extends React.Component {
-  state = {
-    single: null,
-    multi: null,
-  };
+  state = {};
 
   handleChange = name => value => {
     this.setState({
@@ -182,7 +180,8 @@ class AutoComplete extends React.Component {
       theme,
       extraProps,
       name,
-      value,
+      label,
+      value: optionValue,
       handleChange,
     } = this.props;
     const {
@@ -201,6 +200,7 @@ class AutoComplete extends React.Component {
         </Typography>
       ),
     } = extraProps;
+    const { value } = optionValue || {};
     const selectStyles = {
       witdh: 100,
       input: base => ({
@@ -249,14 +249,18 @@ class AutoComplete extends React.Component {
           menuPortalTarget={document.body}
           options={options}
           components={{ ...components, NoOptionsMessage }}
-          value={value}
+          value={value ? optionValue : null}
           onChange={option => {
             handleChange({
-              target: { name, value: option, type: 'autoComplete' },
+              target: {
+                name,
+                value: option,
+                type: 'autoComplete',
+              },
             });
           }}
           onKeyDown={onKeyDown}
-          placeholder="Search a country (start with a)"
+          placeholder={label}
           isClearable
           filterOption={filterOption}
         />
