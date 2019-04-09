@@ -30,7 +30,7 @@ class FieldRender extends React.PureComponent {
       value: PropTypes.number.isRequired,
     }),
     validate: PropTypes.bool.isRequired,
-    validation: PropTypes.array.isRequired,
+    validation: PropTypes.array,
     changed: PropTypes.bool,
     validChange: PropTypes.bool,
     state: PropTypes.bool,

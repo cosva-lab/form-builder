@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import compose from 'recompose/compose';
-import withStyles from '@material-ui/core/styles/withStyles';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import Input from '../Input';
@@ -213,7 +212,7 @@ FormInput.propTypes = {
   extraProps: PropTypes.object,
   actions: PropTypes.object,
   props: PropTypes.object,
-  validation: PropTypes.array.isRequired,
+  validation: PropTypes.array,
   type: PropTypes.oneOf([
     'time',
     'text',
