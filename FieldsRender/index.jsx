@@ -42,7 +42,7 @@ class FieldRender extends React.PureComponent {
       onDelete: PropTypes.func,
       onAdd: PropTypes.func,
     }),
-    render: PropTypes.bool,
+    render: PropTypes.func,
     sm: PropTypes.number,
     md: PropTypes.number,
     lg: PropTypes.number,
@@ -208,39 +208,46 @@ class FieldRender extends React.PureComponent {
     } = this.props;
     const { message = name, ns: nsLabel = ns, props } = label;
     if (!state) return null;
-    if (render) return { ...render, key: FieldRenderKey };
     let { transPosition = '' } = this.props;
     if (transPosition !== '') transPosition += '.';
+    const formInput = (
+      <FormInput
+        error={error}
+        label={getMessage({
+          message: `${transPosition}${message}`,
+          ns: nsLabel,
+          styles: { top: '-8px', position: 'absolute' },
+          props,
+        })}
+        {...{
+          actionsExtra,
+          ns,
+          name,
+          value,
+          type,
+          search,
+          waitTime,
+          validateField: this.validateField,
+          searchId,
+          serverConfig,
+          transPosition,
+          helpMessage,
+          handleChange: this.handleChange,
+          component,
+          actions,
+          validation,
+          extraProps,
+        }}
+      />
+    );
+    if (render) {
+      return render({
+        children: formInput,
+      });
+    }
     return (
       <Grid item sm={sm} md={md} lg={lg} xs={xs}>
-        <FormInput
-          error={error}
-          label={getMessage({
-            message: `${transPosition}${message}`,
-            ns: nsLabel,
-            styles: { top: '-8px', position: 'absolute' },
-            props,
-          })}
-          {...{
-            actionsExtra,
-            ns,
-            name,
-            value,
-            type,
-            search,
-            waitTime,
-            validateField: this.validateField,
-            searchId,
-            serverConfig,
-            transPosition,
-            helpMessage,
-            handleChange: this.handleChange,
-            component,
-            actions,
-            validation,
-            extraProps,
-          }}
-        />
+        {formInput}
       </Grid>
     );
   }

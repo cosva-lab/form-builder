@@ -173,20 +173,17 @@ class File extends React.PureComponent {
     );
   };
 
-  validateFile(fileName) {
-    const { extraProps } = this.props;
-    const {
-      validateExtensions = true,
-      validateAccept = true,
-      extensions,
-    } = extraProps;
-    let { accept } = extraProps;
+  convertToRegex(param) {
+    return new RegExp(`${param}(?=(?:[^"]*"[^"]*")*(?![^"]*"))`);
+  }
+
+  convertAccept(param) {
+    let accept = param;
     if (typeof accept === 'string') {
-      const regex = '(?=(?:[^"]*"[^"]*")*(?![^"]*"))';
-      if (new RegExp(`,${regex}`).test(accept)) {
+      if (this.convertToRegex(',').test(accept)) {
         accept = [...accept.split(',')];
       }
-      if (new RegExp(`|${regex}`).test(accept)) {
+      if (this.convertToRegex('|').test(accept)) {
         if (Array.isArray(accept)) {
           accept = [...accept.join('').split('|')];
         } else {
@@ -194,6 +191,18 @@ class File extends React.PureComponent {
         }
       }
     }
+    return accept;
+  }
+
+  validateFile(fileName) {
+    const { extraProps } = this.props;
+    const {
+      validateExtensions = true,
+      validateAccept = true,
+      extensions,
+    } = extraProps;
+    const accept = this.convertAccept(extraProps.accept);
+
     const hasExtensions = () =>
       new RegExp(
         `(${extensions.join('|').replace(/\./g, '\\.')})$`,
@@ -269,10 +278,8 @@ class File extends React.PureComponent {
       props: propsSubLabel,
     } = subLabel || {};
 
-    let { accept } = extraProps;
-    if (typeof accept === 'string') {
-      accept = [accept];
-    }
+    const accept = this.convertAccept(extraProps.accept);
+
     const { styles, value } = this.state;
     const { state, message, ns: nsError, props } = error;
     return (
