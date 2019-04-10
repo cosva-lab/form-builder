@@ -182,7 +182,17 @@ class File extends React.PureComponent {
     } = extraProps;
     let { accept } = extraProps;
     if (typeof accept === 'string') {
-      accept = [accept];
+      const regex = '(?=(?:[^"]*"[^"]*")*(?![^"]*"))';
+      if (new RegExp(`,${regex}`).test(accept)) {
+        accept = [...accept.split(',')];
+      }
+      if (new RegExp(`|${regex}`).test(accept)) {
+        if (Array.isArray(accept)) {
+          accept = [...accept.join('').split('|')];
+        } else {
+          accept = [...accept.split('|')];
+        }
+      }
     }
     const hasExtensions = () =>
       new RegExp(
@@ -287,7 +297,7 @@ class File extends React.PureComponent {
             borderBottom: state ? '2px solid #f44336' : undefined,
           }}
         >
-          <Paper elevation={2}>
+          <Paper elevation={0}>
             <Grid
               onDragEnter={this.preventDefault}
               onDragLeave={e => {
