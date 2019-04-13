@@ -1,13 +1,13 @@
-import React from "react";
-import PropTypes from "prop-types";
-import compose from "recompose/compose";
-import { withStyles } from "@material-ui/core/styles";
-import Grid from "@material-ui/core/Grid";
-import Button from "@material-ui/core/Button";
-import FieldsRender from "../../Forms/FieldsRender/index";
-import InputsValidator from "../../Validator/InputsValidator";
-import { renderFields } from "../../../reducers/Actions/index";
-import MessagesTranslate from "../../MessagesTranslate";
+import React from 'react';
+import PropTypes from 'prop-types';
+import compose from 'recompose/compose';
+import withStyles from '@material-ui/core/styles/withStyles';
+import Grid from '@material-ui/core/Grid';
+import Button from '@material-ui/core/Button';
+import FieldsRender from '../../Forms/FieldsRender/index';
+import InputsValidator from '../../Validator/InputsValidator';
+import { renderFields } from '../../../reducers/Actions/index';
+import MessagesTranslate from '../../MessagesTranslate';
 
 const styles = theme => ({});
 
@@ -18,7 +18,7 @@ class BoxStacker extends React.Component {
     const { fields } = props;
     this.state = {
       fields: renderFields({ fields }),
-      validate: false
+      validate: false,
     };
   }
 
@@ -33,11 +33,11 @@ class BoxStacker extends React.Component {
           ...fields,
           [name]: {
             ...fields[name],
-            error: { state: false, message: "" },
+            error: { state: false, message: '' },
             changed: true,
-            value: value
-          }
-        }
+            value: value,
+          },
+        },
       };
     });
   };
@@ -48,14 +48,14 @@ class BoxStacker extends React.Component {
     const { fields } = state;
     if (
       !new InputsValidator().validate({
-        step: { fields }
+        step: { fields },
       })
     ) {
       this.setState((state, props) => {
         const { fields } = state;
         return {
           ...state,
-          validate: true
+          validate: true,
         };
       });
     } else {
@@ -79,9 +79,9 @@ class BoxStacker extends React.Component {
           <Grid
             container
             spacing={16}
-            alignItems={"center"}
-            direction={"row"}
-            justify={"center"}
+            alignItems={'center'}
+            direction={'row'}
+            justify={'center'}
           >
             <Button
               variant="outlined"
@@ -97,4 +97,6 @@ class BoxStacker extends React.Component {
   }
 }
 
-export default compose(withStyles(styles, { name: "Bookings" }))(BoxStacker);
+export default compose(withStyles(styles, { name: 'Bookings' }))(
+  BoxStacker,
+);

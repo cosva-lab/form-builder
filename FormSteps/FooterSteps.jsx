@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import compose from "recompose/compose";
-import { withStyles } from "@material-ui/core/styles";
+import withStyles from '@material-ui/core/styles/withStyles';
 
 import Button from "@material-ui/core/Button";
 import CardActions from "@material-ui/core/CardActions";
