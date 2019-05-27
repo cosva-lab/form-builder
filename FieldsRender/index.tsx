@@ -214,7 +214,7 @@ class FieldRender extends React.PureComponent {
       <FormInput
         error={error}
         label={getMessage({
-          message: `${transPosition}${message}`,
+          label: `${transPosition}${message}`,
           ns: nsLabel,
           styles: { top: '-8px', position: 'absolute' },
           props,

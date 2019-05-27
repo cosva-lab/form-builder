@@ -87,7 +87,7 @@ class Input extends React.PureComponent {
             },
             style: {},
           }}
-          helperText={getMessage({ message, ns, props })}
+          helperText={getMessage({ label: message, ns, props })}
           InputProps={InputProps}
           InputLabelProps={{
             shrink: this.props.type === 'date' ? true : undefined,
