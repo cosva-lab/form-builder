@@ -2,25 +2,60 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import compose from 'recompose/compose';
 import classNames from 'classnames';
-import withStyles from '@material-ui/core/styles/withStyles';
+import withStyles, {
+  WithStyles,
+} from '@material-ui/core/styles/withStyles';
 import TextField from '@material-ui/core/TextField';
 import FormControl from '@material-ui/core/FormControl';
 import {
   Animation,
   getMessage,
 } from '../MessagesTranslate/Animation';
+import { InputProps } from '.';
+import { createStyles, Theme } from '@material-ui/core';
 
-class Input extends React.PureComponent {
+const styles = (theme: Theme) =>
+  createStyles({
+    root: {
+      ...theme.mixins.gutters(),
+      paddingTop: theme.spacing.unit * 2,
+      paddingBottom: theme.spacing.unit * 2,
+    },
+    formControl: {},
+    widthFull: { width: '133%' },
+    widthNormal: { width: '100%' },
+    InputLabelProps: {
+      overflow: 'hidden',
+      whiteSpace: 'nowrap',
+      textOverflow: 'ellipsis',
+    },
+  });
+
+interface AllProps extends InputProps, WithStyles<typeof styles> {}
+
+class Input extends React.PureComponent<AllProps, { blur: boolean }> {
+  static defaultProps: Partial<AllProps> = {
+    type: 'text',
+    error: {
+      ns: 'validations',
+      props: {},
+      state: false,
+      message: '',
+    },
+    waitTime: true,
+    fullWidth: true,
+    autoComplete: '',
+    InputProps: {},
+  };
+
   state = {
     blur: this.props.type !== 'date',
   };
 
   animation = true;
 
-  componentDidUpdate(newProps) {
-    const { state } = newProps.error;
-    const { state: stateProps } = this.props.error;
-    if (stateProps !== state) {
+  componentDidUpdate({ error }: InputProps) {
+    if (this.props.error!.state !== error!.state) {
       this.animation = true;
     }
   }
@@ -87,7 +122,7 @@ class Input extends React.PureComponent {
             },
             style: {},
           }}
-          helperText={getMessage({ label: message, ns, props })}
+          helperText={getMessage({ message: message, ns, props })}
           InputProps={InputProps}
           InputLabelProps={{
             shrink: this.props.type === 'date' ? true : undefined,
@@ -117,55 +152,6 @@ class Input extends React.PureComponent {
   }
 }
 
-const styles = theme => ({
-  root: {
-    ...theme.mixins.gutters(),
-    paddingTop: theme.spacing.unit * 2,
-    paddingBottom: theme.spacing.unit * 2,
-  },
-  formControl: {},
-  widthFull: { width: '133%' },
-  widthNormal: { width: '100%' },
-  InputLabelProps: {
-    overflow: 'hidden',
-    whiteSpace: 'nowrap',
-    textOverflow: 'ellipsis',
-  },
-});
-
-Input.propTypes = {
-  label: PropTypes.oneOfType([PropTypes.string, PropTypes.object])
-    .isRequired,
-  name: PropTypes.string.isRequired,
-  type: PropTypes.oneOf([
-    'text',
-    'number',
-    'email',
-    'date',
-    'password',
-  ]),
-  autoComplete: PropTypes.string,
-  value: PropTypes.string,
-  error: PropTypes.object,
-  InputProps: PropTypes.object,
-  waitTime: PropTypes.bool,
-  fullWidth: PropTypes.bool,
-  classes: PropTypes.object,
-  handleChange: PropTypes.func.isRequired,
-};
-
-Input.defaultProps = {
-  type: 'text',
-  error: {
-    ns: 'validations',
-    props: '',
-    state: false,
-    message: '',
-  },
-  waitTime: true,
-  fullWidth: true,
-  autoComplete: '',
-  InputProps: {},
-};
-
-export default compose(withStyles(styles, { name: 'Input' }))(Input);
+export default compose<AllProps, {}>(
+  withStyles(styles, { name: 'Input' }),
+)(Input);

@@ -382,7 +382,7 @@ class File extends React.PureComponent {
                       variant="h6"
                     >
                       {getMessage({
-                        label: `${messageSubLabel}`,
+                        message: `${messageSubLabel}`,
                         ns: nsSubLabel,
                         styles: { top: '-8px', position: 'absolute' },
                         propsSubLabel,
@@ -513,7 +513,7 @@ class File extends React.PureComponent {
               }}
               component="div"
             >
-              {getMessage({ label: message, ns: nsError, props })}
+              {getMessage({ message: message, ns: nsError, props })}
             </FormHelperText>
           </Animation>
         )}

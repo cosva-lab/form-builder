@@ -47,9 +47,11 @@ class Chips extends React.Component {
       value,
       name,
       actions: {
-        onDelete = ({ value, index }) => {
-          value.splice(index, 1);
-          return value;
+        extraProps: {
+          onDelete = ({ value, index }) => {
+            value.splice(index, 1);
+            return value;
+          },
         },
       },
     } = this.props;
@@ -109,7 +111,9 @@ class Chips extends React.Component {
               if (e.key === 'Enter') {
                 const addDefault = v => ({ label: v });
                 const {
-                  actions: { onAdd = addDefault },
+                  actions: {
+                    extraProps: { onAdd = addDefault },
+                  },
                 } = this.props;
                 let valueParsed = [...value, onAdd(input)];
                 if (!onAdd(input)) {

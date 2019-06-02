@@ -5,7 +5,7 @@ import withStyles from '@material-ui/core/styles/withStyles';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import FieldsRender from '../../Forms/FieldsRender/index';
-import InputsValidator from '../../Validator/InputsValidator';
+import InputsValidator from '../utils/validate/InputsValidator';
 import { renderFields } from '../../../reducers/Actions/index';
 import MessagesTranslate from '../../MessagesTranslate';
 

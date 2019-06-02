@@ -1,61 +1,25 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import compose from 'recompose/compose';
 import withStyles from '@material-ui/core/styles/withStyles';
 import Grid from '@material-ui/core/Grid';
 import FormInput from '../FormInput/index';
-import InputValidator from '../../Validator/InputValidator';
-import { getMessage } from '../../MessagesTranslate/Animation';
+import InputValidator from '../utils/validate/InputValidator';
+import {
+  getMessage,
+  Message,
+} from '../../MessagesTranslate/Animation';
+import {
+  FieldsRenderProps,
+  FieldRenderProps,
+  Validations,
+  Validate,
+  handleChangeFieldRender,
+} from '..';
 
-class FieldRender extends React.PureComponent {
-  static propTypes = {
-    helpMessage: PropTypes.bool,
-    handleChange: PropTypes.func.isRequired,
-    actionsExtra: PropTypes.object,
-    name: PropTypes.string.isRequired,
-    type: PropTypes.string,
-    value: PropTypes.any,
-    ns: PropTypes.string,
-    transPosition: PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.bool,
-    ]),
-    label: PropTypes.shape({
-      message: PropTypes.string,
-      ns: PropTypes.string,
-      notPos: PropTypes.bool,
-    }).isRequired,
-    search: PropTypes.shape({
-      state: PropTypes.bool.isRequired,
-      value: PropTypes.number.isRequired,
-    }),
-    validate: PropTypes.bool.isRequired,
-    validation: PropTypes.array,
-    changed: PropTypes.bool,
-    validChange: PropTypes.bool,
-    state: PropTypes.bool,
-    error: PropTypes.shape({
-      state: PropTypes.bool,
-      message: PropTypes.string,
-    }),
-    actions: PropTypes.shape({
-      onDelete: PropTypes.func,
-      onAdd: PropTypes.func,
-    }),
-    render: PropTypes.func,
-    sm: PropTypes.number,
-    md: PropTypes.number,
-    lg: PropTypes.number,
-    xs: PropTypes.number,
-    waitTime: PropTypes.bool,
-    component: PropTypes.oneOfType([
-      PropTypes.func,
-      PropTypes.node,
-      PropTypes.object,
-    ]),
-    extraProps: PropTypes.object,
-  };
-
+class FieldRender extends React.PureComponent<
+  FieldRenderProps,
+  Validations & { value: any; error: Message }
+> {
   static defaultProps = {
     ns: 'inputs',
     transPosition: false,
@@ -64,50 +28,30 @@ class FieldRender extends React.PureComponent {
       state: false,
       value: -1,
     },
-    helpMessage: true,
     waitTime: true,
   };
 
-  constructor(props) {
+  constructor(props: FieldRenderProps) {
     super(props);
-    const {
-      value,
-      changed,
-      validChange = false,
-      validate,
-      validation,
-      error,
-    } = props;
-    this.state = {
-      value,
-      validChange,
-      validate,
-      error: this.verifyError({
-        error,
-        validation,
-        value,
-        validChange,
-        changed,
-        validate,
-      }),
-    };
+    this.updateProps(props);
   }
 
-  componentWillReceiveProps(newProps) {
-    const {
-      value,
-      changed,
-      validChange = false,
-      validate,
-      validation,
-      error,
-    } = newProps;
+  componentWillReceiveProps(newProps: FieldRenderProps) {
+    this.updateProps(newProps);
+  }
+
+  public updateProps({
+    value,
+    changed,
+    validChange = false,
+    validate,
+    validation,
+  }: FieldRenderProps) {
     this.setState({
       value,
       validChange,
       validate,
       error: this.verifyError({
-        error,
         validation,
         value,
         validChange,
@@ -117,7 +61,10 @@ class FieldRender extends React.PureComponent {
     });
   }
 
-  handleChange = ({ target, waitTime = false }) => {
+  handleChange: handleChangeFieldRender = ({
+    target,
+    waitTime = false,
+  }) => {
     if (waitTime) {
       const { validation } = this.props;
       const { validChange, validate } = this.state;
@@ -165,20 +112,18 @@ class FieldRender extends React.PureComponent {
   };
 
   verifyError({
-    error = {},
-    validation,
+    validation = [],
     value,
     validChange,
     changed,
     validate,
-  }) {
-    if (error.state) return error;
+  }: Validate) {
     return new InputValidator(validation).validate({
       value,
       validChange,
       changed,
       validate,
-    }).error;
+    });
   }
 
   render() {
@@ -192,14 +137,10 @@ class FieldRender extends React.PureComponent {
       name,
       label,
       search,
-      helpMessage,
       state = true,
       waitTime,
-      FieldRenderKey,
       render = false,
       ns,
-      searchId,
-      serverConfig,
       type,
       component,
       actions,
@@ -208,30 +149,27 @@ class FieldRender extends React.PureComponent {
     } = this.props;
     const { message = name, ns: nsLabel = ns, props } = label;
     if (!state) return null;
-    let { transPosition = '' } = this.props;
+    let { transPosition } = label;
     if (transPosition !== '') transPosition += '.';
     const formInput = (
       <FormInput
-        error={error}
         label={getMessage({
-          label: `${transPosition}${message}`,
+          message: `${transPosition}${message}`,
           ns: nsLabel,
           styles: { top: '-8px', position: 'absolute' },
           props,
         })}
+        error={error}
         {...{
+          name,
+          type,
+          value,
           actionsExtra,
           ns,
-          name,
-          value,
-          type,
+          transPosition,
           search,
           waitTime,
           validateField: this.validateField,
-          searchId,
-          serverConfig,
-          transPosition,
-          helpMessage,
           handleChange: this.handleChange,
           component,
           actions,
@@ -244,6 +182,20 @@ class FieldRender extends React.PureComponent {
       return render({
         children: formInput,
       });
+    }
+    if (type === 'component') {
+      if (React.isValidElement(component)) {
+        return React.cloneElement(component, {
+          ...this.props,
+        });
+      }
+      if (typeof component === 'function') {
+        return React.createElement<FieldRenderProps>(
+          component,
+          this.props,
+        );
+      }
+      return null;
     }
     return (
       <Grid item sm={sm} md={md} lg={lg} xs={xs}>
@@ -262,7 +214,11 @@ const styles = theme => ({
 });
 
 // eslint-disable-next-line react/no-multi-comp
-class FieldsRender extends React.PureComponent {
+class FieldsRender extends React.PureComponent<FieldsRenderProps> {
+  static defaultProps = {
+    ns: 'inputs',
+    transPosition: '',
+  };
   renderForm = () => {
     const {
       fields,
@@ -271,35 +227,39 @@ class FieldsRender extends React.PureComponent {
       actionsExtra,
       ns,
       transPosition,
-      allProps,
     } = this.props;
     if (!fields) return null;
-    return Object.keys(fields).map(name => {
+    return fields.map(field => {
       let search = {
         state: false,
         value: -1,
       };
       const {
         label = {
-          message: name,
+          message: field.name,
           ns,
           notPos: !!transPosition,
         },
-      } = fields[name];
-      const { helpMessage = true, searchId, id } = fields[name];
-      if (searchId) {
-        let valueSearchId;
+      } = field;
+      let { extraProps } = field;
+      const { searchField, id } = extraProps || {
+        searchField: false,
+        id: null,
+      };
+      if (searchField) {
+        let valueSearchId: string | number;
         try {
-          switch (typeof searchId) {
+          switch (typeof searchField) {
             case 'string':
-              valueSearchId = searchId;
-              if (fields[valueSearchId]) {
+              valueSearchId = searchField;
+              const fieldFind = fields.find(
+                field => field.name == searchField,
+              );
+              if (fieldFind) {
                 search = {
-                  state: fields[valueSearchId].value !== '',
+                  state: fieldFind.value !== '',
                   value:
-                    fields[valueSearchId].value === ''
-                      ? -1
-                      : fields[valueSearchId].value,
+                    fieldFind.value === '' ? -1 : fieldFind.value,
                 };
               } else {
                 throw new Error(
@@ -308,10 +268,13 @@ class FieldsRender extends React.PureComponent {
               }
               break;
             case 'function':
-              valueSearchId = searchId(allProps);
-              search = {
-                state: true,
-                value: valueSearchId,
+              valueSearchId = searchField(fields);
+              extraProps = {
+                ...extraProps,
+                search: {
+                  state: true,
+                  value: valueSearchId,
+                },
               };
               break;
             default:
@@ -330,7 +293,7 @@ class FieldsRender extends React.PureComponent {
             };
           } else {
             throw new Error(
-              `El campo ${fields[name]} tiene valor no permitido!`,
+              `El campo ${field.name} tiene valor no permitido!`,
             );
           }
         } catch (e) {
@@ -339,14 +302,14 @@ class FieldsRender extends React.PureComponent {
       }
       return (
         <FieldRender
-          key={name}
+          key={field.name}
           ns={ns}
-          name={name}
+          name={field.name}
+          extraProps={extraProps}
           {...{
-            ...fields[name],
+            ...field,
             transPosition,
             label,
-            helpMessage,
             validate,
             actionsExtra,
             handleChange,
@@ -361,23 +324,6 @@ class FieldsRender extends React.PureComponent {
     return <React.Fragment>{this.renderForm()}</React.Fragment>;
   }
 }
-
-FieldsRender.propTypes = {
-  handleChange: PropTypes.func.isRequired,
-  actionsExtra: PropTypes.object,
-  validate: PropTypes.bool.isRequired,
-  ns: PropTypes.string,
-  transPosition: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.bool,
-  ]),
-  fields: PropTypes.object,
-};
-
-FieldsRender.defaultProps = {
-  ns: 'inputs',
-  transPosition: '',
-};
 
 export default compose(withStyles(styles, { name: 'FieldsRender' }))(
   FieldsRender,

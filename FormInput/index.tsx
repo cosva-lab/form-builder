@@ -9,37 +9,38 @@ import DropdownList from '../../DropdownList/DropdownList';
 import File from './File';
 import ListSwitch from './listSwitch';
 import Chips from './Chips';
+import { FormInputProps } from '..';
 /* import BoxForm from '../Table/BoxForm'; */
-
-class FormInput extends React.PureComponent {
+class FormInput extends React.PureComponent<FormInputProps> {
+  static defaultProps = {
+    type: 'text',
+    disabled: false,
+    multiple: true,
+    waitTime: true,
+    InputProps: {},
+    extraProps: {},
+    route: '',
+  };
   render() {
     const {
-      actionsExtra,
       multiple,
       InputProps,
       label,
-      helpMessage,
       handleChange,
       type,
       value,
       name,
       route,
-      searchId,
-      search,
       error,
       validateField,
       waitTime,
-      renderItem,
-      component,
       disabled,
-      extensions,
-      actions,
       validation,
       extraProps,
       ns,
+      fullWidth,
       ...propsRest
     } = this.props;
-    const { state, message } = error;
     switch (type) {
       case 'text':
       case 'number':
@@ -60,6 +61,7 @@ class FormInput extends React.PureComponent {
               error,
               disabled,
               handleChange,
+              fullWidth,
             }}
           />
         );
@@ -79,7 +81,6 @@ class FormInput extends React.PureComponent {
               error,
               disabled,
               handleChange,
-              extensions,
               extraProps,
             }}
           />
@@ -100,26 +101,21 @@ class FormInput extends React.PureComponent {
               error,
               disabled,
               handleChange,
-              extensions,
             }}
           />
         );
       case 'list':
         return (
           <DropdownList
-            search={search}
-            searchId={searchId}
-            fullWidth
-            route={route}
-            helpMessage={helpMessage}
-            renderItem={renderItem}
-            defaultValue={value}
+            fullWidth={true}
             value={value}
-            error={state}
-            message={message}
+            error={error}
             onChange={handleChange}
             disabled={disabled}
-            {...{ ns, ...propsRest, label, name }}
+            ns={ns}
+            label={label}
+            name={name}
+            extraProps={extraProps}
           />
         );
       case 'autoComplete':
@@ -155,7 +151,6 @@ class FormInput extends React.PureComponent {
             {...{
               ns,
               waitTime,
-              actions,
               InputProps,
               label,
               name,
@@ -188,90 +183,10 @@ class FormInput extends React.PureComponent {
             label={label}
           />
         );
-      case 'component':
-        if (React.isValidElement(component)) {
-          return React.cloneElement(component, {
-            ...this.props,
-          });
-        }
-        if (typeof component === 'function') {
-          return React.createElement(component, {
-            ...this.props,
-          });
-        }
-        return null;
       default:
         return null;
     }
   }
 }
-
-FormInput.propTypes = {
-  helpMessage: PropTypes.bool,
-  InputProps: PropTypes.object,
-  extraProps: PropTypes.object,
-  actions: PropTypes.object,
-  props: PropTypes.object,
-  validation: PropTypes.array,
-  type: PropTypes.oneOf([
-    'time',
-    'text',
-    'file',
-    'number',
-    'email',
-    'date',
-    'password',
-    'list',
-    'table',
-    'autoComplete',
-    'chips',
-    'checkbox',
-    'component',
-    'listSwitch',
-  ]),
-  handleChange: PropTypes.func,
-  actionsExtra: PropTypes.object,
-  validateField: PropTypes.func,
-  error: PropTypes.shape({
-    state: PropTypes.bool,
-    message: PropTypes.string,
-  }),
-  ns: PropTypes.string,
-  transPosition: PropTypes.string,
-  label: PropTypes.oneOfType([PropTypes.string, PropTypes.object])
-    .isRequired,
-  name: PropTypes.string,
-  value: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.array,
-    PropTypes.object,
-  ]),
-  search: PropTypes.shape({
-    state: PropTypes.bool,
-    value: PropTypes.number,
-  }),
-  extensions: PropTypes.array,
-  disabled: PropTypes.bool,
-  multiple: PropTypes.bool,
-  component: PropTypes.oneOfType([
-    PropTypes.func,
-    PropTypes.node,
-    PropTypes.object,
-  ]),
-  route: PropTypes.string,
-  waitTime: PropTypes.bool,
-  searchId: PropTypes.string,
-};
-
-FormInput.defaultProps = {
-  type: 'text',
-  disabled: false,
-  multiple: true,
-  helpMessage: true,
-  waitTime: true,
-  InputProps: {},
-  extraProps: {},
-  route: '',
-};
 
 export default compose()(FormInput);
