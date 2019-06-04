@@ -200,7 +200,9 @@ class FieldRender extends React.PureComponent<
       }
       if (typeof component === 'function') {
         return React.createElement<FormBuilder.FieldRender>(
-          component as React.FunctionComponent,
+          component as React.FunctionComponent<
+            FormBuilder.FieldRender
+          >,
           this.props,
         );
       }

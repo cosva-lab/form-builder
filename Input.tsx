@@ -123,7 +123,7 @@ class Input extends React.PureComponent<AllProps, { blur: boolean }> {
           InputProps={InputProps}
           InputLabelProps={{
             shrink: this.props.type === 'date' ? true : undefined,
-            FormLabelClasses: {
+            classes: {
               root: classNames(classes.InputLabelProps, {
                 [classes.widthFull]: !blur,
                 [classes.widthNormal]: blur,

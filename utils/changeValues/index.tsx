@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import produce from 'immer';
 import { PropsField, Step, InitialState } from '../../index';
 
-const changeValueField = ({ field, action }: any) => ({
+const changeValueField = ({ field, action }: any): PropsField => ({
   ...field,
   value: action.value,
   error: { state: false, message: '' },
@@ -10,12 +10,18 @@ const changeValueField = ({ field, action }: any) => ({
 });
 
 const changeValueFields = ({ fields, action }: any) =>
-  produce(fields, draft => {
-    draft[action.name] = changeValueField({
-      field: draft[action.name],
-      action,
-    });
-  });
+  produce(
+    fields,
+    (draft: PropsField[]): void => {
+      const index = draft
+        .map(({ name }) => name)
+        .indexOf(action.name);
+      draft[index] = changeValueField({
+        field: draft[index],
+        action,
+      });
+    },
+  );
 
 const changeValueSteps = ({ activeStep, steps, action }: any) => {
   const { fields, ...rest } = steps[activeStep];
