@@ -15,21 +15,21 @@ const styles = (theme: Theme) =>
       display: 'flex',
       alignItems: 'flex-end',
       flexWrap: 'wrap',
-      padding: theme.spacing.unit / 2,
+      padding: theme.spacing(1 / 2),
       borderBottom: '1px solid rgba(0, 0, 0, 0.42)',
     },
     chip: {
-      margin: theme.spacing.unit / 2,
+      margin: theme.spacing(1 / 2),
       width: '100%',
       flex: 0,
     },
     input: {
-      marginLeft: theme.spacing.unit * 1,
-      marginRight: theme.spacing.unit * 1,
+      marginLeft: theme.spacing(1),
+      marginRight: theme.spacing(1),
     },
     formControl: {
-      marginLeft: theme.spacing.unit * 1,
-      marginRight: theme.spacing.unit * 1,
+      marginLeft: theme.spacing(1),
+      marginRight: theme.spacing(1),
       flex: '1 1 10%',
     },
     labelChip: {

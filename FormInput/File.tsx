@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { CSSProperties } from 'react';
 import uuid from 'uuid';
 import { lookup } from 'mime-types';
 import FormHelperText from '@material-ui/core/FormHelperText';
@@ -27,7 +27,6 @@ import {
 } from '../../MessagesTranslate/Animation';
 import createStyles from '@material-ui/core/styles/createStyles';
 import { FormInputProps } from '..';
-import { CSSProperties } from 'jss/css';
 
 const PaperStyled: any = styled(Paper)(spacing);
 
@@ -51,8 +50,11 @@ const DefaultImage = ({ classes }: WithStyles<typeof styles>) => (
         color: 'rgba(51,51,51,0.4)',
       }}
       align="center"
-      inline={false}
-      component={BrokenImageIcon as React.ReactType<TypographyProps>}
+      component={
+        BrokenImageIcon as React.ElementType<
+          React.HTMLAttributes<HTMLElement>
+        >
+      }
       /* className="cosva-farm" */
       variant="h1"
     />
@@ -363,11 +365,10 @@ class FileInput extends React.PureComponent<Props, States> {
                         color: 'rgba(51,51,51,0.4)',
                       }}
                       align="center"
-                      inline={false}
                       variant="h2"
                       component={
-                        CloudUploadIcon as React.ReactType<
-                          TypographyProps
+                        CloudUploadIcon as React.ElementType<
+                          React.HTMLAttributes<HTMLElement>
                         >
                       }
                     />
@@ -376,7 +377,6 @@ class FileInput extends React.PureComponent<Props, States> {
                         color: 'rgba(51,51,51,0.4)',
                       }}
                       align="center"
-                      inline={false}
                       variant="h5"
                     >
                       {label}
@@ -386,7 +386,6 @@ class FileInput extends React.PureComponent<Props, States> {
                         color: 'rgba(51,51,51,0.4)',
                       }}
                       align="center"
-                      inline={false}
                       variant="h6"
                     >
                       {getMessage({
@@ -400,7 +399,7 @@ class FileInput extends React.PureComponent<Props, States> {
                 )}
                 {value.length > 0 && (
                   <React.Fragment>
-                    <Grid container spacing={16} alignItems="stretch">
+                    <Grid container spacing={4} alignItems="stretch">
                       {value.map(
                         (
                           { file, id }: any,
@@ -427,7 +426,7 @@ class FileInput extends React.PureComponent<Props, States> {
                                 >
                                   <Grid
                                     container
-                                    spacing={16}
+                                    spacing={4}
                                     style={{
                                       position: 'relative',
                                     }}

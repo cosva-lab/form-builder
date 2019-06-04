@@ -30,7 +30,7 @@ const styles = ({ spacing, palette }: Theme) =>
       overflow: 'hidden',
     },
     chip: {
-      margin: `${spacing.unit / 2}px ${spacing.unit / 4}px`,
+      margin: spacing(1 / 2, 1 / 4),
     },
     chipFocused: {
       backgroundColor: emphasize(
@@ -41,7 +41,7 @@ const styles = ({ spacing, palette }: Theme) =>
       ),
     },
     noOptionsMessage: {
-      padding: `${spacing.unit}px ${spacing.unit * 2}px`,
+      padding: spacing(1, 2),
     },
     singleValue: {
       fontSize: 16,
@@ -54,12 +54,12 @@ const styles = ({ spacing, palette }: Theme) =>
     paper: {
       position: 'absolute',
       zIndex: 1,
-      marginTop: spacing.unit,
+      marginTop: spacing(1),
       left: 0,
       right: 0,
     },
     divider: {
-      height: spacing.unit * 2,
+      height: spacing(2),
     },
   });
 
