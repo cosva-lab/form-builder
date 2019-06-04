@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import withStyles from '@material-ui/core/styles/withStyles';
+import withStyles, {
+  WithStyles,
+} from '@material-ui/core/styles/withStyles';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
@@ -10,21 +12,29 @@ import ListSubheader from '@material-ui/core/ListSubheader';
 import Switch from '@material-ui/core/Switch';
 import WifiIcon from '@material-ui/icons/Wifi';
 import BluetoothIcon from '@material-ui/icons/Bluetooth';
+import { Theme } from '@material-ui/core/styles/createMuiTheme';
+import createStyles from '@material-ui/core/styles/createStyles';
+import { InputPropsSwitchList } from '..';
 
-const styles = theme => ({
-  root: {
-    width: '100%',
-    maxWidth: 360,
-    backgroundColor: theme.palette.background.paper,
-  },
-});
+const styles = (theme: Theme) =>
+  createStyles({
+    root: {
+      width: '100%',
+      maxWidth: 360,
+      backgroundColor: theme.palette.background.paper,
+    },
+  });
 
-class SwitchListSecondary extends React.Component {
+interface Props
+  extends InputPropsSwitchList,
+    WithStyles<typeof styles> {}
+
+class SwitchListSecondary extends React.Component<Props> {
   state = {
     checked: ['wifi'],
   };
 
-  handleToggle = value => () => {
+  handleToggle = (value: string) => () => {
     const { checked } = this.state;
     const currentIndex = checked.indexOf(value);
     const newChecked = [...checked];
@@ -76,9 +86,5 @@ class SwitchListSecondary extends React.Component {
     );
   }
 }
-
-SwitchListSecondary.propTypes = {
-  classes: PropTypes.object.isRequired,
-};
 
 export default withStyles(styles)(SwitchListSecondary);

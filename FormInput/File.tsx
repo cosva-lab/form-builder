@@ -1,31 +1,37 @@
 import React from 'react';
 import uuid from 'uuid';
 import { lookup } from 'mime-types';
-import PropTypes from 'prop-types';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import Zoom from '@material-ui/core/Zoom';
 import Grow from '@material-ui/core/Grow';
 import IconButton from '@material-ui/core/IconButton';
 import ButtonBase from '@material-ui/core/ButtonBase';
 import compose from 'recompose/compose';
-import withStyles from '@material-ui/core/styles/withStyles';
+import withStyles, {
+  WithStyles,
+} from '@material-ui/core/styles/withStyles';
 import styled from 'styled-components';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 import BrokenImageIcon from '@material-ui/icons/BrokenImage';
 import Paper from '@material-ui/core/Paper';
-import Typography from '@material-ui/core/Typography';
+import Typography, {
+  TypographyProps,
+} from '@material-ui/core/Typography';
 import spacing from '@material-ui/system/spacing';
 import DeleteIcon from '@material-ui/icons/Delete';
 import {
   getMessage,
   Animation,
 } from '../../MessagesTranslate/Animation';
+import createStyles from '@material-ui/core/styles/createStyles';
+import { FormInputProps } from '..';
+import { CSSProperties } from 'jss/css';
 
-export const PaperStyled = styled(Paper)(spacing);
+const PaperStyled: any = styled(Paper)(spacing);
 
-const stylesComponent = () => ({
+const styles = createStyles({
   image: {
     width: 220,
     height: 125,
@@ -38,7 +44,7 @@ const stylesComponent = () => ({
   },
 });
 
-const DefaultImage = ({ classes }) => (
+const DefaultImage = ({ classes }: WithStyles<typeof styles>) => (
   <div className={classes.img}>
     <Typography
       style={{
@@ -46,87 +52,74 @@ const DefaultImage = ({ classes }) => (
       }}
       align="center"
       inline={false}
-      component={BrokenImageIcon}
+      component={BrokenImageIcon as React.ReactType<TypographyProps>}
       /* className="cosva-farm" */
       variant="h1"
     />
   </div>
 );
-DefaultImage.propTypes = {
-  classes: PropTypes.object,
-};
 
-class File extends React.PureComponent {
-  static propTypes = {
-    label: PropTypes.oneOfType([PropTypes.string, PropTypes.object])
-      .isRequired,
-    extraProps: PropTypes.shape({
-      subLabel: PropTypes.shape({
-        message: PropTypes.string,
-        ns: PropTypes.string,
-        notPos: PropTypes.bool,
-      }),
-      message: PropTypes.string,
-      props: PropTypes.object,
-      accept: PropTypes.oneOfType([
-        PropTypes.string,
-        PropTypes.array,
-      ]),
-      extensions: PropTypes.array,
-      multiple: PropTypes.bool,
-      validateExtensions: PropTypes.bool,
-      validateAccept: PropTypes.bool,
-    }),
-    name: PropTypes.string.isRequired,
-    type: PropTypes.string.isRequired,
-    value: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
-    error: PropTypes.object,
-    InputProps: PropTypes.object,
-    classes: PropTypes.object,
-    waitTime: PropTypes.bool,
-    handleChange: PropTypes.func.isRequired,
-    validateField: PropTypes.func,
-    ns: PropTypes.string,
-  };
+interface Props extends FormInputProps, WithStyles<typeof styles> {}
+interface States {
+  fileName: string;
+  value: {
+    file: File;
+    id: string;
+  }[];
+  styles: CSSProperties;
+}
+
+const defaultPropsExtra = {
+  accept: '*',
+  extensions: ['.*'],
+  validateExtensions: true,
+  validateAccept: true,
+  multiple: true,
+  subLabel: {
+    message: '',
+    ns: '',
+    props: {},
+  },
+};
+class FileInput extends React.PureComponent<Props, States> {
+  public inputOpenFileRef: React.RefObject<any> = React.createRef();
+
+  public state: States = { fileName: '', value: [], styles: {} };
 
   static defaultProps = {
-    extraProps: {
-      accept: '*',
-      extensions: ['.*'],
-      validateExtensions: true,
-      validateAccept: true,
-    },
+    extraProps: defaultPropsExtra,
   };
-
-  state = { fileName: '', value: [], styles: {} };
 
   animation = true;
 
   blurBool = true;
 
-  componentDidUpdate(newProps) {
-    const { state } = newProps.error;
-    const { state: stateProps } = this.props.error;
+  cmponentDidUpdate(newProps: Props) {
+    const state = this.props.error!.state;
+
+    const stateProps = newProps.error!.state;
+
     if (stateProps !== state) {
       this.animation = true;
     }
   }
 
-  inputOpenFileRef = React.createRef();
-
-  showOpenFileDlg = () => {
-    this.inputOpenFileRef.current.click();
+  OpenFileDialog = () => {
+    this.inputOpenFileRef.current!.click();
   };
 
-  handleChange = target => {
+  handleChange = (target: {
+    files: FileList | null;
+    value?: any;
+  }) => {
     this.setState(
       ({ value }) => {
-        const { name } = target.files[0];
+        const { name } = target.files![0];
         return {
           fileName: name,
           value: [
             ...value,
-            ...Array.from(target.files).map(file => ({
+            ...Array.from(target.files || []).map(file => ({
               file,
               id: uuid.v4(),
             })),
@@ -154,7 +147,7 @@ class File extends React.PureComponent {
     );
   };
 
-  deleteFile = index => {
+  deleteFile = (index: any) => {
     this.setState(
       ({ value }) => ({
         value: value.filter(({ id }) => id !== index),
@@ -173,17 +166,16 @@ class File extends React.PureComponent {
     );
   };
 
-  convertToRegex(param) {
+  convertToRegex(param: string) {
     return new RegExp(`${param}(?=(?:[^"]*"[^"]*")*(?![^"]*"))`);
   }
 
-  convertAccept(param) {
+  convertAccept(param: string | string[]): string[] {
     let accept = param;
     if (typeof accept === 'string') {
       if (this.convertToRegex(',').test(accept)) {
         accept = [...accept.split(',')];
-      }
-      if (this.convertToRegex('|').test(accept)) {
+      } else if (this.convertToRegex('|').test(accept)) {
         if (Array.isArray(accept)) {
           accept = [...accept.join('').split('|')];
         } else {
@@ -191,38 +183,43 @@ class File extends React.PureComponent {
         }
       }
     }
-    return accept;
+    return accept as string[];
   }
 
-  validateFile(fileName) {
-    const { extraProps } = this.props;
+  validateFile(fileName: string): boolean {
     const {
       validateExtensions = true,
       validateAccept = true,
-      extensions,
-    } = extraProps;
-    const accept = this.convertAccept(extraProps.accept);
-
-    const hasExtensions = () =>
+      accept: acceptFiles = '*',
+      extensions = ['*'],
+    } = this.props!.extraProps || {
+      validateExtensions: true,
+      validateAccept: true,
+      extensions: ['*'],
+    };
+    const accept = this.convertAccept(acceptFiles);
+    const hasExtensions = (): boolean =>
       new RegExp(
         `(${extensions.join('|').replace(/\./g, '\\.')})$`,
       ).test(fileName.toLowerCase());
 
     const acceptValidate = () =>
       Boolean(
-        accept.find(a => {
-          if (!lookup(fileName)) return false;
-          return lookup(fileName).match(
-            new RegExp(`${a.replace(/(\.\*|\.|\*)$/, '')}.*`),
-          );
-        }),
+        accept.find(
+          (a: string): boolean => {
+            if (!lookup(fileName)) return false;
+            return !!(lookup(fileName) || '').match(
+              new RegExp(`${a.replace(/(\.\*|\.|\*)$/, '')}.*`),
+            );
+          },
+        ),
       );
 
     if (validateExtensions && validateAccept) {
-      return hasExtensions && acceptValidate();
+      return hasExtensions() && acceptValidate();
     }
     if (validateExtensions && !validateAccept) {
-      return hasExtensions;
+      return hasExtensions();
     }
     if (!validateExtensions && validateAccept) {
       return acceptValidate();
@@ -230,11 +227,14 @@ class File extends React.PureComponent {
     return true;
   }
 
-  getExtension(fileName) {
-    return fileName.split('.').pop();
+  getExtension(fileName: string): string {
+    return fileName.split('.').pop() || '';
   }
 
-  getThumbnail(file, { invalid }) {
+  getThumbnail(
+    file: File,
+    { invalid }: { invalid: boolean },
+  ): React.ReactNode {
     const { classes } = this.props;
     const { name } = file;
     if (invalid) {
@@ -256,7 +256,7 @@ class File extends React.PureComponent {
     }
   }
 
-  preventDefault = evt => {
+  preventDefault = (evt: React.DragEvent<HTMLElement>) => {
     evt.preventDefault();
     evt.stopPropagation();
   };
@@ -266,22 +266,28 @@ class File extends React.PureComponent {
       classes,
       error,
       label,
-      extraProps,
       validateField,
       ns,
+      extraProps,
     } = this.props;
-    const { multiple, subLabel } = extraProps;
+    const { multiple, subLabel } = extraProps || defaultPropsExtra;
 
     const {
       message: messageSubLabel = '',
       ns: nsSubLabel = ns,
-      props: propsSubLabel,
-    } = subLabel || {};
+      props: propsSubLabel = {},
+    } = subLabel || defaultPropsExtra.subLabel;
 
-    const accept = this.convertAccept(extraProps.accept);
-
+    const accept = this.convertAccept(defaultPropsExtra.accept);
     const { styles, value } = this.state;
-    const { state, message, ns: nsError, props } = error;
+
+    const { state, message, ns: nsError, props } = error || {
+      state: false,
+      message: '',
+      ns: ns,
+      props: {},
+    };
+
     return (
       <React.Fragment>
         <Paper
@@ -293,9 +299,7 @@ class File extends React.PureComponent {
           onFocus={() => {
             if (!this.blurBool) {
               setTimeout(() => {
-                validateField({
-                  waitTime: false,
-                });
+                validateField();
               }, 100);
             }
           }}
@@ -340,12 +344,12 @@ class File extends React.PureComponent {
               container
               component={value.length === 0 ? ButtonBase : undefined}
               onClick={
-                value.length === 0 ? this.showOpenFileDlg : undefined
+                value.length === 0 ? this.OpenFileDialog : undefined
               }
               style={{
                 minHeight: '170px',
                 padding: '20px',
-                ...styles,
+                ...(styles as any),
               }}
               alignContent="center"
               alignItems="center"
@@ -361,7 +365,11 @@ class File extends React.PureComponent {
                       align="center"
                       inline={false}
                       variant="h2"
-                      component={CloudUploadIcon}
+                      component={
+                        CloudUploadIcon as React.ReactType<
+                          TypographyProps
+                        >
+                      }
                     />
                     <Typography
                       style={{
@@ -385,7 +393,7 @@ class File extends React.PureComponent {
                         message: `${messageSubLabel}`,
                         ns: nsSubLabel,
                         styles: { top: '-8px', position: 'absolute' },
-                        propsSubLabel,
+                        props: propsSubLabel,
                       })}
                     </Typography>
                   </React.Fragment>
@@ -393,93 +401,94 @@ class File extends React.PureComponent {
                 {value.length > 0 && (
                   <React.Fragment>
                     <Grid container spacing={16} alignItems="stretch">
-                      {value.map(({ file, id }, key) => {
-                        const { name: nameFile } = file;
-                        const invalid = !this.validateFile(nameFile);
-                        return (
-                          <Grid
-                            // eslint-disable-next-line react/no-array-index-key
-                            key={key}
-                            item
-                            {...(multiple && value.length > 1
-                              ? { sm: 6, md: 6, lg: 6, xs: true }
-                              : { xs: 12 })}
-                          >
-                            <Grow in>
-                              <PaperStyled
-                                p={{
-                                  xs: '1em',
-                                }}
-                              >
-                                <Grid
-                                  container
-                                  spacing={16}
-                                  style={{
-                                    position: 'relative',
+                      {value.map(
+                        (
+                          { file, id }: any,
+                          key: string | number | undefined,
+                        ) => {
+                          const { name: nameFile } = file;
+                          const invalid = !this.validateFile(
+                            nameFile,
+                          );
+                          return (
+                            <Grid
+                              // eslint-disable-next-line react/no-array-index-key
+                              key={key}
+                              item
+                              {...(multiple && value.length > 1
+                                ? { sm: 6, md: 6, lg: 6, xs: true }
+                                : { xs: 12 })}
+                            >
+                              <Grow in>
+                                <PaperStyled
+                                  p={{
+                                    xs: '1em',
                                   }}
                                 >
                                   <Grid
-                                    item
                                     container
-                                    xs={12}
-                                    justify="center"
-                                    component={ButtonBase}
+                                    spacing={16}
+                                    style={{
+                                      position: 'relative',
+                                    }}
                                   >
                                     <Grid
+                                      item
                                       container
-                                      className={classes.image}
-                                      onClick={() => {
-                                        this.setState({
-                                          slideIndex: key,
-                                          open: true,
-                                        });
-                                      }}
+                                      xs={12}
+                                      justify="center"
+                                      component={ButtonBase}
                                     >
-                                      {this.getThumbnail(file, {
-                                        invalid,
-                                      })}
+                                      <Grid
+                                        container
+                                        className={classes.image}
+                                      >
+                                        {this.getThumbnail(file, {
+                                          invalid,
+                                        })}
+                                      </Grid>
+                                    </Grid>
+                                    {invalid && (
+                                      <Zoom in>
+                                        <div
+                                          style={{
+                                            cursor: 'not-allowed',
+                                            width: '100%',
+                                            height: '100%',
+                                            position: 'absolute',
+                                            margin: 0,
+                                            alignItems: 'stretch',
+                                            opacity: 0.7,
+                                            background: '#ffc8c8',
+                                          }}
+                                        />
+                                      </Zoom>
+                                    )}
+                                    <Grid container justify="center">
+                                      <IconButton
+                                        aria-label="More"
+                                        aria-haspopup="true"
+                                        onClick={() =>
+                                          this.deleteFile(id)
+                                        }
+                                      >
+                                        <DeleteIcon />
+                                      </IconButton>
                                     </Grid>
                                   </Grid>
-                                  {invalid && (
-                                    <Zoom in>
-                                      <div
-                                        style={{
-                                          cursor: 'not-allowed',
-                                          width: '100%',
-                                          height: '100%',
-                                          position: 'absolute',
-                                          margin: '0',
-                                          alignItems: 'stretch',
-                                          opacity: '0.7',
-                                          background: '#ffc8c8',
-                                        }}
-                                      />
-                                    </Zoom>
-                                  )}
-                                  <Grid container justify="center">
-                                    <IconButton
-                                      aria-label="More"
-                                      aria-haspopup="true"
-                                      onClick={() =>
-                                        this.deleteFile(id)
-                                      }
-                                    >
-                                      <DeleteIcon />
-                                    </IconButton>
-                                  </Grid>
-                                </Grid>
-                              </PaperStyled>
-                            </Grow>
-                          </Grid>
-                        );
-                      })}
+                                </PaperStyled>
+                              </Grow>
+                            </Grid>
+                          );
+                        },
+                      )}
                     </Grid>
                   </React.Fragment>
                 )}
               </Grid>
             </Grid>
           </Paper>
-          <Grid container onClick={this.showOpenFileDlg}>
+          <Grid container onClick={this.OpenFileDialog}>
             <input
               ref={this.inputOpenFileRef}
               onChange={({ target }) => {
@@ -489,7 +498,7 @@ class File extends React.PureComponent {
               style={{
                 display: 'none',
               }}
-              multiple
+              multiple={multiple}
               type="file"
             />
             <Button
@@ -522,6 +531,6 @@ class File extends React.PureComponent {
   }
 }
 
-export default compose(
-  withStyles(stylesComponent, { name: 'FileInput' }),
-)(File);
+export default compose<Props, {}>(
+  withStyles(styles, { name: 'FileInput' }),
+)(FileInput);

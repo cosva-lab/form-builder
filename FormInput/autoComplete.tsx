@@ -1,8 +1,9 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React, { KeyboardEventHandler } from 'react';
 import classNames from 'classnames';
 import Select from 'react-select';
-import withStyles from '@material-ui/core/styles/withStyles';
+import withStyles, {
+  WithStyles,
+} from '@material-ui/core/styles/withStyles';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
 import Paper from '@material-ui/core/Paper';
@@ -11,59 +12,62 @@ import MenuItem from '@material-ui/core/MenuItem';
 import CancelIcon from '@material-ui/icons/Cancel';
 import { emphasize } from '@material-ui/core/styles/colorManipulator';
 import NoSsr from '@material-ui/core/NoSsr';
-/* import MenuList from '@material-ui/core/MenuList'; */
+import { Theme } from '@material-ui/core/styles/createMuiTheme';
+import createStyles from '@material-ui/core/styles/createStyles';
+import { InputPropsComplete, extraProps } from '..';
 
-const styles = ({ spacing, palette }) => ({
-  input: {
-    display: 'flex',
-    padding: 0,
-  },
-  valueContainer: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    flex: 1,
-    alignItems: 'center',
-    overflow: 'hidden',
-  },
-  chip: {
-    margin: `${spacing.unit / 2}px ${spacing.unit / 4}px`,
-  },
-  chipFocused: {
-    backgroundColor: emphasize(
-      palette.type === 'light'
-        ? palette.grey[300]
-        : palette.grey[700],
-      0.08,
-    ),
-  },
-  noOptionsMessage: {
-    padding: `${spacing.unit}px ${spacing.unit * 2}px`,
-  },
-  singleValue: {
-    fontSize: 16,
-  },
-  placeholder: {
-    position: 'absolute',
-    left: 2,
-    fontSize: 16,
-  },
-  paper: {
-    position: 'absolute',
-    zIndex: 1,
-    marginTop: spacing.unit,
-    left: 0,
-    right: 0,
-  },
-  divider: {
-    height: spacing.unit * 2,
-  },
-});
+const styles = ({ spacing, palette }: Theme) =>
+  createStyles({
+    input: {
+      display: 'flex',
+      padding: 0,
+    },
+    valueContainer: {
+      display: 'flex',
+      flexWrap: 'wrap',
+      flex: 1,
+      alignItems: 'center',
+      overflow: 'hidden',
+    },
+    chip: {
+      margin: `${spacing.unit / 2}px ${spacing.unit / 4}px`,
+    },
+    chipFocused: {
+      backgroundColor: emphasize(
+        palette.type === 'light'
+          ? palette.grey[300]
+          : palette.grey[700],
+        0.08,
+      ),
+    },
+    noOptionsMessage: {
+      padding: `${spacing.unit}px ${spacing.unit * 2}px`,
+    },
+    singleValue: {
+      fontSize: 16,
+    },
+    placeholder: {
+      position: 'absolute',
+      left: 2,
+      fontSize: 16,
+    },
+    paper: {
+      position: 'absolute',
+      zIndex: 1,
+      marginTop: spacing.unit,
+      left: 0,
+      right: 0,
+    },
+    divider: {
+      height: spacing.unit * 2,
+    },
+  });
 
-function inputComponent({ inputRef, ...props }) {
+function inputComponent({ inputRef, ...props }: any) {
   return <div ref={inputRef} {...props} />;
 }
 
-function Control(props) {
+function Control(props: any) {
   return (
     <TextField
       fullWidth
@@ -81,7 +85,7 @@ function Control(props) {
   );
 }
 
-function Option(props) {
+function Option(props: any) {
   return (
     <MenuItem
       buttonRef={props.innerRef}
@@ -97,7 +101,7 @@ function Option(props) {
   );
 }
 
-function Placeholder(props) {
+function Placeholder(props: any) {
   return (
     <Typography
       component="div"
@@ -110,7 +114,7 @@ function Placeholder(props) {
   );
 }
 
-function SingleValue(props) {
+function SingleValue(props: any) {
   return (
     <Typography
       className={props.selectProps.classes.singleValue}
@@ -121,7 +125,7 @@ function SingleValue(props) {
   );
 }
 
-function ValueContainer(props) {
+function ValueContainer(props: any) {
   return (
     <div className={props.selectProps.classes.valueContainer}>
       {props.children}
@@ -129,7 +133,7 @@ function ValueContainer(props) {
   );
 }
 
-function MultiValue(props) {
+function MultiValue(props: any) {
   return (
     <Chip
       tabIndex={-1}
@@ -143,7 +147,7 @@ function MultiValue(props) {
   );
 }
 
-function Menu(props) {
+function Menu(props: any) {
   return (
     <Paper
       square
@@ -165,10 +169,17 @@ const components = {
   ValueContainer,
 };
 
-class AutoComplete extends React.Component {
+interface Props
+  extends InputPropsComplete,
+    WithStyles<typeof styles, true> {}
+
+class AutoComplete extends React.Component<Props> {
+  static defaultProps = {
+    value: {},
+  };
   state = {};
 
-  handleChange = name => value => {
+  handleChange = (name: string) => (value: any) => {
     this.setState({
       [name]: value,
     });
@@ -182,6 +193,7 @@ class AutoComplete extends React.Component {
       name,
       label,
       value: optionValue,
+      defaultInputValue,
       handleChange,
     } = this.props;
     const {
@@ -189,8 +201,7 @@ class AutoComplete extends React.Component {
       options,
       filterOption = undefined,
       onKeyDown,
-      inputValue,
-      NoOptionsMessage = props => (
+      NoOptionsMessage = (props: any) => (
         <Typography
           color="textSecondary"
           className={props.selectProps.classes.noOptionsMessage}
@@ -199,18 +210,18 @@ class AutoComplete extends React.Component {
           {props.children}
         </Typography>
       ),
-    } = extraProps;
-    const { value } = optionValue || {};
+    } = extraProps as extraProps;
+    const { value } = optionValue || { value: '' };
     const selectStyles = {
       witdh: 100,
-      input: base => ({
+      input: (base: any) => ({
         ...base,
         color: theme.palette.text.primary,
         '& input': {
           font: 'inherit',
         },
       }),
-      menuPortal: base => ({
+      menuPortal: (base: any) => ({
         ...base,
         zIndex: theme.zIndex.modal + 1,
       }),
@@ -221,9 +232,7 @@ class AutoComplete extends React.Component {
           <Select
             classes={classes}
             styles={selectStyles}
-            menuPortalTarget={document.querySelector(
-              '.MuiDialogContent-root-302',
-            )}
+            menuPortalTarget={document.body}
             textFieldProps={{
               label: 'Label',
               InputLabelProps: {
@@ -231,12 +240,12 @@ class AutoComplete extends React.Component {
               },
             }}
             options={options}
-            components={{ ...components, NoOptionsMessage }}
+            components={{ ...(components as any), NoOptionsMessage }}
             value={value}
             onChange={this.handleChange('multi')}
             placeholder="Select multiple countries"
             isMulti
-            defaultInputValue={inputValue}
+            defaultInputValue={defaultInputValue}
           />
         </NoSsr>
       );
@@ -248,9 +257,9 @@ class AutoComplete extends React.Component {
           styles={selectStyles}
           menuPortalTarget={document.body}
           options={options}
-          components={{ ...components, NoOptionsMessage }}
+          components={{ ...(components as any), NoOptionsMessage }}
           value={value ? optionValue : null}
-          onChange={option => {
+          onChange={(option: any) => {
             handleChange({
               target: {
                 name,
@@ -260,7 +269,7 @@ class AutoComplete extends React.Component {
             });
           }}
           onKeyDown={onKeyDown}
-          placeholder={label}
+          placeholder={label as string}
           isClearable
           filterOption={filterOption}
         />
@@ -269,21 +278,7 @@ class AutoComplete extends React.Component {
   }
 }
 
-AutoComplete.propTypes = {
-  classes: PropTypes.object.isRequired,
-  theme: PropTypes.object.isRequired,
-  extraProps: PropTypes.shape({
-    multiple: PropTypes.string,
-    options: PropTypes.array,
-    NoOptionsMessage: PropTypes.func,
-  }),
-};
-
-AutoComplete.default = {
-  extraProps: {
-    multiple: false,
-    options: [],
-  },
-};
-
-export default withStyles(styles, { withTheme: true })(AutoComplete);
+export default withStyles(styles, {
+  name: 'AutoComplete',
+  withTheme: true,
+})(AutoComplete);

@@ -1,6 +1,7 @@
 import { Message } from './../MessagesTranslate/Animation';
 import { GridSize } from '@material-ui/core/Grid';
 import { OutlinedInputProps } from '@material-ui/core/OutlinedInput';
+
 export declare type EventField = {
   target: { name: string; value: value; type?: string };
 };
@@ -9,25 +10,30 @@ export declare type handleChange = (e: EventField) => void;
 
 export declare type value = any;
 export declare type transPosition = string | boolean;
+export declare type activeStep = number;
 
 export interface InitialState {
   id: number;
   ns: string;
   isNew: boolean;
-  activeStep: number;
+  activeStep: activeStep;
   validationState: boolean;
   validate: boolean;
   steps: Step[];
 }
 
+export interface FormStepsProps extends InitialState {
+  handleNextStep({ activeStep }: { activeStep: activeStep }): void;
+  handleBackStep({ activeStep }: { activeStep: activeStep }): void;
+}
+
 export interface FieldsRenderProps {
-  handleChange: handleChange;
-  actionsExtra: {};
+  fields: PropsField[];
+  actionsExtra?: {};
   state?: boolean;
   validate?: boolean;
   ns?: string;
-  transPosition: stransPosition;
-  fields: PropsField[];
+  transPosition?: transPosition;
 }
 
 export interface Step extends FieldsRenderProps {
@@ -108,7 +114,7 @@ declare type Rules =
 
 export interface Validation {
   rule: Rules;
-  state: boolean;
+  state?: boolean;
   message: string;
   ns?: string;
   props?: {};
@@ -123,7 +129,7 @@ export interface Validations {
 }
 
 export declare type handleChangeFieldRender = (
-  e: EventField & { waitTime: boolean },
+  e: EventField & { waitTime?: boolean },
 ) => void;
 
 export declare type extraProps = {
@@ -141,6 +147,22 @@ export declare type extraProps = {
     onDelete(e: any);
     onAdd(e: any);
   };
+  onKeyDown?(event: KeyboardEvent<Element>): void;
+  multiple?: boolean;
+  loading?: boolean;
+  options?: any;
+  NoOptionsMessage?: React.ReactNode;
+  filterOption?(
+    option: { label: string; value: string; data: any },
+    rawInput: string,
+  ): boolean;
+
+  accept?: string | string[];
+  extensions?: string[];
+  multiple?: boolean;
+  validateExtensions?: boolean;
+  validateAccept?: boolean;
+  subLabel?: Message;
 };
 
 export interface PropsField {
@@ -160,23 +182,26 @@ export interface PropsField {
     | 'checkbox'
     | 'component'
     | 'listSwitch';
-  label: Message & {
-    notPos: boolean;
-    transPosition?: transPosition;
-  };
   value: value;
-  ns: string;
+  defaultInputValue?: value;
+  validChange?: boolean;
+  validation?: Validation[];
+  label?:
+    | Message & {
+        notPos: boolean;
+        transPosition?: transPosition;
+      }
+    | string;
+  ns?: string;
   disabled?: boolean;
   waitTime?: boolean;
+  fullWidth?: boolean;
   transPosition?: transPosition;
-  handleChange: handleChange;
-  component?: React.ReactElement | React.FunctionComponent;
-  validChange: boolean;
-  validation: Validation[];
+  component?: React.ReactNode;
   changed?: boolean;
   error?: Message;
   state?: boolean;
-  serverError: string[] | string;
+  serverError?: string[] | string;
   extraProps?: extraProps;
   InputProps?: Partial<OutlinedInputProps>;
   inputProps?: OutlinedInputProps['inputProps'];
@@ -202,20 +227,42 @@ export declare type Validate = Validations & {
 };
 
 export interface FormInputProps extends PropsField {
-  label: React.ReactNode;
   multiple?: boolean;
-  component: React.ReactNode;
-  route: PropTypes.string;
-  fullWidth: boolean;
-  searchId: string;
+  route: string;
   handleChange: handleChangeFieldRender;
   validateField(): void;
 }
 
-export interface InputProps extends PropsField {
-  type: 'text' | 'number' | 'email' | 'date' | 'password';
-  autoComplete: string;
-  waitTime: boolean;
-  fullWidth: boolean;
+export interface BaseProps extends PropsField {
+  autoComplete?: string;
+  waitTime?: boolean;
   handleChange: handleChangeFieldRender;
+}
+
+export interface InputProps extends BaseProps {
+  type: 'text' | 'number' | 'email' | 'date' | 'password';
+}
+
+export interface InputPropsComplete extends BaseProps {
+  type: 'autoComplete';
+}
+
+export interface InputPropsChips extends BaseProps {
+  type: 'chips';
+}
+
+export interface InputPropsSwitchList extends BaseProps {
+  type: 'listSwitch';
+}
+
+export namespace FormBuilder {
+  interface BaseBuilder {
+    handleChange: handleChange;
+  }
+  export interface FieldsRender
+    extends FieldsRenderProps,
+      BaseBuilder {}
+  export interface FieldRender
+    extends FieldRenderProps,
+      BaseBuilder {}
 }

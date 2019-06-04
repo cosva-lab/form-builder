@@ -1,60 +1,64 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import withStyles from '@material-ui/core/styles/withStyles';
-import Chip from '@material-ui/core/Chip';
+import withStyles, {
+  WithStyles,
+} from '@material-ui/core/styles/withStyles';
+import Chip, { ChipProps } from '@material-ui/core/Chip';
 import InputBase from '@material-ui/core/InputBase';
+import { Theme } from '@material-ui/core/styles/createMuiTheme';
+import createStyles from '@material-ui/core/styles/createStyles';
+import { InputPropsChips } from '..';
 
-const styles = theme => ({
-  root: {
-    display: 'flex',
-    alignItems: 'flex-end',
-    flexWrap: 'wrap',
-    padding: theme.spacing.unit / 2,
-    borderBottom: '1px solid rgba(0, 0, 0, 0.42)',
-  },
-  chip: {
-    margin: theme.spacing.unit / 2,
-    width: '100%',
-    flex: 0,
-  },
-  input: {
-    marginLeft: theme.spacing.unit * 1,
-    marginRight: theme.spacing.unit * 1,
-  },
-  formControl: {
-    marginLeft: theme.spacing.unit * 1,
-    marginRight: theme.spacing.unit * 1,
-    flex: '1 1 10%',
-  },
-  labelChip: {
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    display: 'block',
-  },
-});
+const styles = (theme: Theme) =>
+  createStyles({
+    root: {
+      display: 'flex',
+      alignItems: 'flex-end',
+      flexWrap: 'wrap',
+      padding: theme.spacing.unit / 2,
+      borderBottom: '1px solid rgba(0, 0, 0, 0.42)',
+    },
+    chip: {
+      margin: theme.spacing.unit / 2,
+      width: '100%',
+      flex: 0,
+    },
+    input: {
+      marginLeft: theme.spacing.unit * 1,
+      marginRight: theme.spacing.unit * 1,
+    },
+    formControl: {
+      marginLeft: theme.spacing.unit * 1,
+      marginRight: theme.spacing.unit * 1,
+      flex: '1 1 10%',
+    },
+    labelChip: {
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+      display: 'block',
+    },
+  });
 
-class Chips extends React.Component {
+interface Props extends InputPropsChips, WithStyles<typeof styles> {}
+
+class Chips extends React.Component<
+  { value: ChipProps[] } & Props & ChipProps
+> {
   state = { input: '' };
 
-  deleteFlag = false;
+  public deleteFlag = false;
 
-  handleChange = props => {
+  public handleChange = (props: Props) => {
     console.log(props);
   };
 
-  handleDelete = index => () => {
-    const {
-      value,
-      name,
-      actions: {
-        extraProps: {
-          onDelete = ({ value, index }) => {
-            value.splice(index, 1);
-            return value;
-          },
-        },
-      },
-    } = this.props;
+  public handleDelete = (index: number) => () => {
+    const { value, name, extraProps } = this.props;
+    let onDelete = ({ value, index }: any) => {
+      value.splice(index, 1);
+      return value;
+    };
+    onDelete = extraProps!.actions!.onDelete || onDelete;
     this.props.handleChange({
       target: { name, value: onDelete({ value, index }) },
     });
@@ -75,7 +79,7 @@ class Chips extends React.Component {
     return (
       <React.Fragment>
         <div className={classes.root}>
-          {value.map((data, key) => {
+          {value.map((data: ChipProps, key: number) => {
             const {
               color = colorGeneral,
               icon = iconGeneral,
@@ -109,12 +113,10 @@ class Chips extends React.Component {
                 this.deleteFlag = false;
               }
               if (e.key === 'Enter') {
-                const addDefault = v => ({ label: v });
-                const {
-                  actions: {
-                    extraProps: { onAdd = addDefault },
-                  },
-                } = this.props;
+                const addDefault = (v: string) => ({ label: v });
+                const onAdd =
+                  this.props!.extraProps!.actions!.onAdd ||
+                  addDefault;
                 let valueParsed = [...value, onAdd(input)];
                 if (!onAdd(input)) {
                   console.error(
@@ -149,30 +151,5 @@ class Chips extends React.Component {
     );
   }
 }
-
-Chips.propTypes = {
-  classes: PropTypes.object.isRequired,
-  actions: PropTypes.shape({
-    onDelete: PropTypes.func,
-    onAdd: PropTypes.func,
-  }),
-  icon: PropTypes.node,
-  avatar: PropTypes.node,
-  variant: PropTypes.oneOf(['default', 'outlined']),
-  color: PropTypes.oneOf([
-    'inherit',
-    'primary',
-    'secondary',
-    'default',
-  ]),
-  handleChange: PropTypes.func,
-  label: PropTypes.string.isRequired,
-  name: PropTypes.string.isRequired,
-  autoComplete: PropTypes.string,
-  value: PropTypes.array,
-  error: PropTypes.object,
-  InputProps: PropTypes.object,
-  waitTime: PropTypes.bool,
-};
 
 export default withStyles(styles)(Chips);

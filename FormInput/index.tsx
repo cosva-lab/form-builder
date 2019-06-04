@@ -1,17 +1,20 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import compose from 'recompose/compose';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import Input from '../Input';
 import AutoComplete from './autoComplete';
 import DropdownList from '../../DropdownList/DropdownList';
-import File from './File';
+import FileInput from './File';
 import ListSwitch from './listSwitch';
 import Chips from './Chips';
 import { FormInputProps } from '..';
 /* import BoxForm from '../Table/BoxForm'; */
-class FormInput extends React.PureComponent<FormInputProps> {
+
+class FormInput extends React.PureComponent<
+  FormInputProps & {
+    label?: React.ReactNode | any;
+  }
+> {
   static defaultProps = {
     type: 'text',
     disabled: false,
@@ -35,7 +38,6 @@ class FormInput extends React.PureComponent<FormInputProps> {
       validateField,
       waitTime,
       disabled,
-      validation,
       extraProps,
       ns,
       fullWidth,
@@ -67,7 +69,7 @@ class FormInput extends React.PureComponent<FormInputProps> {
         );
       case 'file':
         return (
-          <File
+          <FileInput
             {...{
               ns,
               validateField,
@@ -172,11 +174,10 @@ class FormInput extends React.PureComponent<FormInputProps> {
                   const { target } = e;
                   const { name, checked, type } = target;
                   handleChange({
-                    target: { name, checked, type },
+                    target: { name, value: checked, type },
                   });
                 }}
                 name={name}
-                {...propsRest}
                 disabled={disabled}
               />
             }
@@ -189,4 +190,4 @@ class FormInput extends React.PureComponent<FormInputProps> {
   }
 }
 
-export default compose()(FormInput);
+export default FormInput;

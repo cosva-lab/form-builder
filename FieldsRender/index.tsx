@@ -1,6 +1,8 @@
-import React from 'react';
+import * as React from 'react';
 import compose from 'recompose/compose';
-import withStyles from '@material-ui/core/styles/withStyles';
+import withStyles, {
+  WithStyles,
+} from '@material-ui/core/styles/withStyles';
 import Grid from '@material-ui/core/Grid';
 import FormInput from '../FormInput/index';
 import InputValidator from '../utils/validate/InputValidator';
@@ -9,15 +11,16 @@ import {
   Message,
 } from '../../MessagesTranslate/Animation';
 import {
-  FieldsRenderProps,
-  FieldRenderProps,
+  FormBuilder,
   Validations,
   Validate,
   handleChangeFieldRender,
 } from '..';
+import { Theme } from '@material-ui/core/styles/createMuiTheme';
+import createStyles from '@material-ui/core/styles/createStyles';
 
 class FieldRender extends React.PureComponent<
-  FieldRenderProps,
+  FormBuilder.FieldRender,
   Validations & { value: any; error: Message }
 > {
   static defaultProps = {
@@ -31,12 +34,12 @@ class FieldRender extends React.PureComponent<
     waitTime: true,
   };
 
-  constructor(props: FieldRenderProps) {
+  constructor(props: FormBuilder.FieldRender) {
     super(props);
     this.updateProps(props);
   }
 
-  componentWillReceiveProps(newProps: FieldRenderProps) {
+  componentWillReceiveProps(newProps: FormBuilder.FieldRender) {
     this.updateProps(newProps);
   }
 
@@ -46,7 +49,7 @@ class FieldRender extends React.PureComponent<
     validChange = false,
     validate,
     validation,
-  }: FieldRenderProps) {
+  }: FormBuilder.FieldRender) {
     this.setState({
       value,
       validChange,
@@ -143,13 +146,21 @@ class FieldRender extends React.PureComponent<
       ns,
       type,
       component,
-      actions,
-      validation,
       extraProps,
     } = this.props;
-    const { message = name, ns: nsLabel = ns, props } = label;
+    let message,
+      props,
+      nsLabel = ns,
+      transPosition: string = '';
+    if (typeof label === 'string') {
+      message = label;
+    } else {
+      message = label!.message || name;
+      if (typeof label!.transPosition === 'string') {
+        transPosition = label!.transPosition || '';
+      }
+    }
     if (!state) return null;
-    let { transPosition } = label;
     if (transPosition !== '') transPosition += '.';
     const formInput = (
       <FormInput
@@ -172,8 +183,6 @@ class FieldRender extends React.PureComponent<
           validateField: this.validateField,
           handleChange: this.handleChange,
           component,
-          actions,
-          validation,
           extraProps,
         }}
       />
@@ -190,8 +199,8 @@ class FieldRender extends React.PureComponent<
         });
       }
       if (typeof component === 'function') {
-        return React.createElement<FieldRenderProps>(
-          component,
+        return React.createElement<FormBuilder.FieldRender>(
+          component as React.FunctionComponent,
           this.props,
         );
       }
@@ -205,21 +214,26 @@ class FieldRender extends React.PureComponent<
   }
 }
 
-const styles = theme => ({
-  root: {
-    ...theme.mixins.gutters(),
-    paddingTop: theme.spacing.unit * 2,
-    paddingBottom: theme.spacing.unit * 2,
-  },
-});
+const styles = (theme: Theme) =>
+  createStyles({
+    root: {
+      ...theme.mixins.gutters(),
+      paddingTop: theme.spacing.unit * 2,
+      paddingBottom: theme.spacing.unit * 2,
+    },
+  });
 
+interface AllFieldsRenderProps
+  extends FormBuilder.FieldsRender,
+    Partial<WithStyles<typeof styles>> {}
 // eslint-disable-next-line react/no-multi-comp
-class FieldsRender extends React.PureComponent<FieldsRenderProps> {
+class FieldsRender extends React.PureComponent<AllFieldsRenderProps> {
   static defaultProps = {
     ns: 'inputs',
     transPosition: '',
   };
-  renderForm = () => {
+
+  render() {
     const {
       fields,
       validate,
@@ -229,102 +243,106 @@ class FieldsRender extends React.PureComponent<FieldsRenderProps> {
       transPosition,
     } = this.props;
     if (!fields) return null;
-    return fields.map(field => {
-      let search = {
-        state: false,
-        value: -1,
-      };
-      const {
-        label = {
-          message: field.name,
-          ns,
-          notPos: !!transPosition,
-        },
-      } = field;
-      let { extraProps } = field;
-      const { searchField, id } = extraProps || {
-        searchField: false,
-        id: null,
-      };
-      if (searchField) {
-        let valueSearchId: string | number;
-        try {
-          switch (typeof searchField) {
-            case 'string':
-              valueSearchId = searchField;
-              const fieldFind = fields.find(
-                field => field.name == searchField,
-              );
-              if (fieldFind) {
-                search = {
-                  state: fieldFind.value !== '',
-                  value:
-                    fieldFind.value === '' ? -1 : fieldFind.value,
+    return (
+      <React.Fragment>
+        {fields.map(field => {
+          let search = {
+            state: false,
+            value: -1,
+          };
+          const {
+            label = {
+              message: field.name,
+              ns,
+              notPos: !!transPosition,
+            },
+          } = field;
+          let { extraProps } = field;
+          const { searchField, id } = extraProps || {
+            searchField: false,
+            id: null,
+          };
+          if (searchField) {
+            let valueSearchId: string | number;
+            try {
+              switch (typeof searchField) {
+                case 'string':
+                  valueSearchId = searchField;
+                  const fieldFind = fields.find(
+                    field => field.name == searchField,
+                  );
+                  if (fieldFind) {
+                    search = {
+                      state: fieldFind.value !== '',
+                      value:
+                        fieldFind.value === '' ? -1 : fieldFind.value,
+                    };
+                  } else {
+                    throw new Error(
+                      `El input "${field.name}" no existe!`,
+                    );
+                  }
+                  break;
+                case 'function':
+                  valueSearchId = searchField(fields);
+                  extraProps = {
+                    ...extraProps,
+                    search: {
+                      state: true,
+                      value: valueSearchId,
+                    },
+                  };
+                  break;
+                default:
+                  break;
+              }
+            } catch (e) {
+              console.log(e);
+            }
+          } else if (id) {
+            try {
+              // eslint-disable-next-line no-restricted-globals
+              if (id && !isNaN(Number(id))) {
+                extraProps = {
+                  ...extraProps,
+                  search: {
+                    state: true,
+                    value: Number(id),
+                  },
                 };
               } else {
                 throw new Error(
-                  `El input "${valueSearchId}" no existe!`,
+                  `El campo ${field.name} tiene valor no permitido!`,
                 );
               }
-              break;
-            case 'function':
-              valueSearchId = searchField(fields);
-              extraProps = {
-                ...extraProps,
-                search: {
-                  state: true,
-                  value: valueSearchId,
-                },
-              };
-              break;
-            default:
-              break;
+            } catch (e) {
+              console.log(e);
+            }
           }
-        } catch (e) {
-          console.log(e);
-        }
-      } else if (id) {
-        try {
-          // eslint-disable-next-line no-restricted-globals
-          if (id && !isNaN(Number(id))) {
-            search = {
-              state: true,
-              value: Number(id),
-            };
-          } else {
-            throw new Error(
-              `El campo ${field.name} tiene valor no permitido!`,
-            );
-          }
-        } catch (e) {
-          console.log(e);
-        }
-      }
-      return (
-        <FieldRender
-          key={field.name}
-          ns={ns}
-          name={field.name}
-          extraProps={extraProps}
-          {...{
-            ...field,
-            transPosition,
-            label,
-            validate,
-            actionsExtra,
-            handleChange,
-            search,
-          }}
-        />
-      );
-    });
-  };
-
-  render() {
-    return <React.Fragment>{this.renderForm()}</React.Fragment>;
+          return (
+            <FieldRender
+              key={field.name}
+              ns={ns}
+              name={field.name}
+              extraProps={extraProps}
+              {...{
+                ...field,
+                transPosition,
+                label,
+                validate,
+                actionsExtra,
+                handleChange,
+                search,
+              }}
+            />
+          );
+        })}
+      </React.Fragment>
+    );
   }
 }
 
-export default compose(withStyles(styles, { name: 'FieldsRender' }))(
-  FieldsRender,
-);
+export default compose<
+  FormBuilder.FieldsRender,
+  AllFieldsRenderProps
+>(withStyles(styles, { name: 'FieldsRender' }))(FieldsRender);

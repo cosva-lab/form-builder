@@ -11,20 +11,18 @@ class InputValidator {
         if (validation && state) {
           validation.forEach(rule => {
             const args = rule.args || [];
-            const validationMethod =
-              typeof rule.rule === 'string'
-                ? validator[rule.rule]
-                : rule.rule;
-            let bolean = false;
+            const validationMethod: any = validator[rule.rule];
+            let boolean = false;
             switch (rule.rule) {
               case 'isEmpty':
-                bolean = true;
+                boolean = true;
                 break;
               default:
                 break;
             }
             if (
-              validationMethod(value.toString(), args) === bolean &&
+              validationMethod(value.toString(), args as any) ===
+                boolean &&
               state
             ) {
               if (v) {

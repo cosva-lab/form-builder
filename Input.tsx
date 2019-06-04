@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import compose from 'recompose/compose';
 import classNames from 'classnames';
 import withStyles, {
@@ -12,7 +11,8 @@ import {
   getMessage,
 } from '../MessagesTranslate/Animation';
 import { InputProps } from '.';
-import { createStyles, Theme } from '@material-ui/core';
+import { Theme } from '@material-ui/core/styles/createMuiTheme';
+import createStyles from '@material-ui/core/styles/createStyles';
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -72,12 +72,9 @@ class Input extends React.PureComponent<AllProps, { blur: boolean }> {
       InputProps,
       waitTime,
       fullWidth,
-      className,
       disabled,
       autoComplete,
-      ...rest
     } = this.props;
-    const { state, message, ns, props } = error;
     const { blur } = this.state;
     return (
       <FormControl
@@ -105,10 +102,10 @@ class Input extends React.PureComponent<AllProps, { blur: boolean }> {
               waitTime: false,
             });
           }}
-          label={label}
           name={name}
           type={type}
-          error={state}
+          label={label}
+          error={error!.state}
           FormHelperTextProps={{
             component: ({ children, className }) => {
               const child = (
@@ -122,7 +119,7 @@ class Input extends React.PureComponent<AllProps, { blur: boolean }> {
             },
             style: {},
           }}
-          helperText={getMessage({ message: message, ns, props })}
+          helperText={getMessage(error || { message: '' })}
           InputProps={InputProps}
           InputLabelProps={{
             shrink: this.props.type === 'date' ? true : undefined,
@@ -142,7 +139,6 @@ class Input extends React.PureComponent<AllProps, { blur: boolean }> {
           }}
           value={value}
           {...{
-            className,
             disabled,
             autoComplete,
           }}
