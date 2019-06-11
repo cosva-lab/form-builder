@@ -10,9 +10,9 @@ import {
   Animation,
   getMessage,
 } from '../MessagesTranslate/Animation';
-import { InputProps } from '.';
 import { Theme } from '@material-ui/core/styles/createMuiTheme';
 import createStyles from '@material-ui/core/styles/createStyles';
+import { InputProps } from '.';
 
 const styles = (theme: Theme) =>
   createStyles({
