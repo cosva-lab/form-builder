@@ -1,7 +1,10 @@
 import InputsValidator from './InputsValidator';
-import { Step, InitialState, PropsField } from '../../index';
+import { Step, InitialStateSteps, PropsField } from '../../index';
 
-const inputsValidate = ({ activeStep = 0, steps }: InitialState) => {
+const inputsValidate = ({
+  activeStep = 0,
+  steps,
+}: InitialStateSteps) => {
   const stepsVar = steps;
   stepsVar[activeStep] = { ...stepsVar[activeStep], validate: true };
   return {

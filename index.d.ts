@@ -16,10 +16,17 @@ export interface InitialState {
   id: number;
   ns: string;
   isNew: boolean;
-  activeStep: activeStep;
   validationState: boolean;
   validate: boolean;
+}
+
+export interface InitialStateSteps extends InitialState {
   steps: Step[];
+  activeStep: activeStep;
+}
+
+export interface InitialStateFields extends InitialState {
+  fields: PropsField[];
 }
 
 export interface FormStepsProps extends InitialState {
@@ -167,7 +174,7 @@ export declare type extraProps = {
 
 export interface PropsField {
   name: string;
-  type:
+  type?:
     | 'time'
     | 'text'
     | 'file'
@@ -187,12 +194,13 @@ export interface PropsField {
   validChange?: boolean;
   validation?: Validation[];
   label?:
+    | string
     | Message & {
         notPos: boolean;
         transPosition?: transPosition;
-      }
-    | string;
+      };
   ns?: string;
+  render?(element: { children: React.ReactChildren }): React.CElement;
   disabled?: boolean;
   waitTime?: boolean;
   fullWidth?: boolean;

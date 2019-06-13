@@ -1,6 +1,13 @@
 import PropTypes from 'prop-types';
 import produce from 'immer';
-import { PropsField, Step, InitialState } from '../../index';
+import {
+  PropsField,
+  Step,
+  InitialState,
+  InitialStateSteps,
+  InitialStateFields,
+  FieldsRenderProps,
+} from '../../index';
 
 const changeValueField = ({ field, action }: any): PropsField => ({
   ...field,
@@ -9,10 +16,16 @@ const changeValueField = ({ field, action }: any): PropsField => ({
   changed: true,
 });
 
-const changeValueFields = ({ fields, action }: any) =>
+const changeValueFields = ({
+  fields,
+  action,
+}: {
+  fields: PropsField[];
+  action: any;
+}): PropsField[] =>
   produce(
     fields,
-    (draft: PropsField[]): void => {
+    (draft): void => {
       const index = draft
         .map(({ name }) => name)
         .indexOf(action.name);
@@ -45,16 +58,21 @@ const renderField = (fieldRender: PropsField) =>
     field.error = { state: false, message: '' };
   });
 
-const renderFields = (fieldsRender: Step) =>
-  produce(fieldsRender, (step: Step) => {
-    for (let i in step.fields) {
-      step.fields[i] = renderField(step.fields[i]);
+const renderFields = (
+  fieldsRender: FieldsRenderProps,
+): FieldsRenderProps =>
+  produce(fieldsRender, data => {
+    for (let i in data.fields) {
+      data.fields[i] = renderField(data.fields[i]);
     }
   });
-const renderStateSteps = (initialState: InitialState) =>
-  produce(initialState, (draft: InitialState) => {
+const renderStateSteps = (initialState: InitialStateSteps) =>
+  produce(initialState, (draft: InitialStateSteps) => {
     if (!draft.activeStep) draft.activeStep = 0;
-    draft.steps = draft.steps.map(obj => renderFields(obj));
+    draft.steps = draft.steps.map(({ label, ...rest }) => ({
+      label,
+      ...renderFields(rest),
+    }));
   });
 
 export {
