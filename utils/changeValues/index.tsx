@@ -2,10 +2,7 @@ import PropTypes from 'prop-types';
 import produce from 'immer';
 import {
   PropsField,
-  Step,
-  InitialState,
   InitialStateSteps,
-  InitialStateFields,
   FieldsRenderProps,
 } from '../../index';
 

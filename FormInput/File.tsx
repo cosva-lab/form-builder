@@ -16,9 +16,7 @@ import Grid from '@material-ui/core/Grid';
 import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 import BrokenImageIcon from '@material-ui/icons/BrokenImage';
 import Paper from '@material-ui/core/Paper';
-import Typography, {
-  TypographyProps,
-} from '@material-ui/core/Typography';
+import Typography from '@material-ui/core/Typography';
 import spacing from '@material-ui/system/spacing';
 import DeleteIcon from '@material-ui/icons/Delete';
 import {

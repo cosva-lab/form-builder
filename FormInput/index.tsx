@@ -33,7 +33,6 @@ class FormInput extends React.PureComponent<
       type,
       value,
       name,
-      route,
       error,
       validateField,
       waitTime,
@@ -41,7 +40,6 @@ class FormInput extends React.PureComponent<
       extraProps,
       ns,
       fullWidth,
-      ...propsRest
     } = this.props;
     switch (type) {
       case 'text':

@@ -271,6 +271,7 @@ class FieldsRender extends React.PureComponent<AllFieldsRenderProps> {
                 case 'string':
                   valueSearchId = searchField;
                   const fieldFind = fields.find(
+                    // eslint-disable-next-line
                     field => field.name == searchField,
                   );
                   if (fieldFind) {

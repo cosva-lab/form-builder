@@ -1,4 +1,4 @@
-import React, { KeyboardEventHandler } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import Select from 'react-select';
 import withStyles, {
