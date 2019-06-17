@@ -48,7 +48,7 @@ export default class FieldRender extends React.Component<
         }) || undefined,
       validate: validate || false,
       validation: validation || [],
-      value: value || undefined,
+      value: value || '',
       changed: changed || false,
       validChange: validChange || false,
     };
@@ -193,12 +193,10 @@ export default class FieldRender extends React.Component<
       }
       if (
         typeof component === 'function' ||
-        ReactIs.isValidElementType
+        ReactIs.isValidElementType(component)
       ) {
         return React.createElement<FormBuilder.FieldRender>(
-          component as React.FunctionComponent<
-            FormBuilder.FieldRender
-          >,
+          component,
           this.props,
         );
       }

@@ -206,15 +206,16 @@ interface ChipsField {
 }
 interface CheckboxField {
   type: 'checkbox';
-  extraProps?: extraProps;
 }
-export interface PropsField
-  extends BasicFields,
-    ListSwitchField,
-    AutoCompleteField,
-    CheckboxField,
-    TableField,
-    ListField {
+
+interface Component {
+  component?:
+    | React.ReactElement<FormBuilder.FieldRender>
+    | React.ComponentClass<FieldRender>
+    | React.Component;
+}
+export interface PropsField extends Component {
+  extraProps?: extraProps;
   type?:
     | 'time'
     | 'text'
@@ -247,7 +248,6 @@ export interface PropsField
   waitTime?: boolean;
   fullWidth?: boolean;
   transPosition?: transPosition;
-  component?: React.ReactNode;
   changed?: boolean;
   error?: Message;
   state?: boolean;

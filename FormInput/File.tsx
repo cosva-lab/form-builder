@@ -63,13 +63,15 @@ const DefaultImage = ({ classes }: WithStyles<typeof styles>) => (
 interface Props extends FormInputProps, WithStyles<typeof styles> {
   validateField(): void;
 }
-interface States {
+
+declare type Value = {
+  file: File;
+  id: string;
   fileName: string;
-  value: {
-    file: File;
-    id: string;
-  }[];
-  styles: CSSProperties;
+};
+interface States {
+  value: Value[] | Value | null;
+  styles?: CSSProperties;
 }
 
 const defaultPropsExtra = {
@@ -84,10 +86,15 @@ const defaultPropsExtra = {
     props: {},
   },
 };
-class FileInput extends React.PureComponent<Props, States> {
+class FileInput extends React.Component<Props, States> {
   public inputOpenFileRef: React.RefObject<any> = React.createRef();
 
-  public state: States = { fileName: '', value: [], styles: {} };
+  constructor(props: Props) {
+    super(props);
+    const { extraProps } = this.props;
+    const { multiple } = extraProps || defaultPropsExtra;
+    this.state = { value: multiple ? [] : null, styles: {} };
+  }
 
   static defaultProps = {
     extraProps: defaultPropsExtra,
@@ -96,6 +103,26 @@ class FileInput extends React.PureComponent<Props, States> {
   animation = true;
 
   blurBool = true;
+
+  componentDidMount() {
+    this.validExtensions();
+  }
+
+  validExtensions(): boolean {
+    const extensions = this.props!.extraProps!.extensions;
+    let error: boolean = false;
+    if (extensions) {
+      try {
+        new RegExp(
+          `(${extensions.join('|').replace(/\./g, '\\.')})$`,
+        );
+      } catch (e) {
+        error = true;
+        console.error(e);
+      }
+    }
+    return error;
+  }
 
   cmponentDidUpdate(newProps: Props) {
     const state = this.props.error!.state;
@@ -115,18 +142,81 @@ class FileInput extends React.PureComponent<Props, States> {
     files: FileList | null;
     value?: any;
   }) => {
+    const { extraProps } = this.props;
+    const { multiple } = extraProps || defaultPropsExtra;
     this.setState(
       ({ value }) => {
         const { name } = target.files![0];
-        return {
-          fileName: name,
-          value: [
-            ...value,
+        let newValue;
+        if (multiple) {
+          newValue = [
+            ...(Array.isArray(value) ? value : []),
             ...Array.from(target.files || []).map(file => ({
               file,
+              fileName: name,
               id: uuid.v4(),
             })),
-          ],
+          ];
+        } else {
+          newValue = {
+            fileName: name,
+            file: target.files![0],
+            id: uuid.v4(),
+          };
+        }
+        return {
+          value: newValue,
+        };
+      },
+      () => {
+        const { handleChange, name, type } = this.props;
+        if (multiple && Array.isArray(this.state.value)) {
+          handleChange({
+            target: {
+              name,
+              value: this.state.value.map(({ file }) => file),
+              type,
+            },
+            waitTime: false,
+          });
+          // eslint-disable-next-line no-param-reassign
+          target.value = '';
+          this.state.value.forEach(({ file, id }) => {
+            if (!this.validateFile(file.name)) {
+              this.deleteFile(id);
+            }
+          });
+        } else {
+          if (
+            typeof this.state.value === 'object' &&
+            !Array.isArray(this.state.value)
+          ) {
+            handleChange({
+              target: {
+                name,
+                value: this.state.value!.file,
+                type,
+              },
+              waitTime: false,
+            });
+          }
+          // eslint-disable-next-line no-param-reassign
+          target.value = '';
+        }
+      },
+    );
+  };
+
+  deleteFile = (index: any) => {
+    const { extraProps } = this.props;
+    const { multiple } = extraProps || defaultPropsExtra;
+    this.setState(
+      ({ value }) => {
+        return {
+          value:
+            multiple && Array.isArray(value)
+              ? value.filter(({ id }) => id !== index)
+              : null,
         };
       },
       () => {
@@ -134,33 +224,10 @@ class FileInput extends React.PureComponent<Props, States> {
         handleChange({
           target: {
             name,
-            value: this.state.value.map(({ file }) => file),
-            type,
-          },
-          waitTime: false,
-        });
-        // eslint-disable-next-line no-param-reassign
-        target.value = '';
-        this.state.value.forEach(({ file, id }) => {
-          if (!this.validateFile(file.name)) {
-            this.deleteFile(id);
-          }
-        });
-      },
-    );
-  };
-
-  deleteFile = (index: any) => {
-    this.setState(
-      ({ value }) => ({
-        value: value.filter(({ id }) => id !== index),
-      }),
-      () => {
-        const { handleChange, name, type } = this.props;
-        handleChange({
-          target: {
-            name,
-            value: this.state.value.map(({ file }) => file),
+            value:
+              multiple && Array.isArray(this.state.value)
+                ? this.state.value.map(({ file }) => file)
+                : null,
             type,
           },
           waitTime: false,
@@ -194,17 +261,21 @@ class FileInput extends React.PureComponent<Props, States> {
       validateExtensions = true,
       validateAccept = true,
       accept: acceptFiles = '*',
-      extensions = ['*'],
+      extensions = ['.*'],
     } = this.props!.extraProps || {
       validateExtensions: true,
       validateAccept: true,
-      extensions: ['*'],
+      extensions: ['.*'],
     };
     const accept = this.convertAccept(acceptFiles);
-    const hasExtensions = (): boolean =>
-      new RegExp(
-        `(${extensions.join('|').replace(/\./g, '\\.')})$`,
-      ).test(fileName.toLowerCase());
+    const hasExtensions = (): boolean => {
+      if (this.validExtensions()) {
+        return new RegExp(
+          `(${extensions.join('|').replace(/\./g, '\\.')})$`,
+        ).test(fileName.toLowerCase());
+      }
+      return true;
+    };
 
     const acceptValidate = () =>
       Boolean(
@@ -291,7 +362,21 @@ class FileInput extends React.PureComponent<Props, States> {
       ns: ns,
       props: {},
     };
-
+    let isEmpty = false;
+    if (value === null) {
+      isEmpty = true;
+    } else {
+      if (Array.isArray(value)) {
+        if (!value.length) {
+          isEmpty = true;
+        }
+      } else {
+        if (!(value!.file instanceof File)) {
+          isEmpty = true;
+        }
+      }
+    }
+    const files = Array.isArray(value) ? value : [value];
     return (
       <React.Fragment>
         <Paper
@@ -323,8 +408,7 @@ class FileInput extends React.PureComponent<Props, States> {
               }}
               onDragOver={e => {
                 this.preventDefault(e);
-                const { backgroundColor } = styles;
-                if (!backgroundColor) {
+                if (!styles!.backgroundColor) {
                   this.setState({
                     styles: {
                       backgroundColor: 'rgba(0, 0, 0, 0.08)',
@@ -346,10 +430,8 @@ class FileInput extends React.PureComponent<Props, States> {
                 });
               }}
               container
-              component={value.length === 0 ? ButtonBase : undefined}
-              onClick={
-                value.length === 0 ? this.OpenFileDialog : undefined
-              }
+              component={isEmpty ? ButtonBase : undefined}
+              onClick={isEmpty ? this.OpenFileDialog : undefined}
               style={{
                 minHeight: '170px',
                 padding: '20px',
@@ -359,7 +441,7 @@ class FileInput extends React.PureComponent<Props, States> {
               alignItems="center"
             >
               <Grid item xs={12}>
-                {value.length === 0 && (
+                {isEmpty && (
                   <React.Fragment>
                     <Typography
                       style={{
@@ -395,16 +477,19 @@ class FileInput extends React.PureComponent<Props, States> {
                       {getMessage({
                         message: `${messageSubLabel}`,
                         ns: nsSubLabel,
-                        styles: { top: '-8px', position: 'absolute' },
+                        styles: {
+                          top: '-8px',
+                          position: 'absolute',
+                        },
                         props: propsSubLabel,
                       })}
                     </Typography>
                   </React.Fragment>
                 )}
-                {value.length > 0 && (
+                {!isEmpty && (
                   <React.Fragment>
                     <Grid container spacing={4} alignItems="stretch">
-                      {value.map(
+                      {files.map(
                         (
                           { file, id }: any,
                           key: string | number | undefined,
@@ -418,7 +503,7 @@ class FileInput extends React.PureComponent<Props, States> {
                               // eslint-disable-next-line react/no-array-index-key
                               key={key}
                               item
-                              {...(multiple && value.length > 1
+                              {...(multiple && files.length > 1
                                 ? { sm: 6, md: 6, lg: 6, xs: true }
                                 : { xs: 12 })}
                             >

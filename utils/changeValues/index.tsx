@@ -5,32 +5,37 @@ import {
   InitialStateSteps,
   FieldsRenderProps,
 } from '../../index';
-
+const ISARRAY = -1;
 const changeValueField = ({
   field,
   action,
-  isArray = false,
+  isArray = ISARRAY,
 }: {
   field: PropsField;
   action: any;
-  isArray?: boolean;
-}): PropsField => ({
-  ...field,
-  value: isArray ? [...field.value, action.value] : action.value,
-  error: { state: false, message: '' },
-  changed: true,
-});
+  isArray?: boolean | typeof ISARRAY;
+}): PropsField => {
+  if (isArray === ISARRAY) {
+    isArray = Array.isArray(field.value);
+  }
+  return {
+    ...field,
+    value: isArray ? [...field.value, action.value] : action.value,
+    error: { state: false, message: '' },
+    changed: true,
+  };
+};
 
 const changeValueFields = ({
   fields,
   action,
-  isArray = false,
+  isArray = ISARRAY,
 }: {
   fields: PropsField[];
   action: any;
-  isArray?: boolean;
+  isArray?: boolean | typeof ISARRAY;
 }): PropsField[] =>
-  produce(
+  produce<PropsField[], PropsField[]>(
     fields,
     (draft): void => {
       const index = draft
@@ -70,11 +75,14 @@ const renderField = (fieldRender: PropsField) =>
 const renderFields = (
   fieldsRender: FieldsRenderProps,
 ): FieldsRenderProps =>
-  produce(fieldsRender, data => {
-    for (let i in data.fields) {
-      data.fields[i] = renderField(data.fields[i]);
-    }
-  });
+  produce<FieldsRenderProps, FieldsRenderProps>(
+    fieldsRender,
+    data => {
+      for (let i in data.fields) {
+        data.fields[i] = renderField(data.fields[i]);
+      }
+    },
+  );
 const renderStateSteps = (initialState: InitialStateSteps) =>
   produce(initialState, (draft: InitialStateSteps) => {
     if (!draft.activeStep) draft.activeStep = 0;
