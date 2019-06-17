@@ -6,9 +6,17 @@ import {
   FieldsRenderProps,
 } from '../../index';
 
-const changeValueField = ({ field, action }: any): PropsField => ({
+const changeValueField = ({
+  field,
+  action,
+  isArray = false,
+}: {
+  field: PropsField;
+  action: any;
+  isArray?: boolean;
+}): PropsField => ({
   ...field,
-  value: action.value,
+  value: isArray ? [...field.value, action.value] : action.value,
   error: { state: false, message: '' },
   changed: true,
 });
@@ -16,9 +24,11 @@ const changeValueField = ({ field, action }: any): PropsField => ({
 const changeValueFields = ({
   fields,
   action,
+  isArray = false,
 }: {
   fields: PropsField[];
   action: any;
+  isArray?: boolean;
 }): PropsField[] =>
   produce(
     fields,
@@ -26,10 +36,12 @@ const changeValueFields = ({
       const index = draft
         .map(({ name }) => name)
         .indexOf(action.name);
-      draft[index] = changeValueField({
+      let field = changeValueField({
         field: draft[index],
         action,
+        isArray,
       });
+      draft[index] = field;
     },
   );
 

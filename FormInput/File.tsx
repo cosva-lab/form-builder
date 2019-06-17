@@ -25,6 +25,7 @@ import {
 } from '../../MessagesTranslate/Animation';
 import createStyles from '@material-ui/core/styles/createStyles';
 import { FormInputProps } from '..';
+import { transformLabel } from '../utils/transformLabel';
 
 const PaperStyled: any = styled(Paper)(spacing);
 
@@ -59,7 +60,9 @@ const DefaultImage = ({ classes }: WithStyles<typeof styles>) => (
   </div>
 );
 
-interface Props extends FormInputProps, WithStyles<typeof styles> {}
+interface Props extends FormInputProps, WithStyles<typeof styles> {
+  validateField(): void;
+}
 interface States {
   fileName: string;
   value: {
@@ -266,6 +269,7 @@ class FileInput extends React.PureComponent<Props, States> {
       classes,
       error,
       label,
+      name,
       validateField,
       ns,
       extraProps,
@@ -377,7 +381,9 @@ class FileInput extends React.PureComponent<Props, States> {
                       align="center"
                       variant="h5"
                     >
-                      {label}
+                      {getMessage(
+                        transformLabel({ label, ns, name }),
+                      )}
                     </Typography>
                     <Typography
                       style={{

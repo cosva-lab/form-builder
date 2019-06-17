@@ -1,20 +1,17 @@
 import React from 'react';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
-import Input from '../Input';
+import Input from './Input';
 import AutoComplete from './autoComplete';
 import DropdownList from '../../DropdownList/DropdownList';
 import FileInput from './File';
 import ListSwitch from './listSwitch';
 import Chips from './Chips';
 import { FormInputProps } from '..';
+import { transformLabel } from '../utils/transformLabel';
 /* import BoxForm from '../Table/BoxForm'; */
 
-class FormInput extends React.PureComponent<
-  FormInputProps & {
-    label?: React.ReactNode | any;
-  }
-> {
+class FormInput extends React.PureComponent<FormInputProps> {
   static defaultProps = {
     type: 'text',
     disabled: false,
@@ -54,7 +51,7 @@ class FormInput extends React.PureComponent<
               ns,
               waitTime,
               InputProps,
-              label,
+              label: transformLabel({ label, ns, name }),
               name,
               value,
               type,
@@ -74,7 +71,7 @@ class FormInput extends React.PureComponent<
               multiple,
               waitTime,
               InputProps,
-              label,
+              label: transformLabel({ label, ns, name }),
               name,
               value,
               type,
@@ -90,11 +87,10 @@ class FormInput extends React.PureComponent<
           <ListSwitch
             {...{
               ns,
-              validateField,
               multiple,
               waitTime,
               InputProps,
-              label,
+              label: transformLabel({ label, ns, name }),
               name,
               value,
               type,
@@ -113,7 +109,7 @@ class FormInput extends React.PureComponent<
             onChange={handleChange}
             disabled={disabled}
             ns={ns}
-            label={label}
+            label={transformLabel({ label, ns, name })}
             name={name}
             extraProps={extraProps}
           />
@@ -126,7 +122,7 @@ class FormInput extends React.PureComponent<
               extraProps,
               waitTime,
               InputProps,
-              label,
+              label: transformLabel({ label, ns, name }),
               name,
               value,
               type,
@@ -152,7 +148,7 @@ class FormInput extends React.PureComponent<
               ns,
               waitTime,
               InputProps,
-              label,
+              label: transformLabel({ label, ns, name }),
               name,
               value,
               type,
@@ -179,7 +175,7 @@ class FormInput extends React.PureComponent<
                 disabled={disabled}
               />
             }
-            label={label}
+            label={transformLabel({ label, ns, name })}
           />
         );
       default:

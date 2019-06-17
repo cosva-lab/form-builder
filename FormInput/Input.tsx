@@ -9,10 +9,11 @@ import FormControl from '@material-ui/core/FormControl';
 import {
   Animation,
   getMessage,
-} from '../MessagesTranslate/Animation';
+} from '../../MessagesTranslate/Animation';
 import { Theme } from '@material-ui/core/styles/createMuiTheme';
 import createStyles from '@material-ui/core/styles/createStyles';
-import { InputProps } from '.';
+import { InputProps } from '..';
+import { transformLabel } from '../utils/transformLabel';
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -49,7 +50,7 @@ class Input extends React.PureComponent<AllProps, { blur: boolean }> {
   };
 
   state = {
-    blur: this.props.type !== 'date',
+    blur: true,
   };
 
   animation = true;
@@ -62,6 +63,7 @@ class Input extends React.PureComponent<AllProps, { blur: boolean }> {
 
   render() {
     const {
+      ns,
       classes,
       error,
       handleChange,
@@ -104,7 +106,7 @@ class Input extends React.PureComponent<AllProps, { blur: boolean }> {
           }}
           name={name}
           type={type}
-          label={label}
+          label={getMessage(transformLabel({ label, ns, name }))}
           error={error!.state}
           FormHelperTextProps={{
             component: ({ children, className }) => {

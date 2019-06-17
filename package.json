@@ -29,5 +29,8 @@
     "react": "^16.8.3"
   },
   "scripts": {},
-  "types": "index.d.ts"
+  "types": "index.d.ts",
+  "devDependencies": {
+    "@types/react-is": "^16.7.1"
+  }
 }

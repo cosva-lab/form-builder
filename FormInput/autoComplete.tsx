@@ -1,26 +1,52 @@
-import React from 'react';
-import classNames from 'classnames';
+import React, { HTMLAttributes } from 'react';
+import compose from 'recompose/compose';
+import clsx from 'clsx';
 import Select from 'react-select';
-import withStyles, {
-  WithStyles,
-} from '@material-ui/core/styles/withStyles';
+import {
+  createStyles,
+  emphasize,
+  Theme,
+  withStyles,
+} from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
-import TextField from '@material-ui/core/TextField';
+import NoSsr from '@material-ui/core/NoSsr';
+import TextField, {
+  BaseTextFieldProps,
+} from '@material-ui/core/TextField';
 import Paper from '@material-ui/core/Paper';
 import Chip from '@material-ui/core/Chip';
 import MenuItem from '@material-ui/core/MenuItem';
 import CancelIcon from '@material-ui/icons/Cancel';
-import { emphasize } from '@material-ui/core/styles/colorManipulator';
-import NoSsr from '@material-ui/core/NoSsr';
-import { Theme } from '@material-ui/core/styles/createMuiTheme';
-import createStyles from '@material-ui/core/styles/createStyles';
-import { InputPropsComplete, extraProps } from '..';
+import PropTypes from 'prop-types';
+import { ValueContainerProps } from 'react-select/lib/components/containers';
+import { ControlProps } from 'react-select/lib/components/Control';
+import {
+  MenuProps,
+  NoticeProps,
+} from 'react-select/lib/components/Menu';
+import { MultiValueProps } from 'react-select/lib/components/MultiValue';
+import { OptionProps } from 'react-select/lib/components/Option';
+import { PlaceholderProps } from 'react-select/lib/components/Placeholder';
+import { SingleValueProps } from 'react-select/lib/components/SingleValue';
+import { InputPropsComplete } from '..';
+import { WithStyles } from '@material-ui/styles';
+import { WithTranslation, useTranslation } from 'react-i18next';
 
-const styles = ({ spacing, palette }: Theme) =>
+interface OptionType {
+  label: string;
+  value: string;
+}
+
+const styles = (theme: Theme) =>
   createStyles({
+    root: {
+      flexGrow: 1,
+      height: 250,
+    },
     input: {
       display: 'flex',
       padding: 0,
+      height: 'auto',
     },
     valueContainer: {
       display: 'flex',
@@ -30,18 +56,18 @@ const styles = ({ spacing, palette }: Theme) =>
       overflow: 'hidden',
     },
     chip: {
-      margin: spacing(1 / 2, 1 / 4),
+      margin: theme.spacing(0.5, 0.25),
     },
     chipFocused: {
       backgroundColor: emphasize(
-        palette.type === 'light'
-          ? palette.grey[300]
-          : palette.grey[700],
+        theme.palette.type === 'light'
+          ? theme.palette.grey[300]
+          : theme.palette.grey[700],
         0.08,
       ),
     },
     noOptionsMessage: {
-      padding: spacing(1, 2),
+      padding: theme.spacing(1, 2),
     },
     singleValue: {
       fontSize: 16,
@@ -49,46 +75,86 @@ const styles = ({ spacing, palette }: Theme) =>
     placeholder: {
       position: 'absolute',
       left: 2,
+      bottom: 6,
       fontSize: 16,
     },
     paper: {
       position: 'absolute',
       zIndex: 1,
-      marginTop: spacing(1),
+      marginTop: theme.spacing(1),
       left: 0,
       right: 0,
     },
     divider: {
-      height: spacing(2),
+      height: theme.spacing(2),
     },
   });
 
-function inputComponent({ inputRef, ...props }: any) {
+function NoOptionsMessage(props: NoticeProps<OptionType>) {
+  return (
+    <Typography
+      color="textSecondary"
+      className={props.selectProps.classes.noOptionsMessage}
+      {...props.innerProps}
+    >
+      {props.children}
+    </Typography>
+  );
+}
+
+NoOptionsMessage.propTypes = {
+  children: PropTypes.node,
+  innerProps: PropTypes.object,
+  selectProps: PropTypes.object.isRequired,
+} as any;
+
+type InputComponentProps = Pick<BaseTextFieldProps, 'inputRef'> &
+  HTMLAttributes<HTMLDivElement>;
+
+function inputComponent({ inputRef, ...props }: InputComponentProps) {
   return <div ref={inputRef} {...props} />;
 }
 
-function Control(props: any) {
+inputComponent.propTypes = {
+  inputRef: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
+} as any;
+
+function Control(props: ControlProps<OptionType>) {
+  const {
+    children,
+    innerProps,
+    innerRef,
+    selectProps: { classes, TextFieldProps },
+  } = props;
+
   return (
     <TextField
       fullWidth
       InputProps={{
         inputComponent,
         inputProps: {
-          className: props.selectProps.classes.input,
-          inputRef: props.innerRef,
-          children: props.children,
-          ...props.innerProps,
+          className: classes.input,
+          ref: innerRef,
+          children,
+          ...innerProps,
         },
       }}
-      {...props.selectProps.textFieldProps}
+      {...TextFieldProps}
     />
   );
 }
 
-function Option(props: any) {
+Control.propTypes = {
+  children: PropTypes.node,
+  innerProps: PropTypes.object,
+  innerRef: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
+  selectProps: PropTypes.object.isRequired,
+} as any;
+
+function Option(props: OptionProps<OptionType>) {
   return (
     <MenuItem
-      buttonRef={props.innerRef}
+      ref={props.innerRef}
       selected={props.isFocused}
       component="div"
       style={{
@@ -101,10 +167,17 @@ function Option(props: any) {
   );
 }
 
-function Placeholder(props: any) {
+Option.propTypes = {
+  children: PropTypes.node,
+  innerProps: PropTypes.object,
+  innerRef: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
+  isFocused: PropTypes.bool,
+  isSelected: PropTypes.bool,
+} as any;
+
+function Placeholder(props: PlaceholderProps<OptionType>) {
   return (
     <Typography
-      component="div"
       color="textSecondary"
       className={props.selectProps.classes.placeholder}
       {...props.innerProps}
@@ -114,7 +187,13 @@ function Placeholder(props: any) {
   );
 }
 
-function SingleValue(props: any) {
+Placeholder.propTypes = {
+  children: PropTypes.node,
+  innerProps: PropTypes.object,
+  selectProps: PropTypes.object.isRequired,
+} as any;
+
+function SingleValue(props: SingleValueProps<OptionType>) {
   return (
     <Typography
       className={props.selectProps.classes.singleValue}
@@ -125,7 +204,13 @@ function SingleValue(props: any) {
   );
 }
 
-function ValueContainer(props: any) {
+SingleValue.propTypes = {
+  children: PropTypes.node,
+  innerProps: PropTypes.object,
+  selectProps: PropTypes.object.isRequired,
+} as any;
+
+function ValueContainer(props: ValueContainerProps<OptionType>) {
   return (
     <div className={props.selectProps.classes.valueContainer}>
       {props.children}
@@ -133,12 +218,17 @@ function ValueContainer(props: any) {
   );
 }
 
-function MultiValue(props: any) {
+ValueContainer.propTypes = {
+  children: PropTypes.node,
+  selectProps: PropTypes.object.isRequired,
+} as any;
+
+function MultiValue(props: MultiValueProps<OptionType>) {
   return (
     <Chip
       tabIndex={-1}
       label={props.children}
-      className={classNames(props.selectProps.classes.chip, {
+      className={clsx(props.selectProps.classes.chip, {
         [props.selectProps.classes.chipFocused]: props.isFocused,
       })}
       onDelete={props.removeProps.onClick}
@@ -147,7 +237,14 @@ function MultiValue(props: any) {
   );
 }
 
-function Menu(props: any) {
+MultiValue.propTypes = {
+  children: PropTypes.node,
+  isFocused: PropTypes.bool,
+  removeProps: PropTypes.object.isRequired,
+  selectProps: PropTypes.object.isRequired,
+} as any;
+
+function Menu(props: MenuProps<OptionType>) {
   return (
     <Paper
       square
@@ -159,10 +256,17 @@ function Menu(props: any) {
   );
 }
 
+Menu.propTypes = {
+  children: PropTypes.node,
+  innerProps: PropTypes.object,
+  selectProps: PropTypes.object,
+} as any;
+
 const components = {
   Control,
   Menu,
   MultiValue,
+  NoOptionsMessage,
   Option,
   Placeholder,
   SingleValue,
@@ -173,10 +277,16 @@ interface Props
   extends InputPropsComplete,
     WithStyles<typeof styles, true> {}
 
-class AutoComplete extends React.Component<Props> {
+interface AllProps
+  extends InputPropsComplete,
+    WithTranslation,
+    WithStyles<typeof styles, true> {}
+
+class AutoComplete extends React.Component<AllProps> {
   static defaultProps = {
     value: {},
   };
+
   state = {};
 
   handleChange = (name: string) => (value: any) => {
@@ -192,6 +302,7 @@ class AutoComplete extends React.Component<Props> {
       extraProps,
       name,
       label,
+      t,
       value: optionValue,
       defaultInputValue,
       handleChange,
@@ -210,7 +321,8 @@ class AutoComplete extends React.Component<Props> {
           {props.children}
         </Typography>
       ),
-    } = extraProps as extraProps;
+      inputValue,
+    } = extraProps as any;
     const { value } = optionValue || { value: '' };
     const selectStyles = {
       witdh: 100,
@@ -226,6 +338,13 @@ class AutoComplete extends React.Component<Props> {
         zIndex: theme.zIndex.modal + 1,
       }),
     };
+    let placeholder: string = name;
+    if (typeof label === 'string') {
+      placeholder = t(label);
+    }
+    if (typeof label === 'object') {
+      placeholder = t(label.message, label.props);
+    }
     if (multiple) {
       return (
         <NoSsr>
@@ -243,7 +362,7 @@ class AutoComplete extends React.Component<Props> {
             components={{ ...(components as any), NoOptionsMessage }}
             value={value}
             onChange={this.handleChange('multi')}
-            placeholder="Select multiple countries"
+            placeholder={placeholder}
             isMulti
             defaultInputValue={defaultInputValue}
           />
@@ -255,10 +374,20 @@ class AutoComplete extends React.Component<Props> {
         <Select
           classes={classes}
           styles={selectStyles}
-          menuPortalTarget={document.body}
+          inputId="react-select-single"
+          TextFieldProps={{
+            label: 'Country',
+            InputLabelProps: {
+              htmlFor: 'react-select-single',
+              shrink: true,
+            },
+            placeholder: 'Search a country (start with a)',
+          }}
           options={options}
           components={{ ...(components as any), NoOptionsMessage }}
-          value={value ? optionValue : null}
+          value={value}
+          onKeyDown={onKeyDown}
+          defaultInputValue={inputValue}
           onChange={(option: any) => {
             handleChange({
               target: {
@@ -268,8 +397,7 @@ class AutoComplete extends React.Component<Props> {
               },
             });
           }}
-          onKeyDown={onKeyDown}
-          placeholder={label as string}
+          placeholder={placeholder}
           isClearable
           filterOption={filterOption}
         />
@@ -278,7 +406,22 @@ class AutoComplete extends React.Component<Props> {
   }
 }
 
-export default withStyles(styles, {
-  name: 'AutoComplete',
-  withTheme: true,
-})(AutoComplete);
+export default compose<AllProps, {}>(
+  (WrappedComponent: any) => (props: AllProps) => {
+    const [t, i18n, ready] = useTranslation(props.ns);
+    return (
+      <WrappedComponent
+        {...{
+          ...props,
+          t,
+          i18n,
+          tReady: ready,
+        }}
+      />
+    );
+  },
+  withStyles(styles, {
+    name: 'AutoComplete',
+    withTheme: true,
+  }),
+)(AutoComplete);

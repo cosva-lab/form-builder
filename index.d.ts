@@ -159,6 +159,7 @@ export declare type extraProps = {
   loading?: boolean;
   options?: any;
   NoOptionsMessage?: React.ReactNode;
+  inputValue?: string;
   filterOption?(
     option: { label: string; value: string; data: any },
     rawInput: string,
@@ -171,9 +172,49 @@ export declare type extraProps = {
   validateAccept?: boolean;
   subLabel?: Message;
 };
+declare type render = (element: {
+  children: React.ReactElement;
+  props: FieldRenderProps;
+}) => React.CElement;
 
-export interface PropsField {
-  name: string;
+interface BasicFields {
+  type?: 'text' | 'number' | 'email' | 'password' | 'time' | 'date';
+}
+interface FileField {
+  type: 'file';
+  extraProps?: extraProps;
+}
+interface ListSwitchField {
+  type: 'listSwitch';
+  extraProps?: extraProps;
+}
+interface ListField {
+  type: 'list';
+  extraProps?: extraProps;
+}
+interface AutoCompleteField {
+  type: 'autoComplete';
+  extraProps?: extraProps;
+}
+interface TableField {
+  type: 'table';
+  extraProps?: extraProps;
+}
+interface ChipsField {
+  type: 'chips';
+  extraProps?: extraProps;
+}
+interface CheckboxField {
+  type: 'checkbox';
+  extraProps?: extraProps;
+}
+export interface PropsField
+  extends BasicFields,
+    ListSwitchField,
+    AutoCompleteField,
+    CheckboxField,
+    TableField,
+    ListField {
   type?:
     | 'time'
     | 'text'
@@ -189,6 +230,7 @@ export interface PropsField {
     | 'checkbox'
     | 'component'
     | 'listSwitch';
+  name: string;
   value: value;
   defaultInputValue?: value;
   validChange?: boolean;
@@ -196,11 +238,11 @@ export interface PropsField {
   label?:
     | string
     | Message & {
-        notPos: boolean;
+        notPos?: boolean;
         transPosition?: transPosition;
       };
   ns?: string;
-  render?(element: { children: React.ReactChildren }): React.CElement;
+  render?: render;
   disabled?: boolean;
   waitTime?: boolean;
   fullWidth?: boolean;
@@ -210,7 +252,6 @@ export interface PropsField {
   error?: Message;
   state?: boolean;
   serverError?: string[] | string;
-  extraProps?: extraProps;
   InputProps?: Partial<OutlinedInputProps>;
   inputProps?: OutlinedInputProps['inputProps'];
 }
@@ -221,7 +262,7 @@ export interface FieldRenderProps extends Validations, PropsField {
     state: boolean;
     value: number;
   };
-  render?(e: React.ReactNode): React.ReactNode;
+  render?: render;
   sm?: GridSize;
   md?: GridSize;
   lg?: GridSize;
@@ -238,7 +279,7 @@ export interface FormInputProps extends PropsField {
   multiple?: boolean;
   route: string;
   handleChange: handleChangeFieldRender;
-  validateField(): void;
+  validateField?(): void;
 }
 
 export interface BaseProps extends PropsField {
