@@ -50,7 +50,7 @@ const styles = (theme: Theme) =>
     },
     valueContainer: {
       display: 'flex',
-      flexWrap: 'wrap',
+      flexWrap: 'initial',
       flex: 1,
       alignItems: 'center',
       overflow: 'hidden',
@@ -303,7 +303,7 @@ class AutoComplete extends React.Component<AllProps> {
       name,
       label,
       t,
-      value: optionValue,
+      value,
       defaultInputValue,
       handleChange,
     } = this.props;
@@ -323,7 +323,6 @@ class AutoComplete extends React.Component<AllProps> {
       ),
       inputValue,
     } = extraProps as any;
-    const { value } = optionValue || { value: '' };
     const selectStyles = {
       witdh: 100,
       input: (base: any) => ({
@@ -388,7 +387,7 @@ class AutoComplete extends React.Component<AllProps> {
           value={value}
           onKeyDown={onKeyDown}
           defaultInputValue={inputValue}
-          onChange={(option: any) => {
+          onChange={(option: unknown) => {
             handleChange({
               target: {
                 name,
