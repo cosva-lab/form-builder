@@ -4,21 +4,20 @@ import { lookup } from 'mime-types';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import Zoom from '@material-ui/core/Zoom';
 import Grow from '@material-ui/core/Grow';
-import IconButton from '@material-ui/core/IconButton';
 import ButtonBase from '@material-ui/core/ButtonBase';
 import compose from 'recompose/compose';
 import withStyles, {
   WithStyles,
 } from '@material-ui/core/styles/withStyles';
-import styled from 'styled-components';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 import BrokenImageIcon from '@material-ui/icons/BrokenImage';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
-import spacing from '@material-ui/system/spacing';
+import Fab from '@material-ui/core/Fab';
 import DeleteIcon from '@material-ui/icons/Delete';
+import Box from '@material-ui/core/Box';
 import {
   getMessage,
   Animation,
@@ -27,14 +26,13 @@ import createStyles from '@material-ui/core/styles/createStyles';
 import { FormInputProps } from '..';
 import { transformLabel } from '../utils/transformLabel';
 
-const PaperStyled: any = styled(Paper)(spacing);
-
 const styles = createStyles({
   image: {
     width: 220,
     height: 125,
   },
   img: {
+    userSelect: 'none',
     margin: 'auto',
     display: 'block',
     maxWidth: '100%',
@@ -508,9 +506,16 @@ class FileInput extends React.Component<Props, States> {
                                 : { xs: 12 })}
                             >
                               <Grow in>
-                                <PaperStyled
+                                <Box
                                   p={{
                                     xs: '1em',
+                                  }}
+                                  component={props => (
+                                    <Paper {...props} />
+                                  )}
+                                  position={'relative'}
+                                  style={{
+                                    overflow: 'hidden',
                                   }}
                                 >
                                   <Grid
@@ -525,7 +530,6 @@ class FileInput extends React.Component<Props, States> {
                                       container
                                       xs={12}
                                       justify="center"
-                                      component={ButtonBase}
                                     >
                                       <Grid
                                         container
@@ -535,6 +539,29 @@ class FileInput extends React.Component<Props, States> {
                                           invalid,
                                         })}
                                       </Grid>
+                                      <Box
+                                        component={props => (
+                                          <Grid
+                                            {...props}
+                                            container
+                                            justify="center"
+                                          />
+                                        )}
+                                        onClick={e => {
+                                          e.preventDefault();
+                                          this.deleteFile(id);
+                                        }}
+                                        bottom={'5px'}
+                                        position="absolute"
+                                      >
+                                        <Fab
+                                          size="medium"
+                                          color="inherit"
+                                          aria-label="delete"
+                                        >
+                                          <DeleteIcon />
+                                        </Fab>
+                                      </Box>
                                     </Grid>
                                     {invalid && (
                                       <Zoom in>
@@ -552,19 +579,8 @@ class FileInput extends React.Component<Props, States> {
                                         />
                                       </Zoom>
                                     )}
-                                    <Grid container justify="center">
-                                      <IconButton
-                                        aria-label="More"
-                                        aria-haspopup="true"
-                                        onClick={() =>
-                                          this.deleteFile(id)
-                                        }
-                                      >
-                                        <DeleteIcon />
-                                      </IconButton>
-                                    </Grid>
                                   </Grid>
-                                </PaperStyled>
+                                </Box>
                               </Grow>
                             </Grid>
                           );
