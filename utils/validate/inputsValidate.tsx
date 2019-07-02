@@ -43,7 +43,16 @@ const showErrorValidations = ({
     steps: steps.map((obj, key) => {
       let { fields, ...rest } = obj;
       if (fields) {
-        fields.forEach((field, key) => {
+        let fieldsRender: PropsField[] = [];
+        if (!Array.isArray(fields)) {
+          fieldsRender = Object.entries(fields).map(
+            ([name, field]) => ({
+              name,
+              ...field,
+            }),
+          );
+        }
+        fieldsRender.forEach((field, key) => {
           const { serverError = field.name } = field;
           if (Array.isArray(serverError)) {
             serverError.forEach(element => {
@@ -52,7 +61,7 @@ const showErrorValidations = ({
                   if (!errorStep) {
                     errorStep = key;
                   }
-                  fields[key] = appendError({
+                  fieldsRender[key] = appendError({
                     field,
                     error: errors[element],
                   });
@@ -67,7 +76,7 @@ const showErrorValidations = ({
                 if (!errorStep) {
                   errorStep = key;
                 }
-                fields[key] = appendError({
+                fieldsRender[key] = appendError({
                   field,
                   error: errors[serverError],
                 });

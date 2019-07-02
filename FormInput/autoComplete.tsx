@@ -37,7 +37,7 @@ interface OptionType {
   value: string;
 }
 
-const styles = (theme: Theme) =>
+export const styles = (theme: Theme) =>
   createStyles({
     root: {
       flexGrow: 1,
@@ -273,27 +273,22 @@ const components = {
   ValueContainer,
 };
 
-interface Props
-  extends InputPropsComplete,
-    WithStyles<typeof styles, true> {}
-
 interface AllProps
   extends InputPropsComplete,
     WithTranslation,
     WithStyles<typeof styles, true> {}
 
-class AutoComplete extends React.Component<AllProps> {
+class AutoComplete extends React.Component<
+  AllProps,
+  { value: OptionType | null }
+> {
   static defaultProps = {
     value: {},
   };
-
-  state = {};
-
-  handleChange = (name: string) => (value: any) => {
-    this.setState({
-      [name]: value,
-    });
-  };
+  constructor(props: AllProps) {
+    super(props);
+    this.state = { value: props.value };
+  }
 
   render() {
     const {
@@ -303,10 +298,12 @@ class AutoComplete extends React.Component<AllProps> {
       name,
       label,
       t,
-      value,
       defaultInputValue,
       handleChange,
     } = this.props;
+
+    const { value } = this.state;
+
     const {
       multiple,
       options,
@@ -360,7 +357,7 @@ class AutoComplete extends React.Component<AllProps> {
             options={options}
             components={{ ...(components as any), NoOptionsMessage }}
             value={value}
-            onChange={this.handleChange('multi')}
+            onChange={() => {}}
             placeholder={placeholder}
             isMulti
             defaultInputValue={defaultInputValue}
@@ -370,7 +367,7 @@ class AutoComplete extends React.Component<AllProps> {
     }
     return (
       <NoSsr>
-        <Select
+        <Select<OptionType>
           classes={classes}
           styles={selectStyles}
           inputId="react-select-single"
@@ -387,7 +384,8 @@ class AutoComplete extends React.Component<AllProps> {
           value={value}
           onKeyDown={onKeyDown}
           defaultInputValue={inputValue}
-          onChange={(option: unknown) => {
+          onChange={(option: any) => {
+            this.setState({ value: null });
             handleChange({
               target: {
                 name,

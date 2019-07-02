@@ -1,9 +1,10 @@
 import validator from 'validator';
 import { Step } from '../..';
+import transformFields from '../transformFields';
 
 class InputValidator {
   validate({ step }: { step: Step }) {
-    const { fields } = step;
+    const fields = transformFields(step.fields);
     let v = true;
     if (fields) {
       fields.forEach(field => {

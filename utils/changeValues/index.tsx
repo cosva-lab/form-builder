@@ -4,53 +4,57 @@ import {
   PropsField,
   InitialStateSteps,
   FieldsRenderProps,
+  ChangeValueFields,
+  InitialStateFields,
+  ChangeValueSteps,
+  Fields,
 } from '../../index';
-const ISARRAY = -1;
+
 const changeValueField = ({
   field,
   action,
-  isArray = ISARRAY,
 }: {
   field: PropsField;
   action: any;
-  isArray?: boolean | typeof ISARRAY;
 }): PropsField => {
-  if (isArray === ISARRAY) {
-    isArray = Array.isArray(field.value);
-  }
   return {
     ...field,
-    value: isArray ? [...field.value, action.value] : action.value,
+    value: action.value,
     error: { state: false, message: '' },
     changed: true,
   };
 };
 
-const changeValueFields = ({
+const changeValueFields: (props: ChangeValueFields) => Fields = ({
   fields,
   action,
-  isArray = ISARRAY,
-}: {
-  fields: PropsField[];
-  action: any;
-  isArray?: boolean | typeof ISARRAY;
-}): PropsField[] =>
-  produce<PropsField[], PropsField[]>(
+}) =>
+  produce<Fields, Fields>(
     fields,
     (draft): void => {
-      const index = draft
-        .map(({ name }) => name)
-        .indexOf(action.name);
-      let field = changeValueField({
-        field: draft[index],
-        action,
-        isArray,
-      });
-      draft[index] = field;
+      const { name } = action;
+      if (Array.isArray(draft)) {
+        const index = draft.map(({ name }) => name).indexOf(name);
+        let field = changeValueField({
+          field: draft[index],
+          action,
+        });
+        draft[index] = field;
+      } else {
+        let field = changeValueField({
+          field: draft[name],
+          action,
+        });
+        draft[name] = field;
+      }
     },
   );
 
-const changeValueSteps = ({ activeStep, steps, action }: any) => {
+const changeValueSteps = ({
+  activeStep,
+  steps,
+  action,
+}: ChangeValueSteps) => {
   const { fields, ...rest } = steps[activeStep];
   const stepsVar = steps;
   stepsVar[activeStep] = {
@@ -78,8 +82,10 @@ const renderFields = (
   produce<FieldsRenderProps, FieldsRenderProps>(
     fieldsRender,
     data => {
-      for (let i in data.fields) {
-        data.fields[i] = renderField(data.fields[i]);
+      if (Array.isArray(data.fields)) {
+        for (let i in data.fields) {
+          data.fields[i] = renderField(data.fields[i]);
+        }
       }
     },
   );

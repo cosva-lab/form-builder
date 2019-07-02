@@ -6,27 +6,42 @@ export declare type EventField = {
   target: { name: string; value: value; type?: string };
 };
 
-export declare type handleChange = (e: EventField) => void;
+export declare type handleChange = (
+  e: EventField,
+  callback?: () => void,
+) => void;
 
 export declare type value = any;
 export declare type transPosition = string | boolean;
 export declare type activeStep = number;
 
 export interface InitialState {
-  id: number;
-  ns: string;
-  isNew: boolean;
-  validationState: boolean;
-  validate: boolean;
+  id?: number;
+  ns?: string;
+  isNew?: boolean;
+  validationState?: boolean;
+  validate?: boolean;
 }
 
 export interface InitialStateSteps extends InitialState {
   steps: Step[];
   activeStep: activeStep;
 }
+declare type Fields = PropsField[] | { [key: string]: PropsField };
 
 export interface InitialStateFields extends InitialState {
-  fields: PropsField[];
+  fields: Fields;
+}
+
+export interface ChangeValueFields {
+  fields: Fields;
+  action: { value: any; name: string };
+}
+
+export interface ChangeValueSteps {
+  activeStep: activeStep;
+  steps: Step[];
+  action: ChangeValueFields['action'];
 }
 
 export interface FormStepsProps extends InitialState {
@@ -34,8 +49,7 @@ export interface FormStepsProps extends InitialState {
   handleBackStep({ activeStep }: { activeStep: activeStep }): void;
 }
 
-export interface FieldsRenderProps {
-  fields: PropsField[];
+export interface FieldsRenderProps extends InitialStateFields {
   actionsExtra?: {};
   state?: boolean;
   validate?: boolean;
@@ -141,10 +155,7 @@ export declare type handleChangeFieldRender = (
 
 export declare type extraProps = {
   helpMessage?: boolean;
-  searchField?:
-    | string
-    | number
-    | ((e: PropsField[]) => string | number);
+  searchField?: string | number | ((e: Fields) => string | number);
   searchId?: string;
   search?: { state: boolean; value: string | number };
   renderItem?: React.ReactNode;

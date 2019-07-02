@@ -7,6 +7,7 @@ import { FormBuilder } from '.';
 import { Theme } from '@material-ui/core/styles/createMuiTheme';
 import createStyles from '@material-ui/core/styles/createStyles';
 import FieldRender from './FieldRender';
+import transformFields from './utils/transformFields';
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -19,7 +20,7 @@ const styles = (theme: Theme) =>
 
 interface AllFieldsRenderProps
   extends FormBuilder.FieldsRender,
-    Partial<WithStyles<typeof styles>> {}
+    WithStyles<typeof styles> {}
 // eslint-disable-next-line react/no-multi-comp
 class FieldsRender extends React.PureComponent<AllFieldsRenderProps> {
   static defaultProps = {
@@ -29,13 +30,13 @@ class FieldsRender extends React.PureComponent<AllFieldsRenderProps> {
 
   render() {
     const {
-      fields,
       validate,
       handleChange,
       actionsExtra,
       ns,
       transPosition,
     } = this.props;
+    const fields = transformFields(this.props.fields);
     if (!fields) return null;
     return (
       <React.Fragment>
@@ -138,6 +139,6 @@ class FieldsRender extends React.PureComponent<AllFieldsRenderProps> {
 }
 
 export default compose<
-  FormBuilder.FieldsRender,
-  AllFieldsRenderProps
+  AllFieldsRenderProps,
+  FormBuilder.FieldsRender
 >(withStyles(styles, { name: 'FieldsRender' }))(FieldsRender);
