@@ -138,16 +138,16 @@ class FileInput extends React.Component<Props, States> {
           ) {
             value = this.state.value!.file;
           }
-          if (value) {
-            handleChange({
-              target: {
-                name,
-                value,
-                type,
-              },
-              waitTime: false,
-            });
-          }
+        }
+        if (value) {
+          handleChange({
+            target: {
+              name,
+              value,
+              type,
+            },
+            waitTime: false,
+          });
         }
         this.setState({ inputValue: '' });
       },
@@ -228,14 +228,12 @@ class FileInput extends React.Component<Props, States> {
     };
 
     const acceptValidate = () =>
-      !!accept.find(
-        (a: string): boolean => {
-          if (!this.lookup(fileName)) return false;
-          return !!(this.lookup(fileName) || '').match(
-            new RegExp(`${a.replace(/(\.\*|\.|\*)$/, '')}.*`),
-          );
-        },
-      );
+      !!accept.find((a: string): boolean => {
+        if (!this.lookup(fileName)) return false;
+        return !!(this.lookup(fileName) || '').match(
+          new RegExp(`${a.replace(/(\.\*|\.|\*)$/, '')}.*`),
+        );
+      });
 
     if (validateExtensions && validateAccept) {
       return hasExtensions() && acceptValidate();
@@ -259,7 +257,6 @@ class FileInput extends React.Component<Props, States> {
       error,
       label,
       name,
-      validateField,
       ns,
       extraProps,
     } = this.props;
