@@ -285,10 +285,6 @@ class AutoComplete extends React.Component<
   static defaultProps = {
     value: {},
   };
-  constructor(props: AllProps) {
-    super(props);
-    this.state = { value: props.value };
-  }
 
   render() {
     const {
@@ -300,9 +296,8 @@ class AutoComplete extends React.Component<
       t,
       defaultInputValue,
       handleChange,
+      value,
     } = this.props;
-
-    const { value } = this.state;
 
     const {
       multiple,
@@ -385,7 +380,6 @@ class AutoComplete extends React.Component<
           onKeyDown={onKeyDown}
           defaultInputValue={inputValue}
           onChange={(option: any) => {
-            this.setState({ value: null });
             handleChange({
               target: {
                 name,
@@ -396,6 +390,7 @@ class AutoComplete extends React.Component<
           }}
           placeholder={placeholder}
           isClearable
+          isSearchable
           filterOption={filterOption}
         />
       </NoSsr>

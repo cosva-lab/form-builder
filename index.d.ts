@@ -168,14 +168,14 @@ export declare type extraProps = {
   onKeyDown?(event: KeyboardEvent<Element>): void;
   multiple?: boolean;
   loading?: boolean;
-  options?: any;
+  options?: any[];
   NoOptionsMessage?: React.ReactNode;
   inputValue?: string;
-  filterOption?(
+  filterOption?: (
     option: { label: string; value: string; data: any },
     rawInput: string,
-  ): boolean;
-
+  ) => boolean;
+  filterOptions?: (options: any[]) => any[];
   accept?: string | string[];
   extensions?: string[];
   multiple?: boolean;
@@ -226,6 +226,7 @@ interface Component {
     | React.Component;
 }
 export interface PropsField extends Component {
+  fields?: Fields;
   extraProps?: extraProps;
   type?:
     | 'time'
@@ -318,6 +319,8 @@ export interface InputPropsSwitchList extends BaseProps {
 export namespace FormBuilder {
   interface BaseBuilder {
     handleChange: handleChange;
+    steps?: Step[];
+    activeStep?: activeStep;
   }
   export interface FieldsRender
     extends FieldsRenderProps,

@@ -46,6 +46,7 @@ class FileInput extends React.Component<Props, States> {
     this.state = {
       value: multiple ? [] : null,
       lookup: false,
+      inputValue: '',
     };
   }
 
@@ -95,6 +96,7 @@ class FileInput extends React.Component<Props, States> {
   handleChange: handleChangeFiles = target => {
     const { extraProps } = this.props;
     const { multiple } = extraProps || defaultPropsExtra;
+    if (!target.files![0]) return;
     this.setState(
       ({ value }) => {
         const { name } = target.files![0];
@@ -146,9 +148,8 @@ class FileInput extends React.Component<Props, States> {
               waitTime: false,
             });
           }
-          // eslint-disable-next-line no-param-reassign
-          target.value = '';
         }
+        this.setState({ inputValue: '' });
       },
     );
   };
@@ -166,7 +167,12 @@ class FileInput extends React.Component<Props, States> {
         };
       },
       () => {
-        const { handleChange, name, type } = this.props;
+        const {
+          handleChange,
+          name,
+          type,
+          validateField,
+        } = this.props;
         handleChange({
           target: {
             name,
@@ -178,6 +184,7 @@ class FileInput extends React.Component<Props, States> {
           },
           waitTime: false,
         });
+        validateField();
       },
     );
   };
@@ -221,12 +228,14 @@ class FileInput extends React.Component<Props, States> {
     };
 
     const acceptValidate = () =>
-      !!accept.find((a: string): boolean => {
-        if (!this.lookup(fileName)) return false;
-        return !!(this.lookup(fileName) || '').match(
-          new RegExp(`${a.replace(/(\.\*|\.|\*)$/, '')}.*`),
-        );
-      });
+      !!accept.find(
+        (a: string): boolean => {
+          if (!this.lookup(fileName)) return false;
+          return !!(this.lookup(fileName) || '').match(
+            new RegExp(`${a.replace(/(\.\*|\.|\*)$/, '')}.*`),
+          );
+        },
+      );
 
     if (validateExtensions && validateAccept) {
       return hasExtensions() && acceptValidate();
@@ -257,7 +266,7 @@ class FileInput extends React.Component<Props, States> {
     const { multiple, subLabel } = extraProps || defaultPropsExtra;
 
     const accept = this.convertAccept(defaultPropsExtra.accept);
-    const { value, lookup } = this.state;
+    const { value, lookup, inputValue } = this.state;
 
     const { state, message, ns: nsError, props } = error || {
       state: false,
@@ -270,7 +279,7 @@ class FileInput extends React.Component<Props, States> {
       <React.Fragment>
         <Paper
           elevation={1}
-          onBlur={() => {
+          /* onBlur={() => {
             this.animation = false;
             this.blurBool = false;
           }}
@@ -280,7 +289,7 @@ class FileInput extends React.Component<Props, States> {
                 validateField();
               }, 100);
             }
-          }}
+          }} */
           style={{
             position: 'relative',
             padding: '1em',
@@ -302,7 +311,7 @@ class FileInput extends React.Component<Props, States> {
               validateFile: this.validateFile,
               deleteFile: this.deleteFile,
             }}
-          ></ListFiles>
+          />
           <Grid container onClick={this.openFileDialog}>
             <input
               ref={this.inputOpenFileRef}
@@ -313,6 +322,7 @@ class FileInput extends React.Component<Props, States> {
               style={{
                 display: 'none',
               }}
+              value={inputValue}
               multiple={multiple}
               type="file"
             />

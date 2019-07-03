@@ -155,6 +155,7 @@ export default class FieldRender extends React.Component<
       type,
       component,
       extraProps,
+      fields,
     } = this.props;
     if (!state) return null;
     const formInput = (
@@ -186,9 +187,7 @@ export default class FieldRender extends React.Component<
       if (React.isValidElement(component)) {
         return React.cloneElement<FormBuilder.FieldRender>(
           component,
-          {
-            ...this.props,
-          },
+          { fields, ...this.props },
         );
       }
       if (

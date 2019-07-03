@@ -35,6 +35,7 @@ class FieldsRender extends React.PureComponent<AllFieldsRenderProps> {
       actionsExtra,
       ns,
       transPosition,
+      steps,
     } = this.props;
     const fields = transformFields(this.props.fields);
     if (!fields) return null;
@@ -129,6 +130,8 @@ class FieldsRender extends React.PureComponent<AllFieldsRenderProps> {
                 actionsExtra,
                 handleChange,
                 search,
+                fields,
+                steps,
               }}
             />
           );

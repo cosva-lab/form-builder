@@ -25,6 +25,7 @@ export declare type lookup = (typeof mimeTypes extends Promise<
 export interface States {
   value: Value[] | Value | null;
   lookup: lookup | false;
+  inputValue: string;
 }
 
 export interface ListFilesProps

@@ -6,11 +6,16 @@ export const styles = createStyles({
     height: 125,
   },
   img: {
-    userSelect: 'none',
     margin: 'auto',
     display: 'block',
     maxWidth: '100%',
     maxHeight: '100%',
+    WebkitUserSelect: 'none',
+    KhtmlUserSelect: 'none',
+    MozUserSelect: 'none',
+    OUserSelect: 'none',
+    userSelect: 'none',
+    WebkitUserDrag: 'none',
   },
   progress: {
     width: '100%',
