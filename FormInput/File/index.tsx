@@ -11,7 +11,7 @@ import {
   getMessage,
   Animation,
 } from '../../../MessagesTranslate/Animation';
-import { Props, States, lookup, handleChangeFiles } from './Props';
+import { Props, States, Lookup, handleChangeFiles } from './Props';
 import ListFiles from './ListFiles';
 import { styles } from './styles';
 
@@ -33,7 +33,7 @@ export const mimeTypes = import('mime-types');
 class FileInput extends React.Component<Props, States> {
   public inputOpenFileRef: React.RefObject<any> = React.createRef();
 
-  get lookup(): lookup {
+  get lookup(): Lookup {
     const { lookup } = this.state;
     if (!lookup) return () => false;
     return lookup;

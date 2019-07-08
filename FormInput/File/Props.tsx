@@ -16,7 +16,7 @@ export declare type Value = {
   fileName: string;
 };
 
-export declare type lookup = (typeof mimeTypes extends Promise<
+export declare type Lookup = (typeof mimeTypes extends Promise<
   infer U
 >
   ? U
@@ -24,14 +24,14 @@ export declare type lookup = (typeof mimeTypes extends Promise<
 
 export interface States {
   value: Value[] | Value | null;
-  lookup: lookup | false;
+  lookup: Lookup | false;
   inputValue: string;
 }
 
 export interface ListFilesProps
   extends Pick<PropsField, 'label' | 'ns' | 'name'> {
   value: Value[] | Value | null;
-  lookup: lookup;
+  lookup: Lookup;
   openFileDialog: () => void;
   validateFile: (fileName: string) => boolean;
   deleteFile: (id: string) => void;
