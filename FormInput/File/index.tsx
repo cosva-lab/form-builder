@@ -252,17 +252,14 @@ class FileInput extends React.Component<Props, States> {
   }
 
   render() {
-    const {
-      classes,
-      error,
-      label,
-      name,
-      ns,
-      extraProps,
-    } = this.props;
+    const { classes, error, label, name, ns } = this.props;
+    let extraProps = {
+      ...defaultPropsExtra,
+      ...this.props.extraProps,
+    };
     const { multiple, subLabel } = extraProps || defaultPropsExtra;
 
-    const accept = this.convertAccept(defaultPropsExtra.accept);
+    const accept = this.convertAccept(extraProps.accept);
     const { value, lookup, inputValue } = this.state;
 
     const { state, message, ns: nsError, props } = error || {
@@ -276,17 +273,6 @@ class FileInput extends React.Component<Props, States> {
       <React.Fragment>
         <Paper
           elevation={1}
-          /* onBlur={() => {
-            this.animation = false;
-            this.blurBool = false;
-          }}
-          onFocus={() => {
-            if (!this.blurBool) {
-              setTimeout(() => {
-                validateField();
-              }, 100);
-            }
-          }} */
           style={{
             position: 'relative',
             padding: '1em',
