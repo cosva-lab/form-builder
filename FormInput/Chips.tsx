@@ -63,7 +63,7 @@ class Chips extends React.Component<
     });
   };
 
-  render() {
+  public render() {
     const {
       classes,
       color: colorGeneral,

@@ -22,13 +22,25 @@ interface AllFieldsRenderProps
   extends FormBuilder.FieldsRender,
     WithStyles<typeof styles> {}
 // eslint-disable-next-line react/no-multi-comp
+/**
+ *
+ *
+ * @class FieldsRender
+ * @extends {React.PureComponent<AllFieldsRenderProps>}
+ */
 class FieldsRender extends React.PureComponent<AllFieldsRenderProps> {
-  static defaultProps = {
+  public static defaultProps = {
     ns: 'inputs',
     transPosition: '',
   };
 
-  render() {
+  /**
+   *
+   *
+   * @return {JSX.Element}
+   * @memberof FieldsRender
+   */
+  public render() {
     const {
       validate,
       handleChange,
@@ -40,7 +52,7 @@ class FieldsRender extends React.PureComponent<AllFieldsRenderProps> {
     const fields = transformFields(this.props.fields);
     if (!fields) return null;
     return (
-      <React.Fragment>
+      <>
         {fields.map(field => {
           let search = {
             state: false,
@@ -136,7 +148,7 @@ class FieldsRender extends React.PureComponent<AllFieldsRenderProps> {
             />
           );
         })}
-      </React.Fragment>
+      </>
     );
   }
 }

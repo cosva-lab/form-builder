@@ -67,7 +67,7 @@ class FileInput extends React.Component<Props, States> {
 
   validExtensions(): boolean {
     const extensions = this.props!.extraProps!.extensions;
-    let error: boolean = false;
+    let error = false;
     if (extensions) {
       try {
         new RegExp(
@@ -251,9 +251,9 @@ class FileInput extends React.Component<Props, States> {
     return fileName.split('.').pop() || '';
   }
 
-  render() {
+  public render() {
     const { classes, error, label, name, ns } = this.props;
-    let extraProps = {
+    const extraProps = {
       ...defaultPropsExtra,
       ...this.props.extraProps,
     };

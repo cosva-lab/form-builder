@@ -61,7 +61,7 @@ class Input extends React.PureComponent<AllProps, { blur: boolean }> {
     }
   }
 
-  render() {
+  public render() {
     const {
       ns,
       classes,

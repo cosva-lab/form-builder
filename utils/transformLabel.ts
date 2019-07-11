@@ -9,10 +9,10 @@ export const transformLabel = ({
   name: string;
   label: PropsField['label'];
 }) => {
-  let message,
-    props,
-    nsLabel = ns,
-    transPosition: string = '';
+  let message;
+  let props;
+  const nsLabel = ns;
+  let transPosition = '';
   if (typeof label === 'string') {
     message = label;
   } else {

@@ -67,7 +67,7 @@ class ListFiles extends React.Component<
     }
   }
 
-  render() {
+  public render() {
     const {
       label,
       ns,

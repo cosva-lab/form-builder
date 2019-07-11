@@ -28,6 +28,7 @@ export default class FieldRender extends React.Component<
     },
     waitTime: true,
   };
+
   constructor(props: FormBuilder.FieldRender) {
     super(props);
     const {
@@ -53,9 +54,11 @@ export default class FieldRender extends React.Component<
       validChange: validChange || false,
     };
   }
+
   componentWillReceiveProps(newProps: FormBuilder.FieldRender) {
     this.updateProps(newProps);
   }
+
   public updateProps({
     value,
     changed,
@@ -76,6 +79,7 @@ export default class FieldRender extends React.Component<
       }),
     });
   }
+
   handleChange: handleChangeFieldRender = ({
     target,
     waitTime = false,
@@ -105,6 +109,7 @@ export default class FieldRender extends React.Component<
       this.props.handleChange({ target });
     }
   };
+
   validateField = () => {
     const { validation } = this.props;
     const { validChange, validate, value } = this.state;
@@ -118,11 +123,13 @@ export default class FieldRender extends React.Component<
       }),
     });
   };
+
   sendChange = () => {
     const { value } = this.state;
     const { name } = this.props;
     this.props.handleChange({ target: { value, name } });
   };
+
   verifyError({
     validation = [],
     value,
@@ -137,7 +144,8 @@ export default class FieldRender extends React.Component<
       validate,
     });
   }
-  render() {
+
+  public render() {
     const { value, error } = this.state;
     const { sm } = this.props;
     const { md = sm } = this.props;

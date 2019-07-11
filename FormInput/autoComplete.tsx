@@ -18,16 +18,16 @@ import Chip from '@material-ui/core/Chip';
 import MenuItem from '@material-ui/core/MenuItem';
 import CancelIcon from '@material-ui/icons/Cancel';
 import PropTypes from 'prop-types';
-import { ValueContainerProps } from 'react-select/lib/components/containers';
-import { ControlProps } from 'react-select/lib/components/Control';
+import { ValueContainerProps } from 'react-select/src/components/containers';
+import { ControlProps } from 'react-select/src/components/Control';
 import {
   MenuProps,
   NoticeProps,
-} from 'react-select/lib/components/Menu';
-import { MultiValueProps } from 'react-select/lib/components/MultiValue';
-import { OptionProps } from 'react-select/lib/components/Option';
-import { PlaceholderProps } from 'react-select/lib/components/Placeholder';
-import { SingleValueProps } from 'react-select/lib/components/SingleValue';
+} from 'react-select/src/components/Menu';
+import { MultiValueProps } from 'react-select/src/components/MultiValue';
+import { OptionProps } from 'react-select/src/components/Option';
+import { PlaceholderProps } from 'react-select/src/components/Placeholder';
+import { SingleValueProps } from 'react-select/src/components/SingleValue';
 import { InputPropsComplete } from '..';
 import { WithStyles } from '@material-ui/styles';
 import { WithTranslation, useTranslation } from 'react-i18next';
@@ -286,7 +286,7 @@ class AutoComplete extends React.Component<
     value: {},
   };
 
-  render() {
+  public render() {
     const {
       classes,
       theme,

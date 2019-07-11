@@ -2,9 +2,9 @@ import { Message } from './../MessagesTranslate/Animation';
 import { GridSize } from '@material-ui/core/Grid';
 import { OutlinedInputProps } from '@material-ui/core/OutlinedInput';
 
-export declare type EventField = {
+export interface EventField {
   target: { name: string; value: value; type?: string };
-};
+}
 
 export declare type handleChange = (
   e: EventField,
@@ -153,7 +153,7 @@ export declare type handleChangeFieldRender = (
   e: EventField & { waitTime?: boolean },
 ) => void;
 
-export declare type extraProps = {
+export interface extraProps {
   helpMessage?: boolean;
   searchField?: string | number | ((e: Fields) => string | number);
   searchId?: string;
@@ -182,7 +182,7 @@ export declare type extraProps = {
   validateExtensions?: boolean;
   validateAccept?: boolean;
   subLabel?: Message;
-};
+}
 declare type render = (element: {
   children: React.ReactElement;
   props: FieldRenderProps;

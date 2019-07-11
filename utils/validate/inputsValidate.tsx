@@ -41,7 +41,7 @@ const showErrorValidations = ({
   }
   return {
     steps: steps.map((obj, key) => {
-      let { fields, ...rest } = obj;
+      const { fields, ...rest } = obj;
       if (fields) {
         let fieldsRender: PropsField[] = [];
         if (!Array.isArray(fields)) {

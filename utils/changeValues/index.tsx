@@ -29,26 +29,23 @@ const changeValueFields: (props: ChangeValueFields) => Fields = ({
   fields,
   action,
 }) =>
-  produce<Fields, Fields>(
-    fields,
-    (draft): void => {
-      const { name } = action;
-      if (Array.isArray(draft)) {
-        const index = draft.map(({ name }) => name).indexOf(name);
-        let field = changeValueField({
-          field: draft[index],
-          action,
-        });
-        draft[index] = field;
-      } else {
-        let field = changeValueField({
-          field: draft[name],
-          action,
-        });
-        draft[name] = field;
-      }
-    },
-  );
+  produce<Fields, Fields>(fields, (draft): void => {
+    const { name } = action;
+    if (Array.isArray(draft)) {
+      const index = draft.map(({ name }) => name).indexOf(name);
+      const field = changeValueField({
+        field: draft[index],
+        action,
+      });
+      draft[index] = field;
+    } else {
+      const field = changeValueField({
+        field: draft[name],
+        action,
+      });
+      draft[name] = field;
+    }
+  });
 
 const changeValueSteps = ({
   activeStep,
@@ -83,7 +80,7 @@ const renderFields = (
     fieldsRender,
     data => {
       if (Array.isArray(data.fields)) {
-        for (let i in data.fields) {
+        for (const i in data.fields) {
           data.fields[i] = renderField(data.fields[i]);
         }
       }

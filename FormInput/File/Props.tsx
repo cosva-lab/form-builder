@@ -10,11 +10,11 @@ export interface Props
     WithStyles<typeof styles> {
   validateField(): void;
 }
-export declare type Value = {
+export interface Value {
   file: File;
   id: string;
   fileName: string;
-};
+}
 
 export declare type Lookup = (typeof mimeTypes extends Promise<
   infer U

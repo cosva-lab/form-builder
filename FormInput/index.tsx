@@ -21,7 +21,8 @@ class FormInput extends React.PureComponent<FormInputProps> {
     extraProps: {},
     route: '',
   };
-  render() {
+
+  public render() {
     const {
       multiple,
       InputProps,

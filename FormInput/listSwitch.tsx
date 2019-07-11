@@ -49,7 +49,7 @@ class SwitchListSecondary extends React.Component<Props> {
     });
   };
 
-  render() {
+  public render() {
     const { classes } = this.props;
 
     return (
