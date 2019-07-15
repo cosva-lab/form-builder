@@ -29,6 +29,10 @@ export interface InitialStateSteps extends InitialState {
 }
 declare type Fields = PropsField[] | { [key: string]: PropsField };
 
+export interface InitialStateFields extends InitialState {
+  fields: Fields;
+}
+
 export interface ChangeValueFields {
   fields: Fields;
   action: { value: any; name: string };
@@ -150,7 +154,7 @@ export declare type handleChangeFieldRender = (
   e: EventField & { waitTime?: boolean },
 ) => void;
 
-export interface extraProps {
+export interface ExtraProps {
   helpMessage?: boolean;
   searchField?: string | number | ((e: Fields) => string | number);
   searchId?: string;
@@ -190,27 +194,27 @@ interface BasicFields {
 }
 interface FileField {
   type: 'file';
-  extraProps?: extraProps;
+  extraProps?: ExtraProps;
 }
 interface ListSwitchField {
   type: 'listSwitch';
-  extraProps?: extraProps;
+  extraProps?: ExtraProps;
 }
 interface ListField {
   type: 'list';
-  extraProps?: extraProps;
+  extraProps?: ExtraProps;
 }
 interface AutoCompleteField {
   type: 'autoComplete';
-  extraProps?: extraProps;
+  extraProps?: ExtraProps;
 }
 interface TableField {
   type: 'table';
-  extraProps?: extraProps;
+  extraProps?: ExtraProps;
 }
 interface ChipsField {
   type: 'chips';
-  extraProps?: extraProps;
+  extraProps?: ExtraProps;
 }
 interface CheckboxField {
   type: 'checkbox';
@@ -224,7 +228,7 @@ interface Component {
 }
 export interface PropsField extends Component {
   fields?: Fields;
-  extraProps?: extraProps;
+  extraProps?: ExtraProps;
   type?:
     | 'time'
     | 'text'
