@@ -5,7 +5,6 @@ import {
   InitialStateSteps,
   FieldsRenderProps,
   ChangeValueFields,
-  InitialStateFields,
   ChangeValueSteps,
   Fields,
 } from '../../index';
@@ -81,7 +80,9 @@ const renderFields = (
     data => {
       if (Array.isArray(data.fields)) {
         for (const i in data.fields) {
-          data.fields[i] = renderField(data.fields[i]);
+          if (i) {
+            data.fields[i] = renderField(data.fields[i]);
+          }
         }
       }
     },

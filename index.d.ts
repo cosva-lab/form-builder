@@ -29,10 +29,6 @@ export interface InitialStateSteps extends InitialState {
 }
 declare type Fields = PropsField[] | { [key: string]: PropsField };
 
-export interface InitialStateFields extends InitialState {
-  fields: Fields;
-}
-
 export interface ChangeValueFields {
   fields: Fields;
   action: { value: any; name: string };
@@ -49,7 +45,8 @@ export interface FormStepsProps extends InitialState {
   handleBackStep({ activeStep }: { activeStep: activeStep }): void;
 }
 
-export interface FieldsRenderProps extends InitialStateFields {
+export interface FieldsRenderProps {
+  fields: Fields;
   actionsExtra?: {};
   state?: boolean;
   validate?: boolean;
