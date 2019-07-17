@@ -10,7 +10,7 @@ class InputValidator {
     this.validations = validations;
   }
 
-  validate({
+  haveErrors({
     value,
     validChange,
     validate,

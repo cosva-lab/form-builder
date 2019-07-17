@@ -36,19 +36,19 @@ export default class FieldRender extends React.Component<
       changed,
       validChange = false,
       validate,
-      validation,
+      validations,
     } = props;
     this.state = {
       error:
         this.verifyError({
-          validation,
+          validations,
           value,
           validChange,
           changed,
           validate,
         }) || undefined,
       validate: validate || false,
-      validation: validation || [],
+      validations,
       value: value || '',
       changed: changed || false,
       validChange: validChange || false,
@@ -64,14 +64,14 @@ export default class FieldRender extends React.Component<
     changed,
     validChange = false,
     validate,
-    validation,
+    validations,
   }: FormBuilder.FieldRender) {
     this.setState({
       value,
       validChange,
       validate,
       error: this.verifyError({
-        validation,
+        validations,
         value,
         validChange,
         changed,
@@ -85,14 +85,14 @@ export default class FieldRender extends React.Component<
     waitTime = false,
   }) => {
     if (waitTime) {
-      const { validation } = this.props;
+      const { validations } = this.props;
       const { validChange, validate } = this.state;
       const { value } = target;
       this.setState(
         {
           value,
           error: this.verifyError({
-            validation,
+            validations,
             value,
             validChange,
             changed: true,
@@ -111,11 +111,11 @@ export default class FieldRender extends React.Component<
   };
 
   validateField = () => {
-    const { validation } = this.props;
+    const { validations } = this.props;
     const { validChange, validate, value } = this.state;
     this.setState({
       error: this.verifyError({
-        validation,
+        validations,
         value,
         validChange,
         changed: true,
@@ -131,13 +131,13 @@ export default class FieldRender extends React.Component<
   };
 
   verifyError({
-    validation = [],
+    validations = [],
     value,
     validChange,
     changed,
     validate,
   }: Validate) {
-    return new InputValidator(validation).validate({
+    return new InputValidator(validations).haveErrors({
       value,
       validChange,
       changed,

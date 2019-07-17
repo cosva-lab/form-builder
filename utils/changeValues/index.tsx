@@ -7,22 +7,23 @@ import {
   ChangeValueFields,
   ChangeValueSteps,
   Fields,
+  PropsFieldObject,
 } from '../../index';
 
-const changeValueField = ({
+function changeValueField<Obj = false>({
   field,
   action,
 }: {
-  field: PropsField;
+  field: Obj extends true ? PropsFieldObject : PropsField;
   action: any;
-}): PropsField => {
+}): Obj extends true ? PropsFieldObject : PropsField {
   return {
     ...field,
     value: action.value,
     error: { state: false, message: '' },
     changed: true,
   };
-};
+}
 
 const changeValueFields: (props: ChangeValueFields) => Fields = ({
   fields,
@@ -38,7 +39,7 @@ const changeValueFields: (props: ChangeValueFields) => Fields = ({
       });
       draft[index] = field;
     } else {
-      const field = changeValueField({
+      const field = changeValueField<true>({
         field: draft[name],
         action,
       });

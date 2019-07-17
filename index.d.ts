@@ -27,7 +27,19 @@ export interface InitialStateSteps extends InitialState {
   steps: Step[];
   activeStep: activeStep;
 }
-declare type Fields = PropsField[] | { [key: string]: PropsField };
+
+type OptionalExceptFor<T, TRequired extends keyof T> = Partial<T> &
+  Pick<T, TRequired>;
+
+export interface PropsFieldObject extends PropsField {
+  name?: string;
+}
+
+declare type Fields =
+  | PropsField[]
+  | {
+      [key: string]: PropsFieldObject;
+    };
 
 export interface InitialStateFields extends InitialState {
   fields: Fields;
@@ -49,12 +61,10 @@ export interface FormStepsProps extends InitialState {
   handleBackStep({ activeStep }: { activeStep: activeStep }): void;
 }
 
-export interface FieldsRenderProps {
+export interface FieldsRenderProps extends InitialState {
   fields: Fields;
   actionsExtra?: {};
-  state?: boolean;
   validate?: boolean;
-  ns?: string;
   transPosition?: transPosition;
 }
 
@@ -62,6 +72,27 @@ export interface Step extends FieldsRenderProps {
   label: string;
 }
 
+const a: Exclude<
+  keyof ValidatorJS.ValidatorStatic,
+  | 'version'
+  | 'blacklist'
+  | 'escape'
+  | 'unescape'
+  | 'ltrim'
+  | 'normalizeEmail'
+  | 'rtrim'
+  | 'stripLow'
+  | 'toBoolean'
+  | 'toDate'
+  | 'toFloat'
+  | 'toInt'
+  | 'trim'
+  | 'whitelist'
+  | 'toString'
+  | 'version'
+  | 'extend'
+>;
+console.log(a);
 declare type Rules =
   | 'contains'
   | 'equals'
@@ -136,8 +167,8 @@ declare type Rules =
 
 export interface Validation {
   rule: Rules;
-  state?: boolean;
   message: string;
+  state?: boolean;
   ns?: string;
   props?: {};
   args?: any;
@@ -145,7 +176,7 @@ export interface Validation {
 
 export interface Validations {
   validate?: boolean;
-  validation?: Validation[];
+  validations?: Validation[];
   changed?: boolean;
   validChange?: boolean;
 }
@@ -185,7 +216,7 @@ export interface ExtraProps {
   subLabel?: Message;
 }
 declare type render = (element: {
-  children: React.ReactElement;
+  children: React.ReactElement<any>;
   props: FieldRenderProps;
 }) => React.CElement;
 
@@ -226,7 +257,7 @@ interface Component {
     | React.ComponentClass<FieldRender>
     | React.Component;
 }
-export interface PropsField extends Component {
+export interface PropsField extends Component, Validations {
   fields?: Fields;
   extraProps?: ExtraProps;
   type?:
@@ -247,8 +278,6 @@ export interface PropsField extends Component {
   name: string;
   value: value;
   defaultInputValue?: value;
-  validChange?: boolean;
-  validation?: Validation[];
   label?:
     | string
     | Message & {
@@ -261,7 +290,6 @@ export interface PropsField extends Component {
   waitTime?: boolean;
   fullWidth?: boolean;
   transPosition?: transPosition;
-  changed?: boolean;
   error?: Message;
   state?: boolean;
   serverError?: string[] | string;
