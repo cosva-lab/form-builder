@@ -11,12 +11,14 @@ import {
   handleChangeFieldRender,
 } from './';
 import { transformLabel } from './utils/transformLabel';
+
+declare type States = Validations & {
+  value: any;
+  error?: Message | undefined;
+};
 export default class FieldRender extends React.Component<
   FormBuilder.FieldRender,
-  Validations & {
-    value: any;
-    error?: Message | undefined;
-  }
+  States
 > {
   static defaultProps = {
     ns: 'inputs',
@@ -26,8 +28,9 @@ export default class FieldRender extends React.Component<
       state: false,
       value: -1,
     },
-    waitTime: true,
   };
+
+  public errorFlag: Message | undefined;
 
   constructor(props: FormBuilder.FieldRender) {
     super(props);
@@ -37,16 +40,19 @@ export default class FieldRender extends React.Component<
       validChange = false,
       validate,
       validations,
+      error,
     } = props;
     this.state = {
       error:
-        this.verifyError({
-          validations,
-          value,
-          validChange,
-          changed,
-          validate,
-        }) || undefined,
+        error && error.state
+          ? error
+          : this.verifyError({
+              validations,
+              value,
+              validChange,
+              changed,
+              validate,
+            }) || undefined,
       validate: validate || false,
       validations,
       value: value || '',
@@ -55,79 +61,78 @@ export default class FieldRender extends React.Component<
     };
   }
 
-  componentWillReceiveProps(newProps: FormBuilder.FieldRender) {
-    this.updateProps(newProps);
-  }
-
-  public updateProps({
+  componentWillReceiveProps({
     value,
     changed,
     validChange = false,
     validate,
     validations,
+    error,
   }: FormBuilder.FieldRender) {
     this.setState({
       value,
       validChange,
       validate,
-      error: this.verifyError({
-        validations,
-        value,
-        validChange,
-        changed,
-        validate,
-      }),
+      error:
+        error && error.state
+          ? error
+          : this.verifyError({
+              validations,
+              value,
+              validChange,
+              changed,
+              validate,
+            }),
     });
   }
 
-  handleChange: handleChangeFieldRender = ({
-    target,
-    waitTime = false,
-  }) => {
-    if (waitTime) {
-      const { validations } = this.props;
-      const { validChange, validate } = this.state;
-      const { value } = target;
-      this.setState(
-        {
+  handleChange: handleChangeFieldRender = (
+    { target, waitTime = false },
+    callback,
+  ) => {
+    const { validations } = this.props;
+    const { validChange, validate } = this.state;
+    const { value } = target;
+    this.setState(
+      {
+        value,
+        error: this.verifyError({
+          validations,
           value,
-          error: this.verifyError({
-            validations,
-            value,
-            validChange,
-            changed: true,
-            validate,
-          }),
-        },
-        () => {
-          if (!waitTime) {
-            this.sendChange();
-          }
-        },
-      );
-    } else {
-      this.props.handleChange({ target });
-    }
+          validChange,
+          changed: true,
+          validate,
+        }),
+      },
+      () => {
+        callback && callback();
+        if (!waitTime) {
+          this.props.handleChange({ target });
+        }
+      },
+    );
+  };
+
+  sendChange = () => {
+    const { name } = this.props;
+    const { value } = this.state;
+    this.props.handleChange({ target: { value, name } });
   };
 
   validateField = () => {
     const { validations } = this.props;
     const { validChange, validate, value } = this.state;
-    this.setState({
-      error: this.verifyError({
-        validations,
-        value,
-        validChange,
-        changed: true,
-        validate,
-      }),
+    const error = this.verifyError({
+      validations,
+      value,
+      validChange,
+      changed: true,
+      validate,
     });
-  };
 
-  sendChange = () => {
-    const { value } = this.state;
-    const { name } = this.props;
-    this.props.handleChange({ target: { value, name } });
+    this.setState({
+      error,
+    });
   };
 
   verifyError({
@@ -157,7 +162,6 @@ export default class FieldRender extends React.Component<
       label,
       search,
       state = true,
-      waitTime,
       render,
       ns,
       type,
@@ -171,6 +175,7 @@ export default class FieldRender extends React.Component<
         label={transformLabel({ label, ns, name })}
         validateField={this.validateField}
         handleChange={this.handleChange}
+        sendChange={this.sendChange}
         error={error}
         {...{
           name,
@@ -179,7 +184,6 @@ export default class FieldRender extends React.Component<
           actionsExtra,
           ns,
           search,
-          waitTime,
           component,
           extraProps,
         }}

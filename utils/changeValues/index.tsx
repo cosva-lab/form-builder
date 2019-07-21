@@ -3,7 +3,7 @@ import produce from 'immer';
 import {
   PropsField,
   InitialStateSteps,
-  FieldsRenderProps,
+  FieldsRenderBasic,
   ChangeValueFields,
   ChangeValueSteps,
   Fields,
@@ -31,20 +31,12 @@ const changeValueFields: (props: ChangeValueFields) => Fields = ({
 }) =>
   produce<Fields, Fields>(fields, (draft): void => {
     const { name } = action;
-    if (Array.isArray(draft)) {
-      const index = draft.map(({ name }) => name).indexOf(name);
-      const field = changeValueField({
-        field: draft[index],
-        action,
-      });
-      draft[index] = field;
-    } else {
-      const field = changeValueField<true>({
-        field: draft[name],
-        action,
-      });
-      draft[name] = field;
-    }
+    const index = draft.map(({ name }) => name).indexOf(name);
+    const field = changeValueField({
+      field: draft[index],
+      action,
+    });
+    draft[index] = field;
   });
 
 const changeValueSteps = ({
@@ -74,9 +66,9 @@ const renderField = (fieldRender: PropsField) =>
   });
 
 const renderFields = (
-  fieldsRender: FieldsRenderProps,
-): FieldsRenderProps =>
-  produce<FieldsRenderProps, FieldsRenderProps>(
+  fieldsRender: FieldsRenderBasic,
+): FieldsRenderBasic =>
+  produce<FieldsRenderBasic, FieldsRenderBasic>(
     fieldsRender,
     data => {
       if (Array.isArray(data.fields)) {

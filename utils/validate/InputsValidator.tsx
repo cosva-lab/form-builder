@@ -1,87 +1,94 @@
 import produce from 'immer';
-import { Fields, EventField } from '../..';
+import {
+  PropsField,
+  PropsFieldObject,
+  FieldsAll,
+  Fields,
+} from '../..';
 import InputValidator from './InputValidator';
-import { changeValueFields } from '../changeValues';
-import FormBuilder from '../FormBuilder';
-interface State {
-  fieldsRender: FormBuilder;
-}
-declare type Component = React.Component<unknown, State>;
+import transformFields from '../transformFields';
+import { Component, State } from '..';
 class InputsValidator {
   public inValid = false;
   public valid = true;
   public fields: Fields;
   private fieldsWithErros: Fields;
 
-  constructor(fields: Fields) {
-    this.fields = fields;
-    this.fieldsWithErros = fields;
+  constructor(fields: FieldsAll) {
+    this.fields = transformFields(fields);
+    this.fieldsWithErros = transformFields(fields);
   }
 
-  haveErrors() {
-    const fields = this.fields;
-    this.fieldsWithErros = produce<Fields, Fields>(
-      fields,
-      (draft): void => {
-        if (Array.isArray(draft)) {
-          for (let index = 0; index < draft.length; index++) {
-            const validation = new InputValidator(
-              draft[index].validations || [],
-            );
-            draft[index].validate = true;
-            draft[index].changed = true;
-            const error = validation.haveErrors(draft[index]);
-            draft[index].error = error;
-            if (error.state && !this.inValid) {
-              this.inValid = true;
-              this.valid = false;
-            }
-          }
-        } else {
-          for (const key in draft) {
-            if (draft.hasOwnProperty(key)) {
-              const validation = new InputValidator(
-                draft[key].validations || [],
-              );
+  private setE(field: PropsField | PropsFieldObject) {
+    field.validate = true;
+    field.changed = true;
+  }
 
-              draft[key].validate = true;
-              draft[key].changed = true;
-              const error = validation.haveErrors(draft[key]);
-              draft[key].error = error;
-              if (error.state && !this.inValid) {
-                this.inValid = true;
-                this.valid = false;
-              }
-            }
-          }
-        }
-      },
-    );
+  callbackField = (
+    callback: (field: PropsField | PropsFieldObject) => void,
+  ) => {
+    return produce<Fields, Fields>(this.fields, (draft): void => {
+      for (let key = 0; key < draft.length; key++) {
+        callback(draft[key]);
+      }
+    });
+  };
+
+  haveErrors() {
+    this.inValid = false;
+    this.valid = true;
+    this.fieldsWithErros = this.callbackField(field => {
+      this.setE(field);
+      try {
+        if (field.error && field.error.state) throw new Error();
+        const validation = new InputValidator(
+          field.validations || [],
+        );
+        const error = validation.haveErrors(field);
+        field.error = error;
+        if (error.state && !this.inValid) throw new Error();
+      } catch (e) {
+        this.inValid = true;
+        this.valid = false;
+      }
+    });
     return this.inValid;
   }
 
-  handleChange = (component: Component) => ({
-    target,
-  }: EventField) => {
-    const { value, name } = target;
-    component.setState(state =>
-      produce<State, State>(state, (draft): void => {
-        const fields = draft.fieldsRender.fields;
-        draft.fieldsRender.fields = changeValueFields({
-          fields: fields,
-          action: { name, value },
-        });
-      }),
-    );
-  };
-
-  addErrors = (component: Component) => {
+  setErrors = (component: Component) => {
     component.setState(state =>
       produce<State, State>(state, (draft): void => {
         draft.fieldsRender.validate = true;
         draft.fieldsRender.fields = this.fieldsWithErros;
       }),
     );
+  };
+
+  addErrors = (errors: { [key: string]: string | string[] }) => {
+    for (const key in errors) {
+      if (errors.hasOwnProperty(key)) {
+        const e = errors[key];
+        const error: string[] = [];
+        if (typeof e === 'string') {
+          error.push(e);
+        } else {
+          error.push(...e);
+        }
+        this.fields = this.callbackField(field => {
+          const serverError = field.serverError || field.name;
+          const serverErrors: string[] = [];
+          if (typeof serverError === 'string') {
+            serverErrors.push(serverError);
+          } else if (serverError) {
+            serverErrors.push(...serverError);
+          }
+          if (serverErrors.find(name => name === key)) {
+            field.error = { message: error[0], state: true };
+          }
+        });
+      }
+    }
+    return this.fields;
   };
 }
 

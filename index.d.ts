@@ -4,6 +4,7 @@ import { OutlinedInputProps } from '@material-ui/core/OutlinedInput';
 
 export interface EventField {
   target: { name: string; value: value; type?: string };
+  waitTime?: boolean;
 }
 
 export declare type handleChange = (
@@ -35,11 +36,11 @@ export interface PropsFieldObject extends PropsField {
   name?: string;
 }
 
-declare type Fields =
-  | PropsField[]
-  | {
-      [key: string]: PropsFieldObject;
-    };
+export declare type Fields = PropsField[];
+export interface FieldsObject {
+  [key: string]: PropsFieldObject;
+}
+export declare type FieldsAll = Fields | FieldsObject;
 
 export interface InitialStateFields extends InitialState {
   fields: Fields;
@@ -61,18 +62,23 @@ export interface FormStepsProps extends InitialState {
   handleBackStep({ activeStep }: { activeStep: activeStep }): void;
 }
 
-export interface FieldsRenderProps extends InitialState {
+export interface FieldsRenderBasic extends InitialState {
   fields: Fields;
   actionsExtra?: {};
   validate?: boolean;
   transPosition?: transPosition;
 }
 
-export interface Step extends FieldsRenderProps {
+export interface FieldsRenderProps extends FieldsRenderBasic {
+  fields: FieldsAll;
+}
+
+export interface Step extends FieldsRenderBasic {
+  fields: Fields;
   label: string;
 }
 
-const a: Exclude<
+declare type Rules = Exclude<
   keyof ValidatorJS.ValidatorStatic,
   | 'version'
   | 'blacklist'
@@ -92,78 +98,6 @@ const a: Exclude<
   | 'version'
   | 'extend'
 >;
-console.log(a);
-declare type Rules =
-  | 'contains'
-  | 'equals'
-  | 'isAfter'
-  | 'isAlpha'
-  | 'isAlphanumeric'
-  | 'isAscii'
-  | 'isBase64'
-  | 'isBefore'
-  | 'isBoolean'
-  | 'isByteLength'
-  | 'isByteLength'
-  | 'isCreditCard'
-  | 'isCurrency'
-  | 'isDataURI'
-  | 'isDecimal'
-  | 'isDivisibleBy'
-  | 'isEmail'
-  | 'isEmpty'
-  | 'isFQDN'
-  | 'isFloat'
-  | 'isFullWidth'
-  | 'isHalfWidth'
-  | 'isHash'
-  | 'isHexColor'
-  | 'isHexadecimal'
-  | 'isIP'
-  | 'isISBN'
-  | 'isISSN'
-  | 'isISIN'
-  | 'isISO8601'
-  | 'isISO31661Alpha2'
-  | 'isISRC'
-  | 'isIn'
-  | 'isInt'
-  | 'isJSON'
-  | 'isJWT'
-  | 'isLatLong'
-  | 'isLength'
-  | 'isLength'
-  | 'isLowercase'
-  | 'isMACAddress'
-  | 'isMD5'
-  | 'isMimeType'
-  | 'isMobilePhone'
-  | 'isMongoId'
-  | 'isMultibyte'
-  | 'isNumeric'
-  | 'isPort'
-  | 'isPostalCode'
-  | 'isSurrogatePair'
-  | 'isURL'
-  | 'isUUID'
-  | 'isUppercase'
-  | 'isVariableWidth'
-  | 'isWhitelisted'
-  | 'matches'
-  | 'blacklist'
-  | 'escape'
-  | 'unescape'
-  | 'ltrim'
-  | 'normalizeEmail'
-  | 'rtrim'
-  | 'stripLow'
-  | 'toBoolean'
-  | 'toDate'
-  | 'toFloat'
-  | 'toInt'
-  | 'trim'
-  | 'whitelist'
-  | 'toString';
 
 export interface Validation {
   rule: Rules;
@@ -182,7 +116,8 @@ export interface Validations {
 }
 
 export declare type handleChangeFieldRender = (
-  e: EventField & { waitTime?: boolean },
+  e: EventField,
+  callback?: () => void,
 ) => void;
 
 export interface ExtraProps {
@@ -308,7 +243,6 @@ export interface FieldRenderProps extends Validations, PropsField {
   md?: GridSize;
   lg?: GridSize;
   xs?: GridSize;
-  waitTime?: boolean;
 }
 
 export declare type Validate = Validations & {
@@ -320,17 +254,18 @@ export interface FormInputProps extends PropsField {
   multiple?: boolean;
   route: string;
   handleChange: handleChangeFieldRender;
+  sendChange?(): void;
   validateField?(): void;
 }
 
 export interface BaseProps extends PropsField {
   autoComplete?: string;
-  waitTime?: boolean;
   handleChange: handleChangeFieldRender;
 }
 
 export interface InputProps extends BaseProps {
   type: 'text' | 'number' | 'email' | 'date' | 'password';
+  sendChange?(): void;
 }
 
 export interface InputPropsComplete extends BaseProps {
@@ -352,7 +287,7 @@ export namespace FormBuilder {
     activeStep?: activeStep;
   }
   export interface FieldsRender
-    extends FieldsRenderProps,
+    extends FieldsRenderBasic,
       BaseBuilder {}
   export interface FieldRender
     extends FieldRenderProps,
