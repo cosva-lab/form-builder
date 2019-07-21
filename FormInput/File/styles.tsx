@@ -1,22 +1,6 @@
 import createStyles from '@material-ui/core/styles/createStyles';
 
 export const styles = createStyles({
-  image: {
-    width: 220,
-    height: 125,
-  },
-  img: {
-    margin: 'auto',
-    display: 'block',
-    maxWidth: '100%',
-    maxHeight: '100%',
-    WebkitUserSelect: 'none',
-    KhtmlUserSelect: 'none',
-    MozUserSelect: 'none',
-    OUserSelect: 'none',
-    userSelect: 'none',
-    WebkitUserDrag: 'none',
-  },
   progress: {
     width: '100%',
     position: 'absolute',

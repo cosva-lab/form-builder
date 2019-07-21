@@ -11,7 +11,13 @@ import {
   getMessage,
   Animation,
 } from '../../../MessagesTranslate/Animation';
-import { Props, States, Lookup, handleChangeFiles } from './Props';
+import {
+  Props,
+  States,
+  Lookup,
+  handleChangeFiles,
+  Value,
+} from './Props';
 import ListFiles from './ListFiles';
 import { styles } from './styles';
 
@@ -45,6 +51,7 @@ class FileInput extends React.Component<Props, States> {
     const { multiple } = extraProps || defaultPropsExtra;
     this.state = {
       value: multiple ? [] : null,
+      valueTemp: multiple ? [] : null,
       lookup: false,
       inputValue: '',
     };
@@ -65,9 +72,17 @@ class FileInput extends React.Component<Props, States> {
     });
   }
 
+  get extraProps() {
+    return {
+      ...defaultPropsExtra,
+      ...this.props.extraProps,
+    };
+  }
+
   validExtensions(): boolean {
-    const extensions = this.props!.extraProps!.extensions;
     let error = false;
+    const extraProps = this.extraProps;
+    const extensions = extraProps.extensions;
     if (extensions) {
       try {
         new RegExp(
@@ -81,89 +96,73 @@ class FileInput extends React.Component<Props, States> {
     return error;
   }
 
-  componentDidUpdate(newProps: Props) {
-    const state = this.props.error!.state;
-    const stateProps = newProps.error!.state;
-    if (stateProps !== state) {
+  componentDidUpdate({ error }: Props) {
+    const { error: errorOld } = this.props;
+    const state = errorOld && errorOld.state;
+    const stateProps = error && error.state;
+    if (error && errorOld && stateProps !== state) {
       this.animation = true;
     }
   }
 
   openFileDialog = () => {
-    this.inputOpenFileRef.current!.click();
+    if (this.inputOpenFileRef) this.inputOpenFileRef.current.click();
   };
 
   handleChange: handleChangeFiles = target => {
-    const { extraProps } = this.props;
-    const { multiple } = extraProps || defaultPropsExtra;
-    if (!target.files![0]) return;
-    this.setState(
-      ({ value }) => {
-        const { name } = target.files![0];
-        let newValue;
-        if (multiple) {
-          newValue = [
-            ...(Array.isArray(value) ? value : []),
-            ...Array.from(target.files || []).map(file => ({
+    const { files } = target;
+    if (files && files[0]) {
+      this.setState(
+        ({ value }) => {
+          const newValue = Array.isArray(value) ? value : [];
+          const valueTemp: Value[] = [];
+          const tempFiles = Array.from(files || []);
+          tempFiles.forEach(file => {
+            const va: Value = {
               file,
-              fileName: name,
               id: uuid.v4(),
-            })),
-          ];
-        } else {
-          newValue = {
-            fileName: name,
-            file: target.files![0],
-            id: uuid.v4(),
-          };
-        }
-        return {
-          value: newValue,
-        };
-      },
-      () => {
-        const { handleChange, name, type } = this.props;
-        let value: File[] | File | false = false;
-        if (multiple && Array.isArray(this.state.value)) {
-          value = this.state.value.map(({ file }) => file);
-          this.state.value.forEach(({ file, id }) => {
+              invalid: false,
+            };
             if (!this.validateFile(file.name)) {
-              this.deleteFile(id);
+              va.invalid = true;
+              valueTemp.push(va);
+            } else {
+              newValue.push(va);
             }
           });
-        } else {
-          if (
-            typeof this.state.value === 'object' &&
-            !Array.isArray(this.state.value)
-          ) {
-            value = this.state.value!.file;
+          return {
+            value: newValue,
+            valueTemp,
+            inputValue: '',
+          };
+        },
+        () => {
+          const value = this.state.value;
+          if (value) {
+            const { handleChange, name, type } = this.props;
+            handleChange({
+              target: {
+                name,
+                value: Array.isArray(this.state.value)
+                  ? this.state.value.map(({ file }) => file)
+                  : null,
+                type,
+              },
+            });
           }
-        }
-        if (value) {
-          handleChange({
-            target: {
-              name,
-              value,
-              type,
-            },
-            waitTime: false,
-          });
-        }
-        this.setState({ inputValue: '' });
-      },
-    );
+        },
+      );
+    }
   };
 
   deleteFile = (index: string): void => {
-    const { extraProps } = this.props;
-    const { multiple } = extraProps || defaultPropsExtra;
     this.setState(
       ({ value }) => {
         return {
-          value:
-            multiple && Array.isArray(value)
-              ? value.filter(({ id }) => id !== index)
-              : null,
+          value: Array.isArray(value)
+            ? value.filter(({ id }) => id !== index)
+            : [],
+          valueTemp: [],
         };
       },
       () => {
@@ -176,13 +175,11 @@ class FileInput extends React.Component<Props, States> {
         handleChange({
           target: {
             name,
-            value:
-              multiple && Array.isArray(this.state.value)
-                ? this.state.value.map(({ file }) => file)
-                : null,
+            value: Array.isArray(this.state.value)
+              ? this.state.value.map(({ file }) => file)
+              : null,
             type,
           },
-          waitTime: false,
         });
         validateField();
       },
@@ -192,6 +189,10 @@ class FileInput extends React.Component<Props, States> {
   convertToRegex(param: string) {
     return new RegExp(`${param}(?=(?:[^"]*"[^"]*")*(?![^"]*"))`);
   }
+
+  clearValueTemp = () => {
+    this.setState({ valueTemp: [] });
+  };
 
   convertAccept(param: string | string[]): string[] {
     let accept = param;
@@ -215,9 +216,10 @@ class FileInput extends React.Component<Props, States> {
       validateAccept = true,
       accept: acceptFiles = '*',
       extensions = ['.*'],
-    } = this.props!.extraProps || defaultPropsExtra;
+    } = this.extraProps;
 
     const accept = this.convertAccept(acceptFiles);
+
     const hasExtensions = (): boolean => {
       if (this.validExtensions()) {
         return new RegExp(
@@ -228,12 +230,15 @@ class FileInput extends React.Component<Props, States> {
     };
 
     const acceptValidate = () =>
-      !!accept.find((a: string): boolean => {
-        if (!this.lookup(fileName)) return false;
-        return !!(this.lookup(fileName) || '').match(
-          new RegExp(`${a.replace(/(\.\*|\.|\*)$/, '')}.*`),
-        );
-      });
+      !!(
+        accept.find((a: string): boolean => {
+          if (!this.lookup(fileName)) return false;
+          return !!(this.lookup(fileName) || '').match(
+            new RegExp(`${a.replace(/(\.\*|\.|\*)$/, '')}.*`),
+          );
+        }) ||
+        ('*' === acceptFiles || acceptFiles === '')
+      );
 
     if (validateExtensions && validateAccept) {
       return hasExtensions() && acceptValidate();
@@ -253,15 +258,14 @@ class FileInput extends React.Component<Props, States> {
 
   public render() {
     const { classes, error, label, name, ns } = this.props;
-    const extraProps = {
-      ...defaultPropsExtra,
-      ...this.props.extraProps,
-    };
-    const { multiple, subLabel } = extraProps || defaultPropsExtra;
+    const {
+      multiple,
+      subLabel,
+      accept: acceptOriginal,
+    } = this.extraProps;
 
-    const accept = this.convertAccept(extraProps.accept);
-    const { value, lookup, inputValue } = this.state;
-
+    const accept = this.convertAccept(acceptOriginal);
+    const { value, valueTemp, lookup, inputValue } = this.state;
     const { state, message, ns: nsError, props } = error || {
       state: false,
       message: '',
@@ -285,14 +289,15 @@ class FileInput extends React.Component<Props, States> {
               ns,
               name,
               value,
+              valueTemp,
               multiple,
               subLabel: subLabel || defaultPropsExtra.subLabel,
-              classes,
               handleChange: this.handleChange,
               lookup: this.lookup,
               openFileDialog: this.openFileDialog,
               validateFile: this.validateFile,
               deleteFile: this.deleteFile,
+              clearValueTemp: this.clearValueTemp,
             }}
           />
           <Grid container onClick={this.openFileDialog}>

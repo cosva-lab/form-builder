@@ -1,12 +1,12 @@
 import React from 'react';
 import BrokenImageIcon from '@material-ui/icons/BrokenImage';
 import Typography from '@material-ui/core/Typography';
-import { WithStyles } from '@material-ui/styles/withStyles';
-import { styles } from './styles';
 
 export const DefaultImage = ({
   classes,
-}: WithStyles<typeof styles>) => (
+}: {
+  classes: Record<'img', string>;
+}) => (
   <div className={classes.img}>
     <Typography
       style={{

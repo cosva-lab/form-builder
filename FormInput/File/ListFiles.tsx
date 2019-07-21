@@ -1,15 +1,16 @@
 import React from 'react';
-import Zoom from '@material-ui/core/Zoom';
-import Grow from '@material-ui/core/Grow';
 import ButtonBase from '@material-ui/core/ButtonBase';
 import Grid from '@material-ui/core/Grid';
 import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
-import Fab from '@material-ui/core/Fab';
-import DeleteIcon from '@material-ui/icons/Delete';
-import Box from '@material-ui/core/Box';
+import RootRef from '@material-ui/core/RootRef';
+import compose from 'recompose/compose';
+import withStyles, {
+  WithStyles,
+} from '@material-ui/core/styles/withStyles';
+import createStyles from '@material-ui/core/styles/createStyles';
 import { getMessage } from '../../../MessagesTranslate/Animation';
 import { transformLabel } from '../../utils/transformLabel';
 import {
@@ -19,16 +20,41 @@ import {
   ListFilesStates,
 } from './Props';
 import { DefaultImage } from './DefaultImage';
-import RootRef from '@material-ui/core/RootRef';
+import { FileItem } from './FileItem';
 
-class ListFiles extends React.Component<
-  {
-    ns: string | undefined;
-    name: string;
-    multiple: boolean | undefined;
-    classes: Record<'img' | 'progress' | 'image', string>;
-    handleChange: handleChangeFiles;
-  } & ListFilesProps,
+export const duration = 800;
+const styles = () =>
+  createStyles({
+    image: {
+      width: 220,
+      height: 125,
+    },
+    img: {
+      margin: 'auto',
+      display: 'block',
+      maxWidth: '100%',
+      maxHeight: '100%',
+      WebkitUserSelect: 'none',
+      KhtmlUserSelect: 'none',
+      MozUserSelect: 'none',
+      OUserSelect: 'none',
+      userSelect: 'none',
+      WebkitUserDrag: 'none',
+    },
+  });
+
+interface Props extends ListFilesProps {
+  ns: string | undefined;
+  name: string;
+  multiple: boolean | undefined;
+  handleChange: handleChangeFiles;
+  clearValueTemp: () => void;
+}
+
+declare type AllProps = Props & WithStyles<typeof styles>;
+
+export class ListFiles extends React.Component<
+  AllProps,
   ListFilesStates
 > {
   private gridRef = React.createRef<HTMLDivElement>();
@@ -37,15 +63,20 @@ class ListFiles extends React.Component<
     backgroundColor: '',
   };
 
-  preventDefault = (evt: React.DragEvent<HTMLElement>) => {
-    evt.preventDefault();
-    evt.stopPropagation();
+  preventDefault = (
+    callback?: (evt: React.DragEvent<HTMLElement>) => void,
+  ) => {
+    return (evt: React.DragEvent<HTMLElement>) => {
+      evt.preventDefault();
+      evt.stopPropagation();
+      callback && callback(evt);
+    };
   };
 
-  getThumbnail(
+  getThumbnail = (
     file: File,
     { invalid }: { invalid: boolean },
-  ): React.ReactNode {
+  ): React.ReactNode => {
     const { classes } = this.props;
     const { name } = file;
     if (invalid) {
@@ -65,6 +96,17 @@ class ListFiles extends React.Component<
       default:
         return <DefaultImage {...{ classes }} />;
     }
+  };
+
+  setBackgroundColor = (color: string = '') => {
+    if (this.gridRef.current)
+      this.gridRef.current.style.backgroundColor = color;
+  };
+
+  get backgroundColor() {
+    if (this.gridRef.current)
+      return this.gridRef.current.style.backgroundColor || '';
+    return '';
   }
 
   public render() {
@@ -74,60 +116,35 @@ class ListFiles extends React.Component<
       name,
       subLabel,
       value,
+      valueTemp,
       multiple,
-      classes,
       handleChange,
       openFileDialog,
-      validateFile,
       deleteFile,
+      clearValueTemp,
     } = this.props;
 
-    let isEmpty = false;
-    if (value === null) {
-      isEmpty = true;
-    } else {
-      if (Array.isArray(value)) {
-        if (!value.length) {
-          isEmpty = true;
-        }
-      } else {
-        if (!(value!.file instanceof File)) {
-          isEmpty = true;
-        }
-      }
+    if (value && !value.length && valueTemp && valueTemp.length) {
+      setTimeout(() => {
+        clearValueTemp();
+      }, duration * 2);
     }
-    const files: Value[] = value
-      ? Array.isArray(value)
-        ? value
-        : [value]
-      : [];
 
-    const {
-      message: messageSubLabel = '',
-      ns: nsSubLabel = ns,
-      props: propsSubLabel = {},
-    } = subLabel;
-    const gridRefStyle = () =>
-      (this.gridRef.current || { style: { backgroundColor: '' } })!
-        .style;
+    const files: Value[] = [...(value || []), ...(valueTemp || [])];
+    const isEmpty = !files.length;
+
     return (
       <Paper elevation={0}>
         <RootRef rootRef={this.gridRef}>
           <Grid
-            onDragEnter={this.preventDefault}
-            onDragLeave={e => {
-              gridRefStyle().backgroundColor = '';
-              this.preventDefault(e);
-            }}
-            onDragOver={e => {
-              this.preventDefault(e);
-              if (!gridRefStyle().backgroundColor) {
-                gridRefStyle().backgroundColor =
-                  'rgba(0, 0, 0, 0.08)';
-              }
-            }}
-            onDrop={e => {
-              this.preventDefault(e);
+            onDragEnter={this.preventDefault()}
+            onDragLeave={this.preventDefault(() =>
+              this.setBackgroundColor(),
+            )}
+            onDragOver={this.preventDefault(() =>
+              this.setBackgroundColor('rgba(0, 0, 0, 0.08)'),
+            )}
+            onDrop={this.preventDefault(e => {
               const { files: filesTransfer } = e.dataTransfer;
               if (filesTransfer && filesTransfer.length > 0) {
                 handleChange({
@@ -135,15 +152,15 @@ class ListFiles extends React.Component<
                 });
                 e.dataTransfer.clearData();
               }
-              gridRefStyle().backgroundColor = '';
-            }}
+              this.setBackgroundColor('');
+            })}
             container
             component={isEmpty ? ButtonBase : undefined}
             onClick={isEmpty ? openFileDialog : undefined}
             style={{
               minHeight: '170px',
               padding: '20px',
-              backgroundColor: gridRefStyle().backgroundColor || '',
+              backgroundColor: this.backgroundColor,
             }}
             alignContent="center"
             alignItems="center"
@@ -181,13 +198,14 @@ class ListFiles extends React.Component<
                     variant="h6"
                   >
                     {getMessage({
-                      message: `${messageSubLabel}`,
-                      ns: nsSubLabel,
+                      message: ``,
+                      ns: ns,
                       styles: {
                         top: '-8px',
                         position: 'absolute',
                       },
-                      props: propsSubLabel,
+                      props: {},
+                      ...subLabel,
                     })}
                   </Typography>
                 </React.Fragment>
@@ -195,103 +213,18 @@ class ListFiles extends React.Component<
               {!isEmpty && (
                 <React.Fragment>
                   <Grid container spacing={4} alignItems="stretch">
-                    {files.map(
-                      (
-                        { file, id }: any,
-                        key: string | number | undefined,
-                      ) => {
-                        const { name: nameFile } = file;
-                        const invalid = !validateFile(nameFile);
-                        return (
-                          <Grid
-                            // eslint-disable-next-line react/no-array-index-key
-                            key={key}
-                            item
-                            {...(multiple && files.length > 1
-                              ? { sm: 6, md: 6, lg: 6, xs: true }
-                              : { xs: 12 })}
-                          >
-                            <Grow in>
-                              <Box
-                                p={{
-                                  xs: '1em',
-                                }}
-                                component={props => (
-                                  <Paper {...props} />
-                                )}
-                                position={'relative'}
-                                style={{
-                                  overflow: 'hidden',
-                                }}
-                              >
-                                <Grid
-                                  container
-                                  spacing={4}
-                                  style={{
-                                    position: 'relative',
-                                  }}
-                                >
-                                  <Grid
-                                    item
-                                    container
-                                    xs={12}
-                                    justify="center"
-                                  >
-                                    <Grid
-                                      container
-                                      className={classes.image}
-                                    >
-                                      {this.getThumbnail(file, {
-                                        invalid,
-                                      })}
-                                    </Grid>
-                                    <Box
-                                      component={props => (
-                                        <Grid
-                                          {...props}
-                                          container
-                                          justify="center"
-                                        />
-                                      )}
-                                      bottom={'5px'}
-                                      position="absolute"
-                                    >
-                                      <Fab
-                                        size="medium"
-                                        color="inherit"
-                                        onClick={e => {
-                                          e.preventDefault();
-                                          deleteFile(id);
-                                        }}
-                                        aria-label="delete"
-                                      >
-                                        <DeleteIcon />
-                                      </Fab>
-                                    </Box>
-                                  </Grid>
-                                  {invalid && (
-                                    <Zoom in>
-                                      <div
-                                        style={{
-                                          cursor: 'not-allowed',
-                                          width: '100%',
-                                          height: '100%',
-                                          position: 'absolute',
-                                          margin: 0,
-                                          alignItems: 'stretch',
-                                          opacity: 0.7,
-                                          background: '#ffc8c8',
-                                        }}
-                                      />
-                                    </Zoom>
-                                  )}
-                                </Grid>
-                              </Box>
-                            </Grow>
-                          </Grid>
-                        );
-                      },
-                    )}
+                    {files.map(file => {
+                      return (
+                        <FileItem
+                          key={file.id}
+                          getThumbnail={this.getThumbnail}
+                          multiple={multiple}
+                          deleteFile={() => deleteFile(file.id)}
+                          value={file}
+                          length={files.length}
+                        ></FileItem>
+                      );
+                    })}
                   </Grid>
                 </React.Fragment>
               )}
@@ -303,4 +236,6 @@ class ListFiles extends React.Component<
   }
 }
 
-export default ListFiles;
+export default compose<AllProps, Props>(
+  withStyles(styles, { name: 'List' }),
+)(ListFiles);

@@ -13,7 +13,7 @@ export interface Props
 export interface Value {
   file: File;
   id: string;
-  fileName: string;
+  invalid: boolean;
 }
 
 export declare type Lookup = (typeof mimeTypes extends Promise<
@@ -22,23 +22,29 @@ export declare type Lookup = (typeof mimeTypes extends Promise<
   ? U
   : typeof mimeTypes)['lookup'];
 
+export declare type FileValue = Value[] | null | undefined;
+
 export interface States {
-  value: Value[] | Value | null;
+  value: FileValue;
+  valueTemp: FileValue;
   lookup: Lookup | false;
   inputValue: string;
 }
 
 export interface ListFilesProps
   extends Pick<PropsField, 'label' | 'ns' | 'name'> {
-  value: Value[] | Value | null;
+  value: FileValue;
+  valueTemp: FileValue;
   lookup: Lookup;
   openFileDialog: () => void;
   validateFile: (fileName: string) => boolean;
   deleteFile: (id: string) => void;
   subLabel: Message;
 }
-export interface ListFilesStates
-  extends Pick<CSSProperties, 'backgroundColor'> {}
+export declare type ListFilesStates = Pick<
+  CSSProperties,
+  'backgroundColor'
+>;
 
 export declare type handleChangeFiles = (target: {
   files: FileList | null;
