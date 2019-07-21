@@ -57,7 +57,11 @@ class Chips extends React.Component<
       value.splice(index, 1);
       return value;
     };
-    onDelete = extraProps!.actions!.onDelete || onDelete;
+    onDelete =
+      (extraProps &&
+        extraProps.actions &&
+        extraProps.actions.onDelete) ||
+      onDelete;
     this.props.handleChange({
       target: { name, value: onDelete({ value, index }) },
     });
@@ -113,8 +117,11 @@ class Chips extends React.Component<
               }
               if (e.key === 'Enter') {
                 const addDefault = (v: string) => ({ label: v });
+                const { extraProps } = this.props;
                 const onAdd =
-                  this.props!.extraProps!.actions!.onAdd ||
+                  (extraProps &&
+                    extraProps.actions &&
+                    extraProps.actions.onAdd) ||
                   addDefault;
                 let valueParsed = [...value, onAdd(input)];
                 if (!onAdd(input)) {
@@ -128,7 +135,6 @@ class Chips extends React.Component<
                     name,
                     value: valueParsed,
                   },
-                  waitTime: false,
                 });
                 this.setState({ input: '' });
               }

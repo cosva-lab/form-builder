@@ -43,7 +43,6 @@ class Input extends React.PureComponent<AllProps, { blur: boolean }> {
       state: false,
       message: '',
     },
-    waitTime: true,
     fullWidth: true,
     autoComplete: '',
     InputProps: {},
@@ -54,9 +53,10 @@ class Input extends React.PureComponent<AllProps, { blur: boolean }> {
   };
 
   animation = true;
+  lastValue = '';
 
   componentDidUpdate({ error }: InputProps) {
-    if (this.props.error!.state !== error!.state) {
+    if (error && error.state) {
       this.animation = true;
     }
   }
@@ -67,12 +67,12 @@ class Input extends React.PureComponent<AllProps, { blur: boolean }> {
       classes,
       error,
       handleChange,
+      sendChange,
       label,
       name,
       type,
       value,
       InputProps,
-      waitTime,
       fullWidth,
       disabled,
       autoComplete,
@@ -98,22 +98,20 @@ class Input extends React.PureComponent<AllProps, { blur: boolean }> {
       >
         <TextField
           onBlur={() => {
-            this.animation = false;
-            handleChange({
-              target: { name, value, type },
-              waitTime: false,
-            });
+            sendChange && sendChange();
           }}
-          name={name}
-          type={type}
           label={getMessage(transformLabel({ label, ns, name }))}
-          error={error!.state}
+          error={error && error.state}
           FormHelperTextProps={{
             component: ({ children, className }) => {
               const child = (
                 <div className={className}>{children}</div>
               );
-              if (this.animation) {
+              if (
+                this.animation &&
+                this.props.error &&
+                this.props.error.state
+              ) {
                 this.animation = false;
                 return <Animation>{child}</Animation>;
               }
@@ -132,15 +130,26 @@ class Input extends React.PureComponent<AllProps, { blur: boolean }> {
               }),
             },
           }}
-          onChange={({ target }) => {
-            const { value: targetValue } = target;
+          onChange={({ target: { value: targetValue } }) => {
+            const { length } = targetValue;
+            const { length: lastLength } = this.lastValue;
             handleChange({
               target: { name, value: targetValue, type },
-              waitTime,
+              waitTime: !(
+                lastLength - 1 !== length && lastLength + 1 !== length
+              ),
             });
+            this.lastValue = targetValue;
           }}
-          value={value}
+          onKeyDown={event => {
+            if (event.key === 'Enter') {
+              sendChange && sendChange();
+            }
+          }}
           {...{
+            name,
+            type,
+            value,
             disabled,
             autoComplete,
           }}

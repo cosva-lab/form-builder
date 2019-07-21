@@ -16,7 +16,6 @@ class FormInput extends React.PureComponent<FormInputProps> {
     type: 'text',
     disabled: false,
     multiple: true,
-    waitTime: true,
     InputProps: {},
     extraProps: {},
     route: '',
@@ -28,12 +27,12 @@ class FormInput extends React.PureComponent<FormInputProps> {
       InputProps,
       label,
       handleChange,
+      sendChange,
       type,
       value,
       name,
       error,
       validateField,
-      waitTime,
       disabled,
       extraProps,
       ns,
@@ -50,7 +49,6 @@ class FormInput extends React.PureComponent<FormInputProps> {
           <Input
             {...{
               ns,
-              waitTime,
               InputProps,
               label: transformLabel({ label, ns, name }),
               name,
@@ -59,6 +57,7 @@ class FormInput extends React.PureComponent<FormInputProps> {
               error,
               disabled,
               handleChange,
+              sendChange,
               fullWidth,
             }}
           />
@@ -70,7 +69,6 @@ class FormInput extends React.PureComponent<FormInputProps> {
               ns,
               validateField,
               multiple,
-              waitTime,
               InputProps,
               label: transformLabel({ label, ns, name }),
               name,
@@ -79,6 +77,7 @@ class FormInput extends React.PureComponent<FormInputProps> {
               error,
               disabled,
               handleChange,
+              sendChange,
               extraProps,
             }}
           />
@@ -89,7 +88,6 @@ class FormInput extends React.PureComponent<FormInputProps> {
             {...{
               ns,
               multiple,
-              waitTime,
               InputProps,
               label: transformLabel({ label, ns, name }),
               name,
@@ -98,6 +96,7 @@ class FormInput extends React.PureComponent<FormInputProps> {
               error,
               disabled,
               handleChange,
+              sendChange,
             }}
           />
         );
@@ -108,6 +107,7 @@ class FormInput extends React.PureComponent<FormInputProps> {
             value={value}
             error={error}
             onChange={handleChange}
+            sendChange={sendChange}
             disabled={disabled}
             ns={ns}
             label={transformLabel({ label, ns, name })}
@@ -121,7 +121,6 @@ class FormInput extends React.PureComponent<FormInputProps> {
             {...{
               ns,
               extraProps,
-              waitTime,
               InputProps,
               label: transformLabel({ label, ns, name }),
               name,
@@ -130,6 +129,7 @@ class FormInput extends React.PureComponent<FormInputProps> {
               error,
               disabled,
               handleChange,
+              sendChange,
             }}
           />
         );
@@ -147,7 +147,6 @@ class FormInput extends React.PureComponent<FormInputProps> {
           <Chips
             {...{
               ns,
-              waitTime,
               InputProps,
               label: transformLabel({ label, ns, name }),
               name,
@@ -156,6 +155,7 @@ class FormInput extends React.PureComponent<FormInputProps> {
               error,
               disabled,
               handleChange,
+              sendChange,
             }}
           />
         );
