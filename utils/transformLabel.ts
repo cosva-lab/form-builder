@@ -17,9 +17,9 @@ export const transformLabel = ({
     message = label;
   } else {
     if (label) {
-      message = label!.message || name;
-      if (typeof label!.transPosition === 'string') {
-        transPosition = label!.transPosition || '';
+      message = label.message || name;
+      if (typeof label.transPosition === 'string') {
+        transPosition = label.transPosition || '';
       }
     } else {
       message = name;
