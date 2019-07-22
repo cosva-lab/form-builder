@@ -23,7 +23,6 @@ const styles = (theme: Theme) =>
       paddingBottom: theme.spacing(2),
     },
     formControl: {},
-    widthFull: { width: '133%' },
     widthNormal: { width: '100%' },
     InputLabelProps: {
       overflow: 'hidden',
@@ -34,7 +33,7 @@ const styles = (theme: Theme) =>
 
 interface AllProps extends InputProps, WithStyles<typeof styles> {}
 
-class Input extends React.PureComponent<AllProps, { blur: boolean }> {
+class Input extends React.PureComponent<AllProps> {
   static defaultProps: Partial<AllProps> = {
     type: 'text',
     error: {
@@ -46,10 +45,6 @@ class Input extends React.PureComponent<AllProps, { blur: boolean }> {
     fullWidth: true,
     autoComplete: '',
     InputProps: {},
-  };
-
-  state = {
-    blur: true,
   };
 
   animation = true;
@@ -66,7 +61,7 @@ class Input extends React.PureComponent<AllProps, { blur: boolean }> {
       ns,
       classes,
       error,
-      handleChange,
+      changeField,
       sendChange,
       label,
       name,
@@ -77,24 +72,11 @@ class Input extends React.PureComponent<AllProps, { blur: boolean }> {
       disabled,
       autoComplete,
     } = this.props;
-    const { blur } = this.state;
     return (
       <FormControl
         {...{ fullWidth }}
         className={classes.formControl}
         variant="outlined"
-        onFocus={() => {
-          if (!value) {
-            setTimeout(() => {
-              this.setState({ blur: false });
-            }, 100);
-          }
-        }}
-        onBlur={() => {
-          if (!value) {
-            this.setState({ blur: true });
-          }
-        }}
       >
         <TextField
           onBlur={() => {
@@ -124,16 +106,16 @@ class Input extends React.PureComponent<AllProps, { blur: boolean }> {
           InputLabelProps={{
             shrink: this.props.type === 'date' ? true : undefined,
             classes: {
-              root: classNames(classes.InputLabelProps, {
-                [classes.widthFull]: !blur,
-                [classes.widthNormal]: blur,
-              }),
+              root: classNames(
+                classes.InputLabelProps,
+                classes.widthNormal,
+              ),
             },
           }}
           onChange={({ target: { value: targetValue } }) => {
             const { length } = targetValue;
             const { length: lastLength } = this.lastValue;
-            handleChange({
+            changeField({
               target: { name, value: targetValue, type },
               waitTime: !(
                 lastLength - 1 !== length && lastLength + 1 !== length
