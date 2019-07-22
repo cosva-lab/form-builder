@@ -47,11 +47,16 @@ class FileInput extends React.Component<Props, States> {
 
   constructor(props: Props) {
     super(props);
-    const { extraProps } = this.props;
-    const { multiple } = extraProps || defaultPropsExtra;
+    const { value } = this.props;
     this.state = {
-      value: multiple ? [] : null,
-      valueTemp: multiple ? [] : null,
+      value: Array.isArray(value)
+        ? value.map(file => ({
+            file,
+            id: uuid.v4(),
+            invalid: false,
+          }))
+        : [],
+      valueTemp: [],
       lookup: false,
       inputValue: '',
     };
@@ -109,7 +114,7 @@ class FileInput extends React.Component<Props, States> {
     if (this.inputOpenFileRef) this.inputOpenFileRef.current.click();
   };
 
-  handleChange: handleChangeFiles = target => {
+  changeField: handleChangeFiles = target => {
     const { files } = target;
     if (files && files[0]) {
       this.setState(
@@ -139,8 +144,8 @@ class FileInput extends React.Component<Props, States> {
         () => {
           const value = this.state.value;
           if (value) {
-            const { handleChange, name, type } = this.props;
-            handleChange({
+            const { changeField, name, type } = this.props;
+            changeField({
               target: {
                 name,
                 value: Array.isArray(this.state.value)
@@ -166,13 +171,8 @@ class FileInput extends React.Component<Props, States> {
         };
       },
       () => {
-        const {
-          handleChange,
-          name,
-          type,
-          validateField,
-        } = this.props;
-        handleChange({
+        const { changeField, name, type, validateField } = this.props;
+        changeField({
           target: {
             name,
             value: Array.isArray(this.state.value)
@@ -292,7 +292,7 @@ class FileInput extends React.Component<Props, States> {
               valueTemp,
               multiple,
               subLabel: subLabel || defaultPropsExtra.subLabel,
-              handleChange: this.handleChange,
+              changeField: this.changeField,
               lookup: this.lookup,
               openFileDialog: this.openFileDialog,
               validateFile: this.validateFile,
@@ -304,7 +304,7 @@ class FileInput extends React.Component<Props, States> {
             <input
               ref={this.inputOpenFileRef}
               onChange={({ target }) => {
-                this.handleChange(target);
+                this.changeField(target);
               }}
               accept={accept.join(',')}
               style={{

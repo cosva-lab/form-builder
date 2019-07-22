@@ -47,7 +47,7 @@ interface Props extends ListFilesProps {
   ns: string | undefined;
   name: string;
   multiple: boolean | undefined;
-  handleChange: handleChangeFiles;
+  changeField: handleChangeFiles;
   clearValueTemp: () => void;
 }
 
@@ -118,7 +118,7 @@ export class ListFiles extends React.Component<
       value,
       valueTemp,
       multiple,
-      handleChange,
+      changeField,
       openFileDialog,
       deleteFile,
       clearValueTemp,
@@ -147,7 +147,7 @@ export class ListFiles extends React.Component<
             onDrop={this.preventDefault(e => {
               const { files: filesTransfer } = e.dataTransfer;
               if (filesTransfer && filesTransfer.length > 0) {
-                handleChange({
+                changeField({
                   files: filesTransfer,
                 });
                 e.dataTransfer.clearData();

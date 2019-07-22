@@ -26,7 +26,7 @@ class FormInput extends React.PureComponent<FormInputProps> {
       multiple,
       InputProps,
       label,
-      handleChange,
+      changeField,
       sendChange,
       type,
       value,
@@ -56,7 +56,7 @@ class FormInput extends React.PureComponent<FormInputProps> {
               type,
               error,
               disabled,
-              handleChange,
+              changeField,
               sendChange,
               fullWidth,
             }}
@@ -76,7 +76,7 @@ class FormInput extends React.PureComponent<FormInputProps> {
               type,
               error,
               disabled,
-              handleChange,
+              changeField,
               sendChange,
               extraProps,
             }}
@@ -95,7 +95,7 @@ class FormInput extends React.PureComponent<FormInputProps> {
               type,
               error,
               disabled,
-              handleChange,
+              changeField,
               sendChange,
             }}
           />
@@ -106,7 +106,7 @@ class FormInput extends React.PureComponent<FormInputProps> {
             fullWidth={true}
             value={value}
             error={error}
-            onChange={handleChange}
+            onChange={changeField}
             sendChange={sendChange}
             disabled={disabled}
             ns={ns}
@@ -128,7 +128,7 @@ class FormInput extends React.PureComponent<FormInputProps> {
               type,
               error,
               disabled,
-              handleChange,
+              changeField,
               sendChange,
             }}
           />
@@ -139,7 +139,7 @@ class FormInput extends React.PureComponent<FormInputProps> {
           <BoxForm
             value={value}
             {...{ns, ...propsRest, label, name }}
-            onChange={handleChange}
+            onChange={changeField}
           />
         ); */
       case 'chips':
@@ -154,7 +154,7 @@ class FormInput extends React.PureComponent<FormInputProps> {
               type,
               error,
               disabled,
-              handleChange,
+              changeField,
               sendChange,
             }}
           />
@@ -168,7 +168,7 @@ class FormInput extends React.PureComponent<FormInputProps> {
                 onChange={e => {
                   const { target } = e;
                   const { name, checked, type } = target;
-                  handleChange({
+                  changeField({
                     target: { name, value: checked, type },
                   });
                 }}

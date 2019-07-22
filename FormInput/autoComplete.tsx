@@ -295,7 +295,7 @@ class AutoComplete extends React.Component<
       label,
       t,
       defaultInputValue,
-      handleChange,
+      changeField,
       value,
     } = this.props;
 
@@ -380,7 +380,7 @@ class AutoComplete extends React.Component<
           onKeyDown={onKeyDown}
           defaultInputValue={inputValue}
           onChange={(option: any) => {
-            handleChange({
+            changeField({
               target: {
                 name,
                 value: option,

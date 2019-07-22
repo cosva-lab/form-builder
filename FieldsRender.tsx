@@ -43,11 +43,12 @@ class FieldsRender extends React.PureComponent<AllFieldsRenderProps> {
   public render() {
     const {
       validate,
-      handleChange,
+      changeField,
       actionsExtra,
       ns,
       transPosition,
       steps,
+      isNew,
     } = this.props;
     const fields = transformFields(this.props.fields);
     if (!fields) return null;
@@ -140,10 +141,11 @@ class FieldsRender extends React.PureComponent<AllFieldsRenderProps> {
                 label,
                 validate,
                 actionsExtra,
-                handleChange,
+                changeField,
                 search,
                 fields,
                 steps,
+                isNew,
               }}
             />
           );

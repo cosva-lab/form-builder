@@ -7,10 +7,14 @@ export interface EventField {
   waitTime?: boolean;
 }
 
-export declare type handleChange = (
+export declare type changeField = (
   e: EventField,
   callback?: () => void,
 ) => void;
+
+export interface ChangeField {
+  changeField: changeField;
+}
 
 export declare type value = any;
 export declare type transPosition = string | boolean;
@@ -114,11 +118,6 @@ export interface Validations {
   changed?: boolean;
   validChange?: boolean;
 }
-
-export declare type handleChangeFieldRender = (
-  e: EventField,
-  callback?: () => void,
-) => void;
 
 export interface ExtraProps {
   helpMessage?: boolean;
@@ -232,7 +231,10 @@ export interface PropsField extends Component, Validations {
   inputProps?: OutlinedInputProps['inputProps'];
 }
 
-export interface FieldRenderProps extends Validations, PropsField {
+export interface FieldRenderProps
+  extends Validations,
+    PropsField,
+    InitialState {
   actionsExtra?: {};
   search?: {
     state: boolean;
@@ -250,17 +252,15 @@ export declare type Validate = Validations & {
   state?: boolean;
 };
 
-export interface FormInputProps extends PropsField {
+export interface FormInputProps extends PropsField, ChangeField {
   multiple?: boolean;
   route: string;
-  handleChange: handleChangeFieldRender;
   sendChange?(): void;
   validateField?(): void;
 }
 
-export interface BaseProps extends PropsField {
+export interface BaseProps extends PropsField, ChangeField {
   autoComplete?: string;
-  handleChange: handleChangeFieldRender;
 }
 
 export interface InputProps extends BaseProps {
@@ -281,8 +281,7 @@ export interface InputPropsSwitchList extends BaseProps {
 }
 
 export namespace FormBuilder {
-  interface BaseBuilder {
-    handleChange: handleChange;
+  interface BaseBuilder extends ChangeField {
     steps?: Step[];
     activeStep?: activeStep;
   }

@@ -8,7 +8,8 @@ import {
   FormBuilder,
   Validations,
   Validate,
-  handleChangeFieldRender,
+  changeField,
+  ChangeField,
 } from './';
 import { transformLabel } from './utils/transformLabel';
 
@@ -16,10 +17,9 @@ declare type States = Validations & {
   value: any;
   error?: Message | undefined;
 };
-export default class FieldRender extends React.Component<
-  FormBuilder.FieldRender,
-  States
-> {
+export default class FieldRender
+  extends React.Component<FormBuilder.FieldRender, States>
+  implements ChangeField {
   static defaultProps = {
     ns: 'inputs',
     transPosition: false,
@@ -86,7 +86,7 @@ export default class FieldRender extends React.Component<
     });
   }
 
-  handleChange: handleChangeFieldRender = (
+  changeField: changeField = (
     { target, waitTime = false },
     callback,
   ) => {
@@ -107,7 +107,7 @@ export default class FieldRender extends React.Component<
       () => {
         callback && callback();
         if (!waitTime) {
-          this.props.handleChange({ target });
+          this.props.changeField({ target });
         }
       },
     );
@@ -116,7 +116,7 @@ export default class FieldRender extends React.Component<
   sendChange = () => {
     const { name } = this.props;
     const { value } = this.state;
-    this.props.handleChange({ target: { value, name } });
+    this.props.changeField({ target: { value, name } });
   };
 
   validateField = () => {
@@ -174,7 +174,7 @@ export default class FieldRender extends React.Component<
       <FormInput
         label={transformLabel({ label, ns, name })}
         validateField={this.validateField}
-        handleChange={this.handleChange}
+        changeField={this.changeField}
         sendChange={this.sendChange}
         error={error}
         {...{

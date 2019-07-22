@@ -47,10 +47,6 @@ class Chips extends React.Component<
 
   public deleteFlag = false;
 
-  public handleChange = (props: Props) => {
-    console.log(props);
-  };
-
   public handleDelete = (index: number) => () => {
     const { value, name, extraProps } = this.props;
     let onDelete = ({ value, index }: any) => {
@@ -62,7 +58,7 @@ class Chips extends React.Component<
         extraProps.actions &&
         extraProps.actions.onDelete) ||
       onDelete;
-    this.props.handleChange({
+    this.props.changeField({
       target: { name, value: onDelete({ value, index }) },
     });
   };
@@ -76,7 +72,7 @@ class Chips extends React.Component<
       variant: variantGeneral,
       value,
       name,
-      handleChange,
+      changeField,
     } = this.props;
     const { input } = this.state;
     return (
@@ -130,7 +126,7 @@ class Chips extends React.Component<
                   );
                   valueParsed = [...value, addDefault(input)];
                 }
-                handleChange({
+                changeField({
                   target: {
                     name,
                     value: valueParsed,

@@ -16,6 +16,8 @@ export default class FormBuilder extends InputsValidator
   isNew?: boolean;
   validationState?: boolean;
   validate?: boolean;
+  component?: Component;
+  setState = true;
 
   constructor({
     id,
@@ -41,32 +43,66 @@ export default class FormBuilder extends InputsValidator
     return fields;
   };
 
-  handleChange = (component: Component, callback?: () => void) => ({
+  changeField = (callback?: () => void) => ({
     target,
   }: EventField) => {
     const { value, name } = target;
-    component.setState(
-      state =>
-        produce<State, State>(state, (draft): void => {
-          const fields = draft.fieldsRender.fields;
-          draft.fieldsRender.fields = changeValueFields({
-            fields: fields,
-            action: { name, value },
-          });
-        }),
-      callback,
-    );
+    if (this.component && this.setState) {
+      this.component.setState(
+        state =>
+          produce<State, State>(state, (draft): void => {
+            const fields = draft.fieldsRender.fields;
+            draft.fieldsRender.fields = changeValueFields({
+              fields: fields,
+              action: { name, value },
+            });
+          }),
+        callback,
+      );
+    } else {
+      this.fields = changeValueFields({
+        fields: this.fields,
+        action: { name, value },
+      });
+    }
   };
 
-  setValidation = (component: Component, callback?: () => void) => (
-    validate: boolean,
+  changeFields = (callback?: () => void) => (
+    fields: EventField[],
   ) => {
-    component.setState(
-      state =>
-        produce<State, State>(state, (draft): void => {
-          draft.fieldsRender.validate = validate;
-        }),
-      callback,
-    );
+    const setState = this.setState;
+    this.setState = false;
+    fields.forEach(field => {
+      this.changeField()(field);
+    });
+    this.setState = setState;
+
+    if (this.component) {
+      this.component.setState(
+        state =>
+          produce<State, State>(state, (draft): void => {
+            draft.fieldsRender.fields = this.fields;
+          }),
+        callback,
+      );
+    }
+  };
+
+  setValidation = (validate: boolean, callback?: () => void) => {
+    if (this.component) {
+      this.component.setState(
+        state =>
+          produce<State, State>(state, (draft): void => {
+            draft.fieldsRender.validate = validate;
+          }),
+        callback,
+      );
+    } else {
+      this.validate = validate;
+    }
+  };
+
+  setComponent = (component: Component) => {
+    this.component = component;
   };
 }
