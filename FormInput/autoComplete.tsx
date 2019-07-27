@@ -1,4 +1,4 @@
-import React, { HTMLAttributes } from 'react';
+import React from 'react';
 import compose from 'recompose/compose';
 import clsx from 'clsx';
 import Select from 'react-select';
@@ -10,9 +10,7 @@ import {
 } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import NoSsr from '@material-ui/core/NoSsr';
-import TextField, {
-  BaseTextFieldProps,
-} from '@material-ui/core/TextField';
+import TextField from '@material-ui/core/TextField';
 import Paper from '@material-ui/core/Paper';
 import Chip from '@material-ui/core/Chip';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -108,16 +106,11 @@ NoOptionsMessage.propTypes = {
   selectProps: PropTypes.object.isRequired,
 } as any;
 
-type InputComponentProps = Pick<BaseTextFieldProps, 'inputRef'> &
-  HTMLAttributes<HTMLDivElement>;
+type InputComponentProps = any;
 
 function inputComponent({ inputRef, ...props }: InputComponentProps) {
   return <div ref={inputRef} {...props} />;
 }
-
-inputComponent.propTypes = {
-  inputRef: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
-} as any;
 
 function Control(props: ControlProps<OptionType>) {
   const {

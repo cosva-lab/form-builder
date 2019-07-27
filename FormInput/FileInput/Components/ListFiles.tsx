@@ -141,11 +141,7 @@ export class ListFiles extends React.PureComponent<
                   }}
                   align="center"
                   variant="h2"
-                  component={
-                    CloudUploadIcon as React.ElementType<
-                      React.HTMLAttributes<HTMLElement>
-                    >
-                  }
+                  component={CloudUploadIcon as any}
                 />
                 <Typography
                   style={{

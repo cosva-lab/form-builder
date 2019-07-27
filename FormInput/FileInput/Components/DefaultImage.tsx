@@ -13,11 +13,7 @@ export const DefaultImage = ({
         color: 'rgba(51,51,51,0.4)',
       }}
       align="center"
-      component={
-        BrokenImageIcon as React.ElementType<
-          React.HTMLAttributes<HTMLElement>
-        >
-      }
+      component={BrokenImageIcon as any}
       /* className="cosva-farm" */
       variant="h1"
     />
