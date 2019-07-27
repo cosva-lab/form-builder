@@ -4,7 +4,7 @@ import Checkbox from '@material-ui/core/Checkbox';
 import Input from './Input';
 import AutoComplete from './autoComplete';
 import DropdownList from '../../DropdownList/DropdownList';
-import FileInput from './File';
+import FileInput from './FileInput';
 import ListSwitch from './listSwitch';
 import Chips from './Chips';
 import { FormInputProps } from '..';

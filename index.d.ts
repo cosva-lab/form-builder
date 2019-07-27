@@ -27,7 +27,6 @@ export interface InitialState {
   validationState?: boolean;
   validate?: boolean;
 }
-
 export interface InitialStateSteps extends InitialState {
   steps: Step[];
   activeStep: activeStep;
