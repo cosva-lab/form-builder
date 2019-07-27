@@ -11,14 +11,16 @@ import {
   getMessage,
   Animation,
 } from '../../../MessagesTranslate/Animation';
+import { lookup } from 'mime-types';
 import {
+  AllProps,
   Props,
   States,
-  Lookup,
   handleChangeFiles,
   Value,
+  FileVa,
 } from './Props';
-import ListFiles from './ListFiles';
+import ListFiles from './Components/ListFiles';
 import { styles } from './styles';
 
 const defaultPropsExtra = {
@@ -27,54 +29,35 @@ const defaultPropsExtra = {
   validateExtensions: true,
   validateAccept: true,
   multiple: true,
-  subLabel: {
-    message: '',
-    ns: '',
-    props: {},
-  },
+  subLabel: undefined,
 };
 
-export const mimeTypes = import('mime-types');
-
-class FileInput extends React.Component<Props, States> {
+class FileInput extends React.PureComponent<AllProps, States> {
   public inputOpenFileRef: React.RefObject<any> = React.createRef();
+  public animation = true;
 
-  get lookup(): Lookup {
-    const { lookup } = this.state;
-    if (!lookup) return () => false;
-    return lookup;
-  }
-
-  constructor(props: Props) {
-    super(props);
-    const { value } = this.props;
-    this.state = {
-      value: Array.isArray(value)
-        ? value.map(file => ({
-            file,
-            id: uuid.v4(),
-            invalid: false,
-          }))
-        : [],
-      valueTemp: [],
-      lookup: false,
-      inputValue: '',
-    };
-  }
+  public blurBool = true;
 
   static defaultProps = {
     extraProps: defaultPropsExtra,
   };
 
-  animation = true;
+  constructor(props: AllProps) {
+    super(props);
+    const { value } = this.props;
+    this.state = {
+      value: this.setFiles(value),
+      valueTemp: [],
+      inputValue: '',
+    };
+  }
 
-  blurBool = true;
-
-  componentDidMount() {
-    this.validExtensions();
-    mimeTypes.then(({ lookup }) => {
-      this.setState({ lookup });
-    });
+  setFiles(value: FileVa[]): Value[] {
+    return value.map(file => ({
+      file,
+      id: uuid.v4(),
+      invalid: false,
+    }));
   }
 
   get extraProps() {
@@ -100,12 +83,15 @@ class FileInput extends React.Component<Props, States> {
     }
     return error;
   }
+  componentWillReceiveProps({ value }: AllProps) {
+    this.setState({ value: this.setFiles(value) });
+  }
 
-  componentDidUpdate({ error }: Props) {
+  componentUpdate({ error }: AllProps) {
     const { error: errorOld } = this.props;
-    const state = errorOld && errorOld.state;
+    const stateOld = errorOld && errorOld.state;
     const stateProps = error && error.state;
-    if (error && errorOld && stateProps !== state) {
+    if (stateProps !== stateOld) {
       this.animation = true;
     }
   }
@@ -135,6 +121,12 @@ class FileInput extends React.Component<Props, States> {
               newValue.push(va);
             }
           });
+
+          if (valueTemp.length) {
+            setTimeout(() => {
+              this.clearValueTemp();
+            }, 2000);
+          }
           return {
             value: newValue,
             valueTemp,
@@ -144,14 +136,13 @@ class FileInput extends React.Component<Props, States> {
         () => {
           const value = this.state.value;
           if (value) {
-            const { changeField, name, type } = this.props;
+            const { changeField, name } = this.props;
             changeField({
               target: {
                 name,
                 value: Array.isArray(this.state.value)
                   ? this.state.value.map(({ file }) => file)
                   : null,
-                type,
               },
             });
           }
@@ -171,7 +162,7 @@ class FileInput extends React.Component<Props, States> {
         };
       },
       () => {
-        const { changeField, name, type, validateField } = this.props;
+        const { changeField, name, type } = this.props;
         changeField({
           target: {
             name,
@@ -181,7 +172,6 @@ class FileInput extends React.Component<Props, States> {
             type,
           },
         });
-        validateField();
       },
     );
   };
@@ -232,8 +222,8 @@ class FileInput extends React.Component<Props, States> {
     const acceptValidate = () =>
       !!(
         accept.find((a: string): boolean => {
-          if (!this.lookup(fileName)) return false;
-          return !!(this.lookup(fileName) || '').match(
+          if (!lookup(fileName)) return false;
+          return !!(lookup(fileName) || '').match(
             new RegExp(`${a.replace(/(\.\*|\.|\*)$/, '')}.*`),
           );
         }) ||
@@ -256,6 +246,8 @@ class FileInput extends React.Component<Props, States> {
     return fileName.split('.').pop() || '';
   }
 
+  isOpen = false;
+
   public render() {
     const { classes, error, label, name, ns } = this.props;
     const {
@@ -265,22 +257,26 @@ class FileInput extends React.Component<Props, States> {
     } = this.extraProps;
 
     const accept = this.convertAccept(acceptOriginal);
-    const { value, valueTemp, lookup, inputValue } = this.state;
+    const { value, valueTemp, inputValue } = this.state;
     const { state, message, ns: nsError, props } = error || {
       state: false,
       message: '',
-      ns: ns,
+      ns,
       props: {},
     };
+    const files: Value[] = [...(value || []), ...(valueTemp || [])];
 
     return (
-      <React.Fragment>
+      <>
         <Paper
           elevation={1}
           style={{
             position: 'relative',
             padding: '1em',
-            borderBottom: state ? '2px solid #f44336' : undefined,
+            borderBottom:
+              state || valueTemp.length
+                ? '2px solid #f44336'
+                : undefined,
           }}
         >
           <ListFiles
@@ -288,23 +284,30 @@ class FileInput extends React.Component<Props, States> {
               label,
               ns,
               name,
-              value,
-              valueTemp,
+              files,
               multiple,
-              subLabel: subLabel || defaultPropsExtra.subLabel,
+              subLabel,
               changeField: this.changeField,
-              lookup: this.lookup,
               openFileDialog: this.openFileDialog,
-              validateFile: this.validateFile,
               deleteFile: this.deleteFile,
-              clearValueTemp: this.clearValueTemp,
             }}
           />
           <Grid container onClick={this.openFileDialog}>
             <input
               ref={this.inputOpenFileRef}
               onChange={({ target }) => {
+                console.log('onChange');
                 this.changeField(target);
+              }}
+              onClick={e => {
+                if (!this.isOpen) {
+                  setTimeout(() => {
+                    this.isOpen = false;
+                  });
+                  this.isOpen = true;
+                } else {
+                  e.preventDefault();
+                }
               }}
               accept={accept.join(',')}
               style={{
@@ -365,11 +368,11 @@ class FileInput extends React.Component<Props, States> {
             </FormHelperText>
           </Animation>
         )}
-      </React.Fragment>
+      </>
     );
   }
 }
 
-export default compose<Props, {}>(
+export default compose<AllProps, Props>(
   withStyles(styles, { name: 'FileInput' }),
 )(FileInput);
