@@ -1,7 +1,6 @@
 import React from 'react';
 import compose from 'recompose/compose';
 import clsx from 'clsx';
-import Select from 'react-select';
 import {
   createStyles,
   emphasize,
@@ -29,6 +28,9 @@ import { SingleValueProps } from 'react-select/src/components/SingleValue';
 import { InputPropsComplete } from '..';
 import { WithStyles } from '@material-ui/styles';
 import { WithTranslation, useTranslation } from 'react-i18next';
+import Loading from '../../Loading';
+
+const Select = React.lazy(() => import('react-select'));
 
 interface OptionType {
   label: string;
@@ -329,63 +331,81 @@ class AutoComplete extends React.Component<
     if (typeof label === 'object') {
       placeholder = t(label.message, label.props);
     }
-    if (multiple) {
-      return (
-        <NoSsr>
-          <Select
-            classes={classes}
-            styles={selectStyles}
-            menuPortalTarget={document.body}
-            textFieldProps={{
-              label: 'Label',
-              InputLabelProps: {
-                shrink: true,
-              },
-            }}
-            options={options}
-            components={{ ...(components as any), NoOptionsMessage }}
-            value={value}
-            onChange={() => {}}
-            placeholder={placeholder}
-            isMulti
-            defaultInputValue={defaultInputValue}
-          />
-        </NoSsr>
-      );
-    }
     return (
       <NoSsr>
-        <Select<OptionType>
-          classes={classes}
-          styles={selectStyles}
-          inputId="react-select-single"
-          TextFieldProps={{
-            label: 'Country',
-            InputLabelProps: {
-              htmlFor: 'react-select-single',
-              shrink: true,
-            },
-            placeholder: 'Search a country (start with a)',
-          }}
-          options={options}
-          components={{ ...(components as any), NoOptionsMessage }}
-          value={value}
-          onKeyDown={onKeyDown}
-          defaultInputValue={inputValue}
-          onChange={(option: any) => {
-            changeField({
-              target: {
-                name,
-                value: option,
-                type: 'autoComplete',
-              },
-            });
-          }}
-          placeholder={placeholder}
-          isClearable
-          isSearchable
-          filterOption={filterOption}
-        />
+        <React.Suspense
+          fallback={
+            <div
+              style={{
+                width: '100%',
+                justifyContent: 'center',
+                display: 'flex',
+              }}
+            >
+              <Loading size={20} />
+            </div>
+          }
+        >
+          {multiple && (
+            <Select
+              classes={classes}
+              styles={selectStyles}
+              menuPortalTarget={document.body}
+              textFieldProps={{
+                label: 'Label',
+                InputLabelProps: {
+                  shrink: true,
+                },
+              }}
+              options={options}
+              components={{
+                ...(components as any),
+                NoOptionsMessage,
+              }}
+              value={value}
+              onChange={() => {}}
+              placeholder={placeholder}
+              isMulti
+              defaultInputValue={defaultInputValue}
+            />
+          )}
+          {!multiple && (
+            <Select
+              classes={classes}
+              styles={selectStyles}
+              inputId="react-select-single"
+              TextFieldProps={{
+                label: 'Country',
+                InputLabelProps: {
+                  htmlFor: 'react-select-single',
+                  shrink: true,
+                },
+                placeholder: 'Search a country (start with a)',
+              }}
+              options={options}
+              components={{
+                ...(components as any),
+                NoOptionsMessage,
+              }}
+              value={value}
+              onKeyDown={onKeyDown}
+              defaultInputValue={inputValue}
+              onChange={(option: any) => {
+                changeField({
+                  target: {
+                    name,
+                    value: option,
+                    type: 'autoComplete',
+                  },
+                });
+              }}
+              placeholder={placeholder}
+              isClearable
+              isSearchable
+              filterOption={filterOption}
+            />
+          )}
+        </React.Suspense>
       </NoSsr>
     );
   }

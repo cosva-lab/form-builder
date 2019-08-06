@@ -11,12 +11,12 @@ class StepsValidator {
     this.steps = fields;
   }
 
-  haveErrors() {
+  async haveErrors() {
     const steps = this.steps;
-    this.steps = produce<Step[], Step[]>(steps, (draft): void => {
-      draft.forEach((d, key) => {
+    this.steps = produce<Step[], Step[]>(steps, async draft => {
+      draft.forEach(async (d, key) => {
         const fieldsErrors = new StepValidator(d);
-        if (fieldsErrors.haveErrors() && !this.inValid) {
+        if ((await fieldsErrors.haveErrors()) && !this.inValid) {
           this.inValid = true;
           this.stepError = key;
         }

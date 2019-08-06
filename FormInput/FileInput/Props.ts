@@ -1,27 +1,26 @@
 import { CSSProperties } from 'react';
 import { WithStyles } from '@material-ui/core/styles/withStyles';
 import { FormInputProps, PropsField } from '../..';
-import { lookup } from 'mime-types';
 import { Message } from '../../../MessagesTranslate/Animation';
 import { styles } from './styles';
 
-export interface Props
-  extends Pick<
-    FormInputProps,
-    | 'ns'
-    | 'validateField'
-    | 'multiple'
-    | 'InputProps'
-    | 'label'
-    | 'name'
-    | 'value'
-    | 'type'
-    | 'error'
-    | 'disabled'
-    | 'changeField'
-    | 'sendChange'
-    | 'extraProps'
-  > {}
+export type Props = Pick<
+  FormInputProps,
+  | 'ns'
+  | 'validateField'
+  | 'multiple'
+  | 'InputProps'
+  | 'label'
+  | 'name'
+  | 'value'
+  | 'type'
+  | 'error'
+  | 'disabled'
+  | 'changeField'
+  | 'sendChange'
+  | 'extraProps'
+>;
+
 export interface AllProps extends Props, WithStyles<typeof styles> {}
 
 export declare type FileVa =
@@ -35,7 +34,9 @@ export interface Value {
   invalid: boolean;
 }
 
-export declare type Lookup = typeof lookup;
+export declare type Lookup = (
+  filenameOrExt: string,
+) => string | false;
 
 export declare type FileValue = Value[];
 
@@ -44,6 +45,7 @@ export interface States {
   valueFiles: { id: string; file: File }[];
   valueTemp: FileValue;
   inputValue: string;
+  lookup?: Lookup;
 }
 
 export interface ListFilesProps

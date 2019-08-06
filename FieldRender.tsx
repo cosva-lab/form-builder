@@ -43,17 +43,21 @@ export default class FieldRender
       validations,
       error,
     } = props;
+
+    if (!(error && error.state)) {
+      this.verifyError({
+        validations,
+        value,
+        validChange,
+        changed,
+        validate,
+      }).then(error => {
+        if (error) this.setState({ error });
+      });
+    }
+
     this.state = {
-      error:
-        error && error.state
-          ? error
-          : this.verifyError({
-              validations,
-              value,
-              validChange,
-              changed,
-              validate,
-            }) || undefined,
+      error: error && error.state ? error : undefined,
       validate: validate || false,
       validations,
       value: value || '',
@@ -62,7 +66,7 @@ export default class FieldRender
     };
   }
 
-  componentWillReceiveProps({
+  async componentWillReceiveProps({
     value,
     changed,
     validChange = false,
@@ -70,40 +74,39 @@ export default class FieldRender
     validations,
     error,
   }: FormBuilder.FieldRender) {
+    const message = await this.verifyError({
+      validations,
+      value,
+      validChange,
+      changed,
+      validate,
+    });
     this.setState({
       value,
       validChange,
       validate,
-      error:
-        error && error.state
-          ? error
-          : this.verifyError({
-              validations,
-              value,
-              validChange,
-              changed,
-              validate,
-            }),
+      error: error && error.state ? error : message,
     });
   }
 
-  changeField: changeField = (
+  changeField: changeField = async (
     { target, waitTime = false },
     callback,
   ) => {
     const { validations } = this.props;
     const { validChange, validate } = this.state;
     const { value } = target;
+    const message = await this.verifyError({
+      validations,
+      value,
+      validChange,
+      changed: true,
+      validate,
+    });
     this.setState(
       {
         value,
-        error: this.verifyError({
-          validations,
-          value,
-          validChange,
-          changed: true,
-          validate,
-        }),
+        error: message,
       },
       () => {
         callback && callback();
@@ -117,13 +120,15 @@ export default class FieldRender
   sendChange = () => {
     const { name } = this.props;
     const { value } = this.state;
-    this.props.changeField({ target: { value, name } });
+    this.props.changeField({
+      target: { value, name },
+    });
   };
 
-  validateField = () => {
+  validateField = async () => {
     const { validations } = this.props;
     const { validChange, validate, value } = this.state;
-    const error = this.verifyError({
+    const error = await this.verifyError({
       validations,
       value,
       validChange,
@@ -152,7 +157,7 @@ export default class FieldRender
         if (typeof validation === 'object') {
           validationsObj.push(validation);
         } else {
-          let temPError = validation({
+          const temPError = validation({
             fields:
               (this.props.getFields && this.props.getFields()) ||
               fields,

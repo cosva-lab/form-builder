@@ -11,7 +11,6 @@ import {
   getMessage,
   Animation,
 } from '../../../MessagesTranslate/Animation';
-import { lookup } from 'mime-types';
 import {
   AllProps,
   Props,
@@ -50,7 +49,17 @@ class FileInput extends React.Component<AllProps, States> {
       valueFiles: value,
       valueTemp: [],
       inputValue: '',
+      lookup: undefined,
     };
+  }
+
+  componentWillMount() {
+    const { accept } = this.extraProps;
+    if (!('*' === accept || accept === '')) {
+      import('mime-types').then(({ lookup }) => {
+        this.setState({ lookup });
+      });
+    }
   }
 
   setFiles(value: FileVa[] = []): Value[] {
@@ -84,6 +93,7 @@ class FileInput extends React.Component<AllProps, States> {
     }
     return error;
   }
+
   componentWillReceiveProps({ value }: AllProps) {
     const newValue = this.setFiles(value);
     if (newValue.length !== this.state.value.length) {
@@ -218,11 +228,14 @@ class FileInput extends React.Component<AllProps, States> {
 
   validateFile: (fileName: string) => boolean = fileName => {
     const {
-      validateExtensions = true,
-      validateAccept = true,
-      accept: acceptFiles = '*',
-      extensions = ['.*'],
+      validateExtensions,
+      validateAccept,
+      accept: acceptFiles,
+      extensions,
     } = this.extraProps;
+
+    const { lookup } = this.state;
+    if (!lookup) return true;
 
     const accept = this.convertAccept(acceptFiles);
 
@@ -273,7 +286,7 @@ class FileInput extends React.Component<AllProps, States> {
     } = this.extraProps;
 
     const accept = this.convertAccept(acceptOriginal);
-    const { value, valueTemp, inputValue } = this.state;
+    const { value, valueTemp, inputValue, lookup } = this.state;
     const { state, message, ns: nsError, props } = error || {
       state: false,
       message: '',
@@ -303,6 +316,7 @@ class FileInput extends React.Component<AllProps, States> {
               files,
               multiple,
               subLabel,
+              lookup,
               changeField: this.changeField,
               openFileDialog: this.openFileDialog,
               deleteFile: this.deleteFile,

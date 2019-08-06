@@ -11,7 +11,7 @@ import {
   WithStyles,
   Theme,
 } from '@material-ui/core/styles';
-import { Value, PropsGetThumbnail } from '../Props';
+import { Value, PropsGetThumbnail, Lookup } from '../Props';
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -37,13 +37,14 @@ const styles = (theme: Theme) =>
 interface Props extends WithStyles<typeof styles> {
   getThumbnail: React.ReactType<PropsGetThumbnail>;
   value: Value;
+  lookup?: Lookup;
   deleteFile: () => void;
 }
 
 class FileItem extends React.PureComponent<Props> {
   render() {
     const { props } = this;
-    const { classes } = props;
+    const { classes, lookup } = props;
     const { file, invalid } = this.props.value;
     return (
       <Box
@@ -86,7 +87,9 @@ class FileItem extends React.PureComponent<Props> {
 
           <Grid container justify="center">
             <div className={classes.image}>
-              <props.getThumbnail {...{ file, invalid, classes }} />
+              <props.getThumbnail
+                {...{ file, invalid, classes, lookup }}
+              />
             </div>
           </Grid>
           <Box

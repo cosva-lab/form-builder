@@ -1,8 +1,8 @@
-import validator from 'validator';
 import { Validation, Validate } from '../..';
 import { Message } from '../../../MessagesTranslate/Animation';
 
 class InputValidator {
+  validator = import('validator');
   public validations: Validation[] = [];
 
   constructor(validations: Validation[]) {
@@ -10,12 +10,12 @@ class InputValidator {
     this.validations = validations;
   }
 
-  haveErrors({
+  async haveErrors({
     value,
     validChange,
     validate,
     changed,
-  }: Validate): Message {
+  }: Validate): Promise<Message> {
     let validation: Message = {
       state: false,
       message: '',
@@ -23,6 +23,7 @@ class InputValidator {
     if (!validate && !changed) {
       return validation;
     }
+    const validator = await this.validator;
     if (
       typeof this.validations === 'object' &&
       (validChange || validate)

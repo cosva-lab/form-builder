@@ -10,11 +10,11 @@ class StepValidator {
     this.step = step;
   }
 
-  haveErrors() {
+  async haveErrors() {
     const step = this.step;
-    this.step = produce<Step, Step>(step, (draft): void => {
+    this.step = produce<Step, Step>(step, async draft => {
       const fieldsErrors = new InputsValidator(draft.fields);
-      if (fieldsErrors.haveErrors() && !this.inValid) {
+      if ((await fieldsErrors.haveErrors()) && !this.inValid) {
         this.inValid = true;
       }
       draft.fields = fieldsErrors.fields;

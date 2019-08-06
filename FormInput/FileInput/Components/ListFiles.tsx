@@ -18,6 +18,7 @@ import {
   handleChangeFiles,
   ListFilesProps,
   ListFilesStates,
+  Lookup,
 } from '../Props';
 import FileContainer from './FileContainer';
 
@@ -36,6 +37,7 @@ interface Props extends ListFilesProps {
   name: string;
   multiple: boolean | undefined;
   changeField: handleChangeFiles;
+  lookup?: Lookup;
 }
 
 declare type AllProps = Props & WithStyles<typeof styles>;
@@ -83,6 +85,7 @@ export class ListFiles extends React.PureComponent<
       openFileDialog,
       deleteFile,
       multiple,
+      lookup,
     } = this.props;
 
     const isEmpty = !files.length;
@@ -129,6 +132,7 @@ export class ListFiles extends React.PureComponent<
                     length: files.length,
                     multiple,
                     value: file,
+                    lookup,
                   }}
                 />
               ))}

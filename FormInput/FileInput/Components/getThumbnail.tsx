@@ -1,12 +1,10 @@
 import React from 'react';
-import { lookup } from 'mime-types';
-
 import { DefaultImage } from './DefaultImage';
 import { PropsGetThumbnail } from '../Props';
 
 class GetThumbnail extends React.PureComponent<PropsGetThumbnail> {
   render() {
-    const { file, invalid, classes } = this.props;
+    const { file, invalid, classes, lookup } = this.props;
     if (invalid) {
       return <DefaultImage {...{ classes }} />;
     }
@@ -22,17 +20,19 @@ class GetThumbnail extends React.PureComponent<PropsGetThumbnail> {
       name = file;
       fileUrl = file;
     }
-    switch (lookup(name)) {
-      case 'image/png':
-      case 'image/jpeg':
-      case 'image/svg+xml':
-        return (
-          <img
-            className={classes && classes.img}
-            alt="complex"
-            src={fileUrl}
-          />
-        );
+    if (lookup) {
+      switch (lookup(name)) {
+        case 'image/png':
+        case 'image/jpeg':
+        case 'image/svg+xml':
+          return (
+            <img
+              className={classes && classes.img}
+              alt="complex"
+              src={fileUrl}
+            />
+          );
+      }
     }
     return <DefaultImage {...{ classes }} />;
   }

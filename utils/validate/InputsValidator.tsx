@@ -10,6 +10,7 @@ import InputValidator from './InputValidator';
 import transformFields from '../transformFields';
 import { Component, State } from '..';
 import { Message } from '../../../MessagesTranslate/MessagesTranslate';
+
 class InputsValidator {
   public inValid = false;
   public valid = true;
@@ -39,10 +40,10 @@ class InputsValidator {
     });
   }
 
-  haveErrors() {
+  async haveErrors() {
     this.inValid = false;
     this.valid = true;
-    this.fieldsWithErros = this.callbackField(field => {
+    this.fieldsWithErros = this.callbackField(async field => {
       this.setE(field);
       try {
         if (
@@ -74,7 +75,8 @@ class InputsValidator {
           });
 
         const validation = new InputValidator(validationsObj);
-        setError(validation.haveErrors(field));
+        const message = await validation.haveErrors(field);
+        setError(message);
       } catch (e) {
         this.inValid = true;
         this.valid = false;
