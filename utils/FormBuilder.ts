@@ -9,6 +9,7 @@ import InputsValidator from './validate/InputsValidator';
 import transformFields from './transformFields';
 import { Component, State } from '.';
 import { changeValueFields } from './changeValues';
+import cloneDeep from 'lodash/cloneDeep';
 
 declare type Callback = () => void;
 export default class FormBuilder extends InputsValidator
@@ -18,10 +19,10 @@ export default class FormBuilder extends InputsValidator
   isNew?: boolean;
   validationState?: boolean;
   validate?: boolean;
-  component?: Component;
-  originalParams: FormBuilder;
-  parmsLast?: FormBuilder;
-  changeStateComponent: boolean;
+  private component?: Component;
+  private originalParams: FormBuilder;
+  private parmsLast?: FormBuilder;
+  private changeStateComponent: boolean;
 
   constructor({
     id,
@@ -41,7 +42,16 @@ export default class FormBuilder extends InputsValidator
       validate,
     });
     this.changeStateComponent = changeStateComponent;
-    this.originalParams = { ...this };
+    this.originalParams = cloneDeep(this);
+    this.restoreLast = this.restoreLast.bind(this);
+    this.restore = this.restore.bind(this);
+    this.getFieldsObject = this.getFieldsObject.bind(this);
+    this.setNew = this.setNew.bind(this);
+    this.setFields = this.setFields.bind(this);
+    this.changeField = this.changeField.bind(this);
+    this.changeFields = this.changeFields.bind(this);
+    this.setValidation = this.setValidation.bind(this);
+    this.setComponent = this.setComponent.bind(this);
   }
 
   setProps: (
@@ -57,22 +67,24 @@ export default class FormBuilder extends InputsValidator
     this.validate = validate;
   };
 
-  restoreLast = () => {
+  restoreLast() {
     if (this.parmsLast) {
       const { fields, ...rest } = this.parmsLast;
       this.setProps(rest);
       this.fields = fields;
+      this.setFields(fields);
       this.parmsLast = undefined;
     }
-  };
+  }
 
-  restore = () => {
+  restore() {
     const { fields, ...rest } = this.originalParams;
     this.setProps(rest);
     this.fields = fields;
-  };
+    this.setFields(fields);
+  }
 
-  setNew = (value: boolean, callback?: Callback) => {
+  setNew(value: boolean, callback?: Callback) {
     if (this.isNew !== value) this.parmsLast = { ...this };
     this.isNew = value;
     if (this.component) {
@@ -84,9 +96,9 @@ export default class FormBuilder extends InputsValidator
         callback,
       );
     }
-  };
+  }
 
-  setFields = (fields: PropsField[], callback?: Callback) => {
+  setFields(fields: PropsField[], callback?: Callback) {
     if (this.component) {
       this.component.setState(
         state =>
@@ -97,45 +109,49 @@ export default class FormBuilder extends InputsValidator
         callback,
       );
     }
-  };
+  }
 
-  getFieldsObject = () => {
+  getFieldsObject() {
     const fields: { [key: string]: any } = {};
     transformFields(this.fields).forEach(({ name, value }) => {
       fields[name] = value;
     });
     return fields;
-  };
+  }
 
-  changeField = (callback?: Callback) => ({ target }: EventField) => {
-    const { value, name } = target;
-    if (this.component && this.changeStateComponent) {
-      this.setFields(
-        changeValueFields({
+  changeField(callback?: Callback) {
+    return ({ target }: EventField) => {
+      const { value, name } = target;
+      if (this.component && this.changeStateComponent) {
+        this.setFields(
+          changeValueFields({
+            fields: this.fields,
+            action: { name, value },
+          }),
+          callback,
+        );
+      } else {
+        this.fields = changeValueFields({
           fields: this.fields,
           action: { name, value },
-        }),
-        callback,
-      );
-    } else {
-      this.fields = changeValueFields({
-        fields: this.fields,
-        action: { name, value },
+        });
+      }
+    };
+  }
+
+  changeFields(callback?: Callback) {
+    return (fields: EventField[]) => {
+      const setState = this.changeStateComponent;
+      this.changeStateComponent = false;
+      fields.forEach(field => {
+        this.changeField()(field);
       });
-    }
-  };
+      this.changeStateComponent = setState;
+      this.setFields(this.fields, callback);
+    };
+  }
 
-  changeFields = (callback?: Callback) => (fields: EventField[]) => {
-    const setState = this.changeStateComponent;
-    this.changeStateComponent = false;
-    fields.forEach(field => {
-      this.changeField()(field);
-    });
-    this.changeStateComponent = setState;
-    this.setFields(this.fields, callback);
-  };
-
-  setValidation = (validate: boolean, callback?: Callback) => {
+  setValidation(validate: boolean, callback?: Callback) {
     if (this.component && this.changeStateComponent) {
       this.component.setState(
         state =>
@@ -147,9 +163,9 @@ export default class FormBuilder extends InputsValidator
     } else {
       this.validate = validate;
     }
-  };
+  }
 
-  setComponent = (component: Component) => {
+  setComponent(component: Component) {
     this.component = component;
-  };
+  }
 }
