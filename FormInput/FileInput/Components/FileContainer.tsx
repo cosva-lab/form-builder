@@ -1,21 +1,18 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Grid from '@material-ui/core/Grid';
-import {
-  makeStyles,
-  createStyles,
-  Theme,
-} from '@material-ui/core/styles';
+import { createStyles, Theme } from '@material-ui/core/styles';
 import clsx from 'clsx';
 import Grow from '@material-ui/core/Grow';
 
 import FileItem from './FileItem';
 import GetThumbnail from './getThumbnail';
 import { Value } from '../Props';
+import { withStyles, WithStyles } from '@material-ui/styles';
 
 export const duration = 800;
 
-const useStyles = makeStyles((theme: Theme) =>
+const styles = (theme: Theme) =>
   createStyles({
     gridHideTransition: {
       transition: theme.transitions.create('all', {
@@ -46,88 +43,101 @@ const useStyles = makeStyles((theme: Theme) =>
       userSelect: 'none',
       WebkitUserDrag: 'none',
     },
-  }),
-);
+  });
 
-type FileContainer = React.FC<{
+interface Props extends WithStyles<typeof styles> {
   value: Value;
   multiple?: boolean;
   length: number;
   deleteFile: (id: string) => void;
-}>;
+}
 
-export const FileContainer: FileContainer = ({
-  value,
-  multiple,
-  length,
-  deleteFile,
-}) => {
-  const classes = useStyles();
+interface State {
+  hide: boolean;
+  isHide: boolean;
+}
 
-  const [hide, set] = React.useState(false);
-  const [isHide, setIsHide] = React.useState(false);
+class FileContainer extends React.PureComponent<Props, State> {
+  static propTypes = {
+    value: PropTypes.exact({
+      file: PropTypes.oneOfType([
+        PropTypes.instanceOf(File),
+        PropTypes.string,
+        PropTypes.exact({
+          url: PropTypes.string.isRequired,
+          extension: PropTypes.string.isRequired,
+        }),
+      ]).isRequired,
+      id: PropTypes.string.isRequired,
+      invalid: PropTypes.bool.isRequired,
+    }).isRequired,
+    multiple: PropTypes.bool,
+    length: PropTypes.number.isRequired,
+    deleteFile: PropTypes.func.isRequired,
+  };
 
-  const children = React.createRef<HTMLDivElement>();
-  const { invalid } = value;
-  if (invalid) {
-    setTimeout(() => {
-      set(true);
-    }, duration);
-    setTimeout(() => {
-      if (children.current) {
-        children.current.style.paddingLeft = '0px';
-        children.current.style.paddingRight = '0px';
-      }
+  state = { hide: false, isHide: false };
+
+  render() {
+    const {
+      value,
+      multiple,
+      length,
+      deleteFile,
+      classes,
+    } = this.props;
+    const { isHide, hide } = this.state;
+
+    const children = React.createRef<HTMLDivElement>();
+    const { invalid } = value;
+    if (invalid) {
       setTimeout(() => {
-        setIsHide(true);
+        this.setState({ hide: true });
       }, duration);
-    }, duration + (duration * 1) / 100);
+      setTimeout(() => {
+        if (children.current) {
+          children.current.style.paddingLeft = '0px';
+          children.current.style.paddingRight = '0px';
+        }
+        setTimeout(() => {
+          this.setState({ isHide: true });
+        }, duration);
+      }, duration + (duration * 1) / 100);
+    }
+    if (!isHide) {
+      return (
+        <Grid
+          item
+          {...(multiple && length > 1
+            ? {
+                sm: 6,
+                md: 6,
+                xs: true,
+              }
+            : {
+                xs: 12,
+              })}
+          className={clsx(
+            classes.gridHideTransition,
+            hide && classes.gridHide,
+          )}
+          ref={children}
+        >
+          <Grow in>
+            <FileItem
+              getThumbnail={GetThumbnail}
+              deleteFile={() => {
+                this.setState({ isHide: true });
+                deleteFile(value.id);
+              }}
+              value={value}
+            ></FileItem>
+          </Grow>
+        </Grid>
+      );
+    }
+    return null;
   }
-  if (!isHide) {
-    return (
-      <Grid
-        item
-        {...(multiple && length > 1
-          ? {
-              sm: 6,
-              md: 6,
-              xs: true,
-            }
-          : {
-              xs: 12,
-            })}
-        className={clsx(
-          classes.gridHideTransition,
-          hide && classes.gridHide,
-        )}
-        ref={children}
-      >
-        <Grow in>
-          <FileItem
-            getThumbnail={GetThumbnail}
-            deleteFile={() => {
-              setIsHide(true);
-              deleteFile(value.id);
-            }}
-            value={value}
-          ></FileItem>
-        </Grow>
-      </Grid>
-    );
-  }
-  return null;
-};
+}
 
-FileContainer.propTypes = {
-  value: PropTypes.exact({
-    file: PropTypes.oneOfType([
-      PropTypes.instanceOf(File),
-      PropTypes.string,
-    ]).isRequired,
-    id: PropTypes.string.isRequired,
-    invalid: PropTypes.bool.isRequired,
-  }).isRequired,
-  multiple: PropTypes.bool,
-  length: PropTypes.number.isRequired,
-  deleteFile: PropTypes.func.isRequired,
-};
+export default withStyles(styles)(FileContainer);

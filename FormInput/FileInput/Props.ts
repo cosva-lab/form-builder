@@ -41,6 +41,7 @@ export declare type FileValue = Value[];
 
 export interface States {
   value: FileValue;
+  valueFiles: { id: string; file: File }[];
   valueTemp: FileValue;
   inputValue: string;
 }

@@ -32,7 +32,7 @@ const defaultPropsExtra = {
   subLabel: undefined,
 };
 
-class FileInput extends React.PureComponent<AllProps, States> {
+class FileInput extends React.Component<AllProps, States> {
   public inputOpenFileRef: React.RefObject<any> = React.createRef();
   public animation = true;
 
@@ -47,12 +47,13 @@ class FileInput extends React.PureComponent<AllProps, States> {
     const { value } = this.props;
     this.state = {
       value: this.setFiles(value),
+      valueFiles: value,
       valueTemp: [],
       inputValue: '',
     };
   }
 
-  setFiles(value: FileVa[]): Value[] {
+  setFiles(value: FileVa[] = []): Value[] {
     return value.map(file => ({
       file,
       id: uuid.v4(),
@@ -84,7 +85,10 @@ class FileInput extends React.PureComponent<AllProps, States> {
     return error;
   }
   componentWillReceiveProps({ value }: AllProps) {
-    this.setState({ value: this.setFiles(value) });
+    const newValue = this.setFiles(value);
+    if (newValue.length !== this.state.value.length) {
+      this.setState({ value: newValue });
+    }
   }
 
   componentUpdate({ error }: AllProps) {
@@ -104,20 +108,28 @@ class FileInput extends React.PureComponent<AllProps, States> {
     const { files } = target;
     if (files && files[0]) {
       this.setState(
-        ({ value }) => {
+        ({ value, valueFiles }) => {
           const newValue = Array.isArray(value) ? value : [];
+          const newFiles = Array.isArray(valueFiles)
+            ? valueFiles
+            : [];
           const valueTemp: Value[] = [];
           const tempFiles = Array.from(files || []);
           tempFiles.forEach(file => {
+            const id = uuid.v4();
             const va: Value = {
-              file,
-              id: uuid.v4(),
+              file: {
+                url: URL.createObjectURL(file),
+                extension: file.name,
+              },
+              id,
               invalid: false,
             };
             if (!this.validateFile(file.name)) {
               va.invalid = true;
               valueTemp.push(va);
             } else {
+              newFiles.push({ file, id });
               newValue.push(va);
             }
           });
@@ -129,19 +141,20 @@ class FileInput extends React.PureComponent<AllProps, States> {
           }
           return {
             value: newValue,
+            valueFiles: newFiles,
             valueTemp,
             inputValue: '',
           };
         },
         () => {
-          const value = this.state.value;
-          if (value) {
+          const files = this.state.valueFiles;
+          if (files) {
             const { changeField, name } = this.props;
             changeField({
               target: {
                 name,
-                value: Array.isArray(this.state.value)
-                  ? this.state.value.map(({ file }) => file)
+                value: Array.isArray(files)
+                  ? files.map(({ file }) => file)
                   : null,
               },
             });
@@ -153,10 +166,13 @@ class FileInput extends React.PureComponent<AllProps, States> {
 
   deleteFile = (index: string): void => {
     this.setState(
-      ({ value }) => {
+      ({ value, valueFiles }) => {
         return {
           value: Array.isArray(value)
             ? value.filter(({ id }) => id !== index)
+            : [],
+          valueFiles: Array.isArray(value)
+            ? valueFiles.filter(({ id }) => id !== index)
             : [],
           valueTemp: [],
         };
@@ -167,7 +183,7 @@ class FileInput extends React.PureComponent<AllProps, States> {
           target: {
             name,
             value: Array.isArray(this.state.value)
-              ? this.state.value.map(({ file }) => file)
+              ? this.state.valueFiles.map(({ file }) => file)
               : null,
             type,
           },
@@ -296,7 +312,6 @@ class FileInput extends React.PureComponent<AllProps, States> {
             <input
               ref={this.inputOpenFileRef}
               onChange={({ target }) => {
-                console.log('onChange');
                 this.changeField(target);
               }}
               onClick={e => {

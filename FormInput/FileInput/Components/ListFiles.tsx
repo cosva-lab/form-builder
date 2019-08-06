@@ -19,7 +19,7 @@ import {
   ListFilesProps,
   ListFilesStates,
 } from '../Props';
-import { FileContainer } from './FileContainer';
+import FileContainer from './FileContainer';
 
 const styles = () => createStyles({});
 
@@ -119,18 +119,21 @@ export class ListFiles extends React.PureComponent<
           alignContent="center"
           alignItems="center"
         >
-          {!isEmpty &&
-            files.map(file => (
-              <FileContainer
-                key={file.id}
-                {...{
-                  deleteFile,
-                  length: files.length,
-                  multiple,
-                  value: file,
-                }}
-              />
-            ))}
+          {!isEmpty && (
+            <Grid container spacing={2}>
+              {files.map(file => (
+                <FileContainer
+                  key={file.id}
+                  {...{
+                    deleteFile,
+                    length: files.length,
+                    multiple,
+                    value: file,
+                  }}
+                />
+              ))}
+            </Grid>
+          )}
           {isEmpty && (
             <Grid item xs={12}>
               <React.Fragment>

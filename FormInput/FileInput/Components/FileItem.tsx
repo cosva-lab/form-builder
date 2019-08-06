@@ -9,27 +9,30 @@ import {
   createStyles,
   withStyles,
   WithStyles,
+  Theme,
 } from '@material-ui/core/styles';
 import { Value, PropsGetThumbnail } from '../Props';
 
-const styles = createStyles({
-  image: {
-    width: 220,
-    height: 125,
-  },
-  img: {
-    margin: 'auto',
-    display: 'block',
-    maxWidth: '100%',
-    maxHeight: '100%',
-    WebkitUserSelect: 'none',
-    KhtmlUserSelect: 'none',
-    MozUserSelect: 'none',
-    OUserSelect: 'none',
-    userSelect: 'none',
-    WebkitUserDrag: 'none',
-  },
-});
+const styles = (theme: Theme) =>
+  createStyles({
+    image: {
+      width: 220,
+      height: 125,
+      margin: theme.spacing(2),
+    },
+    img: {
+      margin: 'auto',
+      display: 'block',
+      maxWidth: '100%',
+      maxHeight: '100%',
+      WebkitUserSelect: 'none',
+      KhtmlUserSelect: 'none',
+      MozUserSelect: 'none',
+      OUserSelect: 'none',
+      userSelect: 'none',
+      WebkitUserDrag: 'none',
+    },
+  });
 
 interface Props extends WithStyles<typeof styles> {
   getThumbnail: React.ReactType<PropsGetThumbnail>;
@@ -47,7 +50,7 @@ class FileItem extends React.PureComponent<Props> {
         p={{
           xs: '1em',
         }}
-        component={props => <Paper {...props} />}
+        component={Paper}
         position={'relative'}
         style={{
           overflow: 'hidden',
@@ -60,65 +63,66 @@ class FileItem extends React.PureComponent<Props> {
             position: 'relative',
           }}
         >
-          <Grid item container xs={12} justify="center">
-            <Box
-              component={props => (
-                <Grid {...props} container justify="center" />
-              )}
-              bottom={'5px'}
-            >
-              <Typography
-                variant="subtitle2"
-                noWrap
-                style={{
-                  zIndex: 10000,
-                  flex: 1,
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}
-              >
-                {file instanceof File ? file.name : ''}
-              </Typography>
-            </Box>
-            <Grid container className={classes.image}>
-              <props.getThumbnail {...{ file, invalid, classes }} />
-            </Grid>
-            <Box
-              component={props => (
-                <Grid {...props} container justify="center" />
-              )}
-              bottom={'5px'}
-              position="absolute"
-            >
-              <Fab
-                size="medium"
-                color="inherit"
-                onClick={e => {
-                  e.preventDefault();
-                  !invalid && props.deleteFile();
-                }}
-                aria-label="delete"
-              >
-                <DeleteIcon />
-              </Fab>
-            </Box>
-          </Grid>
-          {invalid && (
-            <div
+          <Box
+            component={props => (
+              <Grid {...props} container justify="center" />
+            )}
+            bottom={'5px'}
+          >
+            <Typography
+              variant="subtitle2"
+              noWrap
               style={{
-                cursor: 'not-allowed',
-                width: '100%',
-                height: '100%',
-                position: 'absolute',
-                margin: 0,
-                alignItems: 'stretch',
-                opacity: 0.7,
-                background: '#ffc8c8',
+                zIndex: 10000,
+                flex: 1,
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
               }}
-            />
-          )}
+            >
+              {file instanceof File ? file.name : ''}
+            </Typography>
+          </Box>
+
+          <Grid container justify="center">
+            <div className={classes.image}>
+              <props.getThumbnail {...{ file, invalid, classes }} />
+            </div>
+          </Grid>
+          <Box
+            component={props => (
+              <Grid {...props} container justify="center" />
+            )}
+            bottom={'5px'}
+            position="absolute"
+          >
+            <Fab
+              size="medium"
+              color="inherit"
+              onClick={e => {
+                e.preventDefault();
+                !invalid && props.deleteFile();
+              }}
+              aria-label="delete"
+            >
+              <DeleteIcon />
+            </Fab>
+          </Box>
         </Grid>
+        {invalid && (
+          <div
+            style={{
+              cursor: 'not-allowed',
+              width: '100%',
+              height: '100%',
+              position: 'absolute',
+              margin: 0,
+              alignItems: 'stretch',
+              opacity: 0.7,
+              background: '#ffc8c8',
+            }}
+          />
+        )}
       </Box>
     );
   }
