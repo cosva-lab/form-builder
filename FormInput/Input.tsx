@@ -33,7 +33,10 @@ const styles = (theme: Theme) =>
 
 interface AllProps extends InputProps, WithStyles<typeof styles> {}
 
-class Input extends React.PureComponent<AllProps> {
+class Input extends React.PureComponent<
+  AllProps,
+  { type: InputProps['type'] }
+> {
   static defaultProps: Partial<AllProps> = {
     type: 'text',
     error: {
@@ -44,14 +47,25 @@ class Input extends React.PureComponent<AllProps> {
     },
     fullWidth: true,
     autoComplete: '',
-    InputProps: {},
+    InputProps: () => {
+      return {};
+    },
   };
+
+  constructor(props: AllProps) {
+    super(props);
+    this.state = { type: props.type };
+  }
 
   animation = true;
   lastValue = '';
 
-  componentDidUpdate({ error }: InputProps) {
-    if (error && error.state) {
+  componentWillUpdate({ error }: InputProps) {
+    if (
+      this.props.error &&
+      error &&
+      error.state !== this.props.error.state
+    ) {
       this.animation = true;
     }
   }
@@ -65,13 +79,13 @@ class Input extends React.PureComponent<AllProps> {
       sendChange,
       label,
       name,
-      type,
       value,
       InputProps,
       fullWidth,
       disabled,
       autoComplete,
     } = this.props;
+    const { type } = this.state;
     return (
       <FormControl
         {...{ fullWidth }}
@@ -102,9 +116,18 @@ class Input extends React.PureComponent<AllProps> {
             style: {},
           }}
           helperText={getMessage(error || { message: '' })}
-          InputProps={InputProps}
+          InputProps={
+            InputProps &&
+            InputProps({
+              type,
+              changeType: (type, callback) => {
+                if (type !== this.state.type)
+                  this.setState({ type }, callback);
+              },
+            })
+          }
           InputLabelProps={{
-            shrink: this.props.type === 'date' ? true : undefined,
+            shrink: type === 'date' ? true : undefined,
             classes: {
               root: classNames(
                 classes.InputLabelProps,
