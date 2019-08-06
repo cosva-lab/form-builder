@@ -4,10 +4,12 @@ import {
   PropsFieldObject,
   FieldsAll,
   Fields,
+  Validation,
 } from '../..';
 import InputValidator from './InputValidator';
 import transformFields from '../transformFields';
 import { Component, State } from '..';
+import { Message } from '../../../MessagesTranslate/MessagesTranslate';
 class InputsValidator {
   public inValid = false;
   public valid = true;
@@ -17,6 +19,9 @@ class InputsValidator {
   constructor(fields: FieldsAll) {
     this.fields = transformFields(fields);
     this.fieldsWithErros = transformFields(fields);
+    this.callbackField = this.callbackField.bind(this);
+    this.setErrors = this.setErrors.bind(this);
+    this.addErrors = this.addErrors.bind(this);
   }
 
   private setE(field: PropsField | PropsFieldObject) {
@@ -24,15 +29,15 @@ class InputsValidator {
     field.changed = true;
   }
 
-  callbackField = (
+  callbackField(
     callback: (field: PropsField | PropsFieldObject) => void,
-  ) => {
+  ) {
     return produce<Fields, Fields>(this.fields, (draft): void => {
       for (let key = 0; key < draft.length; key++) {
         callback(draft[key]);
       }
     });
-  };
+  }
 
   haveErrors() {
     this.inValid = false;
@@ -40,13 +45,36 @@ class InputsValidator {
     this.fieldsWithErros = this.callbackField(field => {
       this.setE(field);
       try {
-        if (field.error && field.error.state) throw new Error();
-        const validation = new InputValidator(
-          field.validations || [],
-        );
-        const error = validation.haveErrors(field);
-        field.error = error;
-        if (error.state && !this.inValid) throw new Error();
+        if (
+          field.error &&
+          field.error.state &&
+          !field.error.errorServer
+        )
+          throw new Error();
+        const validationsObj: Validation[] = [];
+        const setError = (error: Message) => {
+          field.error = error;
+          if (error.state && !this.inValid) throw new Error();
+        };
+
+        const { fields } = this;
+        field.validations &&
+          field.validations.forEach(validation => {
+            if (typeof validation === 'object') {
+              validationsObj.push(validation);
+            } else {
+              validation({ fields });
+              setError(
+                validation({ fields }) || {
+                  state: false,
+                  message: '',
+                },
+              );
+            }
+          });
+
+        const validation = new InputValidator(validationsObj);
+        setError(validation.haveErrors(field));
       } catch (e) {
         this.inValid = true;
         this.valid = false;
@@ -55,16 +83,16 @@ class InputsValidator {
     return this.inValid;
   }
 
-  setErrors = (component: Component) => {
+  setErrors(component: Component) {
     component.setState(state =>
       produce<State, State>(state, (draft): void => {
         draft.fieldsRender.validate = true;
         draft.fieldsRender.fields = this.fieldsWithErros;
       }),
     );
-  };
+  }
 
-  addErrors = (errors: { [key: string]: string | string[] }) => {
+  addErrors(errors: { [key: string]: string | string[] }) {
     for (const key in errors) {
       if (errors.hasOwnProperty(key)) {
         const e = errors[key];
@@ -83,13 +111,17 @@ class InputsValidator {
             serverErrors.push(...serverError);
           }
           if (serverErrors.find(name => name === key)) {
-            field.error = { message: error[0], state: true };
+            field.error = {
+              message: error[0],
+              state: true,
+              errorServer: true,
+            };
           }
         });
       }
     }
     return this.fields;
-  };
+  }
 }
 
 export default InputsValidator;

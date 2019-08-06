@@ -28,7 +28,7 @@ class InputValidator {
       (validChange || validate)
     ) {
       this.validations.forEach(obj => {
-        let { rule = 'isEmpty' } = obj;
+        let rule = obj.rule || 'isEmpty';
         const {
           message,
           ns = 'validations',
@@ -119,9 +119,8 @@ class InputValidator {
           console.error(rule, `the rule don't exists`);
           rule = 'isEmpty';
         } else {
-          if (validator[rule as keyof ValidatorJS.ValidatorStatic]) {
-            const validationMethod: any =
-              validator[rule as keyof ValidatorJS.ValidatorStatic];
+          if (validator[rule]) {
+            const validationMethod: any = validator[rule];
             let bolean = false;
             switch (rule) {
               case 'isEmpty':
