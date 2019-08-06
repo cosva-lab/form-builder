@@ -10,6 +10,7 @@ import {
   Validate,
   changeField,
   ChangeField,
+  Validation,
 } from './';
 import { transformLabel } from './utils/transformLabel';
 
@@ -135,20 +136,51 @@ export default class FieldRender
     });
   };
 
-  verifyError({
+  verifyError = ({
     validations = [],
     value,
     validChange,
     changed,
     validate,
-  }: Validate) {
-    return new InputValidator(validations).haveErrors({
+  }: Validate) => {
+    const validationsObj: Validation[] = [];
+    const { fields, activeStep, steps } = this.props;
+
+    let error;
+    validations &&
+      validations.some(validation => {
+        if (typeof validation === 'object') {
+          validationsObj.push(validation);
+        } else {
+          let temPError = validation({
+            fields:
+              (this.props.getFields && this.props.getFields()) ||
+              fields,
+            activeStep,
+            steps,
+            value,
+            validChange,
+            changed,
+            validate,
+          }) || {
+            state: false,
+            message: '',
+          };
+          if (temPError.state) {
+            error = temPError;
+            return true;
+          }
+        }
+        return false;
+      });
+    if (error) return error;
+    return new InputValidator(validationsObj).haveErrors({
       value,
       validChange,
       changed,
       validate,
     });
-  }
+  };
 
   public render() {
     const { value, error } = this.state;
@@ -168,6 +200,8 @@ export default class FieldRender
       component,
       extraProps,
       fields,
+      InputProps,
+      autoComplete,
     } = this.props;
     if (!state) return null;
     const formInput = (
@@ -186,6 +220,8 @@ export default class FieldRender
           search,
           component,
           extraProps,
+          InputProps,
+          autoComplete,
         }}
       />
     );

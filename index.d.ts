@@ -111,9 +111,17 @@ export interface Validation {
   args?: any;
 }
 
+export declare type ValidationFunction = (
+  all: {
+    fields?: PropsField[];
+    steps?: Step[];
+    activeStep?: activeStep;
+  } & Partial<Validate>,
+) => Message | void;
+
 export interface Validations {
   validate?: boolean;
-  validations?: Validation[];
+  validations?: (Validation | ValidationFunction)[];
   changed?: boolean;
   validChange?: boolean;
 }
@@ -131,7 +139,6 @@ export interface ExtraProps {
     onAdd(e: any);
   };
   onKeyDown?(event: KeyboardEvent<Element>): void;
-  multiple?: boolean;
   loading?: boolean;
   options?: any[];
   NoOptionsMessage?: React.ReactNode;
@@ -223,11 +230,17 @@ export interface PropsField extends Component, Validations {
   waitTime?: boolean;
   fullWidth?: boolean;
   transPosition?: transPosition;
-  error?: Message;
+  error?: Message & { errorServer?: boolean };
   state?: boolean;
   serverError?: string[] | string;
-  InputProps?: Partial<OutlinedInputProps>;
-  inputProps?: OutlinedInputProps['inputProps'];
+  autoComplete?: string;
+  InputProps?: (a: {
+    type: InputProps['type'];
+    changeType: (
+      type: InputProps['type'],
+      callback?: () => void,
+    ) => void;
+  }) => Partial<OutlinedInputProps>;
 }
 
 export interface FieldRenderProps
@@ -251,16 +264,14 @@ export declare type Validate = Validations & {
   state?: boolean;
 };
 
-export interface FormInputProps extends PropsField, ChangeField {
+export interface FormInputProps extends BaseProps {
   multiple?: boolean;
   route: string;
   sendChange?(): void;
   validateField?(): void;
 }
 
-export interface BaseProps extends PropsField, ChangeField {
-  autoComplete?: string;
-}
+export interface BaseProps extends PropsField, ChangeField {}
 
 export interface InputProps extends BaseProps {
   type: 'text' | 'number' | 'email' | 'date' | 'password';
@@ -283,6 +294,7 @@ export namespace FormBuilder {
   interface BaseBuilder extends ChangeField {
     steps?: Step[];
     activeStep?: activeStep;
+    getFields?: () => PropsField[];
   }
   export interface FieldsRender
     extends FieldsRenderBasic,

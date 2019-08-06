@@ -8,6 +8,8 @@ import { Theme } from '@material-ui/core/styles/createMuiTheme';
 import createStyles from '@material-ui/core/styles/createStyles';
 import FieldRender from './FieldRender';
 import transformFields from './utils/transformFields';
+import { PropsField, EventField } from './index';
+import { changeValueFields } from './utils/changeValues';
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -34,6 +36,31 @@ class FieldsRender extends React.PureComponent<AllFieldsRenderProps> {
     transPosition: '',
   };
 
+  public fields: PropsField[];
+
+  constructor(props: AllFieldsRenderProps) {
+    super(props);
+    this.fields = this.transformFields(this.props.fields);
+  }
+
+  transformFields(fields: PropsField[]) {
+    return transformFields(fields);
+  }
+
+  changeField = (event: EventField) => {
+    const { target } = event;
+    const { value, name } = target;
+    this.fields = changeValueFields({
+      fields: this.fields,
+      action: { name, value },
+    });
+    this.props.changeField(event);
+  };
+
+  componentWillReceiveProps({ fields }: AllFieldsRenderProps) {
+    this.fields = this.transformFields(fields);
+  }
+
   /**
    *
    *
@@ -43,14 +70,13 @@ class FieldsRender extends React.PureComponent<AllFieldsRenderProps> {
   public render() {
     const {
       validate,
-      changeField,
       actionsExtra,
       ns,
       transPosition,
       steps,
       isNew,
+      fields,
     } = this.props;
-    const fields = transformFields(this.props.fields);
     if (!fields) return null;
     return (
       <>
@@ -141,9 +167,10 @@ class FieldsRender extends React.PureComponent<AllFieldsRenderProps> {
                 label,
                 validate,
                 actionsExtra,
-                changeField,
+                changeField: this.changeField,
                 search,
-                fields,
+                fields: this.fields,
+                getFields: () => this.fields,
                 steps,
                 isNew,
               }}
