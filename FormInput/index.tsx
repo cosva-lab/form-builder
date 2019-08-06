@@ -16,7 +16,6 @@ class FormInput extends React.PureComponent<FormInputProps> {
     type: 'text',
     disabled: false,
     multiple: true,
-    InputProps: {},
     extraProps: {},
     route: '',
   };
@@ -37,6 +36,7 @@ class FormInput extends React.PureComponent<FormInputProps> {
       extraProps,
       ns,
       fullWidth,
+      autoComplete,
     } = this.props;
     switch (type) {
       case 'text':
@@ -59,6 +59,7 @@ class FormInput extends React.PureComponent<FormInputProps> {
               changeField,
               sendChange,
               fullWidth,
+              autoComplete,
             }}
           />
         );
