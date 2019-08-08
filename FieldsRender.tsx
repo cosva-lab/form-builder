@@ -21,15 +21,9 @@ const styles = (theme: Theme) =>
   });
 
 interface AllFieldsRenderProps
-  extends FormBuilder.FieldsRender,
+  extends FormBuilder.Fields,
     WithStyles<typeof styles> {}
-// eslint-disable-next-line react/no-multi-comp
-/**
- *
- *
- * @class FieldsRender
- * @extends {React.PureComponent<AllFieldsRenderProps>}
- */
+
 class FieldsRender extends React.PureComponent<AllFieldsRenderProps> {
   public static defaultProps = {
     ns: 'inputs',
@@ -182,7 +176,6 @@ class FieldsRender extends React.PureComponent<AllFieldsRenderProps> {
   }
 }
 
-export default compose<
-  AllFieldsRenderProps,
-  FormBuilder.FieldsRender
->(withStyles(styles, { name: 'FieldsRender' }))(FieldsRender);
+export default compose<AllFieldsRenderProps, FormBuilder.Fields>(
+  withStyles(styles, { name: 'FieldsRender' }),
+)(FieldsRender);
