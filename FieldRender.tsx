@@ -32,6 +32,7 @@ export default class FieldRender
   };
 
   public errorFlag: Message | undefined;
+  public mount: boolean = false;
 
   constructor(props: FormBuilder.FieldRender) {
     super(props);
@@ -44,6 +45,33 @@ export default class FieldRender
       error,
     } = props;
 
+    this.state = {
+      error:
+        error && error.state
+          ? error
+          : {
+              state: false,
+              message: '',
+            },
+      validate: validate || false,
+      validations,
+      value: value || '',
+      changed: changed || false,
+      validChange: validChange || false,
+    };
+  }
+
+  componentDidMount() {
+    const {
+      value,
+      changed,
+      validChange = false,
+      validate,
+      validations,
+      error,
+    } = this.props;
+    this.mount = true;
+
     if (!(error && error.state)) {
       this.verifyError({
         validations,
@@ -52,18 +80,13 @@ export default class FieldRender
         changed,
         validate,
       }).then(error => {
-        if (error) this.setState({ error });
+        if (this.mount && error) this.setState({ error });
       });
     }
+  }
 
-    this.state = {
-      error: error && error.state ? error : undefined,
-      validate: validate || false,
-      validations,
-      value: value || '',
-      changed: changed || false,
-      validChange: validChange || false,
-    };
+  componentWillUnmount() {
+    this.mount = false;
   }
 
   async componentWillReceiveProps({
@@ -74,6 +97,12 @@ export default class FieldRender
     validations,
     error,
   }: FormBuilder.FieldRender) {
+    this.setState({
+      value,
+      validChange,
+      validate,
+      error,
+    });
     const message = await this.verifyError({
       validations,
       value,
@@ -81,13 +110,22 @@ export default class FieldRender
       changed,
       validate,
     });
-    this.setState({
-      value,
-      validChange,
-      validate,
-      error: error && error.state ? error : message,
-    });
+    this.setError(message);
   }
+
+  setError = (message?: Message) => {
+    const { error } = this.state;
+    if (
+      this.mount &&
+      message &&
+      error &&
+      message.state !== error.state
+    ) {
+      this.setState({
+        error: message,
+      });
+    }
+  };
 
   changeField: changeField = async (
     { target, waitTime = false },
@@ -103,18 +141,20 @@ export default class FieldRender
       changed: true,
       validate,
     });
-    this.setState(
-      {
-        value,
-        error: message,
-      },
-      () => {
-        callback && callback();
-        if (!waitTime) {
-          this.props.changeField({ target });
-        }
-      },
-    );
+    if (this.mount) {
+      this.setState(
+        {
+          value,
+          error: message,
+        },
+        () => {
+          callback && callback();
+          if (!waitTime) {
+            this.props.changeField({ target });
+          }
+        },
+      );
+    }
   };
 
   sendChange = () => {
@@ -128,7 +168,7 @@ export default class FieldRender
   validateField = async () => {
     const { validations } = this.props;
     const { validChange, validate, value } = this.state;
-    const error = await this.verifyError({
+    const message = await this.verifyError({
       validations,
       value,
       validChange,
@@ -136,9 +176,7 @@ export default class FieldRender
       validate,
     });
 
-    this.setState({
-      error,
-    });
+    this.setError(message);
   };
 
   verifyError = ({
@@ -189,10 +227,11 @@ export default class FieldRender
 
   public render() {
     const { value, error } = this.state;
-    const { sm } = this.props;
-    const { md = sm } = this.props;
-    const { lg = md } = this.props;
-    const { xs = lg } = this.props;
+    const { props } = this;
+    const { sm } = props;
+    const { md = sm } = props;
+    const { lg = md } = props;
+    const { xs = lg } = props;
     const {
       actionsExtra,
       name,
@@ -207,7 +246,7 @@ export default class FieldRender
       fields,
       InputProps,
       autoComplete,
-    } = this.props;
+    } = props;
     if (!state) return null;
     const formInput = (
       <FormInput
@@ -233,14 +272,14 @@ export default class FieldRender
     if (render) {
       return render({
         children: formInput,
-        props: this.props,
+        props,
       });
     }
     if (type === 'component') {
       if (React.isValidElement(component)) {
         return React.cloneElement<FormBuilder.FieldRender>(
           component,
-          { fields, ...this.props },
+          { fields, ...props },
         );
       }
       if (
@@ -249,7 +288,7 @@ export default class FieldRender
       ) {
         return React.createElement<FormBuilder.FieldRender>(
           component,
-          this.props,
+          props,
         );
       }
       return null;
