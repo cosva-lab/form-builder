@@ -3,10 +3,9 @@ import produce from 'immer';
 import {
   PropsField,
   InitialStateSteps,
-  FieldsRenderBasic,
+  FieldsRender,
   ChangeValueFields,
   ChangeValueSteps,
-  Fields,
   PropsFieldObject,
 } from '../../index';
 
@@ -25,11 +24,10 @@ function changeValueField<Obj = false>({
   };
 }
 
-const changeValueFields: (props: ChangeValueFields) => Fields = ({
-  fields,
-  action,
-}) =>
-  produce<Fields, Fields>(fields, (draft): void => {
+const changeValueFields: (
+  props: ChangeValueFields,
+) => PropsField[] = ({ fields, action }) =>
+  produce<PropsField[], PropsField[]>(fields, (draft): void => {
     const { name } = action;
     const index = draft.map(({ name }) => name).indexOf(name);
     const field = changeValueField({
@@ -65,21 +63,16 @@ const renderField = (fieldRender: PropsField) =>
     field.error = { state: false, message: '' };
   });
 
-const renderFields = (
-  fieldsRender: FieldsRenderBasic,
-): FieldsRenderBasic =>
-  produce<FieldsRenderBasic, FieldsRenderBasic>(
-    fieldsRender,
-    data => {
-      if (Array.isArray(data.fields)) {
-        for (const i in data.fields) {
-          if (i) {
-            data.fields[i] = renderField(data.fields[i]);
-          }
+const renderFields = (fieldsRender: FieldsRender): FieldsRender =>
+  produce<FieldsRender, FieldsRender>(fieldsRender, data => {
+    if (Array.isArray(data.fields)) {
+      for (const i in data.fields) {
+        if (i) {
+          data.fields[i] = renderField(data.fields[i]);
         }
       }
-    },
-  );
+    }
+  });
 const renderStateSteps = (initialState: InitialStateSteps) =>
   produce(initialState, (draft: InitialStateSteps) => {
     if (!draft.activeStep) draft.activeStep = 0;
