@@ -6,7 +6,6 @@ import {
   Validation,
 } from '../..';
 import InputValidator from './InputValidator';
-import transformFields from '../transformFields';
 import { Component, State } from '..';
 import { Message } from '../../../MessagesTranslate/MessagesTranslate';
 
@@ -17,8 +16,8 @@ class InputsValidator {
   private fieldsWithErros: PropsField[];
 
   constructor(fields: FieldsAll) {
-    this.fields = transformFields(fields);
-    this.fieldsWithErros = transformFields(fields);
+    this.fields = fields;
+    this.fieldsWithErros = fields;
     this.callbackField = this.callbackField.bind(this);
     this.setErrors = this.setErrors.bind(this);
     this.addErrors = this.addErrors.bind(this);

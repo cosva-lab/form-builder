@@ -7,7 +7,6 @@ import { FormBuilder } from '.';
 import { Theme } from '@material-ui/core/styles/createMuiTheme';
 import createStyles from '@material-ui/core/styles/createStyles';
 import FieldRender from './FieldRender';
-import transformFields from './utils/transformFields';
 import { PropsField, EventField } from './index';
 import { changeValueFields } from './utils/changeValues';
 
@@ -34,11 +33,7 @@ class FieldsRender extends React.PureComponent<AllFieldsRenderProps> {
 
   constructor(props: AllFieldsRenderProps) {
     super(props);
-    this.fields = this.transformFields(this.props.fields);
-  }
-
-  transformFields(fields: PropsField[]) {
-    return transformFields(fields);
+    this.fields = this.props.fields;
   }
 
   changeField = (event: EventField) => {
@@ -52,7 +47,7 @@ class FieldsRender extends React.PureComponent<AllFieldsRenderProps> {
   };
 
   componentWillReceiveProps({ fields }: AllFieldsRenderProps) {
-    this.fields = this.transformFields(fields);
+    this.fields = fields;
   }
 
   /**

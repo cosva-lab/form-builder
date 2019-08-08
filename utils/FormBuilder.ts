@@ -1,7 +1,7 @@
 import produce from 'immer';
 import { FieldsRender, EventField, PropsField } from './../index.d';
 import InputsValidator from './validate/InputsValidator';
-import transformFields from './transformFields';
+import transformFields from './transformFieldss';
 import { Component, State } from '.';
 import { changeValueFields } from './changeValues';
 import cloneDeep from 'lodash/cloneDeep';
@@ -23,7 +23,7 @@ export default class FormBuilder extends InputsValidator {
   private changeStateComponent: boolean;
 
   constructor(props: Props) {
-    super(transformFields(props.fields));
+    super(props.fields);
     const {
       id,
       ns,
@@ -111,7 +111,7 @@ export default class FormBuilder extends InputsValidator {
 
   getFieldsObject() {
     const fields: { [key: string]: any } = {};
-    transformFields(this.fields).forEach(({ name, value }) => {
+    this.fields.forEach(({ name, value }) => {
       fields[name] = value;
     });
     return fields;
