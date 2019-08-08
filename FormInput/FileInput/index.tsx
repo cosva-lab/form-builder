@@ -46,7 +46,6 @@ class FileInput extends React.Component<AllProps, States> {
     const { value } = this.props;
     this.state = {
       value: this.setFiles(value),
-      valueFiles: value,
       valueTemp: [],
       inputValue: '',
       lookup: undefined,
@@ -54,8 +53,7 @@ class FileInput extends React.Component<AllProps, States> {
   }
 
   componentWillMount() {
-    const { accept } = this.extraProps;
-    if (!('*' === accept || accept === '')) {
+    if (this.canImportMime) {
       import('mime-types').then(({ lookup }) => {
         this.setState({ lookup });
       });
@@ -63,11 +61,22 @@ class FileInput extends React.Component<AllProps, States> {
   }
 
   setFiles(value: FileVa[] = []): Value[] {
-    return value.map(file => ({
-      file,
-      id: uuid.v4(),
-      invalid: false,
-    }));
+    return value.map(file => {
+      let temp = file;
+      if (file instanceof File) {
+        temp = {
+          url: URL.createObjectURL(file),
+          extension: file.name,
+          type: file.type,
+        };
+      }
+      return {
+        file: temp,
+        fileOriginal: file instanceof File ? file : undefined,
+        id: uuid.v4(),
+        invalid: false,
+      };
+    });
   }
 
   get extraProps() {
@@ -75,6 +84,11 @@ class FileInput extends React.Component<AllProps, States> {
       ...defaultPropsExtra,
       ...this.props.extraProps,
     };
+  }
+
+  get canImportMime() {
+    const { accept } = this.extraProps;
+    return !('*' === accept || accept === '');
   }
 
   validExtensions(): boolean {
@@ -118,11 +132,8 @@ class FileInput extends React.Component<AllProps, States> {
     const { files } = target;
     if (files && files[0]) {
       this.setState(
-        ({ value, valueFiles }) => {
+        ({ value }) => {
           const newValue = Array.isArray(value) ? value : [];
-          const newFiles = Array.isArray(valueFiles)
-            ? valueFiles
-            : [];
           const valueTemp: Value[] = [];
           const tempFiles = Array.from(files || []);
           tempFiles.forEach(file => {
@@ -131,7 +142,9 @@ class FileInput extends React.Component<AllProps, States> {
               file: {
                 url: URL.createObjectURL(file),
                 extension: file.name,
+                type: file.type,
               },
+              fileOriginal: file,
               id,
               invalid: false,
             };
@@ -139,7 +152,6 @@ class FileInput extends React.Component<AllProps, States> {
               va.invalid = true;
               valueTemp.push(va);
             } else {
-              newFiles.push({ file, id });
               newValue.push(va);
             }
           });
@@ -151,20 +163,19 @@ class FileInput extends React.Component<AllProps, States> {
           }
           return {
             value: newValue,
-            valueFiles: newFiles,
             valueTemp,
             inputValue: '',
           };
         },
         () => {
-          const files = this.state.valueFiles;
+          const files = this.state.value;
           if (files) {
             const { changeField, name } = this.props;
             changeField({
               target: {
                 name,
                 value: Array.isArray(files)
-                  ? files.map(({ file }) => file)
+                  ? files.map(({ fileOriginal }) => fileOriginal)
                   : null,
               },
             });
@@ -176,13 +187,10 @@ class FileInput extends React.Component<AllProps, States> {
 
   deleteFile = (index: string): void => {
     this.setState(
-      ({ value, valueFiles }) => {
+      ({ value }) => {
         return {
           value: Array.isArray(value)
             ? value.filter(({ id }) => id !== index)
-            : [],
-          valueFiles: Array.isArray(value)
-            ? valueFiles.filter(({ id }) => id !== index)
             : [],
           valueTemp: [],
         };
@@ -193,7 +201,9 @@ class FileInput extends React.Component<AllProps, States> {
           target: {
             name,
             value: Array.isArray(this.state.value)
-              ? this.state.valueFiles.map(({ file }) => file)
+              ? this.state.value.map(
+                  ({ fileOriginal }) => fileOriginal,
+                )
               : null,
             type,
           },
@@ -316,7 +326,6 @@ class FileInput extends React.Component<AllProps, States> {
               files,
               multiple,
               subLabel,
-              lookup,
               changeField: this.changeField,
               openFileDialog: this.openFileDialog,
               deleteFile: this.deleteFile,
@@ -356,6 +365,7 @@ class FileInput extends React.Component<AllProps, States> {
             </Button>
           </Grid>
           {!lookup &&
+            this.canImportMime &&
             React.createElement(() => {
               const [progress, setProgress] = React.useState(0);
               React.useEffect(() => {
