@@ -1,40 +1,37 @@
 import React from 'react';
-import { DefaultImage } from './DefaultImage';
+import { DefaultFileThumbnail } from './DefaultFileThumbnail';
 import { PropsGetThumbnail } from '../Props';
 
 class GetThumbnail extends React.PureComponent<PropsGetThumbnail> {
   render() {
-    const { file, invalid, classes, lookup } = this.props;
+    const { file, invalid, classes } = this.props;
     if (invalid) {
-      return <DefaultImage {...{ classes }} />;
+      return <DefaultFileThumbnail />;
     }
-    let name;
+    let type;
     let fileUrl;
     if (file instanceof File) {
-      name = file.name;
+      type = file.type;
       fileUrl = URL.createObjectURL(file);
     } else if (typeof file === 'object') {
       fileUrl = file.url;
-      name = file.extension || file.url;
+      type = file.type;
     } else {
-      name = file;
       fileUrl = file;
     }
-    if (lookup) {
-      switch (lookup(name)) {
-        case 'image/png':
-        case 'image/jpeg':
-        case 'image/svg+xml':
-          return (
-            <img
-              className={classes && classes.img}
-              alt="complex"
-              src={fileUrl}
-            />
-          );
-      }
+    switch (type) {
+      case 'image/png':
+      case 'image/jpeg':
+      case 'image/svg+xml':
+        return (
+          <img
+            className={classes && classes.img}
+            alt="complex"
+            src={fileUrl}
+          />
+        );
     }
-    return <DefaultImage {...{ classes }} />;
+    return <DefaultFileThumbnail />;
   }
 }
 
