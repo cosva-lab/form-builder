@@ -3,7 +3,6 @@ import {
   PropsField,
   PropsFieldObject,
   FieldsAll,
-  Fields,
   Validation,
 } from '../..';
 import InputValidator from './InputValidator';
@@ -14,8 +13,8 @@ import { Message } from '../../../MessagesTranslate/MessagesTranslate';
 class InputsValidator {
   public inValid = false;
   public valid = true;
-  public fields: Fields;
-  private fieldsWithErros: Fields;
+  public fields: PropsField[];
+  private fieldsWithErros: PropsField[];
 
   constructor(fields: FieldsAll) {
     this.fields = transformFields(fields);
@@ -33,11 +32,14 @@ class InputsValidator {
   callbackField(
     callback: (field: PropsField | PropsFieldObject) => void,
   ) {
-    return produce<Fields, Fields>(this.fields, (draft): void => {
-      for (let key = 0; key < draft.length; key++) {
-        callback(draft[key]);
-      }
-    });
+    return produce<PropsField[], PropsField[]>(
+      this.fields,
+      (draft): void => {
+        for (let key = 0; key < draft.length; key++) {
+          callback(draft[key]);
+        }
+      },
+    );
   }
 
   async haveErrors() {

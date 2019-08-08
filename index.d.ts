@@ -7,7 +7,7 @@ export interface EventField {
   waitTime?: boolean;
 }
 
-export declare type changeField = (
+export type changeField = (
   e: EventField,
   callback?: () => void,
 ) => void;
@@ -16,9 +16,9 @@ export interface ChangeField {
   changeField: changeField;
 }
 
-export declare type value = any;
-export declare type transPosition = string | boolean;
-export declare type activeStep = number;
+export type value = any;
+export type transPosition = string | boolean;
+export type activeStep = number;
 
 export interface InitialState {
   id?: number;
@@ -32,25 +32,24 @@ export interface InitialStateSteps extends InitialState {
   activeStep: activeStep;
 }
 
-type OptionalExceptFor<T, TRequired extends keyof T> = Partial<T> &
-  Pick<T, TRequired>;
-
 export interface PropsFieldObject extends PropsField {
   name?: string;
 }
 
-export declare type Fields = PropsField[];
 export interface FieldsObject {
   [key: string]: PropsFieldObject;
 }
-export declare type FieldsAll = Fields | FieldsObject;
+
+export function buildFields(a: PropsField[]): PropsField[];
+
+export type FieldsAll = PropsField[];
 
 export interface InitialStateFields extends InitialState {
-  fields: Fields;
+  fields: PropsField[];
 }
 
 export interface ChangeValueFields {
-  fields: Fields;
+  fields: PropsField[];
   action: { value: any; name: string };
 }
 
@@ -65,23 +64,18 @@ export interface FormStepsProps extends InitialState {
   handleBackStep({ activeStep }: { activeStep: activeStep }): void;
 }
 
-export interface FieldsRenderBasic extends InitialState {
-  fields: Fields;
+export interface FieldsRender extends InitialState {
+  fields: PropsField[];
   actionsExtra?: {};
   validate?: boolean;
   transPosition?: transPosition;
 }
 
-export interface FieldsRenderProps extends FieldsRenderBasic {
-  fields: FieldsAll;
-}
-
-export interface Step extends FieldsRenderBasic {
-  fields: Fields;
+export interface Step extends FieldsRender {
   label: string;
 }
 
-declare type Rules = Exclude<
+type Rules = Exclude<
   keyof ValidatorJS.ValidatorStatic,
   | 'version'
   | 'blacklist'
@@ -111,12 +105,14 @@ export interface Validation {
   args?: any;
 }
 
-export declare type ValidationFunction = (
-  all: {
-    fields?: PropsField[];
-    steps?: Step[];
-    activeStep?: activeStep;
-  } & Partial<Validate>,
+interface AllPropsValidationFunction extends Partial<Validate> {
+  fields?: PropsField[];
+  steps?: Step[];
+  activeStep?: activeStep;
+}
+
+export type ValidationFunction = (
+  all: AllPropsValidationFunction,
 ) => Message | void;
 
 export interface Validations {
@@ -128,7 +124,10 @@ export interface Validations {
 
 export interface ExtraProps {
   helpMessage?: boolean;
-  searchField?: string | number | ((e: Fields) => string | number);
+  searchField?:
+    | string
+    | number
+    | ((e: PropsField[]) => string | number);
   searchId?: string;
   search?: { state: boolean; value: string | number };
   renderItem?: React.ReactNode;
@@ -155,7 +154,7 @@ export interface ExtraProps {
   validateAccept?: boolean;
   subLabel?: Message;
 }
-declare type render = (element: {
+type render = (element: {
   children: React.ReactElement<any>;
   props: FieldRenderProps;
 }) => React.CElement;
@@ -191,30 +190,32 @@ interface CheckboxField {
   type: 'checkbox';
 }
 
-interface Component {
+interface ComponentField {
   component?:
     | React.ReactElement<FormBuilder.FieldRender>
-    | React.ComponentClass<FieldRender>
-    | React.Component;
+    | React.ComponentClass<FormBuilder.FieldRender>;
 }
-export interface PropsField extends Component, Validations {
-  fields?: Fields;
+
+type typeForm =
+  | 'time'
+  | 'text'
+  | 'file'
+  | 'number'
+  | 'email'
+  | 'date'
+  | 'password'
+  | 'list'
+  | 'table'
+  | 'autoComplete'
+  | 'chips'
+  | 'checkbox'
+  | 'component'
+  | 'listSwitch';
+
+export interface PropsField extends Validations, ComponentField {
+  fields?: PropsField[];
   extraProps?: ExtraProps;
-  type?:
-    | 'time'
-    | 'text'
-    | 'file'
-    | 'number'
-    | 'email'
-    | 'date'
-    | 'password'
-    | 'list'
-    | 'table'
-    | 'autoComplete'
-    | 'chips'
-    | 'checkbox'
-    | 'component'
-    | 'listSwitch';
+  type?: typeForm;
   name: string;
   value: value;
   defaultInputValue?: value;
@@ -259,10 +260,10 @@ export interface FieldRenderProps
   xs?: GridSize;
 }
 
-export declare type Validate = Validations & {
+export interface Validate extends Validations {
   value: value;
   state?: boolean;
-};
+}
 
 export interface FormInputProps extends BaseProps {
   multiple?: boolean;
@@ -296,9 +297,7 @@ export namespace FormBuilder {
     activeStep?: activeStep;
     getFields?: () => PropsField[];
   }
-  export interface FieldsRender
-    extends FieldsRenderBasic,
-      BaseBuilder {}
+  export interface Fields extends FieldsRender, BaseBuilder {}
   export interface FieldRender
     extends FieldRenderProps,
       BaseBuilder {}

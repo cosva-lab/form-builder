@@ -4,32 +4,36 @@ import { FormInputProps, PropsField } from '../..';
 import { Message } from '../../../MessagesTranslate/Animation';
 import { styles } from './styles';
 
-export type Props = Pick<
-  FormInputProps,
-  | 'ns'
-  | 'validateField'
-  | 'multiple'
-  | 'InputProps'
-  | 'label'
-  | 'name'
-  | 'value'
-  | 'type'
-  | 'error'
-  | 'disabled'
-  | 'changeField'
-  | 'sendChange'
-  | 'extraProps'
->;
+export interface Props
+  extends Pick<
+    FormInputProps,
+    | 'ns'
+    | 'validateField'
+    | 'multiple'
+    | 'InputProps'
+    | 'label'
+    | 'name'
+    | 'value'
+    | 'type'
+    | 'error'
+    | 'disabled'
+    | 'changeField'
+    | 'sendChange'
+    | 'extraProps'
+  > {
+  value: FileVa[];
+}
 
 export interface AllProps extends Props, WithStyles<typeof styles> {}
 
 export declare type FileVa =
   | File
   | string
-  | { url: string; extension: string };
+  | { url: string; type: string; extension?: string };
 
 export interface Value {
   file: FileVa;
+  fileOriginal?: File;
   id: string;
   invalid: boolean;
 }
@@ -37,12 +41,17 @@ export interface Value {
 export declare type Lookup = (
   filenameOrExt: string,
 ) => string | false;
-
+export declare type ContentType = (
+  filenameOrExt: string,
+) => string | false;
+export declare type Extension = (
+  typeString: string,
+) => string | false;
+export declare type Charset = (typeString: string) => string | false;
 export declare type FileValue = Value[];
 
 export interface States {
   value: FileValue;
-  valueFiles: { id: string; file: File }[];
   valueTemp: FileValue;
   inputValue: string;
   lookup?: Lookup;
@@ -69,5 +78,4 @@ export interface PropsGetThumbnail {
   file: FileVa;
   invalid?: boolean;
   classes?: { img: string };
-  lookup?: Lookup;
 }

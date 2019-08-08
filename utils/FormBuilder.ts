@@ -1,10 +1,5 @@
 import produce from 'immer';
-import {
-  FieldsRenderBasic,
-  FieldsRenderProps,
-  EventField,
-  PropsField,
-} from './../index.d';
+import { FieldsRender, EventField, PropsField } from './../index.d';
 import InputsValidator from './validate/InputsValidator';
 import transformFields from './transformFields';
 import { Component, State } from '.';
@@ -12,8 +7,11 @@ import { changeValueFields } from './changeValues';
 import cloneDeep from 'lodash/cloneDeep';
 
 declare type Callback = () => void;
-export default class FormBuilder extends InputsValidator
-  implements FieldsRenderBasic {
+
+declare interface Props extends FieldsRender {
+  changeStateComponent?: boolean;
+}
+export default class FormBuilder extends InputsValidator {
   id?: number;
   ns?: string;
   isNew?: boolean;
@@ -24,16 +22,16 @@ export default class FormBuilder extends InputsValidator
   private parmsLast?: FormBuilder;
   private changeStateComponent: boolean;
 
-  constructor({
-    id,
-    ns,
-    isNew,
-    validationState,
-    validate,
-    fields,
-    changeStateComponent = false,
-  }: FieldsRenderProps & { changeStateComponent?: boolean }) {
-    super(transformFields(fields));
+  constructor(props: Props) {
+    super(transformFields(props.fields));
+    const {
+      id,
+      ns,
+      isNew,
+      validationState,
+      validate,
+      changeStateComponent = false,
+    } = props;
     this.setProps({
       id,
       ns,

@@ -7,7 +7,7 @@ import Grow from '@material-ui/core/Grow';
 
 import FileItem from './FileItem';
 import GetThumbnail from './getThumbnail';
-import { Value, Lookup } from '../Props';
+import { Value } from '../Props';
 import { withStyles, WithStyles } from '@material-ui/styles';
 
 export const duration = 800;
@@ -50,7 +50,6 @@ interface Props extends WithStyles<typeof styles> {
   multiple?: boolean;
   length: number;
   deleteFile: (id: string) => void;
-  lookup?: Lookup;
 }
 
 interface State {
@@ -66,9 +65,17 @@ class FileContainer extends React.PureComponent<Props, State> {
         PropTypes.string,
         PropTypes.exact({
           url: PropTypes.string.isRequired,
-          extension: PropTypes.string.isRequired,
+          extension: PropTypes.oneOfType([
+            PropTypes.string,
+            PropTypes.any,
+          ]),
+          type: PropTypes.string.isRequired,
         }),
       ]).isRequired,
+      fileOriginal: PropTypes.oneOfType([
+        PropTypes.instanceOf(File),
+        PropTypes.any,
+      ]),
       id: PropTypes.string.isRequired,
       invalid: PropTypes.bool.isRequired,
     }).isRequired,
@@ -86,7 +93,6 @@ class FileContainer extends React.PureComponent<Props, State> {
       length,
       deleteFile,
       classes,
-      lookup,
     } = this.props;
     const { isHide, hide } = this.state;
 
@@ -132,7 +138,7 @@ class FileContainer extends React.PureComponent<Props, State> {
                 this.setState({ isHide: true });
                 deleteFile(value.id);
               }}
-              {...{ value, lookup }}
+              {...{ value }}
             ></FileItem>
           </Grow>
         </Grid>
