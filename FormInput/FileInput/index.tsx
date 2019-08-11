@@ -1,5 +1,4 @@
 import React from 'react';
-import uuid from 'uuid';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import compose from 'recompose/compose';
 import withStyles from '@material-ui/core/styles/withStyles';
@@ -21,6 +20,7 @@ import {
 } from './Props';
 import ListFiles from './Components/ListFiles';
 import { styles } from './styles';
+import { MakeCancelable } from '../../utils/makeCancelable';
 
 const defaultPropsExtra = {
   accept: '*',
@@ -36,9 +36,12 @@ class FileInput extends React.Component<AllProps, States> {
   public animation = true;
 
   public blurBool = true;
+  public mimeTypes?: MakeCancelable<typeof import('mime-types')>;
 
   static defaultProps = {
     extraProps: defaultPropsExtra,
+    onAdd: null,
+    onDelete: null,
   };
 
   constructor(props: AllProps) {
@@ -54,29 +57,33 @@ class FileInput extends React.Component<AllProps, States> {
 
   componentWillMount() {
     if (this.canImportMime) {
-      import('mime-types').then(({ lookup }) => {
+      this.mimeTypes = new MakeCancelable(import('mime-types'));
+      this.mimeTypes.promise.then(({ lookup }) => {
         this.setState({ lookup });
       });
     }
   }
 
+  componentWillUnmount() {
+    this.mimeTypes && this.mimeTypes.cancel();
+  }
+
   setFiles(value: FileVa[] = []): Value[] {
-    return value.map(file => {
-      let temp = file;
-      if (file instanceof File) {
-        temp = {
-          url: URL.createObjectURL(file),
-          extension: file.name,
-          type: file.type,
+    return value.map(
+      (file): Value => {
+        let temp = file;
+        if (file instanceof File) {
+          temp = {
+            url: URL.createObjectURL(file),
+            file,
+          };
+        }
+        return {
+          value: temp,
+          invalid: false,
         };
-      }
-      return {
-        file: temp,
-        fileOriginal: file instanceof File ? file : undefined,
-        id: uuid.v4(),
-        invalid: false,
-      };
-    });
+      },
+    );
   }
 
   get extraProps() {
@@ -128,86 +135,118 @@ class FileInput extends React.Component<AllProps, States> {
     if (this.inputOpenFileRef) this.inputOpenFileRef.current.click();
   };
 
-  changeField: handleChangeFiles = target => {
+  changeField: handleChangeFiles = async target => {
     const { files } = target;
     if (files && files[0]) {
-      this.setState(
-        ({ value }) => {
-          const newValue = Array.isArray(value) ? value : [];
-          const valueTemp: Value[] = [];
-          const tempFiles = Array.from(files || []);
-          tempFiles.forEach(file => {
-            const id = uuid.v4();
-            const va: Value = {
-              file: {
-                url: URL.createObjectURL(file),
-                extension: file.name,
-                type: file.type,
-              },
-              fileOriginal: file,
-              id,
-              invalid: false,
-            };
-            if (!this.validateFile(file.name)) {
-              va.invalid = true;
-              valueTemp.push(va);
-            } else {
-              newValue.push(va);
-            }
-          });
+      const { value } = this.state;
+      const newFiles: File[] = [];
+      const newValue = Array.isArray(value) ? value : [];
+      const valueTemp: Value[] = [];
+      const tempFiles = Array.from(files);
+      tempFiles.forEach(file => {
+        const va: Value = {
+          value: {
+            url: URL.createObjectURL(file),
+            file,
+          },
+          invalid: false,
+        };
+        if (!this.validateFile(file.name)) {
+          va.invalid = true;
+          valueTemp.push(va);
+        } else {
+          newFiles.push(file);
+          newValue.push(va);
+        }
+      });
 
-          if (valueTemp.length) {
-            setTimeout(() => {
-              this.clearValueTemp();
-            }, 2000);
-          }
-          return {
-            value: newValue,
-            valueTemp,
-            inputValue: '',
-          };
+      if (valueTemp.length) {
+        setTimeout(() => {
+          this.clearValueTemp();
+        }, 2000);
+      }
+      const { onAdd } = this.props;
+      if (onAdd) {
+        const call = onAdd(newFiles);
+        if (call instanceof Promise) {
+          let userErr;
+          await call.catch(err => (userErr = err));
+          if (userErr) throw userErr;
+        }
+      }
+      this.setState(
+        {
+          value: newValue,
+          valueTemp,
+          inputValue: '',
         },
         () => {
           const files = this.state.value;
           if (files) {
             const { changeField, name } = this.props;
-            changeField({
-              target: {
-                name,
-                value: Array.isArray(files)
-                  ? files.map(({ fileOriginal }) => fileOriginal)
-                  : null,
-              },
-            });
+            changeField &&
+              changeField({
+                target: {
+                  name,
+                  value: Array.isArray(files)
+                    ? files.map(({ value }) => {
+                        if (value instanceof File) {
+                          return value;
+                        } else if (typeof value === 'object') {
+                          return value.file;
+                        }
+                      })
+                    : [],
+                },
+              });
           }
         },
       );
     }
   };
 
-  deleteFile = (index: string): void => {
+  deleteFile = async (
+    index: number,
+    sendChange = true,
+  ): Promise<void> => {
+    const temp = this.state.value.find((_s, id) => id === index);
+    const { onDelete } = this.props;
+    if (sendChange && temp && onDelete) {
+      const { value } = temp;
+      const call = onDelete([value]);
+      if (call instanceof Promise) {
+        let userErr;
+        await call.catch(err => (userErr = err));
+        if (userErr) throw userErr;
+      }
+    }
     this.setState(
       ({ value }) => {
         return {
           value: Array.isArray(value)
-            ? value.filter(({ id }) => id !== index)
+            ? value.filter((_, id) => id !== index)
             : [],
           valueTemp: [],
         };
       },
       () => {
         const { changeField, name, type } = this.props;
-        changeField({
-          target: {
-            name,
-            value: Array.isArray(this.state.value)
-              ? this.state.value.map(
-                  ({ fileOriginal }) => fileOriginal,
-                )
-              : null,
-            type,
-          },
-        });
+        changeField &&
+          changeField({
+            target: {
+              name,
+              value: Array.isArray(this.state.value)
+                ? this.state.value.map(({ value }) => {
+                    if (value instanceof File) {
+                      return value;
+                    } else if (typeof value === 'object') {
+                      return value.file;
+                    }
+                  })
+                : null,
+              type,
+            },
+          });
       },
     );
   };

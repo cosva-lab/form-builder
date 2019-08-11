@@ -4,20 +4,22 @@ import { PropsGetThumbnail } from '../Props';
 
 class GetThumbnail extends React.PureComponent<PropsGetThumbnail> {
   render() {
-    const { file, invalid, classes } = this.props;
+    const { value, invalid, classes } = this.props;
     if (invalid) {
       return <DefaultFileThumbnail />;
     }
     let type;
     let fileUrl;
-    if (file instanceof File) {
-      type = file.type;
-      fileUrl = URL.createObjectURL(file);
-    } else if (typeof file === 'object') {
-      fileUrl = file.url;
-      type = file.type;
+    if (value instanceof File) {
+      type = value.type;
+      fileUrl = URL.createObjectURL(value);
+    } else if (typeof value === 'object') {
+      fileUrl = value.url;
+      type =
+        (value.file && value.file.type) ||
+        (value.extra && value.extra.type);
     } else {
-      fileUrl = file;
+      fileUrl = value;
     }
     switch (type) {
       case 'image/png':

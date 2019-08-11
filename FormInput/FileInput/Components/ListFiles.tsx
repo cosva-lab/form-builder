@@ -121,10 +121,11 @@ export class ListFiles extends React.PureComponent<
         >
           {!isEmpty && (
             <Grid container spacing={2}>
-              {files.map(file => (
+              {files.map((file, key) => (
                 <FileContainer
-                  key={file.id}
+                  key={'file' + key}
                   {...{
+                    id: key,
                     deleteFile,
                     length: files.length,
                     multiple,

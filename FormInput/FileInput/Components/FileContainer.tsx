@@ -9,11 +9,12 @@ import FileItem from './FileItem';
 import GetThumbnail from './getThumbnail';
 import { Value } from '../Props';
 import { withStyles, WithStyles } from '@material-ui/styles';
+import Loading from '../../../../Loading';
 
 export const duration = 800;
 
-const styles = (theme: Theme) =>
-  createStyles({
+const styles = (theme: Theme) => {
+  return createStyles({
     gridHideTransition: {
       transition: theme.transitions.create('all', {
         easing: theme.transitions.easing.easeInOut,
@@ -43,40 +44,51 @@ const styles = (theme: Theme) =>
       userSelect: 'none',
       WebkitUserDrag: 'none',
     },
+    loading: {
+      position: 'absolute',
+      top: '0',
+      width: '100%',
+      height: '100%',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      background: theme.palette.background.default + 'b0',
+    },
   });
+};
 
 interface Props extends WithStyles<typeof styles> {
+  id: number;
   value: Value;
   multiple?: boolean;
   length: number;
-  deleteFile: (id: string) => void;
+  deleteFile: (index: number, sendChange?: boolean) => Promise<void>;
 }
 
 interface State {
   hide: boolean;
-  isHide: boolean;
+  loading: boolean;
 }
 
 class FileContainer extends React.PureComponent<Props, State> {
   static propTypes = {
+    id: PropTypes.number.isRequired,
     value: PropTypes.exact({
-      file: PropTypes.oneOfType([
+      value: PropTypes.oneOfType([
         PropTypes.instanceOf(File),
-        PropTypes.string,
         PropTypes.exact({
           url: PropTypes.string.isRequired,
-          extension: PropTypes.oneOfType([
-            PropTypes.string,
+          file: PropTypes.oneOfType([
+            PropTypes.instanceOf(File),
             PropTypes.any,
           ]),
-          type: PropTypes.string.isRequired,
+          extra: PropTypes.any,
         }),
       ]).isRequired,
       fileOriginal: PropTypes.oneOfType([
         PropTypes.instanceOf(File),
         PropTypes.any,
       ]),
-      id: PropTypes.string.isRequired,
       invalid: PropTypes.bool.isRequired,
     }).isRequired,
     multiple: PropTypes.bool,
@@ -84,7 +96,7 @@ class FileContainer extends React.PureComponent<Props, State> {
     deleteFile: PropTypes.func.isRequired,
   };
 
-  state = { hide: false, isHide: false };
+  state = { hide: false, loading: false };
 
   render() {
     const {
@@ -93,27 +105,13 @@ class FileContainer extends React.PureComponent<Props, State> {
       length,
       deleteFile,
       classes,
+      id,
     } = this.props;
-    const { isHide, hide } = this.state;
+    const { loading, hide } = this.state;
 
     const children = React.createRef<HTMLDivElement>();
-    const { invalid } = value;
-    if (invalid) {
-      setTimeout(() => {
-        this.setState({ hide: true });
-      }, duration);
-      setTimeout(() => {
-        if (children.current) {
-          children.current.style.paddingLeft = '0px';
-          children.current.style.paddingRight = '0px';
-        }
-        setTimeout(() => {
-          this.setState({ isHide: true });
-        }, duration);
-      }, duration + (duration * 1) / 100);
-    }
-    if (!isHide) {
-      return (
+    return (
+      <>
         <Grid
           item
           {...(multiple && length > 1
@@ -131,20 +129,30 @@ class FileContainer extends React.PureComponent<Props, State> {
           )}
           ref={children}
         >
-          <Grow in>
-            <FileItem
-              getThumbnail={GetThumbnail}
-              deleteFile={() => {
-                this.setState({ isHide: true });
-                deleteFile(value.id);
-              }}
-              {...{ value }}
-            ></FileItem>
-          </Grow>
+          <div style={{ position: 'relative' }}>
+            <Grow in>
+              <FileItem
+                getThumbnail={GetThumbnail}
+                deleteFile={() => {
+                  this.setState({ loading: true });
+                  deleteFile(id).catch(() => {
+                    this.setState({
+                      loading: false,
+                    });
+                  });
+                }}
+                {...{ value }}
+              ></FileItem>
+            </Grow>
+            {loading && (
+              <div className={classes.loading}>
+                <Loading size={40} />
+              </div>
+            )}
+          </div>
         </Grid>
-      );
-    }
-    return null;
+      </>
+    );
   }
 }
 

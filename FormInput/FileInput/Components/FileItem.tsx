@@ -19,6 +19,8 @@ const styles = (theme: Theme) =>
       width: 220,
       height: 125,
       margin: theme.spacing(2),
+      alignItems: 'center',
+      display: 'flex',
     },
     img: {
       margin: 'auto',
@@ -44,7 +46,7 @@ class FileItem extends React.PureComponent<Props> {
   render() {
     const { props } = this;
     const { classes } = props;
-    const { file, invalid } = this.props.value;
+    const { value, invalid } = this.props.value;
     return (
       <Box
         p={{
@@ -80,13 +82,13 @@ class FileItem extends React.PureComponent<Props> {
                 alignItems: 'center',
               }}
             >
-              {file instanceof File ? file.name : ''}
+              {value instanceof File ? value.name : ''}
             </Typography>
           </Box>
 
           <Grid container justify="center">
             <div className={classes.image}>
-              <props.getThumbnail {...{ file, invalid, classes }} />
+              <props.getThumbnail {...{ value, invalid, classes }} />
             </div>
           </Grid>
           <Box

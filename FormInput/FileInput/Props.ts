@@ -4,23 +4,29 @@ import { FormInputProps, PropsField } from '../..';
 import { Message } from '../../../MessagesTranslate/Animation';
 import { styles } from './styles';
 
+export interface ActionsFiles {
+  onAdd?: ((file: File[]) => Promise<void> | void) | null;
+  onDelete?: ((file: FileVa[]) => Promise<void> | void) | null;
+}
+
 export interface Props
   extends Pick<
-    FormInputProps,
-    | 'ns'
-    | 'validateField'
-    | 'multiple'
-    | 'InputProps'
-    | 'label'
-    | 'name'
-    | 'value'
-    | 'type'
-    | 'error'
-    | 'disabled'
-    | 'changeField'
-    | 'sendChange'
-    | 'extraProps'
-  > {
+      FormInputProps,
+      | 'ns'
+      | 'validateField'
+      | 'multiple'
+      | 'InputProps'
+      | 'label'
+      | 'name'
+      | 'value'
+      | 'type'
+      | 'error'
+      | 'disabled'
+      | 'sendChange'
+      | 'extraProps'
+    >,
+    Partial<Pick<FormInputProps, 'changeField'>>,
+    ActionsFiles {
   value: FileVa[];
 }
 
@@ -28,13 +34,14 @@ export interface AllProps extends Props, WithStyles<typeof styles> {}
 
 export declare type FileVa =
   | File
-  | string
-  | { url: string; type: string; extension?: string };
+  | {
+      url?: string;
+      file?: File;
+      extra?: { [key: string]: any; type?: string };
+    };
 
 export interface Value {
-  file: FileVa;
-  fileOriginal?: File;
-  id: string;
+  value: FileVa;
   invalid: boolean;
 }
 
@@ -61,7 +68,7 @@ export interface ListFilesProps
   extends Pick<PropsField, 'label' | 'ns' | 'name'> {
   files: FileValue;
   openFileDialog: () => void;
-  deleteFile: (id: string) => void;
+  deleteFile: (index: number, sendChange?: boolean) => Promise<void>;
   subLabel?: Message;
 }
 export declare type ListFilesStates = Pick<
@@ -75,7 +82,7 @@ export declare type handleChangeFiles = (target: {
 }) => void;
 
 export interface PropsGetThumbnail {
-  file: FileVa;
+  value: FileVa;
   invalid?: boolean;
   classes?: { img: string };
 }
