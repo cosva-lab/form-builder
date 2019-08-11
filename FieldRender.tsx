@@ -243,6 +243,7 @@ export default class FieldRender
       type,
       component,
       extraProps,
+      extra,
       fields,
       InputProps,
       autoComplete,
@@ -264,6 +265,7 @@ export default class FieldRender
           search,
           component,
           extraProps,
+          extra,
           InputProps,
           autoComplete,
         }}

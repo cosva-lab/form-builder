@@ -65,6 +65,7 @@ class FieldsRender extends React.PureComponent<AllFieldsRenderProps> {
       steps,
       isNew,
       fields,
+      extra,
     } = this.props;
     if (!fields) return null;
     return (
@@ -82,9 +83,8 @@ class FieldsRender extends React.PureComponent<AllFieldsRenderProps> {
             },
           } = field;
           let { extraProps } = field;
-          const { searchField, id } = extraProps || {
+          const { searchField } = extraProps || {
             searchField: false,
-            id: null,
           };
           if (searchField) {
             let valueSearchId: string | number;
@@ -124,25 +124,6 @@ class FieldsRender extends React.PureComponent<AllFieldsRenderProps> {
             } catch (e) {
               console.log(e);
             }
-          } else if (id) {
-            try {
-              // eslint-disable-next-line no-restricted-globals
-              if (id && !isNaN(Number(id))) {
-                extraProps = {
-                  ...extraProps,
-                  search: {
-                    state: true,
-                    value: Number(id),
-                  },
-                };
-              } else {
-                throw new Error(
-                  `El campo ${field.name} tiene valor no permitido!`,
-                );
-              }
-            } catch (e) {
-              console.log(e);
-            }
           }
           return (
             <FieldRender
@@ -152,6 +133,7 @@ class FieldsRender extends React.PureComponent<AllFieldsRenderProps> {
               extraProps={extraProps}
               {...{
                 ...field,
+                extra,
                 transPosition,
                 label,
                 validate,
