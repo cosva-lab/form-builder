@@ -1,6 +1,8 @@
 import { Message } from './../MessagesTranslate/Animation';
 import { GridSize } from '@material-ui/core/Grid';
 import { OutlinedInputProps } from '@material-ui/core/OutlinedInput';
+import { ActionsFiles } from './FormInput/FileInput/Props';
+import { JSXElementConstructor } from 'react';
 
 export interface EventField {
   target: { name: string; value: value; type?: string };
@@ -17,15 +19,18 @@ export interface ChangeField {
 }
 
 export type value = any;
+export type extra =
+  | { [key: string]: any }
+  | (() => { [key: string]: any });
 export type transPosition = string | boolean;
 export type activeStep = number;
 
 export interface InitialState {
-  id?: number;
   ns?: string;
   isNew?: boolean;
   validationState?: boolean;
   validate?: boolean;
+  extra?: extra;
 }
 export interface InitialStateSteps extends InitialState {
   steps: Step[];
@@ -122,7 +127,7 @@ export interface Validations {
   validChange?: boolean;
 }
 
-export interface ExtraProps {
+export interface ExtraProps extends ActionsFiles {
   helpMessage?: boolean;
   searchField?:
     | string
@@ -131,7 +136,6 @@ export interface ExtraProps {
   searchId?: string;
   search?: { state: boolean; value: string | number };
   renderItem?: React.ReactNode;
-  id?: string | number;
   timeConsult?: number;
   actions?: {
     onDelete(e: any);
@@ -155,8 +159,11 @@ export interface ExtraProps {
   subLabel?: Message;
 }
 type render = (element: {
-  children: React.ReactElement<any>;
-  props: FieldRenderProps;
+  children: React.ReactElement<
+    FormInputProps,
+    JSXElementConstructor<FormInputProps>
+  >;
+  props: FormBuilder.FieldRender;
 }) => React.CElement;
 
 interface BasicFields {
@@ -215,6 +222,7 @@ type typeForm =
 export interface PropsField extends Validations, ComponentField {
   fields?: PropsField[];
   extraProps?: ExtraProps;
+  extra?: extra;
   type?: typeForm;
   name: string;
   value: value;
