@@ -64,6 +64,12 @@ class FormInput extends React.PureComponent<FormInputProps> {
           />
         );
       case 'file':
+        let onAdd;
+        let onDelete;
+        if (extraProps) {
+          onAdd = extraProps.onAdd;
+          onDelete = extraProps.onDelete;
+        }
         return (
           <FileInput
             {...{
@@ -80,6 +86,8 @@ class FormInput extends React.PureComponent<FormInputProps> {
               changeField,
               sendChange,
               extraProps,
+              onAdd,
+              onDelete,
             }}
           />
         );
