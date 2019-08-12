@@ -1,7 +1,6 @@
 import produce from 'immer';
 import { FieldsRender, EventField, PropsField } from './../index.d';
 import InputsValidator from './validate/InputsValidator';
-import transformFields from './transformFieldss';
 import { Component, State } from '.';
 import { changeValueFields } from './changeValues';
 import cloneDeep from 'lodash/cloneDeep';
@@ -12,7 +11,6 @@ declare interface Props extends FieldsRender {
   changeStateComponent?: boolean;
 }
 export default class FormBuilder extends InputsValidator {
-  id?: number;
   ns?: string;
   isNew?: boolean;
   validationState?: boolean;
@@ -25,7 +23,6 @@ export default class FormBuilder extends InputsValidator {
   constructor(props: Props) {
     super(props.fields);
     const {
-      id,
       ns,
       isNew,
       validationState,
@@ -33,7 +30,6 @@ export default class FormBuilder extends InputsValidator {
       changeStateComponent = false,
     } = props;
     this.setProps({
-      id,
       ns,
       isNew,
       validationState,
@@ -50,19 +46,23 @@ export default class FormBuilder extends InputsValidator {
     this.changeFields = this.changeFields.bind(this);
     this.setValidation = this.setValidation.bind(this);
     this.setComponent = this.setComponent.bind(this);
+    this.setErrors = this.setErrors.bind(this);
   }
 
-  setProps: (
+  private setProps: (
     props: Pick<
       FormBuilder,
-      'id' | 'ns' | 'isNew' | 'validationState' | 'validate'
+      'ns' | 'isNew' | 'validationState' | 'validate'
     >,
-  ) => void = ({ id, ns, isNew, validationState, validate }) => {
-    this.id = id;
+  ) => void = ({ ns, isNew, validationState, validate }) => {
     this.ns = ns;
     this.isNew = isNew;
     this.validationState = validationState;
     this.validate = validate;
+  };
+
+  setChangeStateComponent = (changeStateComponent: boolean) => {
+    this.changeStateComponent = changeStateComponent;
   };
 
   restoreLast() {
@@ -83,7 +83,10 @@ export default class FormBuilder extends InputsValidator {
   }
 
   setNew(value: boolean, callback?: Callback) {
-    if (this.isNew !== value) this.parmsLast = { ...this };
+    if (this.isNew !== value)
+      this.parmsLast = {
+        ...this,
+      };
     this.isNew = value;
     if (this.component) {
       this.component.setState(
@@ -110,7 +113,9 @@ export default class FormBuilder extends InputsValidator {
   }
 
   getFieldsObject() {
-    const fields: { [key: string]: any } = {};
+    const fields: {
+      [key: string]: any;
+    } = {};
     this.fields.forEach(({ name, value }) => {
       fields[name] = value;
     });
@@ -124,14 +129,20 @@ export default class FormBuilder extends InputsValidator {
         this.setFields(
           changeValueFields({
             fields: this.fields,
-            action: { name, value },
+            action: {
+              name,
+              value,
+            },
           }),
           callback,
         );
       } else {
         this.fields = changeValueFields({
           fields: this.fields,
-          action: { name, value },
+          action: {
+            name,
+            value,
+          },
         });
       }
     };
@@ -160,6 +171,20 @@ export default class FormBuilder extends InputsValidator {
       );
     } else {
       this.validate = validate;
+    }
+  }
+
+  setErrors() {
+    if (this.component && this.changeStateComponent) {
+      this.component.setState(state =>
+        produce<State, State>(state, (draft): void => {
+          draft.fieldsRender.validate = true;
+          draft.fieldsRender.fields = this.fieldsWithErros;
+        }),
+      );
+    } else {
+      this.validate = true;
+      this.fields = this.fieldsWithErros;
     }
   }
 
