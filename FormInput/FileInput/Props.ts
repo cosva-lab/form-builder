@@ -5,7 +5,7 @@ import { Message } from '../../../MessagesTranslate/Animation';
 import { styles } from './styles';
 
 export interface ActionsFiles {
-  onAdd?: ((file: File[]) => Promise<void> | void) | null;
+  onAdd?: ((file: File[]) => Promise<void | FileVa[]> | void) | null;
   onDelete?: ((file: FileVa[]) => Promise<void> | void) | null;
 }
 
@@ -62,6 +62,7 @@ export interface States {
   valueTemp: FileValue;
   inputValue: string;
   lookup?: Lookup;
+  loading: boolean;
 }
 
 export interface ListFilesProps

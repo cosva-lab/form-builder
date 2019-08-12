@@ -52,15 +52,18 @@ class FileInput extends React.Component<AllProps, States> {
       valueTemp: [],
       inputValue: '',
       lookup: undefined,
+      loading: false,
     };
   }
 
   componentWillMount() {
     if (this.canImportMime) {
       this.mimeTypes = new MakeCancelable(import('mime-types'));
-      this.mimeTypes.promise.then(({ lookup }) => {
-        this.setState({ lookup });
-      });
+      this.mimeTypes.promise
+        .then(({ lookup }) => {
+          this.setState({ lookup });
+        })
+        .catch(() => {});
     }
   }
 
@@ -140,7 +143,8 @@ class FileInput extends React.Component<AllProps, States> {
     if (files && files[0]) {
       const { value } = this.state;
       const newFiles: File[] = [];
-      const newValue = Array.isArray(value) ? value : [];
+      const newValueBase = Array.isArray(value) ? value : [];
+      let newValue = [...newValueBase];
       const valueTemp: Value[] = [];
       const tempFiles = Array.from(files);
       tempFiles.forEach(file => {
@@ -160,19 +164,29 @@ class FileInput extends React.Component<AllProps, States> {
         }
       });
 
-      if (valueTemp.length) {
-        setTimeout(() => {
-          this.clearValueTemp();
-        }, 2000);
-      }
       const { onAdd } = this.props;
       if (onAdd) {
         const call = onAdd(newFiles);
         if (call instanceof Promise) {
           let userErr;
-          await call.catch(err => (userErr = err));
-          if (userErr) throw userErr;
+          this.setState({ loading: true });
+          await call
+            .then(res => {
+              if (res) {
+                newValue = [...newValueBase, ...this.setFiles(res)];
+              }
+            })
+            .catch(err => (userErr = err));
+          this.setState({ loading: false });
+          if (userErr) {
+            throw userErr;
+          }
         }
+      }
+      if (valueTemp.length) {
+        setTimeout(() => {
+          this.clearValueTemp();
+        }, 2000);
       }
       this.setState(
         {
@@ -190,11 +204,7 @@ class FileInput extends React.Component<AllProps, States> {
                   name,
                   value: Array.isArray(files)
                     ? files.map(({ value }) => {
-                        if (value instanceof File) {
-                          return value;
-                        } else if (typeof value === 'object') {
-                          return value.file;
-                        }
+                        return value;
                       })
                     : [],
                 },
@@ -237,11 +247,7 @@ class FileInput extends React.Component<AllProps, States> {
               name,
               value: Array.isArray(this.state.value)
                 ? this.state.value.map(({ value }) => {
-                    if (value instanceof File) {
-                      return value;
-                    } else if (typeof value === 'object') {
-                      return value.file;
-                    }
+                    return value;
                   })
                 : null,
               type,
@@ -335,7 +341,13 @@ class FileInput extends React.Component<AllProps, States> {
     } = this.extraProps;
 
     const accept = this.convertAccept(acceptOriginal);
-    const { value, valueTemp, inputValue, lookup } = this.state;
+    const {
+      value,
+      valueTemp,
+      inputValue,
+      lookup,
+      loading,
+    } = this.state;
     const { state, message, ns: nsError, props } = error || {
       state: false,
       message: '',
@@ -403,7 +415,7 @@ class FileInput extends React.Component<AllProps, States> {
               upload
             </Button>
           </Grid>
-          {!lookup &&
+          {(!lookup || loading) &&
             this.canImportMime &&
             React.createElement(() => {
               const [progress, setProgress] = React.useState(0);

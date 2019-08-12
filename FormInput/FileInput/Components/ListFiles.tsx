@@ -109,7 +109,7 @@ export class ListFiles extends React.PureComponent<
             this.setBackgroundColor('');
           })}
           container
-          component={isEmpty ? ButtonBase : undefined}
+          component={isEmpty ? (ButtonBase as any) : undefined}
           onClick={isEmpty ? openFileDialog : undefined}
           style={{
             minHeight: '170px',
