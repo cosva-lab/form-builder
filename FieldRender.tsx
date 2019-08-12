@@ -89,7 +89,7 @@ export default class FieldRender
     this.mount = false;
   }
 
-  async componentWillReceiveProps({
+  async UNSAFE_componentWillReceiveProps({
     value,
     changed,
     validChange = false,

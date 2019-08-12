@@ -118,7 +118,7 @@ class FileInput extends React.Component<AllProps, States> {
     return error;
   }
 
-  componentWillReceiveProps({ value }: AllProps) {
+  UNSAFE_componentWillReceiveProps({ value }: AllProps) {
     const newValue = this.setFiles(value);
     if (newValue.length !== this.state.value.length) {
       this.setState({ value: newValue });
@@ -204,7 +204,15 @@ class FileInput extends React.Component<AllProps, States> {
                   name,
                   value: Array.isArray(files)
                     ? files.map(({ value }) => {
-                        return value;
+                        if (value instanceof File) {
+                          return value;
+                        } else {
+                          if (value.file instanceof File) {
+                            return value.file;
+                          } else {
+                            return value;
+                          }
+                        }
                       })
                     : [],
                 },
@@ -247,7 +255,15 @@ class FileInput extends React.Component<AllProps, States> {
               name,
               value: Array.isArray(this.state.value)
                 ? this.state.value.map(({ value }) => {
-                    return value;
+                    if (value instanceof File) {
+                      return value;
+                    } else {
+                      if (value.file instanceof File) {
+                        return value.file;
+                      } else {
+                        return value;
+                      }
+                    }
                   })
                 : null,
               type,

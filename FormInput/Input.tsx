@@ -60,7 +60,7 @@ class Input extends React.PureComponent<
   animation = true;
   lastValue = '';
 
-  componentWillUpdate({ error }: InputProps) {
+  UNSAFE_componentWillUpdate({ error }: InputProps) {
     if (
       this.props.error &&
       error &&

@@ -46,7 +46,7 @@ class FieldsRender extends React.PureComponent<AllFieldsRenderProps> {
     this.props.changeField(event);
   };
 
-  componentWillReceiveProps({ fields }: AllFieldsRenderProps) {
+  UNSAFE_componentWillReceiveProps({ fields }: AllFieldsRenderProps) {
     this.fields = fields;
   }
 
