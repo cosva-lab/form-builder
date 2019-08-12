@@ -274,7 +274,7 @@ export default class FieldRender
     if (render) {
       return render({
         children: formInput,
-        props,
+        props: { fields, ...props },
       });
     }
     if (type === 'component') {
@@ -284,13 +284,10 @@ export default class FieldRender
           { fields, ...props },
         );
       }
-      if (
-        typeof component === 'function' ||
-        ReactIs.isValidElementType(component)
-      ) {
+      if (ReactIs.isValidElementType(component)) {
         return React.createElement<FormBuilder.FieldRender>(
           component,
-          props,
+          { fields, ...props },
         );
       }
       return null;
