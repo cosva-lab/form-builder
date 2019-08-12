@@ -13,7 +13,7 @@ class InputsValidator {
   public inValid = false;
   public valid = true;
   public fields: PropsField[];
-  private fieldsWithErros: PropsField[];
+  protected fieldsWithErros: PropsField[];
 
   constructor(fields: FieldsAll) {
     this.fields = fields;
@@ -21,6 +21,7 @@ class InputsValidator {
     this.callbackField = this.callbackField.bind(this);
     this.setErrors = this.setErrors.bind(this);
     this.addErrors = this.addErrors.bind(this);
+    this.haveErrors = this.haveErrors.bind(this);
   }
 
   private setE(field: PropsField | PropsFieldObject) {
@@ -28,14 +29,14 @@ class InputsValidator {
     field.changed = true;
   }
 
-  callbackField(
+  async callbackField(
     callback: (field: PropsField | PropsFieldObject) => void,
   ) {
     return produce<PropsField[], PropsField[]>(
       this.fields,
-      (draft): void => {
+      async draft => {
         for (let key = 0; key < draft.length; key++) {
-          callback(draft[key]);
+          await callback(draft[key]);
         }
       },
     );
@@ -44,7 +45,7 @@ class InputsValidator {
   async haveErrors() {
     this.inValid = false;
     this.valid = true;
-    this.fieldsWithErros = this.callbackField(async field => {
+    this.fieldsWithErros = await this.callbackField(async field => {
       this.setE(field);
       try {
         if (
@@ -65,7 +66,6 @@ class InputsValidator {
             if (typeof validation === 'object') {
               validationsObj.push(validation);
             } else {
-              validation({ fields });
               setError(
                 validation({ fields }) || {
                   state: false,
@@ -95,7 +95,7 @@ class InputsValidator {
     );
   }
 
-  addErrors(errors: { [key: string]: string | string[] }) {
+  async addErrors(errors: { [key: string]: string | string[] }) {
     for (const key in errors) {
       if (errors.hasOwnProperty(key)) {
         const e = errors[key];
@@ -105,7 +105,7 @@ class InputsValidator {
         } else {
           error.push(...e);
         }
-        this.fields = this.callbackField(field => {
+        this.fields = await this.callbackField(field => {
           const serverError = field.serverError || field.name;
           const serverErrors: string[] = [];
           if (typeof serverError === 'string') {
