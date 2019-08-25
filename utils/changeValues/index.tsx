@@ -7,7 +7,9 @@ import {
   ChangeValueFields,
   ChangeValueSteps,
   PropsFieldObject,
+  Step,
 } from '../../index';
+import StepValidator from '../validate/stepValidator';
 
 function changeValueField<Obj = false>({
   field,
@@ -37,19 +39,22 @@ const changeValueFields: (
     draft[index] = field;
   });
 
-const changeValueSteps = ({
+function changeValueSteps({
   activeStep,
   steps,
   action,
-}: ChangeValueSteps) => {
-  const { fields, ...rest } = steps[activeStep];
-  const stepsVar = steps;
-  stepsVar[activeStep] = {
-    ...rest,
-    fields: changeValueFields({ action, fields }),
-  };
-  return [...stepsVar];
-};
+}: ChangeValueSteps): StepValidator[] {
+  return produce<StepValidator[], StepValidator[]>(
+    steps,
+    (draft): void => {
+      const { fields } = draft[activeStep];
+      draft[activeStep].fields = changeValueFields({
+        action,
+        fields,
+      });
+    },
+  );
+}
 
 changeValueSteps.propTypes = {
   activeStep: PropTypes.number.isRequired,

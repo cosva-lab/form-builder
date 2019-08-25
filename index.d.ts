@@ -1,8 +1,9 @@
 import { Message } from './../MessagesTranslate/Animation';
-import { GridSize } from '@material-ui/core/Grid';
+import { GridSize, GridProps } from '@material-ui/core/Grid';
 import { OutlinedInputProps } from '@material-ui/core/OutlinedInput';
 import { ActionsFiles } from './FormInput/FileInput/Props';
 import { JSXElementConstructor } from 'react';
+import { StepperProps } from '@material-ui/core/Stepper';
 
 export interface EventField {
   target: { name: string; value: value; type?: string };
@@ -32,9 +33,12 @@ export interface InitialState {
   validate?: boolean;
   extra?: extra;
 }
+
 export interface InitialStateSteps extends InitialState {
   steps: Step[];
   activeStep: activeStep;
+  loading?: boolean;
+  footerSteps?: { [key: number]: Record<'next' | 'back', Message> };
 }
 
 export interface PropsFieldObject extends PropsField {
@@ -60,7 +64,7 @@ export interface ChangeValueFields {
 
 export interface ChangeValueSteps {
   activeStep: activeStep;
-  steps: Step[];
+  steps: StepValidator[];
   action: ChangeValueFields['action'];
 }
 
@@ -77,7 +81,26 @@ export interface FieldsRender extends InitialState {
 }
 
 export interface Step extends FieldsRender {
-  label: string;
+  label: Message | string;
+  stepper?: boolean;
+  elevation?: number;
+}
+
+export interface StepsRender extends InitialStateSteps, ChangeField {
+  footerRender?: ({
+    stepsLength,
+    activeStep,
+    footerSteps,
+  }: {
+    stepsLength: number;
+    activeStep: activeStep;
+    footerSteps: Partial<InitialStateSteps['footerSteps']>;
+  }) => Record<'next' | 'back', Message>;
+  handleNextStep: (activeStep: activeStep) => void;
+  handleBackStep: (activeStep: activeStep) => void;
+  gridProps?: Omit<GridProps, 'children'>;
+  stepperProps?: Omit<StepperProps, 'activeStep' | 'children'>;
+  getSteps?: () => Step[];
 }
 
 type Rules = Exclude<
@@ -200,7 +223,8 @@ interface CheckboxField {
 interface ComponentField {
   component?:
     | React.ReactElement<FormBuilder.FieldRender>
-    | React.ComponentClass<FormBuilder.FieldRender>;
+    | React.ComponentClass<FormBuilder.FieldRender>
+    | React.Component<FormBuilder.FieldRender>;
 }
 
 type typeForm =
@@ -276,7 +300,6 @@ export interface Validate extends Validations {
 export interface FormInputProps extends BaseProps {
   multiple?: boolean;
   route: string;
-  sendChange?(): void;
   validateField?(): void;
 }
 
@@ -284,7 +307,6 @@ export interface BaseProps extends PropsField, ChangeField {}
 
 export interface InputProps extends BaseProps {
   type: 'text' | 'number' | 'email' | 'date' | 'password';
-  sendChange?(): void;
 }
 
 export interface InputPropsComplete extends BaseProps {

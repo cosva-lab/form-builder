@@ -8,6 +8,7 @@ class InputValidator {
   constructor(validations: Validation[]) {
     // validations is an array of validation rules specific to a form
     this.validations = validations;
+    this.haveErrors = this.haveErrors.bind(this);
   }
 
   async haveErrors({
@@ -132,7 +133,8 @@ class InputValidator {
             }
             try {
               if (
-                validationMethod(value.toString(), args) === bolean
+                validationMethod((value || '').toString(), args) ===
+                bolean
               ) {
                 validation = {
                   state: true,

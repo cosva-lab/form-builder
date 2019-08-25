@@ -22,7 +22,6 @@ export interface Props
       | 'type'
       | 'error'
       | 'disabled'
-      | 'sendChange'
       | 'extraProps'
     >,
     Partial<Pick<FormInputProps, 'changeField'>>,
@@ -57,7 +56,7 @@ export declare type Extension = (
 export declare type Charset = (typeString: string) => string | false;
 export declare type FileValue = Value[];
 
-export interface States {
+export interface State {
   value: FileValue;
   valueTemp: FileValue;
   inputValue: string;

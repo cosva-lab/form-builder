@@ -1,7 +1,7 @@
 import produce from 'immer';
 import { FieldsRender, EventField, PropsField } from './../index.d';
 import InputsValidator from './validate/InputsValidator';
-import { Component, State } from '.';
+import { ComponentFormBuilder, StateFormBuilder } from '.';
 import { changeValueFields } from './changeValues';
 import cloneDeep from 'lodash/cloneDeep';
 
@@ -10,12 +10,13 @@ declare type Callback = () => void;
 declare interface Props extends FieldsRender {
   changeStateComponent?: boolean;
 }
+
 export default class FormBuilder extends InputsValidator {
   ns?: string;
   isNew?: boolean;
   validationState?: boolean;
   validate?: boolean;
-  private component?: Component;
+  private component?: ComponentFormBuilder;
   private originalParams: FormBuilder;
   private parmsLast?: FormBuilder;
   private changeStateComponent: boolean;
@@ -91,9 +92,12 @@ export default class FormBuilder extends InputsValidator {
     if (this.component) {
       this.component.setState(
         state =>
-          produce<State, State>(state, (draft): void => {
-            draft.fieldsRender.isNew = value;
-          }),
+          produce<StateFormBuilder, StateFormBuilder>(
+            state,
+            (draft): void => {
+              draft.fieldsRender.isNew = value;
+            },
+          ),
         callback,
       );
     }
@@ -103,13 +107,16 @@ export default class FormBuilder extends InputsValidator {
     if (this.component) {
       this.component.setState(
         state =>
-          produce<State, State>(state, (draft): void => {
-            draft.fieldsRender.fields = fields;
-            this.fields = fields;
-          }),
+          produce<StateFormBuilder, StateFormBuilder>(
+            state,
+            (draft): void => {
+              draft.fieldsRender.fields = fields;
+            },
+          ),
         callback,
       );
     }
+    this.fields = fields;
   }
 
   getFieldsObject() {
@@ -125,26 +132,17 @@ export default class FormBuilder extends InputsValidator {
   changeField(callback?: Callback) {
     return ({ target }: EventField) => {
       const { value, name } = target;
+      const fields = changeValueFields({
+        fields: this.fields,
+        action: {
+          name,
+          value,
+        },
+      });
       if (this.component && this.changeStateComponent) {
-        this.setFields(
-          changeValueFields({
-            fields: this.fields,
-            action: {
-              name,
-              value,
-            },
-          }),
-          callback,
-        );
-      } else {
-        this.fields = changeValueFields({
-          fields: this.fields,
-          action: {
-            name,
-            value,
-          },
-        });
+        this.setFields(fields, callback);
       }
+      this.fields = fields;
     };
   }
 
@@ -164,31 +162,35 @@ export default class FormBuilder extends InputsValidator {
     if (this.component && this.changeStateComponent) {
       this.component.setState(
         state =>
-          produce<State, State>(state, (draft): void => {
-            draft.fieldsRender.validate = validate;
-          }),
+          produce<StateFormBuilder, StateFormBuilder>(
+            state,
+            (draft): void => {
+              draft.fieldsRender.validate = validate;
+            },
+          ),
         callback,
       );
-    } else {
-      this.validate = validate;
     }
+    this.validate = validate;
   }
 
   setErrors() {
     if (this.component && this.changeStateComponent) {
       this.component.setState(state =>
-        produce<State, State>(state, (draft): void => {
-          draft.fieldsRender.validate = true;
-          draft.fieldsRender.fields = this.fieldsWithErros;
-        }),
+        produce<StateFormBuilder, StateFormBuilder>(
+          state,
+          (draft): void => {
+            draft.fieldsRender.validate = true;
+            draft.fieldsRender.fields = this.fieldsWithErros;
+          },
+        ),
       );
-    } else {
-      this.validate = true;
-      this.fields = this.fieldsWithErros;
     }
+    this.validate = true;
+    this.fields = this.fieldsWithErros;
   }
 
-  setComponent(component: Component) {
+  setComponent(component: ComponentFormBuilder) {
     this.component = component;
   }
 }

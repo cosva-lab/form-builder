@@ -76,7 +76,6 @@ class Input extends React.PureComponent<
       classes,
       error,
       changeField,
-      sendChange,
       label,
       name,
       value,
@@ -93,9 +92,6 @@ class Input extends React.PureComponent<
         variant="outlined"
       >
         <TextField
-          onBlur={() => {
-            sendChange && sendChange();
-          }}
           label={getMessage(transformLabel({ label, ns, name }))}
           error={error && error.state}
           FormHelperTextProps={{
@@ -145,11 +141,6 @@ class Input extends React.PureComponent<
               ),
             });
             this.lastValue = targetValue;
-          }}
-          onKeyDown={event => {
-            if (event.key === 'Enter') {
-              sendChange && sendChange();
-            }
           }}
           {...{
             name,

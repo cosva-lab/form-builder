@@ -13,7 +13,7 @@ import {
 import {
   AllProps,
   Props,
-  States,
+  State,
   handleChangeFiles,
   Value,
   FileVa,
@@ -31,7 +31,7 @@ const defaultPropsExtra = {
   subLabel: undefined,
 };
 
-class FileInput extends React.Component<AllProps, States> {
+class FileInput extends React.Component<AllProps, State> {
   public inputOpenFileRef: React.RefObject<any> = React.createRef();
   public animation = true;
 

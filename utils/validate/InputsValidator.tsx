@@ -6,14 +6,15 @@ import {
   Validation,
 } from '../..';
 import InputValidator from './InputValidator';
-import { Component, State } from '..';
+import { ComponentFormBuilder, StateFormBuilder } from '..';
+
 import { Message } from '../../../MessagesTranslate/MessagesTranslate';
 
 class InputsValidator {
   public inValid = false;
   public valid = true;
   public fields: PropsField[];
-  protected fieldsWithErros: PropsField[];
+  public fieldsWithErros: PropsField[];
 
   constructor(fields: FieldsAll) {
     this.fields = fields;
@@ -86,12 +87,15 @@ class InputsValidator {
     return this.inValid;
   }
 
-  setErrors(component: Component) {
+  setErrors(component: ComponentFormBuilder) {
     component.setState(state =>
-      produce<State, State>(state, (draft): void => {
-        draft.fieldsRender.validate = true;
-        draft.fieldsRender.fields = this.fieldsWithErros;
-      }),
+      produce<StateFormBuilder, StateFormBuilder>(
+        state,
+        (draft): void => {
+          draft.fieldsRender.validate = true;
+          draft.fieldsRender.fields = this.fieldsWithErros;
+        },
+      ),
     );
   }
 

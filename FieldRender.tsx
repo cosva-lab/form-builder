@@ -14,12 +14,12 @@ import {
 } from './';
 import { transformLabel } from './utils/transformLabel';
 
-declare type States = Validations & {
+declare type State = Validations & {
   value: any;
   error?: Message | undefined;
 };
 export default class FieldRender
-  extends React.Component<FormBuilder.FieldRender, States>
+  extends React.Component<FormBuilder.FieldRender, State>
   implements ChangeField {
   static defaultProps = {
     ns: 'inputs',
@@ -157,14 +157,6 @@ export default class FieldRender
     }
   };
 
-  sendChange = () => {
-    const { name } = this.props;
-    const { value } = this.state;
-    this.props.changeField({
-      target: { value, name },
-    });
-  };
-
   validateField = async () => {
     const { validations } = this.props;
     const { validChange, validate, value } = this.state;
@@ -244,50 +236,48 @@ export default class FieldRender
       component,
       extraProps,
       extra,
-      fields,
       InputProps,
       autoComplete,
+      isNew,
     } = props;
+
+    const propsForm = {
+      label: transformLabel({ label, ns, name }),
+      validateField: this.validateField,
+      changeField: this.changeField,
+      error,
+      name,
+      type,
+      value,
+      actionsExtra,
+      ns,
+      search,
+      component,
+      extraProps,
+      extra,
+      InputProps,
+      autoComplete,
+      isNew,
+    };
     if (!state) return null;
-    const formInput = (
-      <FormInput
-        label={transformLabel({ label, ns, name })}
-        validateField={this.validateField}
-        changeField={this.changeField}
-        sendChange={this.sendChange}
-        error={error}
-        {...{
-          name,
-          type,
-          value,
-          actionsExtra,
-          ns,
-          search,
-          component,
-          extraProps,
-          extra,
-          InputProps,
-          autoComplete,
-        }}
-      />
-    );
+    const formInput = <FormInput {...propsForm} />;
     if (render) {
       return render({
         children: formInput,
-        props: { fields, ...props },
+        props: propsForm,
       });
     }
     if (type === 'component') {
       if (React.isValidElement(component)) {
         return React.cloneElement<FormBuilder.FieldRender>(
           component,
-          { fields, ...props },
+          propsForm,
         );
       }
       if (ReactIs.isValidElementType(component)) {
         return React.createElement<FormBuilder.FieldRender>(
           component,
-          { fields, ...props },
+          propsForm,
         );
       }
       return null;

@@ -26,7 +26,6 @@ class FormInput extends React.PureComponent<FormInputProps> {
       InputProps,
       label,
       changeField,
-      sendChange,
       type,
       value,
       name,
@@ -57,7 +56,6 @@ class FormInput extends React.PureComponent<FormInputProps> {
               error,
               disabled,
               changeField,
-              sendChange,
               fullWidth,
               autoComplete,
             }}
@@ -84,7 +82,6 @@ class FormInput extends React.PureComponent<FormInputProps> {
               error,
               disabled,
               changeField,
-              sendChange,
               extraProps,
               onAdd,
               onDelete,
@@ -105,7 +102,6 @@ class FormInput extends React.PureComponent<FormInputProps> {
               error,
               disabled,
               changeField,
-              sendChange,
             }}
           />
         );
@@ -116,7 +112,6 @@ class FormInput extends React.PureComponent<FormInputProps> {
             value={value}
             error={error}
             onChange={changeField}
-            sendChange={sendChange}
             disabled={disabled}
             ns={ns}
             label={transformLabel({ label, ns, name })}
@@ -138,7 +133,6 @@ class FormInput extends React.PureComponent<FormInputProps> {
               error,
               disabled,
               changeField,
-              sendChange,
             }}
           />
         );
@@ -164,7 +158,6 @@ class FormInput extends React.PureComponent<FormInputProps> {
               error,
               disabled,
               changeField,
-              sendChange,
             }}
           />
         );

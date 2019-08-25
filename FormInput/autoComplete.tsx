@@ -8,7 +8,6 @@ import {
   withStyles,
 } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
-import NoSsr from '@material-ui/core/NoSsr';
 import TextField from '@material-ui/core/TextField';
 import Paper from '@material-ui/core/Paper';
 import Chip from '@material-ui/core/Chip';
@@ -29,6 +28,7 @@ import { InputPropsComplete } from '..';
 import { WithStyles } from '@material-ui/styles';
 import { WithTranslation, useTranslation } from 'react-i18next';
 import Loading from '../../Loading';
+import { getMessage } from '../../MessagesTranslate/Animation';
 
 const Select = React.lazy(() => import('react-select'));
 
@@ -119,12 +119,14 @@ function Control(props: ControlProps<OptionType>) {
     children,
     innerProps,
     innerRef,
-    selectProps: { classes, TextFieldProps },
+    selectProps: { classes, TextFieldProps, error },
   } = props;
 
   return (
     <TextField
       fullWidth
+      error={error && error.state}
+      helperText={getMessage(error || { message: '' })}
       InputProps={{
         inputComponent,
         inputProps: {
@@ -292,6 +294,7 @@ class AutoComplete extends React.Component<
       defaultInputValue,
       changeField,
       value,
+      error,
     } = this.props;
 
     const {
@@ -332,81 +335,79 @@ class AutoComplete extends React.Component<
       placeholder = t(label.message, label.props);
     }
     return (
-      <NoSsr>
-        <React.Suspense
-          fallback={
-            <div
-              style={{
-                width: '100%',
-                justifyContent: 'center',
-                display: 'flex',
-              }}
-            >
-              <Loading size={20} />
-            </div>
-          }
-        >
-          {multiple && (
-            <Select
-              classes={classes}
-              styles={selectStyles}
-              menuPortalTarget={document.body}
-              textFieldProps={{
-                label: 'Label',
-                InputLabelProps: {
-                  shrink: true,
+      <React.Suspense
+        fallback={
+          <div
+            style={{
+              width: '100%',
+              justifyContent: 'center',
+              display: 'flex',
+            }}
+          >
+            <Loading size={20} />
+          </div>
+        }
+      >
+        {multiple && (
+          <Select
+            classes={classes}
+            styles={selectStyles}
+            menuPortalTarget={document.body}
+            textFieldProps={{
+              label: 'Label',
+              InputLabelProps: {
+                shrink: true,
+              },
+            }}
+            options={options}
+            components={{
+              ...(components as any),
+              NoOptionsMessage,
+            }}
+            value={value}
+            onChange={() => {}}
+            placeholder={placeholder}
+            isMulti
+            error={error}
+            defaultInputValue={defaultInputValue}
+          />
+        )}
+        {!multiple && (
+          <Select
+            classes={classes}
+            styles={selectStyles}
+            TextFieldProps={{
+              label: 'Country',
+              InputLabelProps: {
+                shrink: true,
+              },
+              placeholder: 'Search a country (start with a)',
+            }}
+            options={options}
+            components={{
+              ...(components as any),
+              NoOptionsMessage,
+            }}
+            value={value}
+            onKeyDown={onKeyDown}
+            defaultInputValue={inputValue}
+            onChange={(option: any) => {
+              changeField({
+                target: {
+                  name,
+                  value: option,
+                  type: 'autoComplete',
                 },
-              }}
-              options={options}
-              components={{
-                ...(components as any),
-                NoOptionsMessage,
-              }}
-              value={value}
-              onChange={() => {}}
-              placeholder={placeholder}
-              isMulti
-              defaultInputValue={defaultInputValue}
-            />
-          )}
-          {!multiple && (
-            <Select
-              classes={classes}
-              styles={selectStyles}
-              inputId="react-select-single"
-              TextFieldProps={{
-                label: 'Country',
-                InputLabelProps: {
-                  htmlFor: 'react-select-single',
-                  shrink: true,
-                },
-                placeholder: 'Search a country (start with a)',
-              }}
-              options={options}
-              components={{
-                ...(components as any),
-                NoOptionsMessage,
-              }}
-              value={value}
-              onKeyDown={onKeyDown}
-              defaultInputValue={inputValue}
-              onChange={(option: any) => {
-                changeField({
-                  target: {
-                    name,
-                    value: option,
-                    type: 'autoComplete',
-                  },
-                });
-              }}
-              placeholder={placeholder}
-              isClearable
-              isSearchable
-              filterOption={filterOption}
-            />
-          )}
-        </React.Suspense>
-      </NoSsr>
+              });
+            }}
+            placeholder={placeholder}
+            isClearable
+            isSearchable
+            error={error}
+            filterOption={filterOption}
+          />
+        )}
+      </React.Suspense>
     );
   }
 }
