@@ -20,7 +20,7 @@ import {
 } from './Props';
 import ListFiles from './Components/ListFiles';
 import { styles } from './styles';
-import { MakeCancelable } from '../../utils/makeCancelable';
+import { MakeCancelable } from '../../../../utils/makeCancelable';
 
 const defaultPropsExtra = {
   accept: '*',
@@ -56,7 +56,7 @@ class FileInput extends React.Component<AllProps, State> {
     };
   }
 
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
     if (this.canImportMime) {
       this.mimeTypes = new MakeCancelable(import('mime-types'));
       this.mimeTypes.promise
@@ -165,6 +165,8 @@ class FileInput extends React.Component<AllProps, State> {
       });
 
       const { onAdd } = this.props;
+      let callBack: () => void;
+
       if (onAdd) {
         const call = onAdd(newFiles);
         if (call instanceof Promise) {
@@ -173,7 +175,23 @@ class FileInput extends React.Component<AllProps, State> {
           await call
             .then(res => {
               if (res) {
-                newValue = [...newValueBase, ...this.setFiles(res)];
+                let value;
+                if (Array.isArray(res)) {
+                  value = res;
+                } else if (
+                  res &&
+                  typeof res === 'object' &&
+                  Array.isArray(res.value)
+                ) {
+                  value = res.value;
+                  callBack = res.callBack;
+                }
+                if (value) {
+                  newValue = [
+                    ...newValueBase,
+                    ...this.setFiles(value),
+                  ];
+                }
               }
             })
             .catch(err => (userErr = err));
@@ -199,24 +217,27 @@ class FileInput extends React.Component<AllProps, State> {
           if (files) {
             const { changeField, name } = this.props;
             changeField &&
-              changeField({
-                target: {
-                  name,
-                  value: Array.isArray(files)
-                    ? files.map(({ value }) => {
-                        if (value instanceof File) {
-                          return value;
-                        } else {
-                          if (value.file instanceof File) {
-                            return value.file;
-                          } else {
+              changeField(
+                {
+                  target: {
+                    name,
+                    value: Array.isArray(files)
+                      ? files.map(({ value }) => {
+                          if (value instanceof File) {
                             return value;
+                          } else {
+                            if (value.file instanceof File) {
+                              return value.file;
+                            } else {
+                              return value;
+                            }
                           }
-                        }
-                      })
-                    : [],
+                        })
+                      : [],
+                  },
                 },
-              });
+                callBack,
+              );
           }
         },
       );
@@ -229,13 +250,20 @@ class FileInput extends React.Component<AllProps, State> {
   ): Promise<void> => {
     const temp = this.state.value.find((_s, id) => id === index);
     const { onDelete } = this.props;
+    let callBack: () => void;
     if (sendChange && temp && onDelete) {
       const { value } = temp;
       const call = onDelete([value]);
       if (call instanceof Promise) {
         let userErr;
-        await call.catch(err => (userErr = err));
+        call.catch(err => (userErr = err));
+        const res = await call;
+        if (res && typeof res.callBack === 'function') {
+          callBack = res.callBack;
+        }
         if (userErr) throw userErr;
+      } else if (call && typeof call.callBack === 'function') {
+        callBack = call.callBack;
       }
     }
     this.setState(
@@ -250,25 +278,28 @@ class FileInput extends React.Component<AllProps, State> {
       () => {
         const { changeField, name, type } = this.props;
         changeField &&
-          changeField({
-            target: {
-              name,
-              value: Array.isArray(this.state.value)
-                ? this.state.value.map(({ value }) => {
-                    if (value instanceof File) {
-                      return value;
-                    } else {
-                      if (value.file instanceof File) {
-                        return value.file;
-                      } else {
+          changeField(
+            {
+              target: {
+                name,
+                value: Array.isArray(this.state.value)
+                  ? this.state.value.map(({ value }) => {
+                      if (value instanceof File) {
                         return value;
+                      } else {
+                        if (value.file instanceof File) {
+                          return value.file;
+                        } else {
+                          return value;
+                        }
                       }
-                    }
-                  })
-                : null,
-              type,
+                    })
+                  : null,
+                type,
+              },
             },
-          });
+            callBack,
+          );
       },
     );
   };
@@ -393,12 +424,13 @@ class FileInput extends React.Component<AllProps, State> {
               files,
               multiple,
               subLabel,
-              changeField: this.changeField,
-              openFileDialog: this.openFileDialog,
-              deleteFile: this.deleteFile,
+              changeField: (...value) => this.changeField(...value),
+              openFileDialog: (...value) =>
+                this.openFileDialog(...value),
+              deleteFile: (...value) => this.deleteFile(...value),
             }}
           />
-          <Grid container onClick={this.openFileDialog}>
+          <Grid container onClick={() => this.openFileDialog()}>
             <input
               ref={this.inputOpenFileRef}
               onChange={({ target }) => {

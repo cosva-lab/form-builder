@@ -73,14 +73,14 @@ export interface FormStepsProps extends InitialState {
   handleBackStep({ activeStep }: { activeStep: activeStep }): void;
 }
 
-export interface FieldsRender extends InitialState {
+export interface FieldsRenderProps extends InitialState {
   fields: PropsField[];
   actionsExtra?: {};
   validate?: boolean;
   transPosition?: transPosition;
 }
 
-export interface Step extends FieldsRender {
+export interface Step extends FieldsRenderProps {
   label: Message | string;
   stepper?: boolean;
   elevation?: number;
@@ -327,7 +327,7 @@ export namespace FormBuilder {
     activeStep?: activeStep;
     getFields?: () => PropsField[];
   }
-  export interface Fields extends FieldsRender, BaseBuilder {}
+  export interface Fields extends FieldsRenderProps, BaseBuilder {}
   export interface FieldRender
     extends FieldRenderProps,
       BaseBuilder {}

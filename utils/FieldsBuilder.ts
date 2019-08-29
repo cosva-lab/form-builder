@@ -1,5 +1,5 @@
 import produce from 'immer';
-import { FieldsRender, EventField, PropsField } from './../index.d';
+import { FieldsRenderProps, EventField, PropsField } from '..';
 import InputsValidator from './validate/InputsValidator';
 import { ComponentFormBuilder, StateFormBuilder } from '.';
 import { changeValueFields } from './changeValues';
@@ -7,18 +7,18 @@ import cloneDeep from 'lodash/cloneDeep';
 
 declare type Callback = () => void;
 
-declare interface Props extends FieldsRender {
+declare interface Props extends FieldsRenderProps {
   changeStateComponent?: boolean;
 }
 
-export default class FormBuilder extends InputsValidator {
+export default class FieldsBuilder extends InputsValidator {
   ns?: string;
   isNew?: boolean;
   validationState?: boolean;
   validate?: boolean;
   private component?: ComponentFormBuilder;
-  private originalParams: FormBuilder;
-  private parmsLast?: FormBuilder;
+  private originalParams: FieldsBuilder;
+  private parmsLast?: FieldsBuilder;
   private changeStateComponent: boolean;
 
   constructor(props: Props) {
@@ -52,7 +52,7 @@ export default class FormBuilder extends InputsValidator {
 
   private setProps: (
     props: Pick<
-      FormBuilder,
+      FieldsBuilder,
       'ns' | 'isNew' | 'validationState' | 'validate'
     >,
   ) => void = ({ ns, isNew, validationState, validate }) => {
@@ -104,6 +104,7 @@ export default class FormBuilder extends InputsValidator {
   }
 
   setFields(fields: PropsField[], callback?: Callback) {
+    this.fields = fields;
     if (this.component) {
       this.component.setState(
         state =>
@@ -115,8 +116,9 @@ export default class FormBuilder extends InputsValidator {
           ),
         callback,
       );
+    } else {
+      callback && callback();
     }
-    this.fields = fields;
   }
 
   getFieldsObject() {

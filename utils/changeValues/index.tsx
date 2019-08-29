@@ -3,11 +3,10 @@ import produce from 'immer';
 import {
   PropsField,
   InitialStateSteps,
-  FieldsRender,
+  FieldsRenderProps,
   ChangeValueFields,
   ChangeValueSteps,
   PropsFieldObject,
-  Step,
 } from '../../index';
 import StepValidator from '../validate/stepValidator';
 
@@ -68,16 +67,21 @@ const renderField = (fieldRender: PropsField) =>
     field.error = { state: false, message: '' };
   });
 
-const renderFields = (fieldsRender: FieldsRender): FieldsRender =>
-  produce<FieldsRender, FieldsRender>(fieldsRender, data => {
-    if (Array.isArray(data.fields)) {
-      for (const i in data.fields) {
-        if (i) {
-          data.fields[i] = renderField(data.fields[i]);
+const renderFields = (
+  fieldsRender: FieldsRenderProps,
+): FieldsRenderProps =>
+  produce<FieldsRenderProps, FieldsRenderProps>(
+    fieldsRender,
+    data => {
+      if (Array.isArray(data.fields)) {
+        for (const i in data.fields) {
+          if (i) {
+            data.fields[i] = renderField(data.fields[i]);
+          }
         }
       }
-    }
-  });
+    },
+  );
 const renderStateSteps = (initialState: InitialStateSteps) =>
   produce(initialState, (draft: InitialStateSteps) => {
     if (!draft.activeStep) draft.activeStep = 0;

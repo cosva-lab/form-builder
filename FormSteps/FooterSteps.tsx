@@ -65,7 +65,7 @@ const footerRenderDefault: Required<Props>['footerRender'] = ({
     },
   };
   if (footerSteps) {
-    Object.keys(footerSteps).map(step => {
+    Object.keys(footerSteps).forEach(step => {
       if (activeStep.toString() === step) {
         if (footerSteps.hasOwnProperty(step)) {
           const footerStep = footerSteps[activeStep];

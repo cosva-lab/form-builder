@@ -5,8 +5,28 @@ import { Message } from '../../../MessagesTranslate/Animation';
 import { styles } from './styles';
 
 export interface ActionsFiles {
-  onAdd?: ((file: File[]) => Promise<void | FileVa[]> | void) | null;
-  onDelete?: ((file: FileVa[]) => Promise<void> | void) | null;
+  onAdd?:
+    | ((
+        file: File[],
+      ) =>
+        | Promise<
+            | { callBack: () => void; value?: FileVa[] }
+            | void
+            | FileVa[]
+          >
+        | void
+        | { callBack: () => void; value: FileVa[] }
+      )
+    | null;
+  onDelete?:
+    | ((
+        file: FileVa[],
+      ) =>
+        | Promise<{ callBack: () => void } | void>
+        | void
+        | { callBack: () => void }
+      )
+    | null;
 }
 
 export interface Props
