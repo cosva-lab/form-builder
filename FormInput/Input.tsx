@@ -47,7 +47,7 @@ class Input extends React.PureComponent<
     },
     fullWidth: true,
     autoComplete: '',
-    InputProps: () => {
+    inputProps: () => {
       return {};
     },
   };
@@ -79,7 +79,7 @@ class Input extends React.PureComponent<
       label,
       name,
       value,
-      InputProps,
+      inputProps,
       fullWidth,
       disabled,
       autoComplete,
@@ -113,8 +113,8 @@ class Input extends React.PureComponent<
           }}
           helperText={getMessage(error || { message: '' })}
           InputProps={
-            InputProps &&
-            InputProps({
+            inputProps &&
+            inputProps({
               type,
               changeType: (type, callback) => {
                 if (type !== this.state.type)

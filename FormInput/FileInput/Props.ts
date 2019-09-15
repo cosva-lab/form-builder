@@ -44,7 +44,7 @@ export interface Props
       | 'ns'
       | 'validateField'
       | 'multiple'
-      | 'InputProps'
+      | 'inputProps'
       | 'label'
       | 'name'
       | 'value'

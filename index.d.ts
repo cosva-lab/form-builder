@@ -270,7 +270,7 @@ export interface PropsField extends Validations, ComponentField {
   state?: boolean;
   serverError?: string[] | string;
   autoComplete?: string;
-  InputProps?: (a: {
+  inputProps?: (a: {
     type: InputProps['type'];
     changeType: (
       type: InputProps['type'],

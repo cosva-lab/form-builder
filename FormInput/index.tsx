@@ -22,7 +22,7 @@ class FormInput extends React.PureComponent<FormInputProps> {
   public render() {
     const {
       multiple,
-      InputProps,
+      inputProps,
       label,
       changeField,
       type,
@@ -47,7 +47,7 @@ class FormInput extends React.PureComponent<FormInputProps> {
           <Input
             {...{
               ns,
-              InputProps,
+              inputProps,
               label: transformLabel({ label, ns, name }),
               name,
               value,
@@ -79,7 +79,7 @@ class FormInput extends React.PureComponent<FormInputProps> {
               ns,
               validateField,
               multiple,
-              InputProps,
+              inputProps,
               label: transformLabel({ label, ns, name }),
               name,
               value,
@@ -102,7 +102,7 @@ class FormInput extends React.PureComponent<FormInputProps> {
             {...{
               ns,
               multiple,
-              InputProps,
+              inputProps,
               label: transformLabel({ label, ns, name }),
               name,
               value,
@@ -133,7 +133,6 @@ class FormInput extends React.PureComponent<FormInputProps> {
             {...{
               ns,
               extraProps,
-              InputProps,
               label: transformLabel({ label, ns, name }),
               name,
               value,
@@ -158,7 +157,7 @@ class FormInput extends React.PureComponent<FormInputProps> {
           <Chips
             {...{
               ns,
-              InputProps,
+              inputProps,
               label: transformLabel({ label, ns, name }),
               name,
               value,

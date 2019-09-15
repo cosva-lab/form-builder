@@ -59,7 +59,7 @@ class FormSteps extends React.Component<AllProps> {
       isNew,
     } = props;
     const steps = getSteps();
-    const fieldsTemp = steps.map((step, key) => {
+    const fieldsTemp = steps.map(step => {
       const {
         fields,
         ns = props.ns,

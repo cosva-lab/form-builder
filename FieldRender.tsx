@@ -234,7 +234,7 @@ export default class FieldRender
       component,
       extraProps,
       extra,
-      InputProps,
+      inputProps: InputProps,
       autoComplete,
       isNew,
     } = props;
