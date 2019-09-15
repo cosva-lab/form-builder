@@ -48,7 +48,7 @@ class StepValidator implements Step {
     if ((await fieldsErrors.haveErrors()) && !this.inValid) {
       this.inValid = true;
     }
-    this.fields = fieldsErrors.fieldsWithErros;
+    this.fields = fieldsErrors.fields;
     return this.inValid;
   }
 }

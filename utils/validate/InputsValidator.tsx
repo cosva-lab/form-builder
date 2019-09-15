@@ -14,13 +14,12 @@ class InputsValidator {
   public inValid = false;
   public valid = true;
   public fields: PropsField[];
-  public fieldsWithErros: PropsField[];
+  public fieldsWithErros?: PropsField[];
 
   constructor(fields: FieldsAll) {
     this.fields = fields;
-    this.fieldsWithErros = fields;
     this.callbackField = this.callbackField.bind(this);
-    this.setErrors = this.setErrors.bind(this);
+    this.setErrorsComponent = this.setErrorsComponent.bind(this);
     this.addErrors = this.addErrors.bind(this);
     this.haveErrors = this.haveErrors.bind(this);
   }
@@ -87,19 +86,22 @@ class InputsValidator {
     return this.inValid;
   }
 
-  setErrors(component: ComponentFormBuilder) {
+  setErrorsComponent(component: ComponentFormBuilder) {
     component.setState(state =>
       produce<StateFormBuilder, StateFormBuilder>(
         state,
         (draft): void => {
           draft.fieldsRender.validate = true;
-          draft.fieldsRender.fields = this.fieldsWithErros;
+          draft.fieldsRender.fields = this.fields;
         },
       ),
     );
   }
 
-  async addErrors(errors: { [key: string]: string | string[] }) {
+  async addErrors(
+    errors: { [key: string]: string | string[] },
+    component?: ComponentFormBuilder,
+  ) {
     for (const key in errors) {
       if (errors.hasOwnProperty(key)) {
         const e = errors[key];
@@ -109,7 +111,7 @@ class InputsValidator {
         } else {
           error.push(...e);
         }
-        this.fields = await this.callbackField(field => {
+        this.fieldsWithErros = await this.callbackField(field => {
           const serverError = field.serverError || field.name;
           const serverErrors: string[] = [];
           if (typeof serverError === 'string') {
@@ -127,6 +129,7 @@ class InputsValidator {
         });
       }
     }
+    component && this.setErrorsComponent(component);
     return this.fields;
   }
 }

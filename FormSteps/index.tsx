@@ -80,6 +80,7 @@ class FormSteps extends React.Component<AllProps> {
                   transPosition={transPosition}
                   validate={validate}
                   fields={fields}
+                  getSteps={() => steps}
                   changeField={changeField}
                   isNew={isNew}
                 />

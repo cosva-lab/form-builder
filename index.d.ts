@@ -8,6 +8,7 @@ import { StepperProps } from '@material-ui/core/Stepper';
 export interface EventField {
   target: { name: string; value: value; type?: string };
   waitTime?: boolean;
+  changeStateComponent?: boolean;
 }
 
 export type changeField = (
@@ -181,11 +182,13 @@ export interface ExtraProps extends ActionsFiles {
   validateAccept?: boolean;
   subLabel?: Message;
 }
+
+export type ChildrenRender = React.ReactElement<
+  FormInputProps,
+  JSXElementConstructor<FormInputProps>
+>;
 type render = (element: {
-  children: React.ReactElement<
-    FormInputProps,
-    JSXElementConstructor<FormInputProps>
-  >;
+  children: ChildrenRender;
   props: FormBuilder.FieldRender;
 }) => React.CElement;
 
@@ -323,7 +326,7 @@ export interface InputPropsSwitchList extends BaseProps {
 
 export namespace FormBuilder {
   interface BaseBuilder extends ChangeField {
-    steps?: Step[];
+    getSteps?: () => Step[];
     activeStep?: activeStep;
     getFields?: () => PropsField[];
   }

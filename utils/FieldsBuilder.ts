@@ -1,3 +1,4 @@
+import { Dispatch, SetStateAction } from 'react';
 import produce from 'immer';
 import { FieldsRenderProps, EventField, PropsField } from '..';
 import InputsValidator from './validate/InputsValidator';
@@ -17,6 +18,7 @@ export default class FieldsBuilder extends InputsValidator {
   validationState?: boolean;
   validate?: boolean;
   private component?: ComponentFormBuilder;
+  private handleValue?: Dispatch<SetStateAction<FieldsBuilder>>;
   private originalParams: FieldsBuilder;
   private parmsLast?: FieldsBuilder;
   private changeStateComponent: boolean;
@@ -100,12 +102,17 @@ export default class FieldsBuilder extends InputsValidator {
           ),
         callback,
       );
+    } else if (this.handleValue) {
+      this.handleValue(this);
+      callback && callback();
+    } else {
+      callback && callback();
     }
   }
 
   setFields(fields: PropsField[], callback?: Callback) {
     this.fields = fields;
-    if (this.component) {
+    if (this.component && this.changeStateComponent) {
       this.component.setState(
         state =>
           produce<StateFormBuilder, StateFormBuilder>(
@@ -132,7 +139,13 @@ export default class FieldsBuilder extends InputsValidator {
   }
 
   changeField(callback?: Callback) {
-    return ({ target }: EventField) => {
+    return (
+      {
+        target,
+        changeStateComponent = this.changeStateComponent,
+      }: EventField,
+      callbackEvent?: Callback,
+    ) => {
       const { value, name } = target;
       const fields = changeValueFields({
         fields: this.fields,
@@ -141,26 +154,46 @@ export default class FieldsBuilder extends InputsValidator {
           value,
         },
       });
-      if (this.component && this.changeStateComponent) {
-        this.setFields(fields, callback);
-      }
       this.fields = fields;
+      if (this.component && changeStateComponent) {
+        this.setFields(fields, () => {
+          callback && callback();
+          callbackEvent && callbackEvent();
+        });
+      }
+      if (this.handleValue) {
+        this.handleValue(cloneDeep(this));
+        callback && callback();
+        callbackEvent && callbackEvent();
+      }
+      if (
+        !(this.component && changeStateComponent) &&
+        !this.handleValue
+      ) {
+        callback && callback();
+        callbackEvent && callbackEvent();
+      }
     };
   }
 
   changeFields(callback?: Callback) {
-    return (fields: EventField[]) => {
+    return (
+      fields: EventField[],
+      changeStateComponent: boolean = true,
+    ) => {
       const setState = this.changeStateComponent;
       this.changeStateComponent = false;
       fields.forEach(field => {
         this.changeField()(field);
       });
-      this.changeStateComponent = setState;
+      this.changeStateComponent = changeStateComponent;
       this.setFields(this.fields, callback);
+      this.changeStateComponent = setState;
     };
   }
 
   setValidation(validate: boolean, callback?: Callback) {
+    this.validate = validate;
     if (this.component && this.changeStateComponent) {
       this.component.setState(
         state =>
@@ -173,26 +206,45 @@ export default class FieldsBuilder extends InputsValidator {
         callback,
       );
     }
-    this.validate = validate;
+    if (this.handleValue) {
+      this.handleValue(this);
+      callback && callback();
+    }
+    if (!this.component && !this.handleValue) {
+      callback && callback();
+    }
   }
 
-  setErrors() {
-    if (this.component && this.changeStateComponent) {
+  async setErrors(errors?: { [key: string]: string | string[] }) {
+    errors && (await this.addErrors(errors));
+    if (!this.fieldsWithErros) {
+      await this.haveErrors();
+    }
+    this.validate = true;
+    if (this.fieldsWithErros) this.fields = this.fieldsWithErros;
+    this.fieldsWithErros = undefined;
+    if (this.component) {
       this.component.setState(state =>
         produce<StateFormBuilder, StateFormBuilder>(
           state,
           (draft): void => {
             draft.fieldsRender.validate = true;
-            draft.fieldsRender.fields = this.fieldsWithErros;
+
+            if (this.fieldsWithErros)
+              draft.fieldsRender.fields = this.fieldsWithErros;
           },
         ),
       );
+    } else if (this.handleValue) {
+      this.handleValue(this);
     }
-    this.validate = true;
-    this.fields = this.fieldsWithErros;
   }
 
   setComponent(component: ComponentFormBuilder) {
     this.component = component;
   }
+
+  setState = (a: Dispatch<SetStateAction<FieldsBuilder>>) => {
+    this.handleValue = a;
+  };
 }

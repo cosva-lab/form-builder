@@ -1,12 +1,12 @@
-import * as React from 'react';
+import React from 'react';
 import * as ReactIs from 'react-is';
 import Grid from '@material-ui/core/Grid';
+import isEqual from 'lodash/isEqual';
 import FormInput from './FormInput/index';
 import InputValidator from './utils/validate/InputValidator';
 import { Message } from '../MessagesTranslate/Animation';
 import {
   FormBuilder,
-  Validations,
   Validate,
   changeField,
   ChangeField,
@@ -14,10 +14,10 @@ import {
 } from './';
 import { transformLabel } from './utils/transformLabel';
 
-declare type State = Validations & {
+interface State {
   value: any;
   error?: Message | undefined;
-};
+}
 export default class FieldRender
   extends React.Component<FormBuilder.FieldRender, State>
   implements ChangeField {
@@ -36,14 +36,7 @@ export default class FieldRender
 
   constructor(props: FormBuilder.FieldRender) {
     super(props);
-    const {
-      value,
-      changed,
-      validChange = false,
-      validate,
-      validations,
-      error,
-    } = props;
+    const { value, error } = props;
 
     this.state = {
       error:
@@ -53,11 +46,7 @@ export default class FieldRender
               state: false,
               message: '',
             },
-      validate: validate || false,
-      validations,
       value: value || '',
-      changed: changed || false,
-      validChange: validChange || false,
     };
   }
 
@@ -97,20 +86,33 @@ export default class FieldRender
     validations,
     error,
   }: FormBuilder.FieldRender) {
-    this.setState({
-      value,
-      validChange,
-      validate,
-      error,
-    });
-    const message = await this.verifyError({
-      validations,
-      value,
-      validChange,
-      changed,
-      validate,
-    });
-    this.setError(message);
+    const isDiffError = !isEqual(error, this.state.error);
+    const isDiffValue = !isEqual(value, this.state.value);
+    if (
+      isDiffError &&
+      (error && !!error.state && !!error.errorServer)
+    ) {
+      this.setState({
+        value,
+        error,
+      });
+    } else {
+      if (isDiffError || isDiffValue)
+        this.setState({
+          value,
+          error,
+        });
+      const message = await this.verifyError({
+        validations,
+        value,
+        validChange,
+        changed,
+        validate,
+      });
+      if (!isEqual(message, this.state.error)) {
+        this.setError(message);
+      }
+    }
   }
 
   setError = (message?: Message) => {
@@ -128,11 +130,10 @@ export default class FieldRender
   };
 
   changeField: changeField = async (
-    { target, waitTime = false },
+    { target, changeStateComponent = true },
     callback,
   ) => {
-    const { validations } = this.props;
-    const { validChange, validate } = this.state;
+    const { validations, validChange, validate } = this.props;
     const { value } = target;
     const message = await this.verifyError({
       validations,
@@ -141,25 +142,24 @@ export default class FieldRender
       changed: true,
       validate,
     });
-    if (this.mount) {
+    if (this.mount && changeStateComponent) {
       this.setState(
         {
           value,
           error: message,
         },
         () => {
-          callback && callback();
-          if (!waitTime) {
-            this.props.changeField({ target });
-          }
+          this.props.changeField({ target }, callback);
         },
       );
+    } else {
+      this.props.changeField({ target }, callback);
     }
   };
 
   validateField = async () => {
-    const { validations } = this.props;
-    const { validChange, validate, value } = this.state;
+    const { validations, validChange, validate } = this.props;
+    const { value } = this.state;
     const message = await this.verifyError({
       validations,
       value,
@@ -179,7 +179,7 @@ export default class FieldRender
     validate,
   }: Validate) => {
     const validationsObj: Validation[] = [];
-    const { fields, activeStep, steps } = this.props;
+    const { activeStep, getSteps } = this.props;
 
     let error;
     validations &&
@@ -188,11 +188,9 @@ export default class FieldRender
           validationsObj.push(validation);
         } else {
           const temPError = validation({
-            fields:
-              (this.props.getFields && this.props.getFields()) ||
-              fields,
+            fields: this.props.getFields && this.props.getFields(),
             activeStep,
-            steps,
+            steps: getSteps && getSteps(),
             value,
             validChange,
             changed,

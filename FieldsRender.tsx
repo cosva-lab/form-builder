@@ -7,7 +7,7 @@ import { FormBuilder } from '.';
 import { Theme } from '@material-ui/core/styles/createMuiTheme';
 import createStyles from '@material-ui/core/styles/createStyles';
 import FieldRender from './FieldRender';
-import { PropsField, EventField } from './index';
+import { PropsField, changeField } from './index';
 import { changeValueFields } from './utils/changeValues';
 
 const styles = (theme: Theme) =>
@@ -36,14 +36,14 @@ class FieldsRender extends React.PureComponent<AllFieldsRenderProps> {
     this.fields = this.props.fields;
   }
 
-  changeField = (event: EventField) => {
+  changeField: changeField = (event, callback) => {
     const { target } = event;
     const { value, name } = target;
     this.fields = changeValueFields({
       fields: this.fields,
       action: { name, value },
     });
-    this.props.changeField(event);
+    this.props.changeField(event, callback);
   };
 
   UNSAFE_componentWillReceiveProps({ fields }: AllFieldsRenderProps) {
@@ -62,7 +62,7 @@ class FieldsRender extends React.PureComponent<AllFieldsRenderProps> {
       actionsExtra,
       ns,
       transPosition,
-      steps,
+      getSteps,
       isNew,
       fields,
       extra,
@@ -140,9 +140,8 @@ class FieldsRender extends React.PureComponent<AllFieldsRenderProps> {
                 actionsExtra,
                 changeField: this.changeField,
                 search,
-                fields: this.fields,
                 getFields: () => this.fields,
-                steps,
+                getSteps,
                 isNew,
               }}
             />
