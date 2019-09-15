@@ -1,26 +1,26 @@
 import React from 'react';
 import FormHelperText from '@material-ui/core/FormHelperText';
-import compose from 'recompose/compose';
-import withStyles from '@material-ui/core/styles/withStyles';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
-import CircularProgress from '@material-ui/core/CircularProgress';
+import arrayMove from 'array-move';
+import uuid from 'uuid';
+
 import {
   getMessage,
   Animation,
 } from '../../../MessagesTranslate/Animation';
 import {
-  AllProps,
   Props,
   State,
   handleChangeFiles,
   Value,
   FileVa,
+  ActionsFiles,
 } from './Props';
 import ListFiles from './Components/ListFiles';
-import { styles } from './styles';
-import { MakeCancelable } from '../../../../utils/makeCancelable';
+import { EventField } from '../../index';
+import { Loading } from './Loading';
 
 const defaultPropsExtra = {
   accept: '*',
@@ -31,74 +31,64 @@ const defaultPropsExtra = {
   subLabel: undefined,
 };
 
-class FileInput extends React.Component<AllProps, State> {
-  public inputOpenFileRef: React.RefObject<any> = React.createRef();
-  public animation = true;
-
-  public blurBool = true;
-  public mimeTypes?: MakeCancelable<typeof import('mime-types')>;
-
+class FileInput extends React.PureComponent<Props, State> {
   static defaultProps = {
     extraProps: defaultPropsExtra,
     onAdd: null,
     onDelete: null,
   };
 
-  constructor(props: AllProps) {
+  private inputOpenFileRef: React.RefObject<any> = React.createRef();
+  private isOpen = false;
+  private isMount = true;
+
+  constructor(props: Props) {
     super(props);
-    const { value } = this.props;
     this.state = {
-      value: this.setFiles(value),
+      value: this.setFiles(this.props.value),
       valueTemp: [],
       inputValue: '',
-      lookup: undefined,
       loading: false,
     };
   }
 
-  UNSAFE_componentWillMount() {
-    if (this.canImportMime) {
-      this.mimeTypes = new MakeCancelable(import('mime-types'));
-      this.mimeTypes.promise
-        .then(({ lookup }) => {
-          this.setState({ lookup });
-        })
-        .catch(() => {});
-    }
-  }
-
   componentWillUnmount() {
-    this.mimeTypes && this.mimeTypes.cancel();
+    this.isMount = false;
   }
 
-  setFiles(value: FileVa[] = []): Value[] {
-    return value.map(
-      (file): Value => {
-        let temp = file;
-        if (file instanceof File) {
-          temp = {
-            url: URL.createObjectURL(file),
-            file,
-          };
-        }
-        return {
-          value: temp,
-          invalid: false,
-        };
-      },
-    );
+  componentDidMount() {
+    this.isMount = true;
   }
+
+  setFiles = (value: (FileVa)[] = []): Value[] =>
+    value
+      .sort((...v) => {
+        const { sort } = this.props;
+        const res = sort && sort(...v);
+        return typeof res === 'number' ? res : 0;
+      })
+      .map(
+        (file): Value => ({
+          id: uuid(),
+          invalid:
+            file instanceof File
+              ? false
+              : !!(file.extra && file.extra.invalid),
+          value:
+            file instanceof File
+              ? {
+                  url: URL.createObjectURL(file),
+                  file,
+                }
+              : file,
+        }),
+      );
 
   get extraProps() {
     return {
       ...defaultPropsExtra,
       ...this.props.extraProps,
     };
-  }
-
-  get canImportMime() {
-    const { accept } = this.extraProps;
-    return !('*' === accept || accept === '');
   }
 
   validExtensions(): boolean {
@@ -112,90 +102,119 @@ class FileInput extends React.Component<AllProps, State> {
         );
       } catch (e) {
         error = true;
-        console.error(e);
       }
     }
     return error;
   }
 
-  UNSAFE_componentWillReceiveProps({ value }: AllProps) {
-    const newValue = this.setFiles(value);
-    if (newValue.length !== this.state.value.length) {
-      this.setState({ value: newValue });
-    }
-  }
-
-  componentUpdate({ error }: AllProps) {
-    const { error: errorOld } = this.props;
-    const stateOld = errorOld && errorOld.state;
-    const stateProps = error && error.state;
-    if (stateProps !== stateOld) {
-      this.animation = true;
-    }
+  UNSAFE_componentWillReceiveProps({ value }: Props) {
+    this.setState({ value: this.setFiles(value) });
   }
 
   openFileDialog = () => {
     if (this.inputOpenFileRef) this.inputOpenFileRef.current.click();
   };
 
-  changeField: handleChangeFiles = async target => {
-    const { files } = target;
-    if (files && files[0]) {
-      const { value } = this.state;
+  setChangeField = (
+    callBack?: () => void,
+    options?: Pick<EventField, 'changeStateComponent' | 'waitTime'>,
+  ) => {
+    const files = this.state.value;
+    const { changeField, name } = this.props;
+    (changeField &&
+      changeField(
+        {
+          target: {
+            name,
+            value: files.map(({ value }) => {
+              return value instanceof File
+                ? value
+                : value.file instanceof File
+                ? value.file
+                : value;
+            }),
+          },
+          ...options,
+        },
+        callBack,
+      )) ||
+      (callBack && callBack());
+  };
+
+  changeField: handleChangeFiles = async ({ files }) => {
+    if (files && files.length) {
       const newFiles: File[] = [];
-      const newValueBase = Array.isArray(value) ? value : [];
-      let newValue = [...newValueBase];
+      let newValue: Value[] = [];
       const valueTemp: Value[] = [];
       const tempFiles = Array.from(files);
-      tempFiles.forEach(file => {
+
+      this.setState({
+        loading: true,
+      });
+      const { lookup } = await import('mime-types');
+      this.setState({
+        loading: false,
+      });
+
+      for (const file of tempFiles) {
         const va: Value = {
           value: {
             url: URL.createObjectURL(file),
             file,
           },
           invalid: false,
+          id: uuid(),
         };
-        if (!this.validateFile(file.name)) {
+        if (await !this.validateFile(file.name, lookup)) {
           va.invalid = true;
           valueTemp.push(va);
         } else {
           newFiles.push(file);
           newValue.push(va);
         }
-      });
+      }
 
       const { onAdd } = this.props;
-      let callBack: () => void;
+      let callBack: (() => void) | undefined = undefined;
 
       if (onAdd) {
-        const call = onAdd(newFiles);
+        const call = onAdd(newValue);
         if (call instanceof Promise) {
           let userErr;
           this.setState({ loading: true });
+          if (this.isMount) {
+          }
           await call
             .then(res => {
               if (res) {
                 let value;
                 if (Array.isArray(res)) {
                   value = res;
-                } else if (
-                  res &&
-                  typeof res === 'object' &&
-                  Array.isArray(res.value)
-                ) {
-                  value = res.value;
+                } else if (typeof res === 'object') {
                   callBack = res.callBack;
+                  if (Array.isArray(res.value)) {
+                    value = res.value;
+                  }
                 }
                 if (value) {
-                  newValue = [
-                    ...newValueBase,
-                    ...this.setFiles(value),
-                  ];
+                  newValue = [];
+                  for (const file of this.setFiles(value)) {
+                    if (!file.invalid) {
+                      newValue = [...newValue, file];
+                    } else {
+                      valueTemp.push(file);
+                    }
+                  }
                 }
               }
             })
             .catch(err => (userErr = err));
-          this.setState({ loading: false });
+          if (!callBack) {
+            callBack = () => {};
+          }
+          if (this.isMount) {
+            this.setState({ loading: false });
+          }
           if (userErr) {
             throw userErr;
           }
@@ -206,53 +225,88 @@ class FileInput extends React.Component<AllProps, State> {
           this.clearValueTemp();
         }, 2000);
       }
-      this.setState(
-        {
-          value: newValue,
-          valueTemp,
-          inputValue: '',
-        },
-        () => {
-          const files = this.state.value;
-          if (files) {
-            const { changeField, name } = this.props;
-            changeField &&
-              changeField(
-                {
-                  target: {
-                    name,
-                    value: Array.isArray(files)
-                      ? files.map(({ value }) => {
-                          if (value instanceof File) {
-                            return value;
-                          } else {
-                            if (value.file instanceof File) {
-                              return value.file;
-                            } else {
-                              return value;
-                            }
-                          }
-                        })
-                      : [],
-                  },
-                },
-                callBack,
-              );
-          }
-        },
-      );
+      if (this.isMount) {
+        this.setState(
+          {
+            value: [...this.state.value, ...newValue],
+            valueTemp,
+            inputValue: '',
+          },
+          () => {
+            this.setChangeField(callBack);
+          },
+        );
+      } else {
+        callBack && callBack();
+      }
     }
   };
 
-  deleteFile = async (
-    index: number,
-    sendChange = true,
-  ): Promise<void> => {
-    const temp = this.state.value.find((_s, id) => id === index);
+  onSort: Required<ActionsFiles>['onSort'] = async ({
+    changedFiles,
+    sort,
+  }) => {
+    const { oldIndex, newIndex } = sort;
+    const { onSort } = this.props;
+    let callBack: (() => void) | undefined = undefined;
+    const oldValue = this.state.value;
+    if (oldIndex === newIndex) return;
+    const files = (this.props.arrayMove || arrayMove)(
+      [...oldValue],
+      oldIndex,
+      newIndex,
+    );
+    if (this.isMount) {
+      this.setState({
+        value: files,
+        loading: true,
+      });
+    }
+    let userErr;
+    if (onSort) {
+      const call = onSort({ changedFiles, sort });
+      if (call instanceof Promise) {
+        await call
+          .then(result => {
+            if (result) {
+              callBack = result.callBack;
+            }
+          })
+          .catch(e => {
+            userErr = e;
+          });
+      } else if (call) {
+        callBack = call.callBack;
+      }
+    }
+
+    if (this.isMount) {
+      this.setState(
+        {
+          value: userErr ? oldValue : files,
+          loading: false,
+        },
+        () => {
+          this.setChangeField(
+            () => {
+              callBack && callBack();
+            },
+            { changeStateComponent: false },
+          );
+        },
+      );
+    } else {
+      callBack && callBack();
+    }
+  };
+
+  deleteFile = async (index: number, sendChange = true) => {
+    const file = this.state.value.find((_s, id) => id === index);
     const { onDelete } = this.props;
-    let callBack: () => void;
-    if (sendChange && temp && onDelete) {
-      const { value } = temp;
+    let callBack: (() => void) | undefined = undefined;
+
+    if (sendChange && file && onDelete) {
+      const { value } = file;
       const call = onDelete([value]);
       if (call instanceof Promise) {
         let userErr;
@@ -266,42 +320,23 @@ class FileInput extends React.Component<AllProps, State> {
         callBack = call.callBack;
       }
     }
-    this.setState(
-      ({ value }) => {
-        return {
-          value: Array.isArray(value)
-            ? value.filter((_, id) => id !== index)
-            : [],
-          valueTemp: [],
-        };
-      },
-      () => {
-        const { changeField, name, type } = this.props;
-        changeField &&
-          changeField(
-            {
-              target: {
-                name,
-                value: Array.isArray(this.state.value)
-                  ? this.state.value.map(({ value }) => {
-                      if (value instanceof File) {
-                        return value;
-                      } else {
-                        if (value.file instanceof File) {
-                          return value.file;
-                        } else {
-                          return value;
-                        }
-                      }
-                    })
-                  : null,
-                type,
-              },
-            },
-            callBack,
-          );
-      },
-    );
+
+    if (this.isMount) {
+      this.setState(
+        ({ value }) => {
+          value.splice(index, 1);
+          return {
+            value,
+            valueTemp: [],
+          };
+        },
+        () => {
+          this.setChangeField(callBack);
+        },
+      );
+    } else {
+      callBack && callBack();
+    }
   };
 
   convertToRegex(param: string) {
@@ -313,22 +348,27 @@ class FileInput extends React.Component<AllProps, State> {
   };
 
   convertAccept(param: string | string[]): string[] {
-    let accept = param;
-    if (typeof accept === 'string') {
-      if (this.convertToRegex(',').test(accept)) {
-        accept = [...accept.split(',')];
-      } else if (this.convertToRegex('|').test(accept)) {
-        if (Array.isArray(accept)) {
+    let accept: string[] = [];
+    if (typeof param === 'string') {
+      if (this.convertToRegex(',').test(param)) {
+        accept = [...param.split(',')];
+      } else if (this.convertToRegex('|').test(param)) {
+        if (Array.isArray(param)) {
           accept = [...accept.join('').split('|')];
         } else {
-          accept = [...accept.split('|')];
+          accept = [...param.split('|')];
         }
+      } else {
+        accept = [param];
       }
     }
-    return accept as string[];
+    return accept;
   }
 
-  validateFile: (fileName: string) => boolean = fileName => {
+  validateFile: (
+    fileName: string,
+    lookup: (filenameOrExt: string) => string | false,
+  ) => Promise<boolean> = async (fileName, lookup) => {
     const {
       validateExtensions,
       validateAccept,
@@ -336,20 +376,7 @@ class FileInput extends React.Component<AllProps, State> {
       extensions,
     } = this.extraProps;
 
-    const { lookup } = this.state;
-    if (!lookup) return true;
-
     const accept = this.convertAccept(acceptFiles);
-
-    const hasExtensions = (): boolean => {
-      if (this.validExtensions()) {
-        return new RegExp(
-          `(${extensions.join('|').replace(/\./g, '\\.')})$`,
-        ).test(fileName.toLowerCase());
-      }
-      return true;
-    };
-
     const acceptValidate = () =>
       !!(
         accept.find((a: string): boolean => {
@@ -360,6 +387,15 @@ class FileInput extends React.Component<AllProps, State> {
         }) ||
         ('*' === acceptFiles || acceptFiles === '')
       );
+
+    const hasExtensions = (): boolean => {
+      if (this.validExtensions()) {
+        return new RegExp(
+          `(${extensions.join('|').replace(/\./g, '\\.')})$`,
+        ).test(fileName.toLowerCase());
+      }
+      return true;
+    };
 
     if (validateExtensions && validateAccept) {
       return hasExtensions() && acceptValidate();
@@ -377,36 +413,24 @@ class FileInput extends React.Component<AllProps, State> {
     return fileName.split('.').pop() || '';
   }
 
-  isOpen = false;
-
   public render() {
-    const { classes, error, label, name, ns } = this.props;
+    const { error, label, name, ns } = this.props;
+    const { multiple, subLabel } = this.extraProps;
+    const accept = this.convertAccept(this.extraProps.accept);
+    const { value, valueTemp, inputValue, loading } = this.state;
     const {
-      multiple,
-      subLabel,
-      accept: acceptOriginal,
-    } = this.extraProps;
-
-    const accept = this.convertAccept(acceptOriginal);
-    const {
-      value,
-      valueTemp,
-      inputValue,
-      lookup,
-      loading,
-    } = this.state;
-    const { state, message, ns: nsError, props } = error || {
-      state: false,
-      message: '',
-      ns,
-      props: {},
+      state = false,
+      message = '',
+      ns: nsError = ns,
+      props = {},
+    } = {
+      ...error,
     };
-    const files: Value[] = [...(value || []), ...(valueTemp || [])];
-
+    const files: Value[] = [...value, ...valueTemp];
     return (
       <>
         <Paper
-          elevation={1}
+          elevation={!files.length ? 1 : 0}
           style={{
             position: 'relative',
             padding: '1em',
@@ -428,8 +452,11 @@ class FileInput extends React.Component<AllProps, State> {
               openFileDialog: (...value) =>
                 this.openFileDialog(...value),
               deleteFile: (...value) => this.deleteFile(...value),
+              onSort: value => this.onSort(value),
             }}
-          />
+          >
+            {loading && <Loading />}
+          </ListFiles>
           <Grid container onClick={() => this.openFileDialog()}>
             <input
               ref={this.inputOpenFileRef}
@@ -463,33 +490,6 @@ class FileInput extends React.Component<AllProps, State> {
               upload
             </Button>
           </Grid>
-          {(!lookup || loading) &&
-            this.canImportMime &&
-            React.createElement(() => {
-              const [progress, setProgress] = React.useState(0);
-              React.useEffect(() => {
-                function tick() {
-                  // reset when reaching 100%
-                  setProgress(oldProgress =>
-                    oldProgress >= 100 ? 0 : oldProgress + 1,
-                  );
-                }
-
-                const timer = setInterval(tick, 20);
-                return () => {
-                  clearInterval(timer);
-                };
-              }, []);
-
-              return (
-                <div className={classes.progress}>
-                  <CircularProgress
-                    variant="determinate"
-                    value={progress}
-                  />
-                </div>
-              );
-            })}
         </Paper>
         {state && (
           <Animation>
@@ -511,6 +511,4 @@ class FileInput extends React.Component<AllProps, State> {
   }
 }
 
-export default compose<AllProps, Props>(
-  withStyles(styles, { name: 'FileInput' }),
-)(FileInput);
+export default FileInput;

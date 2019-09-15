@@ -10,11 +10,16 @@ import GetThumbnail from './getThumbnail';
 import { Value } from '../Props';
 import { withStyles, WithStyles } from '@material-ui/styles';
 import Loading from '../../../../Loading';
+import { compose } from 'recompose';
 
 export const duration = 800;
 
 const styles = (theme: Theme) => {
   return createStyles({
+    gridFile: {
+      cursor: 'move',
+      position: 'relative',
+    },
     gridHideTransition: {
       transition: theme.transitions.create('all', {
         easing: theme.transitions.easing.easeInOut,
@@ -53,26 +58,31 @@ const styles = (theme: Theme) => {
       justifyContent: 'center',
       alignItems: 'center',
       background: theme.palette.background.default + 'b0',
+      zIndex: theme.zIndex.modal + 1,
     },
   });
 };
 
-interface Props extends WithStyles<typeof styles> {
-  id: number;
+interface Props {
+  position: number;
+  length: number;
   value: Value;
   multiple?: boolean;
-  length: number;
   deleteFile: (index: number, sendChange?: boolean) => Promise<void>;
 }
+
+interface AllProps extends Props, WithStyles<typeof styles> {}
 
 interface State {
   hide: boolean;
   loading: boolean;
+  position: any;
+  bounds: any;
 }
 
-class FileContainer extends React.PureComponent<Props, State> {
+class FileContainer extends React.PureComponent<AllProps, State> {
   static propTypes = {
-    id: PropTypes.number.isRequired,
+    position: PropTypes.number.isRequired,
     value: PropTypes.exact({
       value: PropTypes.oneOfType([
         PropTypes.instanceOf(File),
@@ -90,70 +100,136 @@ class FileContainer extends React.PureComponent<Props, State> {
         PropTypes.any,
       ]),
       invalid: PropTypes.bool.isRequired,
+      id: PropTypes.string.isRequired,
     }).isRequired,
     multiple: PropTypes.bool,
     length: PropTypes.number.isRequired,
     deleteFile: PropTypes.func.isRequired,
   };
 
-  state = { hide: false, loading: false };
+  state = {
+    hide: false,
+    loading: false,
+    position: { x: 0, y: 0 },
+    bounds: {
+      left: 0,
+      right: 0,
+      top: 0,
+      bottom: 0,
+    },
+  };
+
+  get gridBoolean() {
+    const { multiple, length } = this.props;
+    return multiple && length > 1;
+  }
+  get grids() {
+    const gridBoolean = this.gridBoolean;
+    const grids: any = gridBoolean
+      ? {
+          xs: 12,
+          sm: 6,
+          md: 3,
+          lg: 6,
+          xl: 6,
+        }
+      : {
+          xs: 12,
+          sm: 12,
+          md: 12,
+          lg: 12,
+          xl: 12,
+        };
+    return grids;
+  }
+
+  /* componentWillReceiveProps(props: AllProps) {
+    setTimeout(() => {
+      this.bounds(props);
+    }, 500);
+  }
+
+  componentDidMount() {
+    this.bounds(this.props);
+  }
+
+  bounds = (props: AllProps) => {
+    const { width } = props;
+    const position = props.position + 1;
+    const grids = this.grids;
+    let numberGrids: number;
+    if (!this.gridBoolean) {
+      numberGrids = 12;
+    } else {
+      numberGrids = grids[width as keyof typeof grids];
+    }
+    const columns = 12 / numberGrids;
+    const rows = Math.round(props.length / columns) || columns;
+    const a = position % columns || columns;
+    const b = Math.round(position / columns) || 1;
+    let { offsetHeight: bottom, offsetWidth: right } = props.gridRef()
+      .current || {
+      offsetHeight: 0,
+      offsetWidth: 0,
+    };
+    let left = 0;
+    let top = 0;
+    const { current } = this.gridRef;
+    if (current) {
+      const { offsetHeight, offsetWidth } = current;
+      top = -bottom + offsetHeight + offsetHeight * (rows - b);
+      bottom = bottom - offsetHeight * b;
+      left = -right + offsetWidth + offsetWidth * (columns - a);
+      right = right - offsetWidth * a;
+      this.setState({
+        bounds: {
+          bottom,
+          right,
+          left,
+          top,
+        },
+      });
+    }
+  }; */
 
   render() {
-    const {
-      value,
-      multiple,
-      length,
-      deleteFile,
-      classes,
-      id,
-    } = this.props;
+    const { value, deleteFile, classes, position: id } = this.props;
     const { loading, hide } = this.state;
-
-    const children = React.createRef<HTMLDivElement>();
     return (
-      <>
-        <Grid
-          item
-          {...(multiple && length > 1
-            ? {
-                sm: 6,
-                md: 6,
-                xs: true,
-              }
-            : {
-                xs: 12,
-              })}
-          className={clsx(
-            classes.gridHideTransition,
-            hide && classes.gridHide,
-          )}
-          ref={children}
-        >
-          <div style={{ position: 'relative' }}>
-            <Grow in>
-              <FileItem
-                getThumbnail={GetThumbnail}
-                deleteFile={() => {
-                  this.setState({ loading: true });
-                  deleteFile(id).catch(() => {
-                    this.setState({
-                      loading: false,
-                    });
-                  });
-                }}
-                {...{ value }}
-              ></FileItem>
-            </Grow>
-            {loading && (
-              <div className={classes.loading}>
-                <Loading size={40} />
-              </div>
-            )}
+      <Grid
+        item
+        container
+        {...this.grids}
+        className={clsx(
+          classes.gridFile,
+          hide && classes.gridHideTransition,
+          hide && classes.gridHide,
+        )}
+      >
+        <Grow in>
+          <FileItem
+            getThumbnail={GetThumbnail}
+            deleteFile={() => {
+              this.setState({ loading: true });
+              deleteFile(id).catch(() => {
+                this.setState({
+                  loading: false,
+                });
+              });
+            }}
+            {...{ value }}
+          />
+        </Grow>
+        {loading && (
+          <div className={classes.loading}>
+            <Loading size={40} />
           </div>
-        </Grid>
-      </>
+        )}
+      </Grid>
     );
   }
 }
 
-export default withStyles(styles)(FileContainer);
+export default compose<AllProps, Props>(withStyles(styles))(
+  FileContainer,
+);

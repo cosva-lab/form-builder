@@ -57,6 +57,7 @@ class FileItem extends React.PureComponent<Props> {
         style={{
           overflow: 'hidden',
         }}
+        width={'100%'}
       >
         <Grid
           container
@@ -105,6 +106,7 @@ class FileItem extends React.PureComponent<Props> {
                 e.preventDefault();
                 !invalid && props.deleteFile();
               }}
+              should-cancel-start="true"
               aria-label="delete"
             >
               <DeleteIcon />

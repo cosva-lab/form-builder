@@ -1,13 +1,12 @@
 import { CSSProperties } from 'react';
-import { WithStyles } from '@material-ui/core/styles/withStyles';
 import { FormInputProps, PropsField } from '../..';
 import { Message } from '../../../MessagesTranslate/Animation';
-import { styles } from './styles';
+import { SortEnd } from 'react-sortable-hoc';
 
 export interface ActionsFiles {
   onAdd?:
     | ((
-        file: File[],
+        file: Value[],
       ) =>
         | Promise<
             | { callBack: () => void; value?: FileVa[] }
@@ -27,6 +26,16 @@ export interface ActionsFiles {
         | { callBack: () => void }
       )
     | null;
+  onSort?: (event: {
+    changedFiles: { newFile: FileVa; oldFile: FileVa };
+    sort: SortEnd;
+  }) =>
+    | Promise<{ callBack: () => void } | void>
+    | void
+    | { callBack: () => void };
+
+  sort?: (a: FileVa, b: FileVa) => number | false | void;
+  arrayMove?: (files: Value[], from: number, to: number) => Value[];
 }
 
 export interface Props
@@ -49,18 +58,23 @@ export interface Props
   value: FileVa[];
 }
 
-export interface AllProps extends Props, WithStyles<typeof styles> {}
+export interface ExtraFile {
+  [key: string]: any;
+  type?: string;
+}
 
-export declare type FileVa =
+export type FileVa =
   | File
   | {
       url?: string;
       file?: File;
-      extra?: { [key: string]: any; type?: string };
+      extra?: ExtraFile;
+      invalid?: boolean;
     };
 
 export interface Value {
   value: FileVa;
+  id: string;
   invalid: boolean;
 }
 
@@ -74,19 +88,18 @@ export declare type Extension = (
   typeString: string,
 ) => string | false;
 export declare type Charset = (typeString: string) => string | false;
-export declare type FileValue = Value[];
+export declare type Files = Value[];
 
 export interface State {
-  value: FileValue;
-  valueTemp: FileValue;
+  value: Files;
+  valueTemp: Files;
   inputValue: string;
-  lookup?: Lookup;
   loading: boolean;
 }
 
 export interface ListFilesProps
   extends Pick<PropsField, 'label' | 'ns' | 'name'> {
-  files: FileValue;
+  files: Files;
   openFileDialog: () => void;
   deleteFile: (index: number, sendChange?: boolean) => Promise<void>;
   subLabel?: Message;
@@ -94,7 +107,9 @@ export interface ListFilesProps
 export declare type ListFilesStates = Pick<
   CSSProperties,
   'backgroundColor'
->;
+> & {
+  files: Files;
+};
 
 export declare type handleChangeFiles = (target: {
   files: FileList | null;

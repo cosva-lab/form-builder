@@ -9,7 +9,6 @@ import ListSwitch from './listSwitch';
 import Chips from './Chips';
 import { FormInputProps } from '..';
 import { transformLabel } from '../utils/transformLabel';
-/* import BoxForm from '../Table/BoxForm'; */
 
 class FormInput extends React.PureComponent<FormInputProps> {
   static defaultProps = {
@@ -64,9 +63,15 @@ class FormInput extends React.PureComponent<FormInputProps> {
       case 'file':
         let onAdd;
         let onDelete;
+        let onSort;
+        let sort;
+        let arrayMove;
         if (extraProps) {
           onAdd = extraProps.onAdd;
           onDelete = extraProps.onDelete;
+          onSort = extraProps.onSort;
+          sort = extraProps.sort;
+          arrayMove = extraProps.arrayMove;
         }
         return (
           <FileInput
@@ -85,6 +90,9 @@ class FormInput extends React.PureComponent<FormInputProps> {
               extraProps,
               onAdd,
               onDelete,
+              onSort,
+              sort,
+              arrayMove,
             }}
           />
         );
