@@ -7,7 +7,7 @@ import Grow from '@material-ui/core/Grow';
 
 import FileItem from './FileItem';
 import GetThumbnail from './getThumbnail';
-import { Value } from '../Props';
+import { FileValue } from '../Props';
 import { withStyles, WithStyles } from '@material-ui/styles';
 import Loading from '../../../../Loading';
 import { compose } from 'recompose';
@@ -66,7 +66,7 @@ const styles = (theme: Theme) => {
 interface Props {
   position: number;
   length: number;
-  value: Value;
+  value: FileValue;
   multiple?: boolean;
   deleteFile: (index: number, sendChange?: boolean) => Promise<void>;
 }
@@ -84,23 +84,13 @@ class FileContainer extends React.PureComponent<AllProps, State> {
   static propTypes = {
     position: PropTypes.number.isRequired,
     value: PropTypes.exact({
-      value: PropTypes.oneOfType([
-        PropTypes.instanceOf(File),
-        PropTypes.exact({
-          url: PropTypes.string.isRequired,
-          file: PropTypes.oneOfType([
-            PropTypes.instanceOf(File),
-            PropTypes.any,
-          ]),
-          extra: PropTypes.any,
-        }),
-      ]).isRequired,
-      fileOriginal: PropTypes.oneOfType([
+      url: PropTypes.string.isRequired,
+      invalid: PropTypes.oneOfType([PropTypes.bool, PropTypes.any]),
+      file: PropTypes.oneOfType([
         PropTypes.instanceOf(File),
         PropTypes.any,
       ]),
-      invalid: PropTypes.bool.isRequired,
-      id: PropTypes.string.isRequired,
+      extra: PropTypes.any,
     }).isRequired,
     multiple: PropTypes.bool,
     length: PropTypes.number.isRequired,
@@ -142,55 +132,6 @@ class FileContainer extends React.PureComponent<AllProps, State> {
         };
     return grids;
   }
-
-  /* componentWillReceiveProps(props: AllProps) {
-    setTimeout(() => {
-      this.bounds(props);
-    }, 500);
-  }
-
-  componentDidMount() {
-    this.bounds(this.props);
-  }
-
-  bounds = (props: AllProps) => {
-    const { width } = props;
-    const position = props.position + 1;
-    const grids = this.grids;
-    let numberGrids: number;
-    if (!this.gridBoolean) {
-      numberGrids = 12;
-    } else {
-      numberGrids = grids[width as keyof typeof grids];
-    }
-    const columns = 12 / numberGrids;
-    const rows = Math.round(props.length / columns) || columns;
-    const a = position % columns || columns;
-    const b = Math.round(position / columns) || 1;
-    let { offsetHeight: bottom, offsetWidth: right } = props.gridRef()
-      .current || {
-      offsetHeight: 0,
-      offsetWidth: 0,
-    };
-    let left = 0;
-    let top = 0;
-    const { current } = this.gridRef;
-    if (current) {
-      const { offsetHeight, offsetWidth } = current;
-      top = -bottom + offsetHeight + offsetHeight * (rows - b);
-      bottom = bottom - offsetHeight * b;
-      left = -right + offsetWidth + offsetWidth * (columns - a);
-      right = right - offsetWidth * a;
-      this.setState({
-        bounds: {
-          bottom,
-          right,
-          left,
-          top,
-        },
-      });
-    }
-  }; */
 
   render() {
     const { value, deleteFile, classes, position: id } = this.props;

@@ -10,7 +10,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import pink from '@material-ui/core/colors/pink';
 
 import createStyles from '@material-ui/core/styles/createStyles';
-import { StepsRender } from '../index';
+import { StepsRender, InitialStateSteps } from '../index';
 import { getMessage } from '../../MessagesTranslate/Animation';
 
 const styles = () =>
@@ -33,17 +33,15 @@ const styles = () =>
     },
   });
 
-type Props = Pick<
-  StepsRender,
-  | 'steps'
-  | 'activeStep'
-  | 'handleNextStep'
-  | 'handleBackStep'
-  | 'footerRender'
-  | 'loading'
-  | 'ns'
-  | 'footerSteps'
->;
+interface Props
+  extends Pick<
+      StepsRender,
+      'handleNextStep' | 'handleBackStep' | 'footerRender'
+    >,
+    Pick<
+      InitialStateSteps,
+      'steps' | 'activeStep' | 'ns' | 'loading' | 'footerSteps'
+    > {}
 
 type AllProps = Props & WithStyles<typeof styles>;
 const footerRenderDefault: Required<Props>['footerRender'] = ({

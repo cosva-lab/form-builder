@@ -1,4 +1,5 @@
 import React from 'react';
+import { observer } from 'mobx-react';
 import compose from 'recompose/compose';
 import clsx from 'clsx';
 import {
@@ -275,6 +276,7 @@ interface AllProps
     WithTranslation,
     WithStyles<typeof styles, true> {}
 
+@observer
 class AutoComplete extends React.Component<
   AllProps,
   { value: OptionType | null }

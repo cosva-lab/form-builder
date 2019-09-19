@@ -1,19 +1,21 @@
+import { observable } from 'mobx';
+
 import { Step } from '../..';
 import InputsValidator from './InputsValidator';
 
 class StepValidator implements Step {
-  inValid = false;
-  actionsExtra: Step['actionsExtra'];
-  elevation: Step['elevation'];
-  extra: Step['extra'];
-  fields: Step['fields'];
-  isNew: Step['isNew'];
-  label: Step['label'];
-  ns: Step['ns'];
-  stepper: Step['stepper'];
-  transPosition: Step['transPosition'];
-  validate: Step['validate'];
-  validationState: Step['validationState'];
+  @observable private inValid = false;
+  @observable public actionsExtra: Step['actionsExtra'];
+  @observable public elevation: Step['elevation'];
+  @observable public extra: Step['extra'];
+  @observable public fields: Step['fields'];
+  @observable public isNew: Step['isNew'];
+  @observable public label: Step['label'];
+  @observable public ns: Step['ns'];
+  @observable public stepper: Step['stepper'];
+  @observable public transPosition: Step['transPosition'];
+  @observable public validate: Step['validate'];
+  @observable public validationState: Step['validationState'];
 
   constructor({
     actionsExtra,
@@ -44,11 +46,11 @@ class StepValidator implements Step {
 
   async haveErrors() {
     const fields = this.fields;
+    this.inValid = false;
     const fieldsErrors = new InputsValidator(fields);
-    if ((await fieldsErrors.haveErrors()) && !this.inValid) {
+    if (await fieldsErrors.haveErrors()) {
       this.inValid = true;
     }
-    this.fields = fieldsErrors.fields;
     return this.inValid;
   }
 }

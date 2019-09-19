@@ -87,7 +87,7 @@ export interface Step extends FieldsRenderProps {
   elevation?: number;
 }
 
-export interface StepsRender extends InitialStateSteps, ChangeField {
+export interface StepsRender extends ChangeField {
   footerRender?: ({
     stepsLength,
     activeStep,
@@ -102,6 +102,7 @@ export interface StepsRender extends InitialStateSteps, ChangeField {
   gridProps?: Omit<GridProps, 'children'>;
   stepperProps?: Omit<StepperProps, 'activeStep' | 'children'>;
   getSteps?: () => Step[];
+  stepsBuild: InitialStateSteps;
 }
 
 type Rules = Exclude<
@@ -246,14 +247,17 @@ type typeForm =
   | 'component'
   | 'listSwitch';
 
-export interface PropsField extends Validations, ComponentField {
+export interface PropsField<V = value>
+  extends Validations,
+    ComponentField {
   fields?: PropsField[];
+  fieldProxy?: PropsField;
   extraProps?: ExtraProps;
   extra?: extra;
   type?: typeForm;
   name: string;
-  value: value;
-  defaultInputValue?: value;
+  value: V;
+  defaultInputValue?: V;
   label?:
     | string
     | Message & {

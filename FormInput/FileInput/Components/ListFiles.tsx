@@ -25,10 +25,10 @@ import {
 } from '../Props';
 import FileContainer from './FileContainer';
 import withWidth, { WithWidth } from '@material-ui/core/withWidth';
-import { Value, ActionsFiles } from '../Props';
+import { FileValue, ActionsFiles } from '../Props';
 import RootRef from '@material-ui/core/RootRef';
 import { Theme } from '@material-ui/core/styles';
-import arrayMove from 'array-move';
+import { observer } from 'mobx-react';
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -63,7 +63,7 @@ const SortableItem = sortableElement(
   (props: {
     position: number;
     length: number;
-    value: Value;
+    value: FileValue;
     multiple?: boolean;
     deleteFile: (
       index: number,
@@ -78,7 +78,7 @@ const SortableList = sortableContainer(
     deleteFile,
     multiple,
   }: {
-    files: Value[];
+    files: FileValue[];
     multiple?: boolean;
     deleteFile: (
       index: number,
@@ -87,25 +87,35 @@ const SortableList = sortableContainer(
   }) => {
     return (
       <Grid container spacing={2}>
-        {files.map((value, index) => (
-          <SortableItem
-            key={`item-${value.id}`}
-            index={index}
-            {...{
-              position: index,
-              deleteFile,
-              length: files.length,
-              multiple,
-              value,
-            }}
-          />
-        ))}
+        {files.map((value, index) => {
+          let key = `${index}`;
+          if (value.url) {
+            key = value.url;
+          } else if (value.file) {
+            const { name, lastModified, size } = value.file;
+            key = `${name}-${lastModified}-${size}`;
+          }
+          return (
+            <SortableItem
+              key={`file-${key}`}
+              index={index}
+              {...{
+                position: index,
+                deleteFile,
+                length: files.length,
+                multiple,
+                value,
+              }}
+            />
+          );
+        })}
       </Grid>
     );
   },
 );
 
-export class ListFiles extends React.PureComponent<
+@observer
+export class ListFiles extends React.Component<
   AllProps,
   ListFilesStates
 > {
@@ -114,7 +124,6 @@ export class ListFiles extends React.PureComponent<
 
   state = {
     backgroundColor: '',
-    files: this.props.files,
   };
 
   preventDefault = (
@@ -126,10 +135,6 @@ export class ListFiles extends React.PureComponent<
       callback && callback(evt);
     };
   };
-
-  UNSAFE_componentWillReceiveProps(newProps: AllProps) {
-    this.setState({ files: newProps.files });
-  }
 
   setBackgroundColor = (color: string = '') => {
     if (this.gridRef.current)
@@ -156,7 +161,9 @@ export class ListFiles extends React.PureComponent<
       classes,
       width,
     } = this.props;
-    const { files } = this.state;
+    const files =
+      (this.props.fieldProxy && this.props.fieldProxy.value) ||
+      this.props.files;
 
     const isEmpty = !files.length;
 
@@ -202,25 +209,14 @@ export class ListFiles extends React.PureComponent<
                   helperClass: classes.gridFileHelperClass,
                   onSortEnd: sort => {
                     const { oldIndex, newIndex } = sort;
-                    this.setState(
-                      {
-                        files: arrayMove(
-                          [...files],
-                          oldIndex,
-                          newIndex,
-                        ),
-                      },
-                      () => {
-                        this.props.onSort &&
-                          this.props.onSort({
-                            changedFiles: {
-                              oldFile: files[oldIndex].value,
-                              newFile: files[newIndex].value,
-                            },
-                            sort,
-                          });
-                      },
-                    );
+                    this.props.onSort &&
+                      this.props.onSort({
+                        changedFiles: {
+                          oldFile: files[oldIndex],
+                          newFile: files[newIndex],
+                        },
+                        sort,
+                      });
                   },
                   shouldCancelStart: e => {
                     if (e.target instanceof Element) {

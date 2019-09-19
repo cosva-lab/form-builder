@@ -11,7 +11,7 @@ import {
   WithStyles,
   Theme,
 } from '@material-ui/core/styles';
-import { Value, PropsGetThumbnail } from '../Props';
+import { FileValue, PropsGetThumbnail } from '../Props';
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -38,7 +38,7 @@ const styles = (theme: Theme) =>
 
 interface Props extends WithStyles<typeof styles> {
   getThumbnail: React.ReactType<PropsGetThumbnail>;
-  value: Value;
+  value: FileValue;
   deleteFile: () => void;
 }
 
@@ -46,7 +46,8 @@ class FileItem extends React.PureComponent<Props> {
   render() {
     const { props } = this;
     const { classes } = props;
-    const { value, invalid } = this.props.value;
+    const { value } = this.props;
+    const invalid = value.invalid || false;
     return (
       <Box
         p={{

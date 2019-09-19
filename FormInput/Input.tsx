@@ -1,6 +1,7 @@
 import React from 'react';
 import compose from 'recompose/compose';
 import classNames from 'classnames';
+import { observer } from 'mobx-react';
 import withStyles, {
   WithStyles,
 } from '@material-ui/core/styles/withStyles';
@@ -29,10 +30,14 @@ const styles = (theme: Theme) =>
       whiteSpace: 'nowrap',
       textOverflow: 'ellipsis',
     },
+    formHelperTextPropsRoot: {
+      wordBreak: 'break-word',
+    },
   });
 
 interface AllProps extends InputProps, WithStyles<typeof styles> {}
 
+@observer
 class Input extends React.PureComponent<
   AllProps,
   { type: InputProps['type'] }
@@ -74,16 +79,19 @@ class Input extends React.PureComponent<
     const {
       ns,
       classes,
-      error,
       changeField,
       label,
+      fieldProxy,
+    } = this.props;
+    const {
       name,
       value,
-      inputProps,
-      fullWidth,
       disabled,
+      fullWidth,
+      error,
       autoComplete,
-    } = this.props;
+      inputProps,
+    } = { ...this.props, ...fieldProxy };
     const { type } = this.state;
     return (
       <FormControl
@@ -110,6 +118,7 @@ class Input extends React.PureComponent<
               return child;
             },
             style: {},
+            classes: { root: classes.formHelperTextPropsRoot },
           }}
           helperText={getMessage(error || { message: '' })}
           InputProps={

@@ -1,5 +1,6 @@
 import React from 'react';
 import * as ReactIs from 'react-is';
+import { Observer } from 'mobx-react';
 import Grid from '@material-ui/core/Grid';
 import isEqual from 'lodash/isEqual';
 import FormInput from './FormInput/index';
@@ -15,11 +16,11 @@ import {
 import { transformLabel } from './utils/transformLabel';
 
 interface State {
-  value: any;
   error?: Message | undefined;
 }
+
 export default class FieldRender
-  extends React.Component<FormBuilder.FieldRender, State>
+  extends React.PureComponent<FormBuilder.FieldRender, State>
   implements ChangeField {
   static defaultProps = {
     ns: 'inputs',
@@ -27,7 +28,6 @@ export default class FieldRender
     sm: 12,
     search: {
       state: false,
-      value: -1,
     },
   };
 
@@ -36,7 +36,7 @@ export default class FieldRender
 
   constructor(props: FormBuilder.FieldRender) {
     super(props);
-    const { value, error } = props;
+    const { error } = props;
 
     this.state = {
       error:
@@ -46,7 +46,6 @@ export default class FieldRender
               state: false,
               message: '',
             },
-      value: value || '',
     };
   }
 
@@ -87,19 +86,13 @@ export default class FieldRender
     error,
   }: FormBuilder.FieldRender) {
     const isDiffError = !isEqual(error, this.state.error);
-    const isDiffValue = !isEqual(value, this.state.value);
-    if (
-      isDiffError &&
-      (error && !!error.state && !!error.errorServer)
-    ) {
+    if (error && !!error.state && !!error.errorServer) {
       this.setState({
-        value,
         error,
       });
     } else {
-      if (isDiffError || isDiffValue)
+      if (isDiffError)
         this.setState({
-          value,
           error,
         });
       const message = await this.verifyError({
@@ -109,7 +102,7 @@ export default class FieldRender
         changed,
         validate,
       });
-      if (!isEqual(message, this.state.error)) {
+      if (!isEqual(message, error)) {
         this.setError(message);
       }
     }
@@ -135,31 +128,26 @@ export default class FieldRender
   ) => {
     const { validations, validChange, validate } = this.props;
     const { value } = target;
-    const message = await this.verifyError({
-      validations,
-      value,
-      validChange,
-      changed: true,
-      validate,
-    });
     if (this.mount && changeStateComponent) {
-      this.setState(
-        {
-          value,
-          error: message,
-        },
-        () => {
-          this.props.changeField({ target }, callback);
-        },
-      );
+      this.props.changeField({ target }, callback);
+      const error = await this.verifyError({
+        validations,
+        value,
+        validChange,
+        changed: true,
+        validate,
+      });
+      if (!isEqual(error, this.state.error))
+        this.setState({
+          error,
+        });
     } else {
       this.props.changeField({ target }, callback);
     }
   };
 
   validateField = async () => {
-    const { validations, validChange, validate } = this.props;
-    const { value } = this.state;
+    const { validations, validChange, validate, value } = this.props;
     const message = await this.verifyError({
       validations,
       value,
@@ -216,7 +204,7 @@ export default class FieldRender
   };
 
   public render() {
-    const { value, error } = this.state;
+    const { error } = this.state;
     const { props } = this;
     const { sm } = props;
     const { md = sm } = props;
@@ -226,19 +214,20 @@ export default class FieldRender
       actionsExtra,
       name,
       label,
+      value,
       search,
       state = true,
       render,
       ns,
       type,
-      component,
+      component: Component,
       extraProps,
       extra,
-      inputProps: InputProps,
+      inputProps,
       autoComplete,
       isNew,
+      fieldProxy,
     } = props;
-
     const propsForm = {
       label: transformLabel({ label, ns, name }),
       validateField: this.validateField,
@@ -250,12 +239,13 @@ export default class FieldRender
       actionsExtra,
       ns,
       search,
-      component,
+      component: Component,
       extraProps,
       extra,
-      InputProps,
+      inputProps,
       autoComplete,
       isNew,
+      fieldProxy,
     };
     if (!state) return null;
     const formInput = <FormInput {...propsForm} />;
@@ -266,16 +256,21 @@ export default class FieldRender
       });
     }
     if (type === 'component') {
-      if (React.isValidElement(component)) {
-        return React.cloneElement<FormBuilder.FieldRender>(
-          component,
-          propsForm,
+      if (React.isValidElement(Component)) {
+        return (
+          <Component.type {...{ ...Component.props, ...propsForm }} />
         );
       }
-      if (ReactIs.isValidElementType(component)) {
-        return React.createElement<FormBuilder.FieldRender>(
-          component,
-          propsForm,
+      if (ReactIs.isValidElementType(Component)) {
+        return (
+          <Observer>
+            {() => {
+              return React.createElement<FormBuilder.FieldRender>(
+                Component,
+                { ...propsForm, ...fieldProxy },
+              );
+            }}
+          </Observer>
         );
       }
       return null;

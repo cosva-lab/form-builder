@@ -1,58 +1,51 @@
 import PropTypes from 'prop-types';
 import produce from 'immer';
+import { observable } from 'mobx';
 import {
   PropsField,
   InitialStateSteps,
   FieldsRenderProps,
   ChangeValueFields,
   ChangeValueSteps,
-  PropsFieldObject,
 } from '../../index';
-import StepValidator from '../validate/stepValidator';
 
-function changeValueField<Obj = false>({
+function changeValueField({
   field,
   action,
 }: {
-  field: Obj extends true ? PropsFieldObject : PropsField;
+  field: PropsField;
   action: any;
-}): Obj extends true ? PropsFieldObject : PropsField {
-  return {
-    ...field,
-    value: action.value,
-    error: { state: false, message: '' },
-    changed: true,
-  };
+}): PropsField {
+  field.value = action.value;
+  if (field.error) {
+    if (field.error.state) field.error.state = false;
+    if (field.error.message) field.error.message = '';
+  } else {
+    field.error = observable({ state: false, message: '' });
+  }
+  if (!field.changed) field.changed = true;
+  return field;
 }
 
-const changeValueFields: (
-  props: ChangeValueFields,
-) => PropsField[] = ({ fields, action }) =>
-  produce<PropsField[], PropsField[]>(fields, (draft): void => {
-    const { name } = action;
-    const index = draft.map(({ name }) => name).indexOf(name);
-    const field = changeValueField({
-      field: draft[index],
-      action,
-    });
-    draft[index] = field;
-  });
+const changeValueFields: (props: ChangeValueFields) => void = ({
+  fields,
+  action,
+}) => {
+  const index = fields.findIndex(({ name }) => name === action.name);
+  if (index !== -1)
+    changeValueField({ field: fields[index], action });
+};
 
 function changeValueSteps({
   activeStep,
   steps,
   action,
-}: ChangeValueSteps): StepValidator[] {
-  return produce<StepValidator[], StepValidator[]>(
-    steps,
-    (draft): void => {
-      const { fields } = draft[activeStep];
-      draft[activeStep].fields = changeValueFields({
-        action,
-        fields,
-      });
-    },
-  );
+}: ChangeValueSteps): void {
+  const { fields } = steps[activeStep];
+  changeValueFields({
+    action,
+    fields,
+  });
 }
 
 changeValueSteps.propTypes = {

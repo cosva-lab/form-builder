@@ -1,4 +1,5 @@
 import produce from 'immer';
+import { observable } from 'mobx';
 import { InitialStateSteps, EventField, Step } from '..';
 import StepsValidator from './validate/stepsValidator';
 import { ComponentStepsBuilder, StateStepsBuilder } from '.';
@@ -15,15 +16,15 @@ declare interface Props extends InitialStateSteps {
 
 export default class StepsBuilder extends StepsValidator
   implements InitialStateSteps {
-  ns?: string;
-  isNew?: boolean;
-  validationState?: boolean;
-  validate?: boolean;
-  activeStep: activeStep;
-  private component?: ComponentStepsBuilder;
-  private originalParams: StepsBuilder;
-  private parmsLast?: StepsBuilder;
-  private changeStateComponent: boolean;
+  @observable ns?: string;
+  @observable isNew?: boolean;
+  @observable validationState?: boolean;
+  @observable validate?: boolean;
+  @observable activeStep: activeStep;
+  @observable private component?: ComponentStepsBuilder;
+  @observable private originalParams: StepsBuilder;
+  @observable private parmsLast?: StepsBuilder;
+  @observable private changeStateComponent: boolean;
 
   constructor(props: Props) {
     super(props.steps);
@@ -53,7 +54,6 @@ export default class StepsBuilder extends StepsValidator
     this.changeField = this.changeField.bind(this);
     this.changeSteps = this.changeSteps.bind(this);
     this.setValidation = this.setValidation.bind(this);
-    this.setComponent = this.setComponent.bind(this);
     this.setErrors = this.setErrors.bind(this);
   }
 
@@ -123,30 +123,16 @@ export default class StepsBuilder extends StepsValidator
         ...this,
       };
     this.activeStep = value;
-    if (this.component) {
-      this.component.setState(
-        state =>
-          produce<StateStepsBuilder, StateStepsBuilder>(
-            state,
-            (draft): void => {
-              draft.fieldsRender.activeStep = value;
-            },
-          ),
-        callback,
-      );
-    } else {
-      console.error(
-        'Debe usar setComponent para poder cambiar de paso',
-      );
-    }
+    callback && callback();
   }
 
-  handleNextStep = () => {
-    this.setActiveStep(this.activeStep + 1);
+  handleNextStep = (callback?: Callback) => {
+    debugger;
+    this.setActiveStep(this.activeStep + 1, callback);
   };
 
-  handleBackStep = () => {
-    this.setActiveStep(this.activeStep - 1);
+  handleBackStep = (callback?: Callback) => {
+    this.setActiveStep(this.activeStep - 1, callback);
   };
 
   private setSteps(steps: Step[], callback?: Callback) {
@@ -181,19 +167,16 @@ export default class StepsBuilder extends StepsValidator
   changeField(callback?: Callback) {
     return ({ target }: EventField) => {
       const { value, name } = target;
-      const { steps, activeStep } = this;
-      const valueSteps = changeValueSteps({
-        activeStep,
-        steps,
+      console.log(target, this.steps);
+      changeValueSteps({
+        activeStep: this.activeStep,
+        steps: this.steps,
         action: {
           name,
           value,
         },
       });
-      if (this.component && this.changeStateComponent) {
-        this.setSteps(valueSteps, callback);
-      }
-      this.steps = valueSteps;
+      callback && callback();
     };
   }
 
@@ -242,9 +225,5 @@ export default class StepsBuilder extends StepsValidator
       this.validate = true;
       this.steps = this.stepsWithErros;
     }
-  }
-
-  setComponent(component: ComponentStepsBuilder) {
-    this.component = component;
   }
 }

@@ -7,8 +7,7 @@ import { FormBuilder } from '.';
 import { Theme } from '@material-ui/core/styles/createMuiTheme';
 import createStyles from '@material-ui/core/styles/createStyles';
 import FieldRender from './FieldRender';
-import { PropsField, changeField } from './index';
-import { changeValueFields } from './utils/changeValues';
+import { changeField } from './index';
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -29,26 +28,9 @@ class FieldsRender extends React.PureComponent<AllFieldsRenderProps> {
     transPosition: '',
   };
 
-  public fields: PropsField[];
-
-  constructor(props: AllFieldsRenderProps) {
-    super(props);
-    this.fields = this.props.fields;
-  }
-
   changeField: changeField = (event, callback) => {
-    const { target } = event;
-    const { value, name } = target;
-    this.fields = changeValueFields({
-      fields: this.fields,
-      action: { name, value },
-    });
     this.props.changeField(event, callback);
   };
-
-  UNSAFE_componentWillReceiveProps({ fields }: AllFieldsRenderProps) {
-    this.fields = fields;
-  }
 
   /**
    *
@@ -68,13 +50,10 @@ class FieldsRender extends React.PureComponent<AllFieldsRenderProps> {
       extra,
     } = this.props;
     if (!fields) return null;
+
     return (
       <>
-        {fields.map(field => {
-          let search = {
-            state: false,
-            value: -1,
-          };
+        {this.props.fields.map(field => {
           const {
             label = {
               message: field.name,
@@ -82,55 +61,11 @@ class FieldsRender extends React.PureComponent<AllFieldsRenderProps> {
               notPos: !!transPosition,
             },
           } = field;
-          let { extraProps } = field;
-          const { searchField } = extraProps || {
-            searchField: false,
-          };
-          if (searchField) {
-            let valueSearchId: string | number;
-            try {
-              switch (typeof searchField) {
-                case 'string':
-                  valueSearchId = searchField;
-                  const fieldFind = fields.find(
-                    // eslint-disable-next-line
-                    field => field.name == searchField,
-                  );
-                  if (fieldFind) {
-                    search = {
-                      state: fieldFind.value !== '',
-                      value:
-                        fieldFind.value === '' ? -1 : fieldFind.value,
-                    };
-                  } else {
-                    throw new Error(
-                      `El input "${field.name}" no existe!`,
-                    );
-                  }
-                  break;
-                case 'function':
-                  valueSearchId = searchField(fields);
-                  extraProps = {
-                    ...extraProps,
-                    search: {
-                      state: true,
-                      value: valueSearchId,
-                    },
-                  };
-                  break;
-                default:
-                  break;
-              }
-            } catch (e) {
-              console.log(e);
-            }
-          }
           return (
             <FieldRender
-              key={field.name}
               ns={ns}
-              name={field.name}
-              extraProps={extraProps}
+              key={field.name}
+              fieldProxy={field}
               {...{
                 ...field,
                 extra,
@@ -138,11 +73,10 @@ class FieldsRender extends React.PureComponent<AllFieldsRenderProps> {
                 label,
                 validate,
                 actionsExtra,
-                changeField: this.changeField,
-                search,
-                getFields: () => this.fields,
                 getSteps,
                 isNew,
+                changeField: this.changeField,
+                getFields: () => this.props.fields,
               }}
             />
           );

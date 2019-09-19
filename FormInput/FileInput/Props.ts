@@ -6,20 +6,18 @@ import { SortEnd } from 'react-sortable-hoc';
 export interface ActionsFiles {
   onAdd?:
     | ((
-        file: Value[],
+        file: Files,
       ) =>
         | Promise<
-            | { callBack: () => void; value?: FileVa[] }
-            | void
-            | FileVa[]
+            { callBack: () => void; value?: Files } | void | Files
           >
         | void
-        | { callBack: () => void; value: FileVa[] }
+        | { callBack: () => void; value: Files }
       )
     | null;
   onDelete?:
     | ((
-        file: FileVa[],
+        file: Files,
       ) =>
         | Promise<{ callBack: () => void } | void>
         | void
@@ -27,15 +25,15 @@ export interface ActionsFiles {
       )
     | null;
   onSort?: (event: {
-    changedFiles: { newFile: FileVa; oldFile: FileVa };
+    changedFiles: { newFile: FileValue; oldFile: FileValue };
     sort: SortEnd;
   }) =>
     | Promise<{ callBack: () => void } | void>
     | void
     | { callBack: () => void };
 
-  sort?: (a: FileVa, b: FileVa) => number | false | void;
-  arrayMove?: (files: Value[], from: number, to: number) => Value[];
+  sort?: (a: FileValue, b: FileValue) => number | false | void;
+  arrayMove?: (files: Files, from: number, to: number) => Files;
 }
 
 export interface Props
@@ -55,7 +53,8 @@ export interface Props
     >,
     Partial<Pick<FormInputProps, 'changeField'>>,
     ActionsFiles {
-  value: FileVa[];
+  value: Files;
+  fieldProxy?: PropsField<Files>;
 }
 
 export interface ExtraFile {
@@ -63,20 +62,13 @@ export interface ExtraFile {
   type?: string;
 }
 
-export type FileVa =
-  | File
-  | {
-      url?: string;
-      file?: File;
-      extra?: ExtraFile;
-      invalid?: boolean;
-    };
-
-export interface Value {
-  value: FileVa;
-  id: string;
-  invalid: boolean;
+export interface FileValue {
+  url?: string;
+  file?: File;
+  extra?: ExtraFile;
+  invalid?: boolean;
 }
+export declare type Files = FileValue[];
 
 export declare type Lookup = (
   filenameOrExt: string,
@@ -88,17 +80,15 @@ export declare type Extension = (
   typeString: string,
 ) => string | false;
 export declare type Charset = (typeString: string) => string | false;
-export declare type Files = Value[];
 
 export interface State {
-  value: Files;
   valueTemp: Files;
   inputValue: string;
   loading: boolean;
 }
 
 export interface ListFilesProps
-  extends Pick<PropsField, 'label' | 'ns' | 'name'> {
+  extends Pick<PropsField, 'label' | 'ns' | 'name' | 'fieldProxy'> {
   files: Files;
   openFileDialog: () => void;
   deleteFile: (index: number, sendChange?: boolean) => Promise<void>;
@@ -107,9 +97,7 @@ export interface ListFilesProps
 export declare type ListFilesStates = Pick<
   CSSProperties,
   'backgroundColor'
-> & {
-  files: Files;
-};
+>;
 
 export declare type handleChangeFiles = (target: {
   files: FileList | null;
@@ -117,7 +105,7 @@ export declare type handleChangeFiles = (target: {
 }) => void;
 
 export interface PropsGetThumbnail {
-  value: FileVa;
+  value: FileValue;
   invalid?: boolean;
   classes?: { img: string };
 }

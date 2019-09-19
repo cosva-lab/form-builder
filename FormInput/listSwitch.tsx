@@ -2,6 +2,8 @@ import React from 'react';
 import withStyles, {
   WithStyles,
 } from '@material-ui/core/styles/withStyles';
+import { observer } from 'mobx-react';
+
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
@@ -28,6 +30,7 @@ interface Props
   extends InputPropsSwitchList,
     WithStyles<typeof styles> {}
 
+@observer
 class SwitchListSecondary extends React.Component<Props> {
   state = {
     checked: ['wifi'],

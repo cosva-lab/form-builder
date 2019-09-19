@@ -35,6 +35,7 @@ class FormInput extends React.PureComponent<FormInputProps> {
       ns,
       fullWidth,
       autoComplete,
+      fieldProxy,
     } = this.props;
     switch (type) {
       case 'text':
@@ -57,6 +58,7 @@ class FormInput extends React.PureComponent<FormInputProps> {
               changeField,
               fullWidth,
               autoComplete,
+              fieldProxy,
             }}
           />
         );
@@ -93,6 +95,7 @@ class FormInput extends React.PureComponent<FormInputProps> {
               onSort,
               sort,
               arrayMove,
+              fieldProxy,
             }}
           />
         );

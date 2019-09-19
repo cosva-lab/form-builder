@@ -1,13 +1,14 @@
 import produce from 'immer';
+import { observable } from 'mobx';
 import { Step } from '../..';
 import StepValidator from './stepValidator';
 import { ComponentStepsBuilder, StateStepsBuilder } from '..';
 
 class StepsValidator {
-  inValid = false;
-  steps: StepValidator[];
-  protected stepError?: number;
-  protected stepsWithErros: StepValidator[];
+  @observable inValid = false;
+  @observable steps: StepValidator[];
+  @observable protected stepError?: number;
+  @observable protected stepsWithErros: StepValidator[];
 
   constructor(steps: Step[]) {
     this.steps = steps.map(step => new StepValidator(step));
@@ -17,23 +18,17 @@ class StepsValidator {
   }
 
   async haveErrors() {
-    const steps = this.steps;
-    this.stepsWithErros = await produce<
-      StepValidator[],
-      StepValidator[]
-    >(steps, async draft => {
-      for (const key in draft) {
-        if (draft.hasOwnProperty(key)) {
-          const stepValidator = draft[key];
-          if ((await stepValidator.haveErrors()) && !this.inValid) {
-            this.inValid = true;
-            this.stepError = Number(key);
-            break;
-          }
-          draft[key] = stepValidator;
+    for (const key in this.steps) {
+      if (this.steps.hasOwnProperty(key)) {
+        const stepValidator = this.steps[key];
+        if ((await stepValidator.haveErrors()) && !this.inValid) {
+          this.inValid = true;
+          this.stepError = Number(key);
+          break;
         }
+        this.steps[key] = stepValidator;
       }
-    });
+    }
     return this.inValid;
   }
 

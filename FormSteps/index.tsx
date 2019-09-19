@@ -14,9 +14,10 @@ import { WithStyles } from '@material-ui/styles';
 import { StepsRender } from '../index';
 import { getMessage } from '../../MessagesTranslate/Animation';
 import Stepper from '@material-ui/core/Stepper';
-import Step from '@material-ui/core/Step';
+import StepComponent from '@material-ui/core/Step';
 import StepLabel from '@material-ui/core/StepLabel';
 import { StepContent } from '@material-ui/core';
+import { observer } from 'mobx-react';
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -33,49 +34,36 @@ type Props = StepsRender;
 
 type AllProps = Props & WithStyles<typeof styles>;
 
+@observer
 class FormSteps extends React.Component<AllProps> {
-  static defaultProps = {
-    render: false,
-    renderSteps: false,
-    header: true,
-    footerSteps: {},
-    ns: 'inputs',
-  };
-
   render() {
     const { props } = this;
     const {
-      loading,
-      getSteps = () => props.steps,
-      activeStep,
+      getSteps = () => props.stepsBuild.steps,
       handleNextStep,
       changeField,
       handleBackStep,
       footerRender,
-      footerSteps,
       stepperProps,
       gridProps,
       children,
-      isNew,
+      stepsBuild,
     } = props;
+    const { activeStep, isNew, loading, footerSteps } = stepsBuild;
     const steps = getSteps();
-    const fieldsTemp = steps.map(step => {
+    const fieldsTemp = (activeStep: number) => {
       const {
         fields,
-        ns = props.ns,
+        ns = stepsBuild.ns,
         transPosition = false,
         validate,
-      } = step || {
-        fields: undefined,
-        validate: undefined,
-      };
+      } = steps[activeStep];
       return (
         fields && (
           <>
             <Grid item xs={12}>
               {fields && (
                 <FieldsRender
-                  key={activeStep}
                   ns={ns}
                   transPosition={transPosition}
                   validate={validate}
@@ -104,7 +92,7 @@ class FormSteps extends React.Component<AllProps> {
           </>
         )
       );
-    });
+    };
     return (
       <React.Fragment>
         <Grid container spacing={0}>
@@ -114,10 +102,10 @@ class FormSteps extends React.Component<AllProps> {
                 const {
                   label,
                   stepper: stepperState = true,
-                  ns = props.ns,
+                  ns = stepsBuild.ns,
                 } = step;
                 return stepperState ? (
-                  <Step key={`step-${key}`}>
+                  <StepComponent key={`step-${key}`}>
                     <StepLabel>
                       {getMessage({
                         ns:
@@ -132,9 +120,9 @@ class FormSteps extends React.Component<AllProps> {
                     </StepLabel>
                     {stepperProps &&
                       stepperProps.orientation === 'vertical' && (
-                        <StepContent>{fieldsTemp[key]}</StepContent>
+                        <StepContent>{fieldsTemp(key)}</StepContent>
                       )}
-                  </Step>
+                  </StepComponent>
                 ) : null;
               })}
             </Stepper>
@@ -152,7 +140,7 @@ class FormSteps extends React.Component<AllProps> {
               spacing={4}
               {...gridProps}
             >
-              {fieldsTemp[activeStep]}
+              {fieldsTemp(activeStep)}
             </Grid>
           )}
         </Grid>

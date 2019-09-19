@@ -4,7 +4,6 @@ import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import arrayMove from 'array-move';
-import uuid from 'uuid';
 
 import {
   getMessage,
@@ -14,8 +13,7 @@ import {
   Props,
   State,
   handleChangeFiles,
-  Value,
-  FileVa,
+  FileValue,
   ActionsFiles,
 } from './Props';
 import ListFiles from './Components/ListFiles';
@@ -42,15 +40,11 @@ class FileInput extends React.PureComponent<Props, State> {
   private isOpen = false;
   private isMount = true;
 
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      value: this.setFiles(this.props.value),
-      valueTemp: [],
-      inputValue: '',
-      loading: false,
-    };
-  }
+  state = {
+    valueTemp: [],
+    inputValue: '',
+    loading: false,
+  };
 
   componentWillUnmount() {
     this.isMount = false;
@@ -60,35 +54,22 @@ class FileInput extends React.PureComponent<Props, State> {
     this.isMount = true;
   }
 
-  setFiles = (value: (FileVa)[] = []): Value[] =>
-    value
-      .sort((...v) => {
-        const { sort } = this.props;
-        const res = sort && sort(...v);
-        return typeof res === 'number' ? res : 0;
-      })
-      .map(
-        (file): Value => ({
-          id: uuid(),
-          invalid:
-            file instanceof File
-              ? false
-              : !!(file.extra && file.extra.invalid),
-          value:
-            file instanceof File
-              ? {
-                  url: URL.createObjectURL(file),
-                  file,
-                }
-              : file,
-        }),
-      );
+  setFiles = (value: FileValue[] = []): FileValue[] =>
+    value.slice().sort((...v) => {
+      const { sort } = this.propsParse;
+      const res = sort && sort(...v);
+      return typeof res === 'number' ? res : 0;
+    });
 
   get extraProps() {
     return {
       ...defaultPropsExtra,
-      ...this.props.extraProps,
+      ...this.propsParse.extraProps,
     };
+  }
+
+  get propsParse() {
+    return { ...this.props, ...this.props.fieldProxy };
   }
 
   validExtensions(): boolean {
@@ -107,32 +88,22 @@ class FileInput extends React.PureComponent<Props, State> {
     return error;
   }
 
-  UNSAFE_componentWillReceiveProps({ value }: Props) {
-    this.setState({ value: this.setFiles(value) });
-  }
-
   openFileDialog = () => {
     if (this.inputOpenFileRef) this.inputOpenFileRef.current.click();
   };
 
   setChangeField = (
+    value: FileValue[],
     callBack?: () => void,
     options?: Pick<EventField, 'changeStateComponent' | 'waitTime'>,
   ) => {
-    const files = this.state.value;
-    const { changeField, name } = this.props;
+    const { changeField, name } = this.propsParse;
     (changeField &&
       changeField(
         {
           target: {
             name,
-            value: files.map(({ value }) => {
-              return value instanceof File
-                ? value
-                : value.file instanceof File
-                ? value.file
-                : value;
-            }),
+            value,
           },
           ...options,
         },
@@ -144,8 +115,8 @@ class FileInput extends React.PureComponent<Props, State> {
   changeField: handleChangeFiles = async ({ files }) => {
     if (files && files.length) {
       const newFiles: File[] = [];
-      let newValue: Value[] = [];
-      const valueTemp: Value[] = [];
+      let newValue: FileValue[] = [];
+      const valueTemp: FileValue[] = [];
       const tempFiles = Array.from(files);
 
       this.setState({
@@ -157,13 +128,10 @@ class FileInput extends React.PureComponent<Props, State> {
       });
 
       for (const file of tempFiles) {
-        const va: Value = {
-          value: {
-            url: URL.createObjectURL(file),
-            file,
-          },
+        const va: FileValue = {
+          url: URL.createObjectURL(file),
+          file,
           invalid: false,
-          id: uuid(),
         };
         if (await !this.validateFile(file.name, lookup)) {
           va.invalid = true;
@@ -174,7 +142,7 @@ class FileInput extends React.PureComponent<Props, State> {
         }
       }
 
-      const { onAdd } = this.props;
+      const { onAdd } = this.propsParse;
       let callBack: (() => void) | undefined = undefined;
 
       if (onAdd) {
@@ -199,7 +167,7 @@ class FileInput extends React.PureComponent<Props, State> {
                 if (value) {
                   newValue = [];
                   for (const file of this.setFiles(value)) {
-                    if (!file.invalid) {
+                    if (!(file instanceof File) && !file.invalid) {
                       newValue = [...newValue, file];
                     } else {
                       valueTemp.push(file);
@@ -228,12 +196,14 @@ class FileInput extends React.PureComponent<Props, State> {
       if (this.isMount) {
         this.setState(
           {
-            value: [...this.state.value, ...newValue],
             valueTemp,
             inputValue: '',
           },
           () => {
-            this.setChangeField(callBack);
+            this.setChangeField(
+              [...this.propsParse.value, ...newValue],
+              callBack,
+            );
           },
         );
       } else {
@@ -247,22 +217,22 @@ class FileInput extends React.PureComponent<Props, State> {
     sort,
   }) => {
     const { oldIndex, newIndex } = sort;
-    const { onSort } = this.props;
+    const { onSort } = this.propsParse;
     let callBack: (() => void) | undefined = undefined;
-    const oldValue = this.state.value;
+    const oldValue = this.propsParse.value;
     if (oldIndex === newIndex) return;
-    const files = (this.props.arrayMove || arrayMove)(
+    const files = (this.propsParse.arrayMove || arrayMove)(
       [...oldValue],
       oldIndex,
       newIndex,
     );
     if (this.isMount) {
+      this.setChangeField(files);
       this.setState({
-        value: files,
         loading: true,
       });
     }
-    let userErr;
+    let userErr: any;
     if (onSort) {
       const call = onSort({ changedFiles, sort });
       if (call instanceof Promise) {
@@ -283,11 +253,11 @@ class FileInput extends React.PureComponent<Props, State> {
     if (this.isMount) {
       this.setState(
         {
-          value: userErr ? oldValue : files,
           loading: false,
         },
         () => {
           this.setChangeField(
+            userErr ? oldValue : files,
             () => {
               callBack && callBack();
             },
@@ -301,13 +271,12 @@ class FileInput extends React.PureComponent<Props, State> {
   };
 
   deleteFile = async (index: number, sendChange = true) => {
-    const file = this.state.value.find((_s, id) => id === index);
-    const { onDelete } = this.props;
+    const file = this.propsParse.value.find((_s, id) => id === index);
+    const { onDelete } = this.propsParse;
     let callBack: (() => void) | undefined = undefined;
 
     if (sendChange && file && onDelete) {
-      const { value } = file;
-      const call = onDelete([value]);
+      const call = onDelete([file]);
       if (call instanceof Promise) {
         let userErr;
         call.catch(err => (userErr = err));
@@ -322,18 +291,11 @@ class FileInput extends React.PureComponent<Props, State> {
     }
 
     if (this.isMount) {
-      this.setState(
-        ({ value }) => {
-          value.splice(index, 1);
-          return {
-            value,
-            valueTemp: [],
-          };
-        },
-        () => {
-          this.setChangeField(callBack);
-        },
-      );
+      const value = this.propsParse.value;
+      value.splice(index, 1);
+      this.setState({ valueTemp: [] }, () => {
+        this.setChangeField(value, callBack);
+      });
     } else {
       callBack && callBack();
     }
@@ -414,10 +376,11 @@ class FileInput extends React.PureComponent<Props, State> {
   }
 
   public render() {
-    const { error, label, name, ns } = this.props;
+    const { fieldProxy } = this.props;
+    const { error, label, name, ns, value } = this.propsParse;
     const { multiple, subLabel } = this.extraProps;
     const accept = this.convertAccept(this.extraProps.accept);
-    const { value, valueTemp, inputValue, loading } = this.state;
+    const { valueTemp, inputValue, loading } = this.state;
     const {
       state = false,
       message = '',
@@ -426,7 +389,7 @@ class FileInput extends React.PureComponent<Props, State> {
     } = {
       ...error,
     };
-    const files: Value[] = [...value, ...valueTemp];
+    const files: FileValue[] = [...value, ...valueTemp];
     return (
       <>
         <Paper
@@ -448,6 +411,7 @@ class FileInput extends React.PureComponent<Props, State> {
               files,
               multiple,
               subLabel,
+              fieldProxy,
               changeField: (...value) => this.changeField(...value),
               openFileDialog: (...value) =>
                 this.openFileDialog(...value),

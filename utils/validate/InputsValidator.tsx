@@ -1,4 +1,5 @@
 import produce from 'immer';
+import { observable } from 'mobx';
 import {
   PropsField,
   PropsFieldObject,
@@ -11,13 +12,12 @@ import { ComponentFormBuilder, StateFormBuilder } from '..';
 import { Message } from '../../../MessagesTranslate/MessagesTranslate';
 
 class InputsValidator {
-  public inValid = false;
-  public valid = true;
-  public fields: PropsField[];
-  public fieldsWithErros?: PropsField[];
+  @observable public inValid = false;
+  @observable public valid = true;
+  @observable public fields: PropsField[];
 
   constructor(fields: FieldsAll) {
-    this.fields = fields;
+    this.fields = observable(fields);
     this.callbackField = this.callbackField.bind(this);
     this.setErrorsComponent = this.setErrorsComponent.bind(this);
     this.addErrors = this.addErrors.bind(this);
@@ -25,27 +25,24 @@ class InputsValidator {
   }
 
   private setE(field: PropsField | PropsFieldObject) {
-    field.validate = true;
-    field.changed = true;
+    if (!field.validate) field.validate = true;
+    if (!field.changed) field.changed = true;
   }
 
   async callbackField(
     callback: (field: PropsField | PropsFieldObject) => void,
   ) {
-    return produce<PropsField[], PropsField[]>(
-      this.fields,
-      async draft => {
-        for (let key = 0; key < draft.length; key++) {
-          await callback(draft[key]);
-        }
-      },
-    );
+    const fields = this.fields;
+    for (const field of this.fields) {
+      await callback(field);
+    }
+    return fields;
   }
 
   async haveErrors() {
     this.inValid = false;
     this.valid = true;
-    this.fieldsWithErros = await this.callbackField(async field => {
+    await this.callbackField(async field => {
       this.setE(field);
       try {
         if (
@@ -56,7 +53,7 @@ class InputsValidator {
           throw new Error();
         const validationsObj: Validation[] = [];
         const setError = (error: Message) => {
-          field.error = error;
+          field.error = observable(error);
           if (error.state && !this.inValid) throw new Error();
         };
 
@@ -111,7 +108,7 @@ class InputsValidator {
         } else {
           error.push(...e);
         }
-        this.fieldsWithErros = await this.callbackField(field => {
+        await this.callbackField(field => {
           const serverError = field.serverError || field.name;
           const serverErrors: string[] = [];
           if (typeof serverError === 'string') {
@@ -120,11 +117,11 @@ class InputsValidator {
             serverErrors.push(...serverError);
           }
           if (serverErrors.find(name => name === key)) {
-            field.error = {
+            field.error = observable({
               message: error[0],
               state: true,
               errorServer: true,
-            };
+            });
           }
         });
       }
