@@ -1,8 +1,8 @@
 import { observable } from 'mobx';
-import { FieldsRenderProps, EventField } from '..';
+import { EventField } from '..';
 import InputsValidator from './validate/InputsValidator';
 import { changeValueFields } from './changeValues';
-import { extra, transPosition, FieldsBuilderProps } from '../index';
+import { extra, transPosition, FieldsRenderProps } from '../index';
 
 function extend(from: any, to?: any) {
   if (from === null || typeof from !== 'object') return from;
@@ -31,7 +31,7 @@ function extend(from: any, to?: any) {
 }
 declare type Callback = () => void;
 
-declare type Props = FieldsBuilderProps;
+declare type Props = FieldsRenderProps;
 export default class FieldsBuilder extends InputsValidator
   implements FieldsRenderProps {
   @observable public ns?: string;
@@ -84,16 +84,16 @@ export default class FieldsBuilder extends InputsValidator
     this.validate = validate;
   };
 
-  restoreLast() {
+  restoreLast = () => {
     if (this.parmsLast) {
       const { fields, ...rest } = this.parmsLast;
       this.setProps(rest);
       this.fields = fields;
       this.parmsLast = undefined;
     }
-  }
+  };
 
-  saveData() {
+  saveData = () => {
     const { fields, ns, isNew, validationState, validate } = this;
     this.parmsLast = extend({
       fields,
@@ -102,20 +102,20 @@ export default class FieldsBuilder extends InputsValidator
       validationState,
       validate,
     });
-  }
+  };
 
-  restore() {
+  restore = () => {
     const { fields, ...rest } = this.originalParams;
     this.setProps(rest);
     this.fields = fields;
-  }
+  };
 
-  setNew(value: boolean, callback?: Callback) {
+  setNew = (value: boolean, callback?: Callback) => {
     this.isNew = value;
     callback && callback();
-  }
+  };
 
-  getFieldsObject() {
+  getFieldsObject = () => {
     const fields: {
       [key: string]: any;
     } = {};
@@ -123,9 +123,9 @@ export default class FieldsBuilder extends InputsValidator
       fields[name] = value;
     });
     return fields;
-  }
+  };
 
-  changeField(callback?: Callback) {
+  changeField = (callback?: Callback) => {
     return ({ target }: EventField, callbackEvent?: Callback) => {
       const { value, name } = target;
       changeValueFields({
@@ -138,24 +138,26 @@ export default class FieldsBuilder extends InputsValidator
       callback && callback();
       callbackEvent && callbackEvent();
     };
-  }
+  };
 
-  changeFields(callback?: Callback) {
+  changeFields = (callback?: Callback) => {
     return (fields: EventField[]) => {
       fields.forEach(field => {
         this.changeField()(field);
       });
       callback && callback();
     };
-  }
+  };
 
-  setValidation(validate: boolean, callback?: Callback) {
+  setValidation = (validate: boolean, callback?: Callback) => {
     this.validate = validate;
     callback && callback();
-  }
+  };
 
-  async setErrors(errors?: { [key: string]: string | string[] }) {
+  setErrors = async (errors?: {
+    [key: string]: string | string[];
+  }) => {
     errors && (await this.addErrors(errors));
     if (!this.validate) this.validate = true;
-  }
+  };
 }
