@@ -2,7 +2,6 @@ import { Validation, Validate } from '../..';
 import { Message } from '../../../MessagesTranslate/Animation';
 
 class InputValidator {
-  validator = import('validator');
   public validations: Validation[] = [];
 
   constructor(validations: Validation[]) {
@@ -24,7 +23,7 @@ class InputValidator {
     if (!validate && !changed) {
       return validation;
     }
-    const validator = await this.validator;
+    const validator = await import('validator');
     if (
       typeof this.validations === 'object' &&
       (validChange || validate)
