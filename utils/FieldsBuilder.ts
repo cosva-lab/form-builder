@@ -1,19 +1,56 @@
 import { observable } from 'mobx';
-import { FieldsRenderProps, EventField, PropsField } from '..';
+import { FieldsRenderProps, EventField } from '..';
 import InputsValidator from './validate/InputsValidator';
 import { changeValueFields } from './changeValues';
-import cloneDeep from 'lodash/cloneDeep';
+import { extra, transPosition, FieldsBuilderProps } from '../index';
 
+function extend(from: any, to?: any) {
+  if (from === null || typeof from !== 'object') return from;
+  if (from.constructor !== Object && from.constructor !== Array)
+    return from;
+  if (
+    from.constructor === Date ||
+    from.constructor === RegExp ||
+    from.constructor === Function ||
+    from.constructor === String ||
+    from.constructor === Number ||
+    from.constructor === Boolean
+  )
+    return new from.constructor(from);
+
+  to = to || new from.constructor();
+  for (const name in from) {
+    if (from.hasOwnProperty(name)) {
+      to[name] =
+        typeof to[name] === 'undefined'
+          ? extend(from[name], null)
+          : to[name];
+    }
+  }
+  return to;
+}
 declare type Callback = () => void;
 
-declare type Props = FieldsRenderProps;
-export default class FieldsBuilder extends InputsValidator {
+declare type Props = FieldsBuilderProps;
+export default class FieldsBuilder extends InputsValidator
+  implements FieldsRenderProps {
   @observable public ns?: string;
   @observable public isNew?: boolean;
   @observable public validationState?: boolean;
   @observable public validate?: boolean;
-  @observable private originalParams: FieldsBuilder;
-  @observable private parmsLast?: FieldsBuilder;
+  @observable public extra?: extra;
+  @observable public actionsExtra?: object;
+  @observable public transPosition?: transPosition;
+
+  private originalParams: FieldsBuilder;
+  private parmsLast?: Pick<
+    FieldsBuilder,
+    'fields' | 'ns' | 'isNew' | 'validationState' | 'validate'
+  >;
+
+  get fieldsBuilder() {
+    return this;
+  }
 
   constructor(props: Props) {
     super(props.fields);
@@ -24,16 +61,15 @@ export default class FieldsBuilder extends InputsValidator {
       validationState,
       validate,
     });
-    this.originalParams = cloneDeep(this);
-    this.restoreLast = this.restoreLast.bind(this);
-    this.restore = this.restore.bind(this);
-    this.getFieldsObject = this.getFieldsObject.bind(this);
-    this.setNew = this.setNew.bind(this);
-    this.setFields = this.setFields.bind(this);
-    this.changeField = this.changeField.bind(this);
-    this.changeFields = this.changeFields.bind(this);
-    this.setValidation = this.setValidation.bind(this);
-    this.setErrors = this.setErrors.bind(this);
+    this.originalParams = extend(props);
+    for (const funsds in this) {
+      if (this.hasOwnProperty(funsds)) {
+        const element = this[funsds];
+        if (typeof element === 'function') {
+          element.bind(this);
+        }
+      }
+    }
   }
 
   private setProps: (
@@ -53,29 +89,29 @@ export default class FieldsBuilder extends InputsValidator {
       const { fields, ...rest } = this.parmsLast;
       this.setProps(rest);
       this.fields = fields;
-      this.setFields(fields);
       this.parmsLast = undefined;
     }
+  }
+
+  saveData() {
+    const { fields, ns, isNew, validationState, validate } = this;
+    this.parmsLast = extend({
+      fields,
+      ns,
+      isNew,
+      validationState,
+      validate,
+    });
   }
 
   restore() {
     const { fields, ...rest } = this.originalParams;
     this.setProps(rest);
     this.fields = fields;
-    this.setFields(fields);
   }
 
   setNew(value: boolean, callback?: Callback) {
-    if (this.isNew !== value)
-      this.parmsLast = {
-        ...this,
-      };
     this.isNew = value;
-    callback && callback();
-  }
-
-  setFields(fields: PropsField[], callback?: Callback) {
-    this.fields = fields;
     callback && callback();
   }
 
