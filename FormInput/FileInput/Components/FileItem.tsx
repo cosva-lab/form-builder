@@ -34,6 +34,13 @@ const styles = (theme: Theme) =>
       userSelect: 'none',
       WebkitUserDrag: 'none',
     },
+    box: {
+      backgroundColor: theme.palette.background.default,
+      position: 'relative',
+      overflow: 'hidden',
+      width: '100%',
+      padding: '1em',
+    },
   });
 
 interface Props extends WithStyles<typeof styles> {
@@ -49,17 +56,7 @@ class FileItem extends React.PureComponent<Props> {
     const { value } = this.props;
     const invalid = value.invalid || false;
     return (
-      <Box
-        p={{
-          xs: '1em',
-        }}
-        component={Paper}
-        position={'relative'}
-        style={{
-          overflow: 'hidden',
-        }}
-        width={'100%'}
-      >
+      <Paper className={classes.box}>
         <Grid
           container
           spacing={4}
@@ -67,11 +64,12 @@ class FileItem extends React.PureComponent<Props> {
             position: 'relative',
           }}
         >
-          <Box
-            component={props => (
-              <Grid {...props} container justify="center" />
-            )}
-            bottom={'5px'}
+          <Grid
+            container
+            justify="center"
+            style={{
+              bottom: '5px',
+            }}
           >
             <Typography
               variant="subtitle2"
@@ -86,7 +84,7 @@ class FileItem extends React.PureComponent<Props> {
             >
               {value instanceof File ? value.name : ''}
             </Typography>
-          </Box>
+          </Grid>
 
           <Grid container justify="center">
             <div className={classes.image}>
@@ -102,7 +100,7 @@ class FileItem extends React.PureComponent<Props> {
           >
             <Fab
               size="medium"
-              color="inherit"
+              color="default"
               onClick={e => {
                 e.preventDefault();
                 !invalid && props.deleteFile();
@@ -128,7 +126,7 @@ class FileItem extends React.PureComponent<Props> {
             }}
           />
         )}
-      </Box>
+      </Paper>
     );
   }
 }

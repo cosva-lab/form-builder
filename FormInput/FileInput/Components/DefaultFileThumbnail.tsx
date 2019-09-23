@@ -6,8 +6,8 @@ export const DefaultFileThumbnail = () => (
   <Typography
     style={{
       width: '100%',
-      color: 'rgba(51,51,51,0.4)',
     }}
+    color="textPrimary"
     align="center"
     component={FileCopyIcon as any}
     /* className="cosva-farm" */
