@@ -1,10 +1,7 @@
 import PropTypes from 'prop-types';
-import produce from 'immer';
 import { observable } from 'mobx';
 import {
   PropsField,
-  InitialStateSteps,
-  FieldsRenderProps,
   ChangeValueFields,
   ChangeValueSteps,
 } from '../../index';
@@ -54,41 +51,4 @@ changeValueSteps.propTypes = {
   action: PropTypes.object.isRequired,
 };
 
-const renderField = (fieldRender: PropsField) =>
-  produce(fieldRender, (field: PropsField) => {
-    field.changed = false;
-    field.error = { state: false, message: '' };
-  });
-
-const renderFields = (
-  fieldsRender: FieldsRenderProps,
-): FieldsRenderProps =>
-  produce<FieldsRenderProps, FieldsRenderProps>(
-    fieldsRender,
-    data => {
-      if (Array.isArray(data.fields)) {
-        for (const i in data.fields) {
-          if (i) {
-            data.fields[i] = renderField(data.fields[i]);
-          }
-        }
-      }
-    },
-  );
-const renderStateSteps = (initialState: InitialStateSteps) =>
-  produce(initialState, (draft: InitialStateSteps) => {
-    if (!draft.activeStep) draft.activeStep = 0;
-    draft.steps = draft.steps.map(({ label, ...rest }) => ({
-      label,
-      ...renderFields(rest),
-    }));
-  });
-
-export {
-  changeValueSteps,
-  changeValueField,
-  changeValueFields,
-  renderStateSteps,
-  renderField,
-  renderFields,
-};
+export { changeValueSteps, changeValueField, changeValueFields };

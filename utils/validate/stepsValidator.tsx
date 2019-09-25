@@ -1,8 +1,6 @@
-import produce from 'immer';
 import { observable } from 'mobx';
 import { Step } from '../..';
 import StepValidator from './stepValidator';
-import { ComponentStepsBuilder, StateStepsBuilder } from '..';
 
 class StepsValidator {
   @observable inValid = false;
@@ -14,7 +12,6 @@ class StepsValidator {
     this.steps = steps.map(step => new StepValidator(step));
     this.stepsWithErros = [...this.steps];
     this.haveErrors = this.haveErrors.bind(this);
-    this.setErrors = this.setErrors.bind(this);
   }
 
   async haveErrors() {
@@ -30,18 +27,6 @@ class StepsValidator {
       }
     }
     return this.inValid;
-  }
-
-  setErrors(component: ComponentStepsBuilder) {
-    component.setState(state =>
-      produce<StateStepsBuilder, StateStepsBuilder>(
-        state,
-        (draft): void => {
-          draft.fieldsRender.validate = true;
-          draft.fieldsRender.steps = this.stepsWithErros;
-        },
-      ),
-    );
   }
 }
 

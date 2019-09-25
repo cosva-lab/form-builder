@@ -40,6 +40,9 @@ const styles = (theme: Theme) =>
     root: {
       position: 'relative',
     },
+    gridFileEmpity: {
+      color: theme.palette.text.hint,
+    },
   });
 
 const defaultPropsExtra = {
@@ -250,33 +253,20 @@ export class ListFiles extends React.Component<
               />
             )}
             {isEmpty && (
-              <Grid item xs={12}>
+              <Grid item xs={12} className={classes.gridFileEmpity}>
                 <React.Fragment>
                   <Typography
                     style={{
                       width: '100%',
-                      color: 'rgba(51,51,51,0.4)',
                     }}
                     align="center"
                     variant="h2"
                     component={CloudUploadIcon as any}
                   />
-                  <Typography
-                    style={{
-                      color: 'rgba(51,51,51,0.4)',
-                    }}
-                    align="center"
-                    variant="h5"
-                  >
+                  <Typography align="center" variant="h5">
                     {getMessage(transformLabel({ label, ns, name }))}
                   </Typography>
-                  <Typography
-                    style={{
-                      color: 'rgba(51,51,51,0.4)',
-                    }}
-                    align="center"
-                    variant="h6"
-                  >
+                  <Typography align="center" variant="h6">
                     {getMessage({
                       message: ``,
                       ns: ns,

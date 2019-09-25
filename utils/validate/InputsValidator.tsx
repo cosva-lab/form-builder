@@ -1,4 +1,3 @@
-import produce from 'immer';
 import { observable } from 'mobx';
 import {
   PropsField,
@@ -7,7 +6,6 @@ import {
   Validation,
 } from '../..';
 import InputValidator from './InputValidator';
-import { ComponentFormBuilder, StateFormBuilder } from '..';
 
 import { Message } from '../../../MessagesTranslate/MessagesTranslate';
 
@@ -19,7 +17,6 @@ class InputsValidator {
   constructor(fields: FieldsAll) {
     this.fields = observable(fields);
     this.callbackField = this.callbackField.bind(this);
-    this.setErrorsComponent = this.setErrorsComponent.bind(this);
     this.addErrors = this.addErrors.bind(this);
     this.haveErrors = this.haveErrors.bind(this);
   }
@@ -83,22 +80,7 @@ class InputsValidator {
     return this.inValid;
   }
 
-  setErrorsComponent(component: ComponentFormBuilder) {
-    component.setState(state =>
-      produce<StateFormBuilder, StateFormBuilder>(
-        state,
-        (draft): void => {
-          draft.fieldsRender.validate = true;
-          draft.fieldsRender.fields = this.fields;
-        },
-      ),
-    );
-  }
-
-  async addErrors(
-    errors: { [key: string]: string | string[] },
-    component?: ComponentFormBuilder,
-  ) {
+  async addErrors(errors: { [key: string]: string | string[] }) {
     for (const key in errors) {
       if (errors.hasOwnProperty(key)) {
         const e = errors[key];
@@ -126,7 +108,6 @@ class InputsValidator {
         });
       }
     }
-    component && this.setErrorsComponent(component);
     return this.fields;
   }
 }
