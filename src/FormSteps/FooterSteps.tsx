@@ -10,8 +10,8 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import pink from '@material-ui/core/colors/pink';
 
 import createStyles from '@material-ui/core/styles/createStyles';
-import { StepsRender, InitialStateSteps } from '../index';
-import { getMessage } from '../../MessagesTranslate/Animation';
+import { StepsRender, InitialStateSteps } from '..';
+import { getMessage } from '../MessagesTranslate';
 
 const styles = () =>
   createStyles({

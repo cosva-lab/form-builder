@@ -7,17 +7,17 @@ import {
 } from '@material-ui/core/styles';
 
 import Grid from '@material-ui/core/Grid';
-
-import FieldsRender from '../FieldsRender';
-import FooterSteps from './FooterSteps';
 import { WithStyles } from '@material-ui/styles';
-import { StepsRender } from '../index';
-import { getMessage } from '../../MessagesTranslate/Animation';
 import Stepper from '@material-ui/core/Stepper';
 import StepComponent from '@material-ui/core/Step';
 import StepLabel from '@material-ui/core/StepLabel';
 import { StepContent } from '@material-ui/core';
 import { observer } from 'mobx-react';
+
+import { FieldsRender } from '../FieldsRender';
+import FooterSteps from './FooterSteps';
+import { StepsRender } from '..';
+import { getMessage } from '../MessagesTranslate';
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -35,7 +35,7 @@ type Props = StepsRender;
 type AllProps = Props & WithStyles<typeof styles>;
 
 @observer
-class FormSteps extends React.Component<AllProps> {
+class FormStepsComponent extends React.Component<AllProps> {
   render() {
     const { props } = this;
     const {
@@ -149,6 +149,8 @@ class FormSteps extends React.Component<AllProps> {
   }
 }
 
-export default compose<AllProps, Props>(
+export const FormSteps = compose<AllProps, Props>(
   withStyles(styles, { name: 'formSteps' }),
-)(FormSteps);
+)(FormStepsComponent);
+
+export default FormSteps;

@@ -1,28 +1,11 @@
-import * as React from 'react';
-import compose from 'recompose/compose';
-import withStyles, {
-  WithStyles,
-} from '@material-ui/core/styles/withStyles';
-import { FormBuilder } from '.';
-import { Theme } from '@material-ui/core/styles/createMuiTheme';
-import createStyles from '@material-ui/core/styles/createStyles';
-import FieldRender from './FieldRender';
-import { changeField } from './index';
+import React from 'react';
+import { FieldRender } from './FieldRender';
+import { changeField } from './';
+import { FieldsRenderProps, BaseBuilder } from './types';
 
-const styles = (theme: Theme) =>
-  createStyles({
-    root: {
-      ...theme.mixins.gutters(),
-      paddingTop: theme.spacing(2),
-      paddingBottom: theme.spacing(2),
-    },
-  });
+declare type Props = FieldsRenderProps & BaseBuilder;
 
-interface AllFieldsRenderProps
-  extends FormBuilder.Fields,
-    WithStyles<typeof styles> {}
-
-class FieldsRender extends React.PureComponent<AllFieldsRenderProps> {
+export class FieldsRender extends React.PureComponent<Props> {
   public static defaultProps = {
     ns: 'inputs',
     transPosition: '',
@@ -49,11 +32,9 @@ class FieldsRender extends React.PureComponent<AllFieldsRenderProps> {
       fields,
       extra,
     } = this.props;
-    if (!fields) return null;
-
     return (
       <>
-        {this.props.fields.map(field => {
+        {fields.map(field => {
           const {
             label = {
               message: field.name,
@@ -86,6 +67,4 @@ class FieldsRender extends React.PureComponent<AllFieldsRenderProps> {
   }
 }
 
-export default compose<AllFieldsRenderProps, FormBuilder.Fields>(
-  withStyles(styles, { name: 'FieldsRender' }),
-)(FieldsRender);
+export default FieldsRender;

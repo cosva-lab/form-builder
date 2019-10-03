@@ -1,10 +1,11 @@
 import PropTypes from 'prop-types';
 import { observable } from 'mobx';
+import InputValidator from '../validate/InputValidator';
 import {
   PropsField,
   ChangeValueFields,
   ChangeValueSteps,
-} from '../../index';
+} from '../../';
 
 function changeValueField({
   field,
@@ -21,6 +22,10 @@ function changeValueField({
     field.error = observable({ state: false, message: '' });
   }
   if (!field.changed) field.changed = true;
+  if (field.validations) {
+    const inputValidator = new InputValidator(field);
+    inputValidator.haveErrors().then(error => (field.error = error));
+  }
   return field;
 }
 

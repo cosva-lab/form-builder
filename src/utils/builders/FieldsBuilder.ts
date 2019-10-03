@@ -1,8 +1,8 @@
 import { observable } from 'mobx';
-import { EventField } from '..';
-import InputsValidator from './validate/InputsValidator';
-import { changeValueFields } from './changeValues';
-import { extra, transPosition, FieldsRenderProps } from '../';
+import { EventField } from '../..';
+import InputsValidator from '../validate/InputsValidator';
+import { changeValueFields } from '../changeValues';
+import { extra, transPosition, FieldsRenderProps } from '../..';
 
 function extend(from: any, to?: any) {
   if (from === null || typeof from !== 'object') return from;
@@ -32,7 +32,8 @@ function extend(from: any, to?: any) {
 declare type Callback = () => void;
 
 declare type Props = FieldsRenderProps;
-export default class FieldsBuilder extends InputsValidator
+
+class FieldsBuilder extends InputsValidator
   implements FieldsRenderProps {
   @observable public ns?: string;
   @observable public isNew?: boolean;
@@ -161,3 +162,5 @@ export default class FieldsBuilder extends InputsValidator
     if (!this.validate) this.validate = true;
   };
 }
+
+export default FieldsBuilder;

@@ -4,11 +4,7 @@ export const transformLabel = ({
   ns,
   name,
   label,
-}: {
-  ns?: string;
-  name: string;
-  label: PropsField['label'];
-}) => {
+}: Pick<PropsField, 'ns' | 'name' | 'label'>) => {
   let message;
   let props;
   const nsLabel = ns;

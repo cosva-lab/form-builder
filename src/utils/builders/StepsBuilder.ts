@@ -1,10 +1,10 @@
 import { observable } from 'mobx';
-import { InitialStateSteps, EventField, Step } from '..';
-import StepsValidator from './validate/stepsValidator';
-import { changeValueSteps } from './changeValues';
+import { InitialStateSteps, EventField, Step } from '../..';
+import StepsValidator from '../validate/stepsValidator';
+import { changeValueSteps } from '../changeValues';
 import cloneDeep from 'lodash/cloneDeep';
-import { activeStep } from '../';
-import StepValidator from './validate/stepValidator';
+import { activeStep } from '../..';
+import StepValidator from '../validate/stepValidator';
 
 declare type Callback = () => void;
 
