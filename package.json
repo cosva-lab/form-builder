@@ -1,6 +1,6 @@
 {
   "name": "@cosva-lab/form-builder",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "description": "React form builder.",
   "author": "andres112013",
   "license": "MIT",
@@ -42,6 +42,7 @@
     "react-select": "^3.0.5",
     "react-sortable-hoc": "^1.10.1",
     "recompose": "^0.30.0",
+    "rollup-plugin-terser": "^5.1.2",
     "validator": "^11.1.0"
   },
   "peerDependencies": {

@@ -16,7 +16,7 @@ export class FieldRender
   static defaultProps = {
     ns: 'inputs',
     transPosition: false,
-    sm: 12,
+    xs: 12,
     search: {
       state: false,
     },
@@ -30,10 +30,11 @@ export class FieldRender
 
   public render() {
     const { props } = this;
-    const { sm } = props;
+    const { xs } = props;
+    const { sm = xs } = props;
     const { md = sm } = props;
     const { lg = md } = props;
-    const { xs = lg } = props;
+    const { xl = lg } = props;
     const {
       state = true,
       render,
@@ -78,7 +79,7 @@ export class FieldRender
       return null;
     }
     return (
-      <Grid item sm={sm} md={md} lg={lg} xs={xs}>
+      <Grid item xs={xs} sm={sm} md={md} lg={lg} xl={xl}>
         {formInput}
       </Grid>
     );

@@ -5,6 +5,7 @@ import { JSXElementConstructor } from 'react';
 import { StepperProps } from '@material-ui/core/Stepper';
 import StepValidator from './utils/validate/stepValidator';
 import i18next from 'i18next';
+import { Breakpoint } from '@material-ui/core/styles/createBreakpoints';
 
 export interface Message {
   ns?: string;
@@ -220,7 +221,8 @@ type typeForm =
 
 export interface PropsField<V = value>
   extends Validations,
-    ComponentField {
+    ComponentField,
+    Partial<Record<Breakpoint, boolean | GridSize>> {
   fields?: PropsField[];
   fieldProxy?: PropsField;
   extraProps?: ExtraProps;
@@ -257,10 +259,6 @@ export interface PropsField<V = value>
     state: boolean;
     value: number;
   };
-  sm?: GridSize;
-  md?: GridSize;
-  lg?: GridSize;
-  xs?: GridSize;
 }
 
 export interface FieldRenderProps

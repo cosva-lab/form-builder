@@ -1,10 +1,11 @@
 import commonjs from 'rollup-plugin-commonjs';
 import external from 'rollup-plugin-peer-deps-external';
 import resolve from 'rollup-plugin-node-resolve';
+import { terser as minify } from 'rollup-plugin-terser';
 
 export default [
   {
-    input: 'lib/index.js',
+    input: 'build/esm/index.js',
     onwarn: function(warning) {
       // Skip certain warnings
 
@@ -22,13 +23,6 @@ export default [
         format: 'umd',
         name: 'FormBuilder',
         exports: 'named',
-        sourcemap: true,
-      },
-      {
-        file: 'build/umd/form-builder.production.min.js',
-        format: 'umd',
-        exports: 'named',
-        name: 'FormBuilder',
         sourcemap: true,
       },
     ],

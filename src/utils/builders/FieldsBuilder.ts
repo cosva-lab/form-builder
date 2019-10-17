@@ -126,9 +126,9 @@ class FieldsBuilder extends InputsValidator
     return fields;
   };
 
-  changeField = (callback?: Callback) => {
-    return ({ target }: EventField, callbackEvent?: Callback) => {
-      const { value, name } = target;
+  changeField = (callback?: (event: EventField) => void) => {
+    return (event: EventField, callbackEvent?: Callback) => {
+      const { value, name } = event.target;
       changeValueFields({
         fields: this.fields,
         action: {
@@ -136,7 +136,7 @@ class FieldsBuilder extends InputsValidator
           value,
         },
       });
-      callback && callback();
+      callback && callback(event);
       callbackEvent && callbackEvent();
     };
   };
