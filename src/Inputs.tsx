@@ -28,14 +28,19 @@ const Inputs = (props: FormInputProps) => {
     fullWidth,
     autoComplete,
     fieldProxy,
+    textFieldProps,
   } = props;
   switch (type) {
-    case 'text':
-    case 'number':
-    case 'email':
-    case 'password':
-    case 'time':
     case 'date':
+    case 'email':
+    case 'number':
+    case 'password':
+    case 'search':
+    case 'tel':
+    case 'text':
+    case 'time':
+    case 'url':
+    case 'week':
       return (
         <Input
           {...{
@@ -51,6 +56,7 @@ const Inputs = (props: FormInputProps) => {
             fullWidth,
             autoComplete,
             fieldProxy,
+            textFieldProps,
           }}
         />
       );
