@@ -72,6 +72,55 @@ class InputComponent extends React.PureComponent<
     }
   }
 
+  textFieldProps = (): InputProps['textFieldProps'] => {
+    const { textFieldProps } = this.props;
+    if (!textFieldProps) return undefined;
+    const {
+      multiline,
+      rows,
+      autoComplete,
+      autoFocus,
+      color,
+      defaultValue,
+      disabled,
+      FormHelperTextProps,
+      fullWidth,
+      helperText,
+      id,
+      InputLabelProps,
+      inputRef,
+      label,
+      margin,
+      placeholder,
+      required,
+      rowsMax,
+      select,
+      SelectProps,
+    } = textFieldProps;
+    return {
+      multiline,
+      rows,
+      autoComplete,
+      autoFocus,
+      color,
+      defaultValue,
+      disabled,
+      FormHelperTextProps,
+      fullWidth,
+      helperText,
+      id,
+      InputLabelProps,
+      inputRef,
+      label,
+      margin,
+      placeholder,
+      required,
+      rowsMax,
+      select,
+      SelectProps,
+    };
+  };
+
   public render() {
     const {
       ns,
@@ -149,6 +198,7 @@ class InputComponent extends React.PureComponent<
             this.lastValue = targetValue;
           }}
           {...{
+            ...this.textFieldProps(),
             name,
             type,
             value,

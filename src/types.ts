@@ -1,17 +1,18 @@
+import { JSXElementConstructor } from 'react';
 import { GridSize, GridProps } from '@material-ui/core/Grid';
 import { OutlinedInputProps } from '@material-ui/core/OutlinedInput';
-import { ActionsFiles } from './inputsTypes/FileInput/Props';
-import { JSXElementConstructor } from 'react';
 import { StepperProps } from '@material-ui/core/Stepper';
+import { ActionsFiles } from './inputsTypes/FileInput/Props';
 import StepValidator from './utils/validate/stepValidator';
-import i18next from 'i18next';
 import { Breakpoint } from '@material-ui/core/styles/createBreakpoints';
+import { TOptions } from 'i18next';
+import { TextFieldProps } from '@material-ui/core/TextField';
 
 export interface Message {
   ns?: string;
   message: string;
   state?: boolean;
-  props?: i18next.TOptions;
+  props?: TOptions;
 }
 
 export interface EventField {
@@ -204,20 +205,24 @@ interface ComponentField {
 }
 
 type typeForm =
-  | 'time'
-  | 'text'
-  | 'file'
-  | 'number'
-  | 'email'
-  | 'date'
-  | 'password'
-  | 'list'
-  | 'table'
   | 'autoComplete'
-  | 'chips'
   | 'checkbox'
+  | 'chips'
   | 'component'
-  | 'listSwitch';
+  | 'date'
+  | 'email'
+  | 'file'
+  | 'list'
+  | 'listSwitch'
+  | 'number'
+  | 'password'
+  | 'search'
+  | 'table'
+  | 'tel'
+  | 'text'
+  | 'time'
+  | 'url'
+  | 'week';
 
 export interface PropsField<V = value>
   extends Validations,
@@ -233,10 +238,10 @@ export interface PropsField<V = value>
   defaultInputValue?: V;
   label?:
     | string
-    | Message & {
+    | (Message & {
         notPos?: boolean;
         transPosition?: transPosition;
-      };
+      });
   ns?: string;
   render?: render;
   disabled?: boolean;
@@ -254,7 +259,30 @@ export interface PropsField<V = value>
       callback?: () => void,
     ) => void;
   }) => Partial<OutlinedInputProps>;
-  actionsExtra?: {};
+  textFieldProps?: Pick<
+    TextFieldProps,
+    | 'multiline'
+    | 'rows'
+    | 'autoComplete'
+    | 'autoFocus'
+    | 'color'
+    | 'defaultValue'
+    | 'disabled'
+    | 'FormHelperTextProps'
+    | 'fullWidth'
+    | 'helperText'
+    | 'id'
+    | 'InputLabelProps'
+    | 'inputRef'
+    | 'label'
+    | 'margin'
+    | 'placeholder'
+    | 'required'
+    | 'rowsMax'
+    | 'select'
+    | 'SelectProps'
+  >;
+  actionsExtPropsra?: {};
   search?: {
     state: boolean;
     value: number;
@@ -279,7 +307,17 @@ export interface FormInputProps extends BaseProps {
 export interface BaseProps extends PropsField, ChangeField {}
 
 export interface InputProps extends BaseProps {
-  type: 'text' | 'number' | 'email' | 'date' | 'password' | 'time';
+  type:
+    | 'date'
+    | 'email'
+    | 'number'
+    | 'password'
+    | 'search'
+    | 'tel'
+    | 'text'
+    | 'time'
+    | 'url'
+    | 'week';
 }
 
 export interface InputPropsComplete extends BaseProps {
