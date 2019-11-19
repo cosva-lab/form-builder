@@ -40,7 +40,6 @@ class InputComponent extends React.PureComponent<
   { type: InputProps['type'] }
 > {
   static defaultProps: Partial<AllProps> = {
-    type: 'text',
     error: {
       ns: 'validations',
       props: {},

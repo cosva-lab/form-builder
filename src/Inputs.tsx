@@ -41,6 +41,7 @@ const Inputs = (props: FormInputProps) => {
     case 'time':
     case 'url':
     case 'week':
+    case undefined:
       return (
         <Input
           {...{
@@ -194,7 +195,6 @@ const Inputs = (props: FormInputProps) => {
 };
 
 Inputs.defaultProps = {
-  type: 'text',
   disabled: false,
   multiple: true,
   extraProps: {},

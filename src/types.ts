@@ -307,7 +307,7 @@ export interface FormInputProps extends BaseProps {
 export interface BaseProps extends PropsField, ChangeField {}
 
 export interface InputProps extends BaseProps {
-  type:
+  type?:
     | 'date'
     | 'email'
     | 'number'
