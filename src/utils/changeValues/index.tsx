@@ -6,14 +6,12 @@ import {
   ChangeValueFields,
   ChangeValueSteps,
 } from '../../';
+import { ChangeValueField } from '../../types';
 
 function changeValueField({
   field,
   action,
-}: {
-  field: PropsField;
-  action: any;
-}): PropsField {
+}: ChangeValueField): PropsField {
   field.value = action.value;
   if (field.error) {
     if (field.error.state) field.error.state = false;

@@ -7,7 +7,7 @@ import withStyles, {
 } from '@material-ui/core/styles/withStyles';
 import TextField from '@material-ui/core/TextField';
 import FormControl from '@material-ui/core/FormControl';
-import { Animation, getMessage } from '../MessagesTranslate';
+import { Animation, getMessage } from '../MessageTranslate';
 import { Theme } from '@material-ui/core/styles/createMuiTheme';
 import createStyles from '@material-ui/core/styles/createStyles';
 import { InputProps } from '..';
@@ -35,7 +35,7 @@ const styles = (theme: Theme) =>
 interface AllProps extends InputProps, WithStyles<typeof styles> {}
 
 @observer
-class InputComponent extends React.PureComponent<
+class InputComponent extends React.Component<
   AllProps,
   { type: InputProps['type'] }
 > {

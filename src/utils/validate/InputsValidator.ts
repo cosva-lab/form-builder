@@ -46,19 +46,20 @@ class InputsValidator {
         };
 
         const { fields } = this;
-        field.validations &&
-          field.validations.forEach(validation => {
+        if (field.validations) {
+          for (const validation of field.validations) {
             if (typeof validation === 'object') {
               validationsObj.push(validation);
             } else {
               setError(
-                validation({ fields }) || {
+                await validation({ fields }) || {
                   state: false,
                   message: '',
                 },
               );
             }
-          });
+          }
+        }
 
         const validation = new InputValidator(field);
         const message = await validation.haveErrors();

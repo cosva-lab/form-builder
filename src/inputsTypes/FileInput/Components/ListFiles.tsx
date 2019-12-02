@@ -16,7 +16,7 @@ import {
   SortableElement as sortableElement,
 } from 'react-sortable-hoc';
 
-import { getMessage } from '../../../MessagesTranslate';
+import { getMessage } from '../../../MessageTranslate';
 import { transformLabel } from '../../../utils/transformLabel';
 import {
   handleChangeFiles,
@@ -254,31 +254,30 @@ export class ListFiles extends React.Component<
             )}
             {isEmpty && (
               <Grid item xs={12} className={classes.gridFileEmpity}>
-                <React.Fragment>
-                  <Typography
-                    style={{
-                      width: '100%',
-                    }}
-                    align="center"
-                    variant="h2"
-                    component={CloudUploadIcon as any}
-                  />
-                  <Typography align="center" variant="h5">
-                    {getMessage(transformLabel({ label, ns, name }))}
-                  </Typography>
-                  <Typography align="center" variant="h6">
-                    {getMessage({
-                      message: ``,
-                      ns: ns,
-                      styles: {
-                        top: '-8px',
-                        position: 'absolute',
-                      },
-                      props: {},
-                      ...subLabel,
-                    })}
-                  </Typography>
-                </React.Fragment>
+                <Typography
+                  style={{
+                    width: '100%',
+                  }}
+                  align="center"
+                  variant="h2"
+                >
+                  <CloudUploadIcon fontSize="inherit" />
+                </Typography>
+                <Typography align="center" variant="h5">
+                  {getMessage(transformLabel({ label, ns, name }))}
+                </Typography>
+                <Typography align="center" variant="h6">
+                  {getMessage({
+                    message: ``,
+                    ns,
+                    styles: {
+                      top: '-8px',
+                      position: 'absolute',
+                    },
+                    props: {},
+                    ...subLabel,
+                  })}
+                </Typography>
               </Grid>
             )}
           </Grid>

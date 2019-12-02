@@ -1,11 +1,12 @@
 import React from 'react';
+import { observer } from 'mobx-react';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import arrayMove from 'array-move';
 
-import { getMessage, Animation } from '../../MessagesTranslate';
+import { getMessage, Animation } from '../../MessageTranslate';
 import {
   Props,
   State,
@@ -26,6 +27,7 @@ const defaultPropsExtra = {
   subLabel: undefined,
 };
 
+@observer
 class FileInput extends React.PureComponent<Props, State> {
   static defaultProps = {
     extraProps: defaultPropsExtra,
@@ -126,6 +128,20 @@ class FileInput extends React.PureComponent<Props, State> {
       const lookup = res && res.lookup;
 
       for (const file of tempFiles) {
+        const { value } = this.propsParse;
+        if (
+          value.some(({ file: tempFile }) => {
+            if (!tempFile) return false;
+            const { type, name, size } = tempFile;
+            return (
+              type === file.type &&
+              name === file.name &&
+              size === file.size
+            );
+          })
+        )
+          continue;
+
         const va: FileValue = {
           url: URL.createObjectURL(file),
           file,
@@ -175,15 +191,9 @@ class FileInput extends React.PureComponent<Props, State> {
               }
             })
             .catch(err => (userErr = err));
-          if (!callBack) {
-            callBack = () => {};
-          }
-          if (this.isMount) {
-            this.setState({ loading: false });
-          }
-          if (userErr) {
-            throw userErr;
-          }
+          if (!callBack) callBack = () => {};
+          if (this.isMount) this.setState({ loading: false });
+          if (userErr) throw userErr;
         }
       }
       if (valueTemp.length) {
@@ -191,6 +201,7 @@ class FileInput extends React.PureComponent<Props, State> {
           this.clearValueTemp();
         }, 2000);
       }
+
       if (this.isMount) {
         this.setState(
           {
@@ -226,14 +237,14 @@ class FileInput extends React.PureComponent<Props, State> {
     );
     if (this.isMount) {
       this.setChangeField(files);
-      this.setState({
-        loading: true,
-      });
     }
     let userErr: any;
     if (onSort) {
       const call = onSort({ changedFiles, sort });
       if (call instanceof Promise) {
+        this.setState({
+          loading: true,
+        });
         await call
           .then(result => {
             if (result) {
@@ -249,20 +260,25 @@ class FileInput extends React.PureComponent<Props, State> {
     }
 
     if (this.isMount) {
-      this.setState(
-        {
-          loading: false,
-        },
-        () => {
+      const setChangeField = () => {
+        if (userErr)
           this.setChangeField(
-            userErr ? oldValue : files,
+            oldValue,
             () => {
               callBack && callBack();
             },
             { changeStateComponent: false },
           );
-        },
-      );
+        else callBack && callBack();
+      };
+      if (this.state.loading)
+        this.setState(
+          {
+            loading: false,
+          },
+          setChangeField,
+        );
+      else setChangeField();
     } else {
       callBack && callBack();
     }
@@ -345,7 +361,8 @@ class FileInput extends React.PureComponent<Props, State> {
             new RegExp(`${a.replace(/(\.\*|\.|\*)$/, '')}.*`),
           );
         }) ||
-        ('*' === acceptFiles || acceptFiles === '')
+        '*' === acceptFiles ||
+        acceptFiles === ''
       );
 
     const hasExtensions = (): boolean => {

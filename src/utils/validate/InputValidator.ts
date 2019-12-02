@@ -2,25 +2,19 @@ import { Validation, AllPropsValidationFunction } from '../..';
 import { ValidationFunction, PropsField, Step, Message } from '../..';
 
 class InputValidator {
-  public validations: (Validation | ValidationFunction)[] = [];
-  public validate?: boolean;
-  public value?: any;
-  public changed?: boolean;
-  public validChange?: boolean;
-  public activeStep?: number;
-  public fields?: PropsField[];
-  public steps?: Step[];
+  public props: AllPropsValidationFunction;
+  public get activeStep(): undefined | number { return this.props.activeStep }
+  public get changed(): undefined | boolean { return this.props.changed }
+  public get fields(): undefined | PropsField[] { return this.props.fields }
+  public get steps(): undefined | Step[] { return this.props.steps }
+  public get validChange(): undefined | boolean { return this.props.validChange }
+  public get validate(): undefined | boolean { return this.props.validate }
+  public get validations(): ((Validation | ValidationFunction)[]) { return this.props.validations || [] }
+  public get value(): undefined | any { return this.props.value }
 
   constructor(props: AllPropsValidationFunction) {
     // validations is an array of validation rules specific to a form
-    this.validations = props.validations || [];
-    this.validate = props.validate;
-    this.changed = props.changed;
-    this.value = props.value;
-    this.validChange = props.validChange;
-    this.fields = props.fields;
-    this.steps = props.steps;
-    this.activeStep = props.activeStep;
+    this.props = props;
     this.haveErrors = this.haveErrors.bind(this);
   }
 
@@ -39,9 +33,7 @@ class InputValidator {
     if (!validate && !changed) {
       return messageResult;
     }
-    const validator = await import('validator').catch(
-      () => undefined,
-    );
+
     if (
       typeof this.validations === 'object' &&
       (validChange || validate)
@@ -139,6 +131,9 @@ class InputValidator {
             console.error(rule, `the rule don't exists`);
             rule = 'isEmpty';
           } else {
+            const validator = await import('validator').catch(
+              () => undefined,
+            );
             if (validator && validator[rule]) {
               const validationMethod: any = validator[rule];
               let bolean = false;
@@ -168,7 +163,7 @@ class InputValidator {
             }
           }
         } else {
-          const temPError = validation({
+          const temPError = await validation({
             fields,
             steps,
             activeStep,

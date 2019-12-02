@@ -1,6 +1,5 @@
 import React from 'react';
 import { observer } from 'mobx-react';
-import compose from 'recompose/compose';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import {
@@ -27,9 +26,8 @@ import { PlaceholderProps } from 'react-select/src/components/Placeholder';
 import { SingleValueProps } from 'react-select/src/components/SingleValue';
 import { BaseProps } from '..';
 import { WithStyles } from '@material-ui/styles';
-import { WithTranslation, useTranslation } from 'react-i18next';
 import Loading from '../Loading';
-import { getMessage } from '../MessagesTranslate';
+import { getMessage } from '../MessageTranslate';
 import { transformLabel } from '../utils/transformLabel';
 
 const Select = React.lazy(() => import('react-select'));
@@ -276,10 +274,7 @@ interface Props extends BaseProps {
   type?: 'autoComplete';
 }
 
-interface AllProps
-  extends Props,
-    WithTranslation,
-    WithStyles<typeof styles, true> {}
+interface AllProps extends Props, WithStyles<typeof styles, true> {}
 
 @observer
 class AutoCompleteComponent extends React.Component<
@@ -297,7 +292,6 @@ class AutoCompleteComponent extends React.Component<
       extraProps,
       name,
       label,
-      t,
       defaultInputValue,
       changeField,
       value,
@@ -337,7 +331,7 @@ class AutoCompleteComponent extends React.Component<
     };
     let placeholder: React.ReactNode = name;
     if (typeof label === 'string') {
-      placeholder = t(label);
+      placeholder = label;
     } else if (typeof label === 'object') {
       placeholder = getMessage(label);
     } else {
@@ -421,24 +415,9 @@ class AutoCompleteComponent extends React.Component<
   }
 }
 
-export const AutoComplete = compose<AllProps, Props>(
-  (WrappedComponent: any) => (props: AllProps) => {
-    const [t, i18n, ready] = useTranslation(props.ns);
-    return (
-      <WrappedComponent
-        {...{
-          ...props,
-          t,
-          i18n,
-          tReady: ready,
-        }}
-      />
-    );
-  },
-  withStyles(styles, {
-    name: 'AutoComplete',
-    withTheme: true,
-  }),
-)(AutoCompleteComponent);
+export const AutoComplete = withStyles(styles, {
+  name: 'AutoComplete',
+  withTheme: true,
+})(AutoCompleteComponent);
 
 export default AutoComplete;

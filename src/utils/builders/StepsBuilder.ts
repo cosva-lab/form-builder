@@ -61,12 +61,12 @@ export default class StepsBuilder extends StepsValidator
     validate,
     activeStep,
   }) => {
-    this.ns = ns;
-    this.isNew = isNew;
-    this.validationState = validationState;
-    this.validate = validate;
-    this.activeStep = activeStep;
-  };
+      this.ns = ns;
+      this.isNew = isNew;
+      this.validationState = validationState;
+      this.validate = validate;
+      this.activeStep = activeStep;
+    };
 
   restoreLast() {
     if (this.parmsLast) {
@@ -132,7 +132,6 @@ export default class StepsBuilder extends StepsValidator
   changeField(callback?: Callback) {
     return ({ target }: EventField) => {
       const { value, name } = target;
-      console.log(target, this.steps);
       changeValueSteps({
         activeStep: this.activeStep,
         steps: this.steps,

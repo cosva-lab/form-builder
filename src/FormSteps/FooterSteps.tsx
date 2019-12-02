@@ -11,7 +11,7 @@ import pink from '@material-ui/core/colors/pink';
 
 import createStyles from '@material-ui/core/styles/createStyles';
 import { StepsRender, InitialStateSteps } from '..';
-import { getMessage } from '../MessagesTranslate';
+import { getMessage } from '../MessageTranslate';
 
 const styles = () =>
   createStyles({

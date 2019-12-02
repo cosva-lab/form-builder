@@ -60,9 +60,14 @@ export interface InitialStateFields extends InitialState {
   fields: PropsField[];
 }
 
+export interface ChangeValueField {
+  field: PropsField;
+  action: EventField['target'];
+}
+
 export interface ChangeValueFields {
   fields: PropsField[];
-  action: { value: any; name: string };
+  action: EventField['target'];
 }
 
 export interface ChangeValueSteps {
@@ -137,21 +142,21 @@ export interface Validation {
   args?: any;
 }
 
-export interface AllPropsValidationFunction
-  extends Partial<Validate> {
+export interface AllPropsValidationFunction<V = value>
+  extends Partial<Validate<V>> {
   fields?: PropsField[];
   steps?: Step[];
   activeStep?: activeStep;
 }
 
-export type ValidationFunction = (
-  all: AllPropsValidationFunction,
-) => Message | void;
+export type ValidationFunction<V = value> = (
+  all: AllPropsValidationFunction<V>,
+) => Message | Promise<Message> | void;
 
-export interface Validations {
+export interface Validations<V = value> {
   validate?: boolean;
-  value: any;
-  validations?: (Validation | ValidationFunction)[];
+  value: V;
+  validations?: (Validation | ValidationFunction<V>)[];
   changed?: boolean;
   validChange?: boolean;
 }
@@ -159,9 +164,9 @@ export interface Validations {
 export interface ExtraProps extends ActionsFiles {
   helpMessage?: boolean;
   searchField?:
-    | string
-    | number
-    | ((e: PropsField[]) => string | number);
+  | string
+  | number
+  | ((e: PropsField[]) => string | number);
   searchId?: string;
   search?: { state: boolean; value: string | number };
   renderItem?: React.ReactNode;
@@ -194,14 +199,14 @@ export type ChildrenRender = React.ReactElement<
 >;
 type render = (element: {
   children: ChildrenRender;
-  props: FieldRenderComponetsProps;
+  props: FieldRenderComponentProps;
 }) => React.CElement<any, any>;
 
 interface ComponentField {
   component?:
-    | React.ReactElement<FieldRenderComponetsProps>
-    | React.ComponentClass<FieldRenderComponetsProps>
-    | React.Component<FieldRenderComponetsProps>;
+  | React.ReactElement<FieldRenderComponentProps>
+  | React.ComponentClass<FieldRenderComponentProps>
+  | React.Component<FieldRenderComponentProps>;
 }
 
 type typeForm =
@@ -224,10 +229,11 @@ type typeForm =
   | 'url'
   | 'week';
 
+export function createField<V = value>(params: PropsField<V>): PropsField<V> { return params; }
 export interface PropsField<V = value>
-  extends Validations,
-    ComponentField,
-    Partial<Record<Breakpoint, boolean | GridSize>> {
+  extends Validations<V>,
+  ComponentField,
+  Partial<Record<Breakpoint, boolean | GridSize>> {
   fields?: PropsField[];
   fieldProxy?: PropsField;
   extraProps?: ExtraProps;
@@ -237,11 +243,11 @@ export interface PropsField<V = value>
   value: V;
   defaultInputValue?: V;
   label?:
-    | string
-    | (Message & {
-        notPos?: boolean;
-        transPosition?: transPosition;
-      });
+  | string
+  | (Message & {
+    notPos?: boolean;
+    transPosition?: transPosition;
+  });
   ns?: string;
   render?: render;
   disabled?: boolean;
@@ -291,11 +297,11 @@ export interface PropsField<V = value>
 
 export interface FieldRenderProps
   extends Validations,
-    PropsField,
-    InitialState {}
+  PropsField,
+  InitialState { }
 
-export interface Validate extends Validations {
-  value: value;
+export interface Validate<V = value> extends Validations {
+  value: V;
   state?: boolean;
 }
 
@@ -304,20 +310,20 @@ export interface FormInputProps extends BaseProps {
   route: string;
 }
 
-export interface BaseProps extends PropsField, ChangeField {}
+export interface BaseProps extends PropsField, ChangeField { }
 
 export interface InputProps extends BaseProps {
   type?:
-    | 'date'
-    | 'email'
-    | 'number'
-    | 'password'
-    | 'search'
-    | 'tel'
-    | 'text'
-    | 'time'
-    | 'url'
-    | 'week';
+  | 'date'
+  | 'email'
+  | 'number'
+  | 'password'
+  | 'search'
+  | 'tel'
+  | 'text'
+  | 'time'
+  | 'url'
+  | 'week';
 }
 
 export interface InputPropsComplete extends BaseProps {
@@ -331,9 +337,9 @@ export interface InputPropsChips extends BaseProps {
 export interface InputPropsSwitchList extends BaseProps {
   type: 'listSwitch';
 }
-export interface FieldRenderComponetsProps
+export interface FieldRenderComponentProps
   extends FieldRenderProps,
-    BaseBuilder {}
+  BaseBuilder { }
 
 export interface BaseBuilder extends ChangeField {
   getSteps?: () => Step[];

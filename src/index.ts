@@ -5,6 +5,6 @@ export { Inputs } from './Inputs';
 
 export { StepsBuilder, FieldsBuilder, transformLabel } from './utils';
 
-export * from './MessagesTranslate';
+export * from './MessageTranslate';
 export * from './inputsTypes';
 export * from './types';

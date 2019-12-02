@@ -4,14 +4,14 @@ import { Observer } from 'mobx-react';
 import Grid from '@material-ui/core/Grid';
 import Inputs from './Inputs';
 import {
-  FieldRenderComponetsProps,
+  FieldRenderComponentProps,
   changeField,
   ChangeField,
 } from './';
 import { Message } from './types';
 
 export class FieldRender
-  extends React.PureComponent<FieldRenderComponetsProps>
+  extends React.PureComponent<FieldRenderComponentProps>
   implements ChangeField {
   static defaultProps = {
     ns: 'inputs',
@@ -65,7 +65,7 @@ export class FieldRender
         return (
           <Observer>
             {() =>
-              React.createElement<FieldRenderComponetsProps>(
+              React.createElement<FieldRenderComponentProps>(
                 Component as any,
                 {
                   ...propsForm,
