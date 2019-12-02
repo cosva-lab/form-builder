@@ -1,24 +1,29 @@
 {
-  "name": "@cosva-lab/form-builder-example",
-  "homepage": "https://andres112013.github.io/@cosva-lab/form-builder",
-  "version": "0.0.0",
-  "license": "MIT",
+  "name": "my-app",
+  "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@cosva-lab/form-builder": "^1.0.12",
-    "@material-ui/core": "^4.4.3",
-    "@material-ui/icons": "^4.4.3",
-    "@material-ui/styles": "^4.4.3",
-    "prop-types": "^15.6.2",
-    "react": "^16.4.1",
-    "react-dom": "^16.4.1",
-    "react-scripts": "^3.1.2"
+    "@material-ui/core": "^4.7.1",
+    "@material-ui/icons": "^4.5.1",
+    "@types/jest": "24.0.23",
+    "@types/node": "12.12.14",
+    "@types/react": "16.9.13",
+    "@types/react-dom": "16.9.4",
+    "babel-plugin-import": "^1.13.0",
+    "customize-cra": "^0.9.1",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0",
+    "react-scripts": "3.2.0",
+    "typescript": "3.7.2"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject"
+    "start": " react-app-rewired --inspect=5622 start",
+    "build": " react-app-rewired build",
+    "test": " react-app-rewired test",
+    "eject": " react-app-rewired eject"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
   },
   "browserslist": {
     "production": [
@@ -31,5 +36,20 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  }
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^1.13.0",
+    "@typescript-eslint/parser": "^1.13.0",
+    "eslint-config-google": "^0.13.0",
+    "eslint-config-prettier": "^6.3.0",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-prettier": "^3.1.0",
+    "eslint-plugin-react": "^7.14.3",
+    "prettier": "^1.19.1",
+    "react-app-rewire-module-resolver": "^1.0.0",
+    "react-app-rewired": "^2.1.5"
+  },
+  "eslintIgnore": [
+    "src/@cosva-lab/**"
+  ]
 }
