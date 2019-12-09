@@ -1,25 +1,26 @@
 import { observable } from 'mobx';
-import { PropsField, FieldsAll, Validation, Message } from '../..';
-import InputValidator from './InputValidator';
+import { FieldsAll, Validation, Message } from '../..';
+import FieldBuilder from '../builders/FieldBuilder';
+import { AllPropsValidationFunction } from '../../types';
 
 class InputsValidator {
   @observable public inValid = false;
   @observable public valid = true;
-  @observable public fields: PropsField[];
+  @observable public fields: FieldBuilder[];
 
   constructor(fields: FieldsAll) {
-    this.fields = observable(fields);
+    this.fields = fields.map(field => new FieldBuilder(field));
     this.callbackField = this.callbackField.bind(this);
     this.addErrors = this.addErrors.bind(this);
     this.haveErrors = this.haveErrors.bind(this);
   }
 
-  private setE(field: PropsField) {
+  private setE(field: FieldBuilder) {
     if (!field.validate) field.validate = true;
     if (!field.changed) field.changed = true;
   }
 
-  async callbackField(callback: (field: PropsField) => void) {
+  async callbackField(callback: (field: FieldBuilder) => void) {
     const fields = this.fields;
     for (const field of this.fields) {
       await callback(field);
@@ -27,7 +28,7 @@ class InputsValidator {
     return fields;
   }
 
-  async haveErrors() {
+  async haveErrors(props?: AllPropsValidationFunction) {
     this.inValid = false;
     this.valid = true;
     await this.callbackField(async field => {
@@ -52,7 +53,7 @@ class InputsValidator {
               validationsObj.push(validation);
             } else {
               setError(
-                await validation({ fields }) || {
+                (await validation({ ...props, fields })) || {
                   state: false,
                   message: '',
                 },
@@ -61,8 +62,7 @@ class InputsValidator {
           }
         }
 
-        const validation = new InputValidator(field);
-        const message = await validation.haveErrors();
+        const message = await field.haveErrors(props);
         setError(message);
       } catch (e) {
         this.inValid = true;

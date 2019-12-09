@@ -8,7 +8,7 @@ import {
   changeField,
   ChangeField,
 } from './';
-import { Message } from './types';
+import { Message, BreakpointsField } from './types';
 
 export class FieldRender
   extends React.PureComponent<FieldRenderComponentProps>
@@ -16,7 +16,6 @@ export class FieldRender
   static defaultProps = {
     ns: 'inputs',
     transPosition: false,
-    xs: 12,
     search: {
       state: false,
     },
@@ -30,11 +29,12 @@ export class FieldRender
 
   public render() {
     const { props } = this;
-    const { xs } = props;
-    const { sm = xs } = props;
-    const { md = sm } = props;
-    const { lg = md } = props;
-    const { xl = lg } = props;
+    const breakpoints: BreakpointsField = { ...props.breakpoints };
+    const { xs = 12 } = breakpoints;
+    const { sm = xs } = breakpoints;
+    const { md = sm } = breakpoints;
+    const { lg = md } = breakpoints;
+    const { xl = lg } = breakpoints;
     const {
       state = true,
       render,

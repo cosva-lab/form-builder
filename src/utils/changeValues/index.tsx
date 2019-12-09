@@ -28,12 +28,13 @@ function changeValueField({
 }
 
 const changeValueFields: (props: ChangeValueFields) => void = ({
-  fields,
+  fieldsBuilder,
   action,
 }) => {
+  const { fields } = fieldsBuilder;
   const index = fields.findIndex(({ name }) => name === action.name);
   if (index !== -1)
-    changeValueField({ field: fields[index], action });
+    changeValueField({ fieldsBuilder, field: fields[index], action });
 };
 
 function changeValueSteps({

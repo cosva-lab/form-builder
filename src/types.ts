@@ -6,6 +6,8 @@ import { ActionsFiles } from './inputsTypes/FileInput/Props';
 import StepValidator from './utils/validate/stepValidator';
 import { Breakpoint } from '@material-ui/core/styles/createBreakpoints';
 import { TextFieldProps } from '@material-ui/core/TextField';
+import FieldsBuilder from './utils/builders/FieldsBuilder';
+import FieldBuilder from './utils/builders/FieldBuilder';
 
 export interface Message {
   ns?: string;
@@ -60,12 +62,13 @@ export interface InitialStateFields extends InitialState {
 }
 
 export interface ChangeValueField {
+  fieldsBuilder: FieldsBuilder;
   field: PropsField;
   action: EventField['target'];
 }
 
 export interface ChangeValueFields {
-  fields: PropsField[];
+  fieldsBuilder: FieldsBuilder;
   action: EventField['target'];
 }
 
@@ -143,7 +146,7 @@ export interface Validation {
 
 export interface AllPropsValidationFunction<V = value>
   extends Partial<Validate<V>> {
-  fields?: PropsField[];
+  fields?: FieldBuilder[];
   steps?: Step[];
   activeStep?: activeStep;
 }
@@ -196,19 +199,18 @@ export type ChildrenRender = React.ReactElement<
   FormInputProps,
   JSXElementConstructor<FormInputProps>
 >;
-type render = (element: {
+
+export type RenderField = (element: {
   children: ChildrenRender;
   props: FieldRenderComponentProps;
 }) => React.CElement<any, any>;
 
-interface ComponentField {
-  component?:
-    | React.ReactElement<FieldRenderComponentProps>
-    | React.ComponentClass<FieldRenderComponentProps>
-    | React.Component<FieldRenderComponentProps>;
-}
+export type ComponentField =
+  | React.ReactElement<FieldRenderComponentProps>
+  | React.ComponentClass<FieldRenderComponentProps>
+  | React.Component<FieldRenderComponentProps>;
 
-type typeForm =
+export type TypeField =
   | 'autoComplete'
   | 'checkbox'
   | 'chips'
@@ -233,69 +235,72 @@ export function createField<V = value>(
 ): PropsField<V> {
   return params;
 }
-export interface PropsField<V = value>
-  extends Validations<V>,
-    ComponentField,
-    Partial<Record<Breakpoint, boolean | GridSize>> {
-  fields?: PropsField[];
+export type TextFieldPropsField = Pick<
+  TextFieldProps,
+  | 'multiline'
+  | 'rows'
+  | 'autoComplete'
+  | 'autoFocus'
+  | 'color'
+  | 'defaultValue'
+  | 'disabled'
+  | 'FormHelperTextProps'
+  | 'fullWidth'
+  | 'helperText'
+  | 'id'
+  | 'InputLabelProps'
+  | 'inputRef'
+  | 'label'
+  | 'margin'
+  | 'placeholder'
+  | 'required'
+  | 'rowsMax'
+  | 'select'
+  | 'SelectProps'
+>;
+
+export type LabelPropsField =
+  | string
+  | (Message & {
+      notPos?: boolean;
+      transPosition?: transPosition;
+    });
+
+export type InputPropsField = (a: {
+  type: InputProps['type'];
+  changeType: (
+    type: InputProps['type'],
+    callback?: () => void,
+  ) => void;
+}) => Partial<OutlinedInputProps>;
+
+export type ErrorField = Message & { errorServer?: boolean };
+export type BreakpointsField = Partial<
+  Record<Breakpoint, boolean | GridSize>
+>;
+export interface PropsField<V = value> extends Validations<V> {
   fieldProxy?: PropsField;
   extraProps?: ExtraProps;
   extra?: extra;
-  type?: typeForm;
+  type?: TypeField;
   name: string;
   value: V;
   defaultInputValue?: V;
-  label?:
-    | string
-    | (Message & {
-        notPos?: boolean;
-        transPosition?: transPosition;
-      });
+  label?: LabelPropsField;
   ns?: string;
-  render?: render;
+  render?: RenderField;
   disabled?: boolean;
   waitTime?: boolean;
   fullWidth?: boolean;
   transPosition?: transPosition;
-  error?: Message & { errorServer?: boolean };
+  error?: ErrorField;
   state?: boolean;
   serverError?: string[] | string;
   autoComplete?: string;
-  inputProps?: (a: {
-    type: InputProps['type'];
-    changeType: (
-      type: InputProps['type'],
-      callback?: () => void,
-    ) => void;
-  }) => Partial<OutlinedInputProps>;
-  textFieldProps?: Pick<
-    TextFieldProps,
-    | 'multiline'
-    | 'rows'
-    | 'autoComplete'
-    | 'autoFocus'
-    | 'color'
-    | 'defaultValue'
-    | 'disabled'
-    | 'FormHelperTextProps'
-    | 'fullWidth'
-    | 'helperText'
-    | 'id'
-    | 'InputLabelProps'
-    | 'inputRef'
-    | 'label'
-    | 'margin'
-    | 'placeholder'
-    | 'required'
-    | 'rowsMax'
-    | 'select'
-    | 'SelectProps'
-  >;
-  actionsExtPropsra?: {};
-  search?: {
-    state: boolean;
-    value: number;
-  };
+  inputProps?: InputPropsField;
+  textFieldProps?: TextFieldPropsField;
+  breakpoints?: BreakpointsField;
+  component?: ComponentField;
 }
 
 export interface FieldRenderProps
@@ -303,8 +308,7 @@ export interface FieldRenderProps
     PropsField,
     InitialState {}
 
-export interface Validate<V = value> extends Validations {
-  value: V;
+export interface Validate<V = value> extends Validations<V> {
   state?: boolean;
 }
 

@@ -1,44 +1,59 @@
 import { Validation, AllPropsValidationFunction } from '../..';
-import { ValidationFunction, PropsField, Step, Message } from '../..';
+import { ValidationFunction, Message } from '../..';
+import { value, Validate } from '../../types';
+import { observable } from 'mobx';
 
-class InputValidator {
-  public props: AllPropsValidationFunction;
-  public get activeStep(): undefined | number { return this.props.activeStep }
-  public get changed(): undefined | boolean { return this.props.changed }
-  public get fields(): undefined | PropsField[] { return this.props.fields }
-  public get steps(): undefined | Step[] { return this.props.steps }
-  public get validChange(): undefined | boolean { return this.props.validChange }
-  public get validate(): undefined | boolean { return this.props.validate }
-  public get validations(): ((Validation | ValidationFunction)[]) { return this.props.validations || [] }
-  public get value(): undefined | any { return this.props.value }
+class InputValidator<V = value> implements Validate<V> {
+  @observable public validate?: boolean;
+  @observable public value: V;
+  @observable public validations?: (
+    | Validation
+    | ValidationFunction<V>
+  )[];
+  @observable public changed?: boolean;
+  @observable public validChange?: boolean;
+  @observable public state?: boolean;
 
-  constructor(props: AllPropsValidationFunction) {
+  constructor({
+    changed,
+    state = true,
+    validChange,
+    validate,
+    validations,
+    value,
+  }: Validate<V>) {
+    this.changed = changed;
+    this.state = state;
+    this.validChange = validChange;
+    this.validate = validate;
+    this.validations = validations;
+    this.value = value;
     // validations is an array of validation rules specific to a form
-    this.props = props;
     this.haveErrors = this.haveErrors.bind(this);
   }
 
-  async haveErrors(p?: AllPropsValidationFunction): Promise<Message> {
-    const value = (p && p.value) || this.value;
-    const validChange = (p && p.validChange) || this.validChange;
-    const validate = (p && p.validate) || this.validate;
-    const changed = (p && p.changed) || this.changed;
-    const fields = (p && p.fields) || this.fields;
-    const steps = (p && p.steps) || this.steps;
-    const activeStep = (p && p.activeStep) || this.activeStep;
+  async haveErrors(
+    props?: AllPropsValidationFunction,
+  ): Promise<Message> {
+    const {
+      changed,
+      validChange,
+      validate,
+      validations,
+      value,
+      state,
+    } = this;
+    const { activeStep, fields, steps } = { ...props };
     let messageResult: Message = {
       state: false,
       message: '',
     };
-    if (!validate && !changed) {
+    if (!validate && !changed && !state) {
       return messageResult;
     }
 
-    if (
-      typeof this.validations === 'object' &&
-      (validChange || validate)
-    ) {
-      for (const validation of this.validations) {
+    if (Array.isArray(validations) && (validChange || validate)) {
+      for (const validation of validations) {
         if (typeof validation === 'object') {
           let rule = validation.rule || 'isEmpty';
           const {
@@ -163,7 +178,7 @@ class InputValidator {
             }
           }
         } else {
-          const temPError = await validation({
+          const temPError = (await validation({
             fields,
             steps,
             activeStep,
@@ -171,7 +186,7 @@ class InputValidator {
             validChange,
             changed,
             validate,
-          }) || {
+          })) || {
             state: false,
             message: '',
           };

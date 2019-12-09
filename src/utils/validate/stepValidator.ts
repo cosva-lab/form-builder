@@ -2,6 +2,7 @@ import { observable } from 'mobx';
 
 import { Step } from '../..';
 import InputsValidator from './InputsValidator';
+import { AllPropsValidationFunction } from '../../types';
 
 class StepValidator implements Step {
   @observable private inValid = false;
@@ -44,11 +45,14 @@ class StepValidator implements Step {
     this.haveErrors = this.haveErrors.bind(this);
   }
 
-  async haveErrors() {
+  async haveErrors(
+    props?: Pick<AllPropsValidationFunction, 'steps' | 'activeStep'>,
+  ) {
     const fields = this.fields;
     this.inValid = false;
     const fieldsErrors = new InputsValidator(fields);
-    if (await fieldsErrors.haveErrors()) {
+    const { steps, activeStep } = { ...props };
+    if (await fieldsErrors.haveErrors({ steps, activeStep })) {
       this.inValid = true;
     }
     return this.inValid;

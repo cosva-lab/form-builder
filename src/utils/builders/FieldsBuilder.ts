@@ -49,13 +49,12 @@ class FieldsBuilder extends InputsValidator
     'fields' | 'ns' | 'isNew' | 'validationState' | 'validate'
   >;
 
-  get fieldsBuilder() {
-    return this;
-  }
-
   constructor(props: Props) {
     super(props.fields);
     const { ns, isNew, validationState, validate } = props;
+    for (const field of this.fields) {
+      field.fields = this.fields;
+    }
     this.setProps({
       ns,
       isNew,
@@ -130,7 +129,7 @@ class FieldsBuilder extends InputsValidator
     return (event: EventField, callbackEvent?: Callback) => {
       const { value, name } = event.target;
       changeValueFields({
-        fields: this.fields,
+        fieldsBuilder: this,
         action: {
           name,
           value,
