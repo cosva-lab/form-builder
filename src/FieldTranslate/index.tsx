@@ -18,19 +18,30 @@ interface Props extends Message {
   styles?: CSSProperties;
 }
 
-const MessageTranslate = React.createContext<
+const FieldTranslate = React.createContext<
   (props: Props) => React.ReactNode
 >(({ message }) => {
   return message;
 });
-const useMessageTranslate = () => React.useContext(MessageTranslate);
-const {
-  Provider: ProviderMessageTranslate,
-  Consumer: ConsumerMessageTranslate,
-} = MessageTranslate;
+
+const useFieldTranslate = () => React.useContext(FieldTranslate);
+
+export const FieldTranslateProvider = ({
+  children,
+  translator,
+}: React.PropsWithChildren<{
+  translator: (props: Message) => React.ReactNode;
+}>) => {
+  return (
+    <FieldTranslate.Provider value={translator}>
+      {children}
+    </FieldTranslate.Provider>
+  );
+};
+export const FieldTranslateConsumer = FieldTranslate.Consumer;
 
 const Comp = (props: Message) => {
-  const translate = useMessageTranslate();
+  const translate = useFieldTranslate();
   return <span>{translate(props)}</span>;
 };
 
@@ -61,5 +72,3 @@ getMessage.defaultProps = {
   styles: {},
   props: {},
 };
-
-export { ProviderMessageTranslate, ConsumerMessageTranslate };

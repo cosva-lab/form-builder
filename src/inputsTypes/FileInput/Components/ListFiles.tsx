@@ -16,7 +16,7 @@ import {
   SortableElement as sortableElement,
 } from 'react-sortable-hoc';
 
-import { getMessage } from '../../../MessageTranslate';
+import { getMessage } from '../../../FieldTranslate';
 import { transformLabel } from '../../../utils/transformLabel';
 import {
   handleChangeFiles,

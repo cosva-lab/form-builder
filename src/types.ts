@@ -5,14 +5,13 @@ import { StepperProps } from '@material-ui/core/Stepper';
 import { ActionsFiles } from './inputsTypes/FileInput/Props';
 import StepValidator from './utils/validate/stepValidator';
 import { Breakpoint } from '@material-ui/core/styles/createBreakpoints';
-import { TOptions } from 'i18next';
 import { TextFieldProps } from '@material-ui/core/TextField';
 
 export interface Message {
   ns?: string;
   message: string;
   state?: boolean;
-  props?: TOptions;
+  props?: any;
 }
 
 export interface EventField {
@@ -164,9 +163,9 @@ export interface Validations<V = value> {
 export interface ExtraProps extends ActionsFiles {
   helpMessage?: boolean;
   searchField?:
-  | string
-  | number
-  | ((e: PropsField[]) => string | number);
+    | string
+    | number
+    | ((e: PropsField[]) => string | number);
   searchId?: string;
   search?: { state: boolean; value: string | number };
   renderItem?: React.ReactNode;
@@ -204,9 +203,9 @@ type render = (element: {
 
 interface ComponentField {
   component?:
-  | React.ReactElement<FieldRenderComponentProps>
-  | React.ComponentClass<FieldRenderComponentProps>
-  | React.Component<FieldRenderComponentProps>;
+    | React.ReactElement<FieldRenderComponentProps>
+    | React.ComponentClass<FieldRenderComponentProps>
+    | React.Component<FieldRenderComponentProps>;
 }
 
 type typeForm =
@@ -229,11 +228,15 @@ type typeForm =
   | 'url'
   | 'week';
 
-export function createField<V = value>(params: PropsField<V>): PropsField<V> { return params; }
+export function createField<V = value>(
+  params: PropsField<V>,
+): PropsField<V> {
+  return params;
+}
 export interface PropsField<V = value>
   extends Validations<V>,
-  ComponentField,
-  Partial<Record<Breakpoint, boolean | GridSize>> {
+    ComponentField,
+    Partial<Record<Breakpoint, boolean | GridSize>> {
   fields?: PropsField[];
   fieldProxy?: PropsField;
   extraProps?: ExtraProps;
@@ -243,11 +246,11 @@ export interface PropsField<V = value>
   value: V;
   defaultInputValue?: V;
   label?:
-  | string
-  | (Message & {
-    notPos?: boolean;
-    transPosition?: transPosition;
-  });
+    | string
+    | (Message & {
+        notPos?: boolean;
+        transPosition?: transPosition;
+      });
   ns?: string;
   render?: render;
   disabled?: boolean;
@@ -297,8 +300,8 @@ export interface PropsField<V = value>
 
 export interface FieldRenderProps
   extends Validations,
-  PropsField,
-  InitialState { }
+    PropsField,
+    InitialState {}
 
 export interface Validate<V = value> extends Validations {
   value: V;
@@ -310,20 +313,20 @@ export interface FormInputProps extends BaseProps {
   route: string;
 }
 
-export interface BaseProps extends PropsField, ChangeField { }
+export interface BaseProps extends PropsField, ChangeField {}
 
 export interface InputProps extends BaseProps {
   type?:
-  | 'date'
-  | 'email'
-  | 'number'
-  | 'password'
-  | 'search'
-  | 'tel'
-  | 'text'
-  | 'time'
-  | 'url'
-  | 'week';
+    | 'date'
+    | 'email'
+    | 'number'
+    | 'password'
+    | 'search'
+    | 'tel'
+    | 'text'
+    | 'time'
+    | 'url'
+    | 'week';
 }
 
 export interface InputPropsComplete extends BaseProps {
@@ -339,7 +342,7 @@ export interface InputPropsSwitchList extends BaseProps {
 }
 export interface FieldRenderComponentProps
   extends FieldRenderProps,
-  BaseBuilder { }
+    BaseBuilder {}
 
 export interface BaseBuilder extends ChangeField {
   getSteps?: () => Step[];

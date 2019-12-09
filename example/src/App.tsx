@@ -4,6 +4,7 @@ import {
   FieldsRender,
   FieldsBuilder,
   createField,
+  FieldTranslateProvider,
 } from './@cosva-lab/form-builder';
 import { Grid, Button } from '@material-ui/core';
 import {
@@ -94,21 +95,23 @@ const theme = createMuiTheme({
 export default function App() {
   return (
     <ThemeProvider theme={theme}>
-      <Grid container spacing={4}>
-        <FieldsRender
-          {...{
-            fields,
-            changeField: changeField(),
-            validate,
-            validationState,
-          }}
-        />
-        <Grid>
-          <Button color="default" onClick={async () => {}}>
-            dfsdfds
-          </Button>
+      <FieldTranslateProvider translator={({ message }) => message}>
+        <Grid container spacing={4}>
+          <FieldsRender
+            {...{
+              fields,
+              changeField: changeField(),
+              validate,
+              validationState,
+            }}
+          />
+          <Grid>
+            <Button color="default" onClick={async () => {}}>
+              dfsdfds
+            </Button>
+          </Grid>
         </Grid>
-      </Grid>
+      </FieldTranslateProvider>
     </ThemeProvider>
   );
 }

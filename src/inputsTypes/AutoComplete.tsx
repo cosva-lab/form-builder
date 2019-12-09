@@ -27,7 +27,7 @@ import { SingleValueProps } from 'react-select/src/components/SingleValue';
 import { BaseProps } from '..';
 import { WithStyles } from '@material-ui/styles';
 import Loading from '../Loading';
-import { getMessage } from '../MessageTranslate';
+import { getMessage } from '../FieldTranslate';
 import { transformLabel } from '../utils/transformLabel';
 
 const Select = React.lazy(() => import('react-select'));

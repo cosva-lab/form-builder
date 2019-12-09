@@ -6,7 +6,7 @@ import FormControl from '@material-ui/core/FormControl';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import Loading from '../../Loading';
-import { getMessage } from '../../MessageTranslate';
+import { getMessage } from '../../FieldTranslate';
 import { EventField, ExtraProps, Message } from '../..';
 
 interface PropsDropdownList {

@@ -6,7 +6,7 @@ import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import arrayMove from 'array-move';
 
-import { getMessage, Animation } from '../../MessageTranslate';
+import { getMessage, Animation } from '../../FieldTranslate';
 import {
   Props,
   State,

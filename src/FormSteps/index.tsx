@@ -17,7 +17,7 @@ import { observer } from 'mobx-react';
 import { FieldsRender } from '../FieldsRender';
 import FooterSteps from './FooterSteps';
 import { StepsRender } from '..';
-import { getMessage } from '../MessageTranslate';
+import { getMessage } from '../FieldTranslate';
 
 const styles = (theme: Theme) =>
   createStyles({

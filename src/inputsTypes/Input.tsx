@@ -7,7 +7,7 @@ import withStyles, {
 } from '@material-ui/core/styles/withStyles';
 import TextField from '@material-ui/core/TextField';
 import FormControl from '@material-ui/core/FormControl';
-import { Animation, getMessage } from '../MessageTranslate';
+import { Animation, getMessage } from '../FieldTranslate';
 import { Theme } from '@material-ui/core/styles/createMuiTheme';
 import createStyles from '@material-ui/core/styles/createStyles';
 import { InputProps } from '..';
