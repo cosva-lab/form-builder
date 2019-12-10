@@ -5,21 +5,21 @@ import {
   ErrorField,
   InputPropsField,
   TextFieldPropsField,
-} from '../..';
-import { extra, transPosition } from '../..';
-import {
+  extra,
+  transPosition,
   PropsField,
   value,
   TypeField,
   RenderField,
   ComponentField,
+  BreakpointsField,
+  Message,
 } from '../../types';
-import InputValidator from '../validate/InputValidator';
-import { BreakpointsField } from '../../types';
+import { InputValidator } from '../validate/InputValidator';
+import validators from '../validate/validators';
 
 class FieldBuilder<V = value> extends InputValidator<V>
   implements PropsField {
-  @observable public fields?: PropsField[];
   @observable public extraProps?: ExtraProps;
   @observable public extra?: extra;
   @observable public type?: TypeField;
@@ -57,7 +57,7 @@ class FieldBuilder<V = value> extends InputValidator<V>
     ns,
     render,
     serverError,
-    state,
+    state = true,
     textFieldProps,
     transPosition,
     type,
@@ -99,6 +99,106 @@ class FieldBuilder<V = value> extends InputValidator<V>
       value,
       waitTime,
     });
+  }
+
+  async haveErrors(): Promise<Message> {
+    const {
+      changed,
+      validChange,
+      validate,
+      validations,
+      value,
+      state,
+      fields,
+    } = this;
+
+    let messageResult: Message = {
+      state: false,
+      message: '',
+    };
+    if (!validate && !changed && !state) {
+      return messageResult;
+    }
+
+    if (Array.isArray(validations) && (validChange || validate)) {
+      for (const validation of validations) {
+        if (typeof validation === 'object') {
+          let rule = validation.rule || 'isEmpty';
+          const {
+            message,
+            ns = 'validations',
+            props = { attribute: '' },
+            args = [],
+          } = validation;
+          if (
+            ![
+              'contains',
+              'equals',
+              'isAfter',
+              'isAlpha',
+              'isAlphanumeric',
+              'isAscii',
+              'isDecimal',
+              'isEmail',
+              'isEmpty',
+              'isFloat',
+              'isNumeric',
+            ].includes(rule)
+          ) {
+            console.error(rule, `the rule don't exists`);
+            rule = 'isEmpty';
+          } else {
+            const validator = validators[rule];
+            if (validator && validator[rule]) {
+              const validationMethod: any = validator[rule];
+              let bolean = false;
+              switch (rule) {
+                case 'isEmpty':
+                  bolean = true;
+                  break;
+                default:
+                  break;
+              }
+              try {
+                if (
+                  typeof value === 'string' &&
+                  validationMethod((value || '').toString(), args) ===
+                    bolean
+                ) {
+                  messageResult = {
+                    state: true,
+                    message,
+                    ns,
+                    props,
+                  };
+                  break;
+                }
+              } catch (error) {
+                break;
+              }
+            }
+          }
+        } else {
+          const temPError = (await validation({
+            changed,
+            field: this,
+            fields,
+            steps: this.steps,
+            validChange,
+            validate,
+            value,
+          })) || {
+            state: false,
+            message: '',
+          };
+          if (temPError.state) {
+            messageResult = temPError;
+            break;
+          }
+        }
+      }
+    }
+    return messageResult;
   }
 }
 

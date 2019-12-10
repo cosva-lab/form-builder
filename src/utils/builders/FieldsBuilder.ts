@@ -1,8 +1,12 @@
 import { observable } from 'mobx';
-import { EventField } from '../..';
 import InputsValidator from '../validate/InputsValidator';
 import { changeValueFields } from '../changeValues';
-import { extra, transPosition, FieldsRenderProps } from '../..';
+import {
+  extra,
+  transPosition,
+  FieldsRenderProps,
+  EventField,
+} from '../../types';
 
 function extend(from: any, to?: any) {
   if (from === null || typeof from !== 'object') return from;
@@ -53,7 +57,7 @@ class FieldsBuilder extends InputsValidator
     super(props.fields);
     const { ns, isNew, validationState, validate } = props;
     for (const field of this.fields) {
-      field.fields = this.fields;
+      field.fields = this;
     }
     this.setProps({
       ns,

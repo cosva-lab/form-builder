@@ -1,5 +1,5 @@
-import StepsBuilder from './StepsBuilder';
-import FieldsBuilder from './FieldsBuilder';
+import FieldsBuilder from './builders/FieldsBuilder';
+import StepsBuilder from './builders/StepsBuilder';
 export interface State<T> {
   fieldsRender: T;
 }

@@ -1,9 +1,13 @@
 import { observable } from 'mobx';
-import { InitialStateSteps, EventField, Step } from '../..';
+import cloneDeep from 'lodash/cloneDeep';
+import {
+  InitialStateSteps,
+  EventField,
+  Step,
+  activeStep,
+} from '../../types';
 import StepsValidator from '../validate/stepsValidator';
 import { changeValueSteps } from '../changeValues';
-import cloneDeep from 'lodash/cloneDeep';
-import { activeStep } from '../..';
 import StepValidator from '../validate/stepValidator';
 
 declare type Callback = () => void;
@@ -22,6 +26,11 @@ export default class StepsBuilder extends StepsValidator
 
   constructor(props: Props) {
     super(props.steps);
+    for (const step of this.steps) {
+      for (const field of step.fields) {
+        field.steps = this;
+      }
+    }
     const {
       ns,
       isNew,
@@ -61,12 +70,12 @@ export default class StepsBuilder extends StepsValidator
     validate,
     activeStep,
   }) => {
-      this.ns = ns;
-      this.isNew = isNew;
-      this.validationState = validationState;
-      this.validate = validate;
-      this.activeStep = activeStep;
-    };
+    this.ns = ns;
+    this.isNew = isNew;
+    this.validationState = validationState;
+    this.validate = validate;
+    this.activeStep = activeStep;
+  };
 
   restoreLast() {
     if (this.parmsLast) {

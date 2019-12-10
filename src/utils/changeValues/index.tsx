@@ -1,12 +1,11 @@
 import PropTypes from 'prop-types';
 import { observable } from 'mobx';
-import InputValidator from '../validate/InputValidator';
 import {
   PropsField,
   ChangeValueFields,
   ChangeValueSteps,
-} from '../../';
-import { ChangeValueField } from '../../types';
+  ChangeValueField,
+} from '../../types';
 
 function changeValueField({
   field,
@@ -20,10 +19,9 @@ function changeValueField({
     field.error = observable({ state: false, message: '' });
   }
   if (!field.changed) field.changed = true;
-  if (field.validations) {
-    const inputValidator = new InputValidator(field);
-    inputValidator.haveErrors().then(error => (field.error = error));
-  }
+  if (field.validations)
+    field.haveErrors().then(error => (field.error = error));
+
   return field;
 }
 
@@ -34,7 +32,7 @@ const changeValueFields: (props: ChangeValueFields) => void = ({
   const { fields } = fieldsBuilder;
   const index = fields.findIndex(({ name }) => name === action.name);
   if (index !== -1)
-    changeValueField({ fieldsBuilder, field: fields[index], action });
+    changeValueField({ field: fields[index], action });
 };
 
 function changeValueSteps({
@@ -42,10 +40,9 @@ function changeValueSteps({
   steps,
   action,
 }: ChangeValueSteps): void {
-  const { fields } = steps[activeStep];
   changeValueFields({
     action,
-    fields,
+    fieldsBuilder: steps[activeStep],
   });
 }
 

@@ -8,6 +8,8 @@ import { Breakpoint } from '@material-ui/core/styles/createBreakpoints';
 import { TextFieldProps } from '@material-ui/core/TextField';
 import FieldsBuilder from './utils/builders/FieldsBuilder';
 import FieldBuilder from './utils/builders/FieldBuilder';
+import validators from './utils/validate/validators';
+import { StepsBuilder } from './utils';
 
 export interface Message {
   ns?: string;
@@ -62,8 +64,7 @@ export interface InitialStateFields extends InitialState {
 }
 
 export interface ChangeValueField {
-  fieldsBuilder: FieldsBuilder;
-  field: PropsField;
+  field: FieldBuilder;
   action: EventField['target'];
 }
 
@@ -114,26 +115,7 @@ export interface StepsRender extends ChangeField {
   stepsBuild: InitialStateSteps;
 }
 
-type Rules = Exclude<
-  keyof ValidatorJS.ValidatorStatic,
-  | 'version'
-  | 'blacklist'
-  | 'escape'
-  | 'unescape'
-  | 'ltrim'
-  | 'normalizeEmail'
-  | 'rtrim'
-  | 'stripLow'
-  | 'toBoolean'
-  | 'toDate'
-  | 'toFloat'
-  | 'toInt'
-  | 'trim'
-  | 'whitelist'
-  | 'toString'
-  | 'version'
-  | 'extend'
->;
+type Rules = keyof typeof validators;
 
 export interface Validation {
   rule: Rules;
@@ -146,8 +128,9 @@ export interface Validation {
 
 export interface AllPropsValidationFunction<V = value>
   extends Partial<Validate<V>> {
-  fields?: FieldBuilder[];
-  steps?: Step[];
+  fields?: FieldsBuilder;
+  field: FieldBuilder;
+  steps?: StepsBuilder;
   activeStep?: activeStep;
 }
 

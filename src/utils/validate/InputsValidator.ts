@@ -1,7 +1,6 @@
 import { observable } from 'mobx';
 import { FieldsAll, Validation, Message } from '../..';
 import FieldBuilder from '../builders/FieldBuilder';
-import { AllPropsValidationFunction } from '../../types';
 
 class InputsValidator {
   @observable public inValid = false;
@@ -28,7 +27,7 @@ class InputsValidator {
     return fields;
   }
 
-  async haveErrors(props?: AllPropsValidationFunction) {
+  async haveErrors() {
     this.inValid = false;
     this.valid = true;
     await this.callbackField(async field => {
@@ -46,14 +45,17 @@ class InputsValidator {
           if (error.state && !this.inValid) throw new Error();
         };
 
-        const { fields } = this;
         if (field.validations) {
           for (const validation of field.validations) {
             if (typeof validation === 'object') {
               validationsObj.push(validation);
             } else {
               setError(
-                (await validation({ ...props, fields })) || {
+                (await validation({
+                  steps: field.steps,
+                  fields: field.fields,
+                  field,
+                })) || {
                   state: false,
                   message: '',
                 },
@@ -62,7 +64,7 @@ class InputsValidator {
           }
         }
 
-        const message = await field.haveErrors(props);
+        const message = await field.haveErrors();
         setError(message);
       } catch (e) {
         this.inValid = true;

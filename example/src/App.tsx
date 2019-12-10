@@ -28,7 +28,9 @@ const {
       name: 'name',
       label: 'Name',
       value: '',
-      sm: 4,
+      breakpoints: {
+        sm: 4,
+      },
       validChange: true,
       validations: [{ rule: 'isEmpty', message: 'fdsfkfjsdbndj' }],
     },
@@ -36,38 +38,45 @@ const {
       name: 'age',
       label: 'Age',
       value: '',
-      sm: 4,
+      breakpoints: {
+        sm: 4,
+      },
       validations: [{ rule: 'isEmpty', message: 'fdsfkfjsdbndj' }],
     },
     {
       name: 'fgdfgfdgdg',
       value: '',
-      sm: 4,
+      breakpoints: {
+        sm: 4,
+      },
       validations: [{ rule: 'isEmpty', message: 'fdsfkfjsdbndj' }],
     },
     {
       name: 'fgds',
       value: '',
-      sm: 4,
+      breakpoints: {
+        sm: 4,
+      },
       validations: [{ rule: 'isEmpty', message: 'fdsfkfjsdbndj' }],
     },
     createField<File[]>({
       name: 'files',
       type: 'file',
       value: [],
-      sm: 4,
+      breakpoints: {
+        sm: 4,
+      },
       validChange: true,
       validations: [
         { rule: 'isEmpty', message: 'fdsfkfjsdbndj' },
-        ({ value }) => {
-          return value && value.length > 3
+        ({ value }) =>
+          value && value.length > 3
             ? {
                 message:
                   'La cantidad de archivos excede el límite máximo',
                 state: true,
               }
-            : undefined;
-        },
+            : undefined,
       ],
     }),
   ],

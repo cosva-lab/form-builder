@@ -1,22 +1,11 @@
 import { observable } from 'mobx';
+import { Step } from '../../types';
+import FieldsBuilder from '../builders/FieldsBuilder';
 
-import { Step } from '../..';
-import InputsValidator from './InputsValidator';
-import { AllPropsValidationFunction } from '../../types';
-
-class StepValidator implements Step {
-  @observable private inValid = false;
-  @observable public actionsExtra: Step['actionsExtra'];
+export class StepValidator extends FieldsBuilder {
   @observable public elevation: Step['elevation'];
-  @observable public extra: Step['extra'];
-  @observable public fields: Step['fields'];
-  @observable public isNew: Step['isNew'];
   @observable public label: Step['label'];
-  @observable public ns: Step['ns'];
   @observable public stepper: Step['stepper'];
-  @observable public transPosition: Step['transPosition'];
-  @observable public validate: Step['validate'];
-  @observable public validationState: Step['validationState'];
 
   constructor({
     actionsExtra,
@@ -31,31 +20,19 @@ class StepValidator implements Step {
     validate,
     validationState,
   }: Step) {
-    this.actionsExtra = actionsExtra;
+    super({
+      actionsExtra,
+      extra,
+      fields,
+      isNew,
+      ns,
+      transPosition,
+      validate,
+      validationState,
+    });
     this.elevation = elevation;
-    this.extra = extra;
-    this.fields = fields;
-    this.isNew = isNew;
     this.label = label;
-    this.ns = ns;
     this.stepper = stepper;
-    this.transPosition = transPosition;
-    this.validate = validate;
-    this.validationState = validationState;
-    this.haveErrors = this.haveErrors.bind(this);
-  }
-
-  async haveErrors(
-    props?: Pick<AllPropsValidationFunction, 'steps' | 'activeStep'>,
-  ) {
-    const fields = this.fields;
-    this.inValid = false;
-    const fieldsErrors = new InputsValidator(fields);
-    const { steps, activeStep } = { ...props };
-    if (await fieldsErrors.haveErrors({ steps, activeStep })) {
-      this.inValid = true;
-    }
-    return this.inValid;
   }
 }
 

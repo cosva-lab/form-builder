@@ -1,7 +1,6 @@
 import { observable } from 'mobx';
-import { Step } from '../..';
 import StepValidator from './stepValidator';
-import { AllPropsValidationFunction } from '../../types';
+import { Step } from '../../types';
 
 class StepsValidator {
   @observable inValid = false;
@@ -15,21 +14,11 @@ class StepsValidator {
     this.haveErrors = this.haveErrors.bind(this);
   }
 
-  async haveErrors(
-    props?: Pick<AllPropsValidationFunction, 'activeStep'>,
-  ) {
-    const { activeStep } = { ...props };
+  async haveErrors() {
     for (const key in this.steps) {
       if (this.steps.hasOwnProperty(key)) {
         const stepValidator = this.steps[key];
-        if (
-          (await stepValidator.haveErrors({
-            ...props,
-            activeStep,
-            steps: this.steps,
-          })) &&
-          !this.inValid
-        ) {
+        if ((await stepValidator.haveErrors()) && !this.inValid) {
           this.inValid = true;
           this.stepError = Number(key);
           break;
@@ -40,5 +29,6 @@ class StepsValidator {
     return this.inValid;
   }
 }
-
+console.log(StepsValidator);
+export { StepsValidator };
 export default StepsValidator;
