@@ -58,6 +58,7 @@ class FieldsBuilder extends InputsValidator
     const { ns, isNew, validationState, validate } = props;
     for (const field of this.fields) {
       field.fields = this;
+      field.ns = ns;
     }
     this.setProps({
       ns,

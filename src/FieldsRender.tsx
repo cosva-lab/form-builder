@@ -44,11 +44,11 @@ export class FieldsRender extends React.PureComponent<Props> {
           } = field;
           return (
             <FieldRender
-              ns={ns}
               key={field.name}
               fieldProxy={field}
               {...{
                 ...field,
+                ns: field.ns || ns,
                 extra,
                 transPosition,
                 label,
