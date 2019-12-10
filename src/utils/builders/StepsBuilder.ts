@@ -26,11 +26,6 @@ export default class StepsBuilder extends StepsValidator
 
   constructor(props: Props) {
     super(props.steps);
-    for (const step of this.steps) {
-      for (const field of step.fields) {
-        field.stepsBuilder = this;
-      }
-    }
     const {
       ns,
       isNew,
@@ -38,6 +33,12 @@ export default class StepsBuilder extends StepsValidator
       validate,
       activeStep,
     } = props;
+    for (const step of this.steps) {
+      for (const field of step.fields) {
+        field.stepsBuilder = this;
+        if (!field.ns) field.ns = ns;
+      }
+    }
     this.activeStep = activeStep;
     this.setProps({
       ns,
