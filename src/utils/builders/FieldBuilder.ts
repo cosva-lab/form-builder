@@ -149,8 +149,7 @@ class FieldBuilder<V = value> extends InputValidator<V>
             rule = 'isEmpty';
           } else {
             const validator = validators[rule];
-            if (validator && validator[rule]) {
-              const validationMethod: any = validator[rule];
+            if (validator) {
               let bolean = false;
               switch (rule) {
                 case 'isEmpty':
@@ -162,8 +161,7 @@ class FieldBuilder<V = value> extends InputValidator<V>
               try {
                 if (
                   typeof value === 'string' &&
-                  validationMethod((value || '').toString(), args) ===
-                    bolean
+                  validator((value || '').toString(), args) === bolean
                 ) {
                   messageResult = {
                     state: true,
