@@ -10,7 +10,7 @@ import { StepsBuilder } from '../builders';
 
 export class InputValidator<V = value> implements Validate<V> {
   @observable public fields?: FieldsBuilder;
-  @observable public steps?: StepsBuilder;
+  @observable public stepsBuilder?: StepsBuilder;
   @observable public validate?: boolean;
   @observable public value: V;
   @observable public validations?: (

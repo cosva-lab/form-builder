@@ -128,9 +128,9 @@ export interface Validation {
 
 export interface AllPropsValidationFunction<V = value>
   extends Partial<Validate<V>> {
-  fields?: FieldsBuilder;
+  fieldsBuilder?: FieldsBuilder;
   field: FieldBuilder;
-  steps?: StepsBuilder;
+  stepsBuilder?: StepsBuilder;
   activeStep?: activeStep;
 }
 

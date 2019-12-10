@@ -52,8 +52,8 @@ class InputsValidator {
             } else {
               setError(
                 (await validation({
-                  steps: field.steps,
-                  fields: field.fields,
+                  stepsBuilder: field.stepsBuilder,
+                  fieldsBuilder: field.fields,
                   field,
                 })) || {
                   state: false,

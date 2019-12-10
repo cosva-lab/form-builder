@@ -50,7 +50,7 @@ class FieldBuilder<V = value> extends InputValidator<V>
     error,
     extra,
     extraProps,
-    fullWidth,
+    fullWidth = true,
     inputProps,
     label,
     name,
@@ -109,7 +109,7 @@ class FieldBuilder<V = value> extends InputValidator<V>
       validations,
       value,
       state,
-      fields,
+      fields: fieldsBuilder,
     } = this;
 
     let messageResult: Message = {
@@ -182,8 +182,8 @@ class FieldBuilder<V = value> extends InputValidator<V>
           const temPError = (await validation({
             changed,
             field: this,
-            fields,
-            steps: this.steps,
+            fieldsBuilder: fieldsBuilder,
+            stepsBuilder: this.stepsBuilder,
             validChange,
             validate,
             value,

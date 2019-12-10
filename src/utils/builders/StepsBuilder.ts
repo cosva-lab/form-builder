@@ -28,7 +28,7 @@ export default class StepsBuilder extends StepsValidator
     super(props.steps);
     for (const step of this.steps) {
       for (const field of step.fields) {
-        field.steps = this;
+        field.stepsBuilder = this;
       }
     }
     const {
