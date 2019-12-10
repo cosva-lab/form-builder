@@ -20,10 +20,7 @@ if (process.env.BABEL_ENV === 'es') {
   ];
 }
 
-const defaultAlias = {
-  '@material-ui/core': './packages/material-ui/src',
-};
-console.log(3545435);
+const defaultAlias = {};
 
 const productionPlugins = [
   'babel-plugin-transform-dev-warning',
