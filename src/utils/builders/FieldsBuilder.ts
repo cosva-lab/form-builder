@@ -1,4 +1,4 @@
-import { observable } from 'mobx';
+import { observable, toJS } from 'mobx';
 import InputsValidator from '../validate/InputsValidator';
 import { changeValueFields } from '../changeValues';
 import {
@@ -6,34 +6,11 @@ import {
   transPosition,
   FieldsRenderProps,
   EventField,
+  PropsField,
 } from '../../types';
+import FieldBuilder from './FieldBuilder';
 
-function extend(from: any, to?: any) {
-  if (from === null || typeof from !== 'object') return from;
-  if (from.constructor !== Object && from.constructor !== Array)
-    return from;
-  if (
-    from.constructor === Date ||
-    from.constructor === RegExp ||
-    from.constructor === Function ||
-    from.constructor === String ||
-    from.constructor === Number ||
-    from.constructor === Boolean
-  )
-    return new from.constructor(from);
-
-  to = to || new from.constructor();
-  for (const name in from) {
-    if (from.hasOwnProperty(name)) {
-      to[name] =
-        typeof to[name] === 'undefined'
-          ? extend(from[name], null)
-          : to[name];
-    }
-  }
-  return to;
-}
-declare type Callback = () => void;
+declare type Callback = Function;
 
 declare type Props = FieldsRenderProps;
 
@@ -41,96 +18,114 @@ class FieldsBuilder extends InputsValidator
   implements FieldsRenderProps {
   @observable public ns?: string;
   @observable public isNew?: boolean;
-  @observable public validationState?: boolean;
-  @observable public validate?: boolean;
   @observable public extra?: extra;
   @observable public actionsExtra?: object;
   @observable public transPosition?: transPosition;
 
-  private originalParams: FieldsBuilder;
+  private originalParams: Props;
   private parmsLast?: Pick<
-    FieldsBuilder,
-    'fields' | 'ns' | 'isNew' | 'validationState' | 'validate'
+    Props,
+    'fields' | 'ns' | 'isNew' | 'validate'
   >;
 
   constructor(props: Props) {
-    super(props.fields);
-    const { ns, isNew, validationState, validate } = props;
+    super(props);
+    const { ns, isNew, validate } = props;
     for (const field of this.fields) {
-      field.fields = this;
+      field.fieldsBuilder = this;
       if (!field.ns) field.ns = ns;
     }
     this.setProps({
       ns,
       isNew,
-      validationState,
       validate,
     });
-    this.originalParams = extend(props);
-    for (const funsds in this) {
-      if (this.hasOwnProperty(funsds)) {
-        const element = this[funsds];
-        if (typeof element === 'function') {
-          element.bind(this);
+    this.originalParams = props;
+    this.saveData = this.saveData.bind(this);
+    this.restore = this.restore.bind(this);
+    this.restoreLast = this.restoreLast.bind(this);
+    this.getFieldsObject = this.getFieldsObject.bind(this);
+    this.setNew = this.setNew.bind(this);
+    this.changeField = this.changeField.bind(this);
+    this.changeFields = this.changeFields.bind(this);
+    this.setValidation = this.setValidation.bind(this);
+    this.setErrorsasync = this.setErrorsasync.bind(this);
+  }
+
+  private setProps: (
+    props: Pick<FieldsBuilder, 'ns' | 'isNew'> & {
+      validate?: boolean;
+    },
+  ) => void = ({ ns, isNew, validate = true }) => {
+    this.ns = ns;
+    this.isNew = isNew;
+    this.validate = validate;
+  };
+
+  private setField(fieldOriginal: PropsField) {
+    const field = this.fields.find(
+      ({ name }) => fieldOriginal.name === name,
+    );
+    if (field) {
+      field.fieldsBuilder = this;
+      for (const key in fieldOriginal) {
+        if (
+          fieldOriginal.hasOwnProperty(key) &&
+          field.hasOwnProperty(key)
+        ) {
+          field[key] = fieldOriginal[key];
         }
       }
     }
   }
 
-  private setProps: (
-    props: Pick<
-      FieldsBuilder,
-      'ns' | 'isNew' | 'validationState' | 'validate'
-    >,
-  ) => void = ({ ns, isNew, validationState, validate }) => {
-    this.ns = ns;
-    this.isNew = isNew;
-    this.validationState = validationState;
-    this.validate = validate;
-  };
+  private setFields(fields: PropsField[]) {
+    fields.forEach(fieldOriginal => this.setField(fieldOriginal));
+  }
 
-  restoreLast = () => {
+  saveData() {
+    const { fields, ns, isNew, validate } = this;
+    this.parmsLast = {
+      fields: fields.map(
+        (field): PropsField => FieldBuilder.formatParams(field),
+      ),
+      ns,
+      isNew,
+      validate,
+    };
+  }
+
+  restore() {
+    const { fields, ...rest } = this.originalParams;
+    this.setProps(rest);
+    this.setFields(fields);
+  }
+
+  restoreLast() {
     if (this.parmsLast) {
       const { fields, ...rest } = this.parmsLast;
       this.setProps(rest);
-      this.fields = fields;
+      this.setFields(fields);
       this.parmsLast = undefined;
     }
-  };
+  }
 
-  saveData = () => {
-    const { fields, ns, isNew, validationState, validate } = this;
-    this.parmsLast = extend({
-      fields,
-      ns,
-      isNew,
-      validationState,
-      validate,
-    });
-  };
-
-  restore = () => {
-    const { fields, ...rest } = this.originalParams;
-    this.setProps(rest);
-    this.fields = fields;
-  };
-
-  setNew = (value: boolean, callback?: Callback) => {
+  setNew(value: boolean, callback?: Callback) {
     this.isNew = value;
     callback && callback();
-  };
+  }
 
-  getFieldsObject = () => {
+  getFieldsObject() {
     const fields: {
       [key: string]: any;
     } = {};
-    [...this.fields].forEach(({ name, value }) => {
+    for (const { name, value } of toJS(this.fields)) {
       fields[name] = value;
-    });
+    }
     return fields;
-  };
+  }
 
-  changeField = (callback?: (event: EventField) => void) => {
+  changeField(callback?: (event: EventField) => void) {
     return (event: EventField, callbackEvent?: Callback) => {
       const { value, name } = event.target;
       changeValueFields({
@@ -143,28 +138,26 @@ class FieldsBuilder extends InputsValidator
       callback && callback(event);
       callbackEvent && callbackEvent();
     };
-  };
+  }
 
-  changeFields = (callback?: Callback) => {
+  changeFields(callback?: Callback) {
     return (fields: EventField[]) => {
       fields.forEach(field => {
         this.changeField()(field);
       });
       callback && callback();
     };
-  };
+  }
 
-  setValidation = (validate: boolean, callback?: Callback) => {
+  setValidation(validate: boolean, callback?: Callback) {
     this.validate = validate;
     callback && callback();
-  };
+  }
 
-  setErrors = async (errors?: {
-    [key: string]: string | string[];
-  }) => {
-    errors && (await this.addErrors(errors));
+  async setErrorsasync(errors?: Record<string, string | string[]>) {
+    errors && errors.errors && (await this.addErrors(errors));
     if (!this.validate) this.validate = true;
-  };
+  }
 }
 
 export default FieldsBuilder;

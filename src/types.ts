@@ -43,7 +43,6 @@ export type activeStep = number;
 export interface InitialState {
   ns?: string;
   isNew?: boolean;
-  validationState?: boolean;
   validate?: boolean;
   extra?: extra;
 }
@@ -261,23 +260,28 @@ export type ErrorField = Message & { errorServer?: boolean };
 export type BreakpointsField = Partial<
   Record<Breakpoint, boolean | GridSize>
 >;
-export interface PropsField<V = value> extends Validations<V> {
-  fieldProxy?: PropsField;
-  extraProps?: ExtraProps;
-  extra?: extra;
+
+export interface PropsFieldBase<V = value> {
   type?: TypeField;
   name: string;
   value: V;
+  disabled?: boolean;
   defaultInputValue?: V;
   label?: LabelPropsField;
-  ns?: string;
+  state?: boolean;
+}
+
+export interface PropsField<V = value>
+  extends PropsFieldBase<V>,
+    Validations<V>,
+    InitialState {
+  fieldProxy?: PropsField;
+  extraProps?: ExtraProps;
   render?: RenderField;
-  disabled?: boolean;
   waitTime?: boolean;
   fullWidth?: boolean;
   transPosition?: transPosition;
   error?: ErrorField;
-  state?: boolean;
   serverError?: string[] | string;
   autoComplete?: string;
   inputProps?: InputPropsField;
@@ -297,7 +301,6 @@ export interface Validate<V = value> extends Validations<V> {
 
 export interface FormInputProps extends BaseProps {
   multiple?: boolean;
-  route: string;
 }
 
 export interface BaseProps extends PropsField, ChangeField {}

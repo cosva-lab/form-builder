@@ -29,6 +29,6 @@ class StepsValidator {
     return this.inValid;
   }
 }
-console.log(StepsValidator);
+
 export { StepsValidator };
 export default StepsValidator;

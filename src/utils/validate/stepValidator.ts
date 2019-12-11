@@ -18,7 +18,6 @@ export class StepValidator extends FieldsBuilder {
     stepper,
     transPosition,
     validate,
-    validationState,
   }: Step) {
     super({
       actionsExtra,
@@ -28,7 +27,6 @@ export class StepValidator extends FieldsBuilder {
       ns,
       transPosition,
       validate,
-      validationState,
     });
     this.elevation = elevation;
     this.label = label;
