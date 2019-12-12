@@ -2,35 +2,16 @@ import { CSSProperties } from 'react';
 import { FormInputProps, PropsField } from '../..';
 import { SortEnd } from 'react-sortable-hoc';
 import { Message } from '../../types';
-
+import FieldBuilder from '../../utils/builders/FieldBuilder';
+type ResBasic = { callBack: () => void } | void;
+type ResOnAdd = void | { callBack: () => void; value: Files } | Files;
 export interface ActionsFiles {
-  onAdd?:
-    | ((
-        file: Files,
-      ) =>
-        | Promise<
-            { callBack: () => void; value?: Files } | void | Files
-          >
-        | void
-        | { callBack: () => void; value: Files }
-      )
-    | null;
-  onDelete?:
-    | ((
-        file: Files,
-      ) =>
-        | Promise<{ callBack: () => void } | void>
-        | void
-        | { callBack: () => void }
-      )
-    | null;
+  onAdd?: ((file: Files) => Promise<ResOnAdd> | ResOnAdd) | null;
+  onDelete?: ((file: Files) => Promise<ResBasic> | ResBasic) | null;
   onSort?: (event: {
     changedFiles: { newFile: FileValue; oldFile: FileValue };
     sort: SortEnd;
-  }) =>
-    | Promise<{ callBack: () => void } | void>
-    | void
-    | { callBack: () => void };
+  }) => Promise<ResBasic> | ResBasic;
 
   sort?: (a: FileValue, b: FileValue) => number | false | void;
   arrayMove?: (files: Files, from: number, to: number) => Files;
@@ -53,7 +34,7 @@ export interface Props
     Partial<Pick<FormInputProps, 'changeField'>>,
     ActionsFiles {
   value: Files;
-  fieldProxy?: PropsField<Files>;
+  fieldProxy?: FieldBuilder<Files>;
 }
 
 export interface ExtraFile {

@@ -170,22 +170,17 @@ class FileInput extends React.PureComponent<Props, State> {
             .then(res => {
               if (res) {
                 let value;
-                if (Array.isArray(res)) {
-                  value = res;
-                } else if (typeof res === 'object') {
+                if (Array.isArray(res)) value = res;
+                else if (typeof res === 'object') {
                   callBack = res.callBack;
-                  if (Array.isArray(res.value)) {
-                    value = res.value;
-                  }
+                  if (Array.isArray(res.value)) value = res.value;
                 }
                 if (value) {
                   newValue = [];
                   for (const file of this.setFiles(value)) {
-                    if (!(file instanceof File) && !file.invalid) {
+                    if (!(file instanceof File) && !file.invalid)
                       newValue = [...newValue, file];
-                    } else {
-                      valueTemp.push(file);
-                    }
+                    else valueTemp.push(file);
                   }
                 }
               }
