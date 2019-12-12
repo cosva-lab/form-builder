@@ -1,7 +1,8 @@
 {
   "name": "my-app",
   "version": "0.1.0",
-  "private": true,
+  "homepage": "https://cosva-lab.github.io/form-builder",
+  "private": false,
   "dependencies": {
     "@material-ui/core": "^4.7.1",
     "@material-ui/icons": "^4.5.1",
@@ -20,7 +21,9 @@
     "start": " react-app-rewired --inspect=5622 start",
     "build": " react-app-rewired build",
     "test": " react-app-rewired test",
-    "eject": " react-app-rewired eject"
+    "eject": " react-app-rewired eject",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -45,6 +48,7 @@
     "eslint-plugin-import": "^2.18.2",
     "eslint-plugin-prettier": "^3.1.0",
     "eslint-plugin-react": "^7.14.3",
+    "gh-pages": "^2.1.1",
     "prettier": "^1.19.1",
     "react-app-rewire-module-resolver": "^1.0.0",
     "react-app-rewired": "^2.1.5"
