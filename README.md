@@ -14,76 +14,168 @@ npm install --save @cosva-lab/form-builder
 
 ```tsx
 import React from 'react';
-import { FieldsBuilder, FieldsRender } from '@cosva-lab/form-builder';
+import {
+  FieldsRender,
+  FieldsBuilder,
+  createField,
+  FieldTranslateProvider,
+} from './@cosva-lab/form-builder';
+import { Grid, Button, ButtonGroup } from '@material-ui/core';
 
-const Example = () => {
-  /**
-   * @description
-   * FieldsBuilder uses `mobx`, and you don't need to call a
-   * function to set the new value, this makes state changes
-   * more efficient.
-   */
-  const [{ fields, changeField }] = React.useState(
+export default function App() {
+  const [fieldsBuilder] = React.useState(
     new FieldsBuilder({
-      validate: true,
+      validate: false,
       fields: [
         {
           name: 'name',
           label: 'Name',
-          /**
-           * @description `Initial value`
-           * @type {any}
-           */
           value: '',
-          /**
-           * `Breakpoints`
-           * @param {xs, sm, md, lg, xl}
-           * @values `"auto" | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12`
-           */
-          xs: 3,
-          sm: 12,
-          md: 6,
-          lg: 4,
-          xl: 2,
-        },
-        {
-          name: 'phone',
-          /**
-           * @type {
-           * "number" | "time" | "text" | "file" | "email"
-           * "date" | "password" | "list" | "table" | "autoComplete"
-           * "chips" | "checkbox" | "component" | "listSwitch"
-           * }
-           */
-          type: 'number',
-          value: '',
-          md: 6,
+          breakpoints: {
+            sm: 6,
+          },
+          validChange: true,
           validations: [
             {
               rule: 'isEmpty',
-              message: 'Este campo es requerido',
-            },
-            {
-              rule: 'isNumeric',
-              message: 'Debe ser un numero',
+              message: 'This field can not be empty',
             },
           ],
         },
+        {
+          name: 'birth_date',
+          label: 'Birth date',
+          type: 'date',
+          value: '',
+          breakpoints: {
+            sm: 6,
+          },
+          validations: [
+            {
+              rule: 'isEmpty',
+              message: 'This field can not be empty',
+            },
+          ],
+        },
+        {
+          name: 'email',
+          label: 'Email',
+          value: '',
+          breakpoints: {
+            sm: 6,
+          },
+          validations: [
+            {
+              rule: 'isEmail',
+              message: "This field don't is email",
+            },
+          ],
+        },
+        createField<File[]>({
+          name: 'files',
+          type: 'file',
+          value: [],
+          breakpoints: {
+            sm: 12,
+          },
+          validChange: true,
+          validations: [
+            {
+              rule: 'isEmpty',
+              message: 'This field can not be empty',
+            },
+            ({ value }) => {
+              const max = 3;
+              return value && value.length > max
+                ? {
+                    message: `You cannot upload more than ${max} files`,
+                    state: true,
+                  }
+                : undefined;
+            },
+          ],
+        }),
       ],
     }),
   );
+  const {
+    fields,
+    changeField,
+    validate,
+    restoreLast,
+    saveData,
+    restore,
+  } = fieldsBuilder;
+
   return (
-    <FieldsRender
-      fields={fields}
-      changeField={changeField(
-        // It is a callBack function
-        ({ target }) => {
-          console.log(target);
-        },
-      )}
-    />
+    <FieldTranslateProvider translator={({ message }) => message}>
+      <Grid container>
+        <ButtonGroup
+          fullWidth
+          aria-label="full width outlined button group"
+        >
+          <Button
+            color="default"
+            onClick={async () => {
+              restore();
+            }}
+          >
+            Reset
+          </Button>
+          <Button
+            color="default"
+            onClick={async () => {
+              restoreLast();
+            }}
+          >
+            Restore
+          </Button>
+          <Button
+            color="default"
+            onClick={async () => {
+              saveData();
+            }}
+          >
+            Save
+          </Button>
+        </ButtonGroup>
+      </Grid>
+      <Grid container spacing={4}>
+        <FieldsRender
+          {...{
+            fields,
+            changeField: changeField(),
+            validate,
+          }}
+        />
+      </Grid>
+      <Grid container justify="flex-end">
+        <Button
+          variant="outlined"
+          color="primary"
+          onClick={() => {
+            fieldsBuilder.hasErrors({
+              setErrors: true,
+            });
+          }}
+        >
+          Validate
+        </Button>
+        <Button
+          variant="outlined"
+          color="secondary"
+          onClick={async () => {
+            if (!(await fieldsBuilder.hasErrors())) {
+              console.log(fieldsBuilder.getFieldsObject());
+            }
+          }}
+        >
+          Get Values
+        </Button>
+      </Grid>
+    </FieldTranslateProvider>
   );
-};
+}
 ```
 
 ## License
