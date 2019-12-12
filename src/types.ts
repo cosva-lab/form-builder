@@ -43,7 +43,6 @@ export type activeStep = number;
 export interface InitialState {
   ns?: string;
   isNew?: boolean;
-  validationState?: boolean;
   validate?: boolean;
   extra?: extra;
 }
