@@ -2,6 +2,7 @@ import React from 'react';
 import { FieldRender } from './FieldRender';
 import { changeField } from './';
 import { FieldsRenderProps, BaseBuilder } from './types';
+import FieldBuilder from './utils/builders/FieldBuilder';
 
 declare type Props = FieldsRenderProps & BaseBuilder;
 
@@ -45,7 +46,9 @@ export class FieldsRender extends React.PureComponent<Props> {
           return (
             <FieldRender
               key={field.name}
-              fieldProxy={field}
+              fieldProxy={
+                (field instanceof FieldBuilder && field) || undefined
+              }
               {...{
                 ...field,
                 ns: field.ns || ns,

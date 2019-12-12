@@ -1,5 +1,4 @@
 import PropTypes from 'prop-types';
-import { observable } from 'mobx';
 import {
   PropsField,
   ChangeValueFields,
@@ -11,17 +10,7 @@ function changeValueField({
   field,
   action,
 }: ChangeValueField): PropsField {
-  field.value = action.value;
-  if (field.error) {
-    if (field.error.state) field.error.state = false;
-    if (field.error.message) field.error.message = '';
-  } else {
-    field.error = observable({ state: false, message: '' });
-  }
-  if (!field.changed) field.changed = true;
-  if (field.validations)
-    field.haveErrors().then(error => (field.error = error));
-
+  field.setValue(action.value);
   return field;
 }
 
