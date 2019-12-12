@@ -62,11 +62,7 @@ const Inputs = (props: FormInputProps) => {
         />
       );
     case 'file':
-      let onAdd;
-      let onDelete;
-      let onSort;
-      let sort;
-      let arrayMove;
+      let onAdd, onDelete, onSort, sort, arrayMove;
       if (extraProps) {
         onAdd = extraProps.onAdd;
         onDelete = extraProps.onDelete;
