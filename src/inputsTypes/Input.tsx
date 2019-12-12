@@ -165,7 +165,9 @@ class InputComponent extends React.Component<
             style: {},
             classes: { root: classes.formHelperTextPropsRoot },
           }}
-          helperText={getMessage(error || { message: '' })}
+          helperText={getMessage(
+            error || { message: '', state: false },
+          )}
           InputProps={
             inputProps &&
             inputProps({
@@ -195,6 +197,10 @@ class InputComponent extends React.Component<
               ),
             });
             this.lastValue = targetValue;
+          }}
+          onBlur={() => {
+            const { fieldProxy } = this.props;
+            fieldProxy && fieldProxy.markAsTouched();
           }}
           {...{
             ...this.textFieldProps(),
