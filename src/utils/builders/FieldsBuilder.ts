@@ -154,11 +154,6 @@ class FieldsBuilder extends InputsValidator
     this.validate = validate;
     callback && callback();
   }
-
-  async setErrors(errors?: Record<string, string | string[]>) {
-    errors && errors.errors && (await this.addErrors(errors));
-    if (!this.validate) this.validate = true;
-  }
 }
 
 export default FieldsBuilder;

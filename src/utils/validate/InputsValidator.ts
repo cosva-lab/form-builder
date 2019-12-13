@@ -2,7 +2,6 @@ import { observable } from 'mobx';
 import { FieldsRenderProps } from '../..';
 import FieldBuilder from '../builders/FieldBuilder';
 import { ErrorField } from '../../types';
-import { createViewModel } from 'mobx-utils';
 
 class InputsValidator {
   @observable public valid = true;
@@ -10,7 +9,7 @@ class InputsValidator {
     return !this.valid;
   }
   @observable public fields: FieldBuilder[];
-  public _validate?: boolean;
+  @observable public _validate?: boolean;
   public get validate() {
     return this._validate;
   }
@@ -18,13 +17,9 @@ class InputsValidator {
   public set validate(validate: boolean | undefined) {
     this._validate = validate;
     if (validate) this.validity();
-    for (const field of this.fields) {
-      if (validate) {
-        field._validate = true;
-      } else {
-        field.error = undefined;
-      }
-    }
+    for (const field of this.fields)
+      if (validate) field._validate = true;
+      else field.error = undefined;
   }
 
   constructor({
@@ -44,9 +39,7 @@ class InputsValidator {
 
   async callbackField(callback: (field: FieldBuilder) => void) {
     const fields = this.fields;
-    for (const field of this.fields) {
-      await callback(field);
-    }
+    for (const field of this.fields) await callback(field);
     return fields;
   }
 
@@ -108,16 +101,17 @@ class InputsValidator {
     return this.fields;
   }
 
+  async setErrors(errors?: Record<string, string | string[]>) {
+    errors && (await this.addErrors(errors));
+    if (!this.validate) this.validate = true;
+  }
+
   async getErrors() {
     const fields: {
       [key: string]: ErrorField[] | undefined;
     } = {};
-    for (const field of this.fields) {
-      const viewField = createViewModel(field);
-      const { name } = viewField;
-      const errors = await viewField.getErrors({ validate: true });
+    for (const { name, errors } of this.fields)
       if (errors) fields[name] = errors;
-    }
     return fields;
   }
 }
