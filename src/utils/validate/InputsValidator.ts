@@ -1,6 +1,8 @@
 import { observable } from 'mobx';
 import { FieldsRenderProps } from '../..';
 import FieldBuilder from '../builders/FieldBuilder';
+import { ErrorField } from '../../types';
+import { createViewModel } from 'mobx-utils';
 
 class InputsValidator {
   @observable public valid = true;
@@ -37,6 +39,7 @@ class InputsValidator {
     this.addErrors = this.addErrors.bind(this);
     this.haveErrors = this.haveErrors.bind(this);
     this.hasErrors = this.hasErrors.bind(this);
+    this.getErrors = this.getErrors.bind(this);
   }
 
   async callbackField(callback: (field: FieldBuilder) => void) {
@@ -50,10 +53,9 @@ class InputsValidator {
   private async validityBase(setErrors: boolean = true) {
     this.valid = true;
     await this.callbackField(async field => {
+      field._validate = true;
       await field.hasErrors({ setErrors });
-      if (this.valid) {
-        this.valid = field.valid;
-      }
+      if (field.valid) this.valid = field.valid;
     });
   }
 
@@ -104,6 +106,19 @@ class InputsValidator {
       }
     }
     return this.fields;
+  }
+
+  async getErrors() {
+    const fields: {
+      [key: string]: ErrorField[] | undefined;
+    } = {};
+    for (const field of this.fields) {
+      const viewField = createViewModel(field);
+      const { name } = viewField;
+      const errors = await viewField.getErrors({ validate: true });
+      if (errors) fields[name] = errors;
+    }
+    return fields;
   }
 }
 

@@ -36,7 +36,7 @@ export class InputValidator<V = value> extends Field<V>
   @observable public changed?: boolean;
   @observable public validChange?: boolean;
   @observable public error?: ErrorField;
-  public errors: ErrorField[] = [];
+  public errors?: ErrorField[];
   @observable public serverError?: string[] | string;
 
   constructor(props: Validate<V> & PropsFieldBase) {
@@ -47,6 +47,7 @@ export class InputValidator<V = value> extends Field<V>
     this.validate = validate;
     // validations is an array of validation rules specific to a form
     this.validations = validations;
+    /* this.getErrors = this.getErrors.bind(this); */
   }
 
   public getError({
@@ -61,7 +62,7 @@ export class InputValidator<V = value> extends Field<V>
       const {
         message,
         ns = 'validations',
-        props = { attribute: '' },
+        props = undefined,
         args = [],
       } = validation;
       if (
@@ -92,38 +93,30 @@ export class InputValidator<V = value> extends Field<V>
             default:
               break;
           }
-          try {
-            if (
-              typeof value === 'string' &&
-              validator((value || '').toString(), args) === boolean
-            ) {
-              this.valid = false;
-              return {
-                state: true,
-                message,
-                ns,
-                props,
-              };
-            } else {
-              this.valid = true;
-            }
-          } catch (error) {}
+          if (
+            typeof value === 'string' &&
+            validator((value || '').toString(), args) === boolean
+          ) {
+            this.valid = false;
+            return {
+              state: true,
+              message,
+              ns,
+              props,
+            };
+          } else this.valid = true;
         }
       }
     }
     return;
   }
 
-  public async getErrors(): Promise<ErrorField[] | undefined> {
-    const {
-      changed,
-      validChange,
-      validate,
-      validations,
-      value,
-      state,
-    } = this;
-    const errors: ErrorField[] = [];
+  public async getErrors(params?: {
+    validate?: boolean;
+  }): Promise<ErrorField[] | undefined> {
+    const { validate = this.validate } = { ...params };
+    const { changed, validChange, validations, value, state } = this;
+    let errors: ErrorField[] | undefined = undefined;
     this.errors = errors;
 
     let messageResult: ErrorField | undefined = undefined;
@@ -135,9 +128,9 @@ export class InputValidator<V = value> extends Field<V>
           const res = this.getError({ validation, value });
           if (res) {
             if (!messageResult) messageResult = res;
+            if (!errors) errors = [];
             errors.push(res);
             this.valid = false;
-            break;
           } else this.valid = true;
         } else {
           const res = await validation({
@@ -152,8 +145,8 @@ export class InputValidator<V = value> extends Field<V>
           if (res) {
             if (!messageResult) messageResult = res;
             this.valid = false;
+            if (!errors) errors = [];
             errors.push(res);
-            break;
           } else this.valid = true;
         }
         this.errors = errors;
