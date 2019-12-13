@@ -18,7 +18,6 @@ export default class StepsBuilder extends StepsValidator
   implements InitialStateSteps {
   @observable ns?: string;
   @observable isNew?: boolean;
-  @observable validationState?: boolean;
   @observable validate?: boolean;
   @observable activeStep: activeStep;
   @observable private originalParams: StepsBuilder;
@@ -26,13 +25,7 @@ export default class StepsBuilder extends StepsValidator
 
   constructor(props: Props) {
     super(props.steps);
-    const {
-      ns,
-      isNew,
-      validationState,
-      validate,
-      activeStep,
-    } = props;
+    const { ns, isNew, validate, activeStep } = props;
     for (const step of this.steps) {
       for (const field of step.fields) {
         field.stepsBuilder = this;
@@ -43,7 +36,6 @@ export default class StepsBuilder extends StepsValidator
     this.setProps({
       ns,
       isNew,
-      validationState,
       validate,
       activeStep,
     });
@@ -62,18 +54,11 @@ export default class StepsBuilder extends StepsValidator
   private setProps: (
     props: Pick<
       StepsBuilder,
-      'ns' | 'isNew' | 'validationState' | 'validate' | 'activeStep'
+      'ns' | 'isNew' | 'validate' | 'activeStep'
     >,
-  ) => void = ({
-    ns,
-    isNew,
-    validationState,
-    validate,
-    activeStep,
-  }) => {
+  ) => void = ({ ns, isNew, validate, activeStep }) => {
     this.ns = ns;
     this.isNew = isNew;
-    this.validationState = validationState;
     this.validate = validate;
     this.activeStep = activeStep;
   };

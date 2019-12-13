@@ -1,22 +1,42 @@
 import { observable } from 'mobx';
-import { FieldsAll, Validation, Message } from '../..';
+import { FieldsRenderProps } from '../..';
 import FieldBuilder from '../builders/FieldBuilder';
 
 class InputsValidator {
-  @observable public inValid = false;
   @observable public valid = true;
+  public get inValid() {
+    return !this.valid;
+  }
   @observable public fields: FieldBuilder[];
+  public _validate?: boolean;
+  public get validate() {
+    return this._validate;
+  }
 
-  constructor(fields: FieldsAll) {
-    this.fields = fields.map(field => new FieldBuilder(field));
+  public set validate(validate: boolean | undefined) {
+    this._validate = validate;
+    if (validate) this.validity();
+    for (const field of this.fields) {
+      if (validate) {
+        field._validate = true;
+      } else {
+        field.error = undefined;
+      }
+    }
+  }
+
+  constructor({
+    fields,
+    validate,
+  }: Pick<FieldsRenderProps, 'fields' | 'validate'>) {
+    this.fields = fields.map(
+      field => new FieldBuilder({ ...field, validate }),
+    );
+    this.validate = validate;
     this.callbackField = this.callbackField.bind(this);
     this.addErrors = this.addErrors.bind(this);
     this.haveErrors = this.haveErrors.bind(this);
-  }
-
-  private setE(field: FieldBuilder) {
-    if (!field.validate) field.validate = true;
-    if (!field.changed) field.changed = true;
+    this.hasErrors = this.hasErrors.bind(this);
   }
 
   async callbackField(callback: (field: FieldBuilder) => void) {
@@ -27,54 +47,35 @@ class InputsValidator {
     return fields;
   }
 
-  async haveErrors() {
-    this.inValid = false;
+  private async validityBase(setErrors: boolean = true) {
     this.valid = true;
     await this.callbackField(async field => {
-      this.setE(field);
-      try {
-        if (
-          field.error &&
-          field.error.state &&
-          !field.error.errorServer
-        )
-          throw new Error();
-        const validationsObj: Validation[] = [];
-        const setError = (error: Message) => {
-          field.error = observable(error);
-          if (error.state && !this.inValid) throw new Error();
-        };
-
-        if (field.validations) {
-          for (const validation of field.validations) {
-            if (typeof validation === 'object') {
-              validationsObj.push(validation);
-            } else {
-              setError(
-                (await validation({
-                  stepsBuilder: field.stepsBuilder,
-                  fieldsBuilder: field.fields,
-                  field,
-                })) || {
-                  state: false,
-                  message: '',
-                },
-              );
-            }
-          }
-        }
-
-        const message = await field.haveErrors();
-        setError(message);
-      } catch (e) {
-        this.inValid = true;
-        this.valid = false;
+      await field.hasErrors({ setErrors });
+      if (this.valid) {
+        this.valid = field.valid;
       }
     });
+  }
+
+  async validity() {
+    await this.validityBase();
+  }
+
+  async hasErrors(params?: { setErrors: boolean }) {
+    const { setErrors = false } = { ...params };
+    await this.validityBase(setErrors);
     return this.inValid;
   }
 
-  async addErrors(errors: { [key: string]: string | string[] }) {
+  /**
+   * @param params
+   * @deprecated Please use `hasErrors`
+   */
+  async haveErrors(params?: { setErrors: boolean }) {
+    return this.hasErrors(params);
+  }
+
+  async addErrors(errors: Record<string, string | string[]>) {
     for (const key in errors) {
       if (errors.hasOwnProperty(key)) {
         const e = errors[key];
