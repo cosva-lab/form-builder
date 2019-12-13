@@ -37,27 +37,40 @@ class InputsValidator {
     this.getErrors = this.getErrors.bind(this);
   }
 
-  async callbackField(callback: (field: FieldBuilder) => void) {
+  async callbackField(
+    callback: (field: FieldBuilder, cancel: () => void) => void,
+  ) {
     const fields = this.fields;
-    for (const field of this.fields) await callback(field);
+    for (const field of this.fields) {
+      let cancel = false;
+      await callback(field, () => {
+        cancel = true;
+      });
+      if (cancel) break;
+    }
     return fields;
   }
 
   private async validityBase(setErrors: boolean = true) {
     this.valid = true;
-    await this.callbackField(async field => {
+    await this.callbackField(async (field, cancel) => {
       field._validate = true;
       await field.hasErrors({ setErrors });
-      if (field.valid) this.valid = field.valid;
+      if (!field.valid) {
+        this.valid = field.valid;
+        if (!setErrors) cancel();
+      }
     });
   }
 
   async validity() {
+    this._validate = true;
     await this.validityBase();
   }
 
   async hasErrors(params?: { setErrors: boolean }) {
     const { setErrors = false } = { ...params };
+    if (setErrors) this._validate = true;
     await this.validityBase(setErrors);
     return this.inValid;
   }
@@ -71,6 +84,7 @@ class InputsValidator {
   }
 
   async addErrors(errors: Record<string, string | string[]>) {
+    if (!this.validate) this.validate = true;
     for (const key in errors) {
       if (errors.hasOwnProperty(key)) {
         const e = errors[key];
@@ -103,7 +117,6 @@ class InputsValidator {
 
   async setErrors(errors?: Record<string, string | string[]>) {
     errors && (await this.addErrors(errors));
-    if (!this.validate) this.validate = true;
   }
 
   async getErrors() {

@@ -164,8 +164,8 @@ export class InputValidator<V = value> extends Field<V>
   /**
    * @deprecated Please use `hasErrors`
    */
-  public async haveErrors() {
-    return this.hasErrors();
+  public async haveErrors(params?: { setErrors: boolean }) {
+    return this.hasErrors(params);
   }
 
   private touchToggle(state: boolean) {
@@ -194,6 +194,7 @@ export class InputValidator<V = value> extends Field<V>
   }
 
   public async validity() {
+    this._validate = true;
     await this.validityBase();
   }
 
