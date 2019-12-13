@@ -151,6 +151,7 @@ export default function App() {
     restoreLast,
     saveData,
     restore,
+    getErrors,
   } = fieldsBuilder;
   const classes = useStyles();
 
@@ -207,10 +208,11 @@ export default function App() {
             <Button
               variant="outlined"
               color="primary"
-              onClick={() => {
+              onClick={async () => {
                 fieldsBuilder.haveErrors({
                   setErrors: true,
                 });
+                console.log(await getErrors());
               }}
             >
               Validate

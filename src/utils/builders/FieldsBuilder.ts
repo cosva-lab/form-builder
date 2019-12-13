@@ -50,6 +50,7 @@ class FieldsBuilder extends InputsValidator
     this.changeFields = this.changeFields.bind(this);
     this.setValidation = this.setValidation.bind(this);
     this.setErrors = this.setErrors.bind(this);
+    this.getErrors = this.getErrors.bind(this);
   }
 
   private setProps: (
