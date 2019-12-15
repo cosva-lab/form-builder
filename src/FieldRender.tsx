@@ -4,15 +4,16 @@ import { Observer } from 'mobx-react';
 import Grid from '@material-ui/core/Grid';
 import Inputs from './Inputs';
 import {
-  FieldRenderComponentProps,
+  FieldRenderProps,
   changeField,
   ChangeField,
 } from './';
-import { Message, BreakpointsField } from './types';
+import { Message, BreakpointsField, value } from './types';
+import { observe, Lambda } from 'mobx';
 
-export class FieldRender
-  extends React.PureComponent<FieldRenderComponentProps>
+class FieldRender<V = value> extends React.PureComponent<FieldRenderProps<V>>
   implements ChangeField {
+  public subscription?: Lambda
   static defaultProps = {
     ns: 'inputs',
     transPosition: false,
@@ -20,6 +21,18 @@ export class FieldRender
       state: false,
     },
   };
+
+  componentDidMount() {
+    if (this.props.fieldProxy) {
+    this.subscription = observe(this.props.fieldProxy, 'state', () => {
+      this.forceUpdate();
+    })
+    }
+  }
+
+  componentDidUnmount() {
+    this.subscription && this.subscription()
+  }
 
   public errorFlag: Message | undefined;
 
@@ -36,16 +49,19 @@ export class FieldRender
     const { lg = md } = breakpoints;
     const { xl = lg } = breakpoints;
     const {
-      state = true,
       render,
       type,
-      component: Component,
+      component,
       fieldProxy,
     } = props;
-    const propsForm = {
+    let {
+      state = props.state
+    } = { ...fieldProxy };
+    if (typeof state === "undefined") state = true
+    const propsForm: FieldRenderProps<V> = {
       ...props,
       changeField: this.changeField,
-      component: Component,
+      component,
     };
     if (!state) return null;
     const formInput = <Inputs {...propsForm} />;
@@ -56,17 +72,17 @@ export class FieldRender
       });
     }
     if (type === 'component') {
-      if (React.isValidElement(Component)) {
+      if (React.isValidElement<FieldRenderProps<V>>(component) && typeof component !== "function") {
         return (
-          <Component.type {...{ ...Component.props, ...propsForm }} />
+          <component.type {...{ ...component.props, ...propsForm }} />
         );
       }
-      if (ReactIs.isValidElementType(Component)) {
+      if (ReactIs.isValidElementType(component)) {
         return (
           <Observer>
             {() =>
-              React.createElement<FieldRenderComponentProps>(
-                Component as any,
+              React.createElement<FieldRenderProps<V>>(
+                component,
                 {
                   ...propsForm,
                   ...fieldProxy,
@@ -85,3 +101,5 @@ export class FieldRender
     );
   }
 }
+export { FieldRender };
+export default FieldRender;
