@@ -184,7 +184,6 @@ export default function App() {
                 color="default"
                 onClick={async () => {
                   saveData();
-                  restore();
                 }}
               >
                 Save
@@ -209,7 +208,7 @@ export default function App() {
               variant="outlined"
               color="primary"
               onClick={async () => {
-                fieldsBuilder.haveErrors({
+                await fieldsBuilder.haveErrors({
                   setErrors: true,
                 });
                 console.log(await getErrors());
@@ -222,7 +221,7 @@ export default function App() {
               color="secondary"
               onClick={async () => {
                 if (!(await fieldsBuilder.haveErrors())) {
-                  console.log(fieldsBuilder.getFieldsObject());
+                  console.log(fieldsBuilder.getValues());
                 }
               }}
             >
