@@ -28,7 +28,7 @@ class FieldBuilder<V = value> extends InputValidator<V>
   @observable public breakpoints?: BreakpointsField;
   @observable public component?: ComponentField;
 
-  static formatParams(props: PropsField | FieldBuilder): PropsField {
+  static formatParams<V = value>(props: PropsField<V> | FieldBuilder<V>): PropsField<V> {
     const {
       autoComplete,
       breakpoints,

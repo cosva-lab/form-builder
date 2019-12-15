@@ -1,9 +1,10 @@
 {
   "name": "@cosva-lab/form-builder",
-  "version": "1.0.27",
+  "version": "1.0.28",
   "description": "React form builder.",
   "author": "andres112013",
   "license": "MIT",
+  "homepage": "https://cosva-lab.github.io/form-builder",
   "repository": "https://github.com/cosva-lab/form-builder.git",
   "sideEffects": false,
   "main": "./src/index.ts",

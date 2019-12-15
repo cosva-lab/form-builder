@@ -18,19 +18,19 @@ export interface Message {
   props?: any;
 }
 
-export interface EventField {
-  target: { name: string; value: value; type?: string };
+export interface EventField<V = value> {
+  target: { name: string; value: V; type?: string };
   waitTime?: boolean;
   changeStateComponent?: boolean;
 }
 
-export type changeField = (
-  e: EventField,
+export type changeField<V = value> = (
+  e: EventField<V>,
   callback?: () => void,
 ) => void;
 
-export interface ChangeField {
-  changeField: changeField;
+export interface ChangeField<V = value> {
+  changeField: changeField<V>;
 }
 
 export type value = any;
@@ -62,14 +62,14 @@ export interface InitialStateFields extends InitialState {
   fields: PropsField[];
 }
 
-export interface ChangeValueField {
+export interface ChangeValueField<V = value> {
   field: FieldBuilder;
-  action: EventField['target'];
+  action: EventField<V>['target'];
 }
 
-export interface ChangeValueFields {
+export interface ChangeValueFields<V = value> {
   fieldsBuilder: FieldsBuilder;
-  action: EventField['target'];
+  action: EventField<V>['target'];
 }
 
 export interface ChangeValueSteps {
@@ -187,10 +187,7 @@ export type RenderField = (element: {
   props: FieldRenderComponentProps;
 }) => React.CElement<any, any>;
 
-export type ComponentField =
-  | React.ReactElement<FieldRenderComponentProps>
-  | React.ComponentClass<FieldRenderComponentProps>
-  | React.Component<FieldRenderComponentProps>;
+export type ComponentField = React.ElementType<FieldRenderComponentProps>
 
 export type TypeField =
   | 'autoComplete'
@@ -290,9 +287,8 @@ export interface PropsField<V = value>
   component?: ComponentField;
 }
 
-export interface FieldRenderProps
-  extends Validations,
-    PropsField,
+export interface FieldRenderProps<V = value>
+  extends PropsField<V>,
     InitialState {}
 
 export interface Validate<V = value> extends Validations<V> {
@@ -303,7 +299,7 @@ export interface FormInputProps extends BaseProps {
   multiple?: boolean;
 }
 
-export interface BaseProps extends PropsField, ChangeField {}
+export interface BaseProps<V= value> extends PropsField<V>, ChangeField {}
 
 export interface InputProps extends BaseProps {
   type?:
