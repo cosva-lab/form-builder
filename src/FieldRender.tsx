@@ -3,17 +3,14 @@ import * as ReactIs from 'react-is';
 import { Observer } from 'mobx-react';
 import Grid from '@material-ui/core/Grid';
 import Inputs from './Inputs';
-import {
-  FieldRenderProps,
-  changeField,
-  ChangeField,
-} from './';
+import { FieldRenderProps, changeField, ChangeField } from './';
 import { Message, BreakpointsField, value } from './types';
 import { observe, Lambda } from 'mobx';
 
-class FieldRender<V = value> extends React.PureComponent<FieldRenderProps<V>>
+class FieldRender<V = value>
+  extends React.PureComponent<FieldRenderProps<V>>
   implements ChangeField {
-  public subscription?: Lambda
+  public subscription?: Lambda;
   static defaultProps = {
     ns: 'inputs',
     transPosition: false,
@@ -24,14 +21,18 @@ class FieldRender<V = value> extends React.PureComponent<FieldRenderProps<V>>
 
   componentDidMount() {
     if (this.props.fieldProxy) {
-    this.subscription = observe(this.props.fieldProxy, 'state', () => {
-      this.forceUpdate();
-    })
+      this.subscription = observe(
+        this.props.fieldProxy,
+        'state',
+        () => {
+          this.forceUpdate();
+        },
+      );
     }
   }
 
-  componentDidUnmount() {
-    this.subscription && this.subscription()
+  componentWillUnmount() {
+    this.subscription && this.subscription();
   }
 
   public errorFlag: Message | undefined;
@@ -48,16 +49,9 @@ class FieldRender<V = value> extends React.PureComponent<FieldRenderProps<V>>
     const { md = sm } = breakpoints;
     const { lg = md } = breakpoints;
     const { xl = lg } = breakpoints;
-    const {
-      render,
-      type,
-      component,
-      fieldProxy,
-    } = props;
-    let {
-      state = props.state
-    } = { ...fieldProxy };
-    if (typeof state === "undefined") state = true
+    const { render, type, component, fieldProxy } = props;
+    let { state = props.state } = { ...fieldProxy };
+    if (typeof state === 'undefined') state = true;
     const propsForm: FieldRenderProps<V> = {
       ...props,
       changeField: this.changeField,
@@ -72,7 +66,10 @@ class FieldRender<V = value> extends React.PureComponent<FieldRenderProps<V>>
       });
     }
     if (type === 'component') {
-      if (React.isValidElement<FieldRenderProps<V>>(component) && typeof component !== "function") {
+      if (
+        React.isValidElement<FieldRenderProps<V>>(component) &&
+        typeof component !== 'function'
+      ) {
         return (
           <component.type {...{ ...component.props, ...propsForm }} />
         );
@@ -81,13 +78,10 @@ class FieldRender<V = value> extends React.PureComponent<FieldRenderProps<V>>
         return (
           <Observer>
             {() =>
-              React.createElement<FieldRenderProps<V>>(
-                component,
-                {
-                  ...propsForm,
-                  ...fieldProxy,
-                },
-              )
+              React.createElement<FieldRenderProps<V>>(component, {
+                ...propsForm,
+                ...fieldProxy,
+              })
             }
           </Observer>
         );

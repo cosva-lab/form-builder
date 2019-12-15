@@ -32,12 +32,12 @@ const styles = (theme: Theme) =>
     },
   });
 
-interface AllProps extends InputProps, WithStyles<typeof styles> { }
+interface AllProps extends InputProps, WithStyles<typeof styles> {}
 
 @observer
 class InputComponent extends React.Component<
-AllProps,
-{ type: InputProps['type'] }
+  AllProps,
+  { type: InputProps['type'] }
 > {
   static defaultProps: Partial<AllProps> = {
     error: {
@@ -64,11 +64,7 @@ AllProps,
   UNSAFE_componentWillUpdate(newProps: AllProps) {
     const { error } = this.getProps(newProps);
     const props = this.getLastProps();
-    if (
-      props.error &&
-      error &&
-      error.state !== props.error.state
-    ) {
+    if (props.error && error && error.state !== props.error.state) {
       this.animation = true;
     }
   }
@@ -155,11 +151,7 @@ AllProps,
               const child = (
                 <div className={className}>{children}</div>
               );
-              if (
-                this.animation &&
-                error &&
-                error.state
-              ) {
+              if (this.animation && error && error.state) {
                 this.animation = false;
                 return <Animation>{child}</Animation>;
               }

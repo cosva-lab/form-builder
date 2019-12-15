@@ -94,7 +94,10 @@ class FileInput extends React.PureComponent<Props, State> {
   setChangeField = (
     value: FileValue[],
     callBack?: () => void,
-    options?: Pick<EventField<FileValue[]>, 'changeStateComponent' | 'waitTime'>,
+    options?: Pick<
+      EventField<FileValue[]>,
+      'changeStateComponent' | 'waitTime'
+    >,
   ) => {
     const { changeField, name } = this.propsParse;
     changeField &&

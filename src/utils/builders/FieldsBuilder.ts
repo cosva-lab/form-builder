@@ -15,7 +15,7 @@ declare type Callback = Function;
 declare type Props = FieldsRenderProps;
 interface Fields {
   [key: string]: any;
-};
+}
 
 class FieldsBuilder extends InputsValidator
   implements FieldsRenderProps {
@@ -25,8 +25,8 @@ class FieldsBuilder extends InputsValidator
   @observable public actionsExtra?: object;
   @observable public transPosition?: transPosition;
   public get values(): Fields {
-    return this.getValues()
-  };
+    return this.getValues();
+  }
 
   private originalParams: Props;
   private paramsLast?: Pick<
@@ -123,7 +123,6 @@ class FieldsBuilder extends InputsValidator
     callback && callback();
   }
 
-
   getValues() {
     const fields: Fields = {};
     for (const { name, value, state } of toJS(this.fields)) {
@@ -138,7 +137,6 @@ class FieldsBuilder extends InputsValidator
   getFieldsObject() {
     return this.getValues();
   }
-
 
   changeField(callback?: (event: EventField) => void) {
     return (event: EventField, callbackEvent?: Callback) => {

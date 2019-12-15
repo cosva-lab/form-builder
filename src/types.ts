@@ -188,7 +188,7 @@ export type RenderField = (element: {
   props: FieldRenderProps;
 }) => React.CElement<any, any>;
 
-export type ComponentField = React.ElementType<FieldRenderProps>
+export type ComponentField = React.ElementType<FieldRenderProps>;
 
 export type TypeField =
   | 'autoComplete'
@@ -296,7 +296,9 @@ export interface FormInputProps extends BaseProps {
   multiple?: boolean;
 }
 
-export interface BaseProps<V= value> extends PropsField<V>, ChangeField {}
+export interface BaseProps<V = value>
+  extends PropsField<V>,
+    ChangeField {}
 
 export interface InputProps extends BaseProps {
   type?:
@@ -327,7 +329,9 @@ export interface FieldRenderProps<V = value>
   extends PropsField<V>,
     BaseBuilder<V> {}
 
-export type FieldRenderComponentProps<V = value> = FieldRenderProps<V>
+export type FieldRenderComponentProps<V = value> = FieldRenderProps<
+  V
+>;
 
 export interface BaseBuilder<V = value> extends ChangeField<V> {
   getSteps?: () => Step[];
