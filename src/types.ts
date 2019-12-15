@@ -2,10 +2,11 @@ import { JSXElementConstructor } from 'react';
 import { GridSize, GridProps } from '@material-ui/core/Grid';
 import { OutlinedInputProps } from '@material-ui/core/OutlinedInput';
 import { StepperProps } from '@material-ui/core/Stepper';
-import { ActionsFiles } from './inputsTypes/FileInput/Props';
-import StepValidator from './utils/validate/stepValidator';
 import { Breakpoint } from '@material-ui/core/styles/createBreakpoints';
 import { TextFieldProps } from '@material-ui/core/TextField';
+
+import { ActionsFiles } from './inputsTypes/FileInput/Props';
+import StepValidator from './utils/validate/stepValidator';
 import FieldsBuilder from './utils/builders/FieldsBuilder';
 import FieldBuilder from './utils/builders/FieldBuilder';
 import validators from './utils/validate/validators';
@@ -184,10 +185,10 @@ export type ChildrenRender = React.ReactElement<
 
 export type RenderField = (element: {
   children: ChildrenRender;
-  props: FieldRenderComponentProps;
+  props: FieldRenderProps;
 }) => React.CElement<any, any>;
 
-export type ComponentField = React.ElementType<FieldRenderComponentProps>
+export type ComponentField = React.ElementType<FieldRenderProps>
 
 export type TypeField =
   | 'autoComplete'
@@ -287,10 +288,6 @@ export interface PropsField<V = value>
   component?: ComponentField;
 }
 
-export interface FieldRenderProps<V = value>
-  extends PropsField<V>,
-    InitialState {}
-
 export interface Validate<V = value> extends Validations<V> {
   state?: boolean;
 }
@@ -326,11 +323,13 @@ export interface InputPropsChips extends BaseProps {
 export interface InputPropsSwitchList extends BaseProps {
   type: 'listSwitch';
 }
-export interface FieldRenderComponentProps
-  extends FieldRenderProps,
-    BaseBuilder {}
+export interface FieldRenderProps<V = value>
+  extends PropsField<V>,
+    BaseBuilder<V> {}
 
-export interface BaseBuilder extends ChangeField {
+export type FieldRenderComponentProps<V = value> = FieldRenderProps<V>
+
+export interface BaseBuilder<V = value> extends ChangeField<V> {
   getSteps?: () => Step[];
   activeStep?: activeStep;
   getFields?: () => PropsField[];
