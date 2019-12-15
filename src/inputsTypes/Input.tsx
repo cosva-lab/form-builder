@@ -32,12 +32,12 @@ const styles = (theme: Theme) =>
     },
   });
 
-interface AllProps extends InputProps, WithStyles<typeof styles> {}
+interface AllProps extends InputProps, WithStyles<typeof styles> { }
 
 @observer
 class InputComponent extends React.Component<
-  AllProps,
-  { type: InputProps['type'] }
+AllProps,
+{ type: InputProps['type'] }
 > {
   static defaultProps: Partial<AllProps> = {
     error: {
@@ -61,15 +61,21 @@ class InputComponent extends React.Component<
   animation = true;
   lastValue = '';
 
-  UNSAFE_componentWillUpdate({ error }: InputProps) {
+  UNSAFE_componentWillUpdate(newProps: AllProps) {
+    const { error } = this.getProps(newProps);
+    const props = this.getLastProps();
     if (
-      this.props.error &&
+      props.error &&
       error &&
-      error.state !== this.props.error.state
+      error.state !== props.error.state
     ) {
       this.animation = true;
     }
   }
+
+  getProps = (props: AllProps) => ({ ...props, ...props.fieldProxy });
+
+  getLastProps = () => this.getProps(this.props);
 
   textFieldProps = (): InputProps['textFieldProps'] => {
     const { textFieldProps } = this.props;
@@ -126,9 +132,6 @@ class InputComponent extends React.Component<
       classes,
       changeField,
       label,
-      fieldProxy,
-    } = this.props;
-    const {
       name,
       value,
       disabled,
@@ -136,7 +139,7 @@ class InputComponent extends React.Component<
       error,
       autoComplete,
       inputProps,
-    } = { ...this.props, ...fieldProxy };
+    } = this.getLastProps();
     const { type } = this.state;
     return (
       <FormControl
@@ -154,8 +157,8 @@ class InputComponent extends React.Component<
               );
               if (
                 this.animation &&
-                this.props.error &&
-                this.props.error.state
+                error &&
+                error.state
               ) {
                 this.animation = false;
                 return <Animation>{child}</Animation>;
