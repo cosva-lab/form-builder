@@ -13,6 +13,9 @@ import FieldBuilder from './FieldBuilder';
 declare type Callback = Function;
 
 declare type Props = FieldsRenderProps;
+interface Fields {
+  [key: string]: any;
+};
 
 class FieldsBuilder extends InputsValidator
   implements FieldsRenderProps {
@@ -21,6 +24,9 @@ class FieldsBuilder extends InputsValidator
   @observable public extra?: extra;
   @observable public actionsExtra?: object;
   @observable public transPosition?: transPosition;
+  public get values(): Fields {
+    return this.getValues()
+  };
 
   private originalParams: Props;
   private paramsLast?: Pick<
@@ -51,6 +57,7 @@ class FieldsBuilder extends InputsValidator
     this.setValidation = this.setValidation.bind(this);
     this.setErrors = this.setErrors.bind(this);
     this.getErrors = this.getErrors.bind(this);
+    this.getValues = this.getValues.bind(this);
   }
 
   private setProps: (
@@ -116,15 +123,22 @@ class FieldsBuilder extends InputsValidator
     callback && callback();
   }
 
-  getFieldsObject() {
-    const fields: {
-      [key: string]: any;
-    } = {};
-    for (const { name, value } of toJS(this.fields)) {
-      fields[name] = value;
+
+  getValues() {
+    const fields: Fields = {};
+    for (const { name, value, state } of toJS(this.fields)) {
+      if (state) fields[name] = value;
     }
     return fields;
   }
+
+  /**
+   * @deprecated 'Use getValues instead of getFieldsObject'
+   */
+  getFieldsObject() {
+    return this.getValues();
+  }
+
 
   changeField(callback?: (event: EventField) => void) {
     return (event: EventField, callbackEvent?: Callback) => {
