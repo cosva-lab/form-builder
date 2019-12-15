@@ -54,11 +54,13 @@ class InputsValidator {
   private async validityBase(setErrors: boolean = true) {
     this.valid = true;
     await this.callbackField(async (field, cancel) => {
-      field._validate = true;
-      await field.hasErrors({ setErrors });
-      if (!field.valid) {
-        this.valid = field.valid;
-        if (!setErrors) cancel();
+      if (field.state) {
+        field._validate = true;
+        await field.hasErrors({ setErrors });
+        if (!field.valid) {
+          this.valid = field.valid;
+          if (!setErrors) cancel();
+        }
       }
     });
   }
@@ -123,8 +125,8 @@ class InputsValidator {
     const fields: {
       [key: string]: ErrorField[] | undefined;
     } = {};
-    for (const { name, errors } of this.fields)
-      if (errors) fields[name] = errors;
+    for (const { name, errors, state } of this.fields)
+      if (errors && state) fields[name] = errors;
     return fields;
   }
 }
