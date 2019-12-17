@@ -29,7 +29,8 @@ class FieldRenderObserve<V = value>
   };
 
   public render() {
-    const { fieldProxy } = this.props;
+    const { props } = this;
+    const { fieldProxy } = props;
     const breakpoints: BreakpointsField = {
       ...fieldProxy.breakpoints,
     };
@@ -42,6 +43,7 @@ class FieldRenderObserve<V = value>
     let { state = fieldProxy.state } = { ...fieldProxy };
     if (typeof state === 'undefined') state = true;
     const propsForm: FieldRenderProps<V> = {
+      ...props,
       ...fieldProxy,
       fieldProxy,
       changeField: this.changeField,
