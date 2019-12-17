@@ -1,8 +1,13 @@
 import React from 'react';
 import { FieldRender } from './FieldRender';
-import { changeField } from './';
-import { FieldsRenderProps, BaseBuilder } from './types';
+import {
+  FieldsRenderProps,
+  changeField,
+  InitialState,
+  BaseBuilder,
+} from './types';
 import FieldBuilder from './utils/builders/FieldBuilder';
+import FieldRenderObserve from './FieldRenderObserve';
 
 declare type Props = FieldsRenderProps & BaseBuilder;
 
@@ -24,18 +29,36 @@ export class FieldsRender extends React.PureComponent<Props> {
    */
   public render() {
     const {
-      validate,
-      actionsExtra,
-      ns,
-      transPosition,
+      extra,
+      fields,
       getSteps,
       isNew,
-      fields,
-      extra,
+      ns,
+      transPosition,
+      validate,
     } = this.props;
+    const common: InitialState & BaseBuilder = {
+      changeField: this.changeField,
+      extra,
+      getFields: () => this.props.fields,
+      getSteps,
+      isNew,
+      validate,
+    };
     return (
       <>
         {fields.map(field => {
+          if (field instanceof FieldBuilder) {
+            if (!field.transPosition && transPosition)
+              field.transPosition = transPosition;
+            return (
+              <FieldRenderObserve
+                key={field.name}
+                fieldProxy={field}
+                {...common}
+              />
+            );
+          }
           const {
             label = {
               message: field.name,
@@ -46,21 +69,11 @@ export class FieldsRender extends React.PureComponent<Props> {
           return (
             <FieldRender
               key={field.name}
-              fieldProxy={
-                (field instanceof FieldBuilder && field) || undefined
-              }
               {...{
                 ...field,
-                ns: field.ns || ns,
-                extra,
-                transPosition,
                 label,
-                validate,
-                actionsExtra,
-                getSteps,
-                isNew,
-                changeField: this.changeField,
-                getFields: () => this.props.fields,
+                ns: field.ns || ns,
+                ...common,
               }}
             />
           );

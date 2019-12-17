@@ -86,7 +86,6 @@ export interface FormStepsProps extends InitialState {
 
 export interface FieldsRenderProps extends InitialState {
   fields: (FieldBuilder | PropsField)[];
-  actionsExtra?: {};
   validate?: boolean;
   transPosition?: transPosition;
 }
@@ -333,6 +332,10 @@ export type FieldRenderComponentProps<V = value> = FieldRenderProps<
   V
 >;
 
+export interface FieldRenderObserveProps<V = value>
+  extends BaseBuilder<V> {
+  fieldProxy: FieldBuilder;
+}
 export interface BaseBuilder<V = value> extends ChangeField<V> {
   getSteps?: () => Step[];
   activeStep?: activeStep;

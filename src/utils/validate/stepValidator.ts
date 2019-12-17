@@ -8,7 +8,6 @@ export class StepValidator extends FieldsBuilder {
   @observable public stepper: Step['stepper'];
 
   constructor({
-    actionsExtra,
     elevation,
     extra,
     fields,
@@ -20,7 +19,6 @@ export class StepValidator extends FieldsBuilder {
     validate,
   }: Step) {
     super({
-      actionsExtra,
       extra,
       fields,
       isNew,
