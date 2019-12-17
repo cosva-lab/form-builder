@@ -29,7 +29,6 @@ class FieldRenderObserve<V = value>
   };
 
   public render() {
-    debugger;
     const { fieldProxy } = this.props;
     const breakpoints: BreakpointsField = {
       ...fieldProxy.breakpoints,
