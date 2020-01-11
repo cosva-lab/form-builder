@@ -38,7 +38,7 @@ class FieldBuilder<V = value> extends InputValidator<V>
       defaultInputValue,
       disabled,
       error,
-      extra,
+      extra: extra,
       extraProps,
       fullWidth = true,
       inputProps,
@@ -67,7 +67,7 @@ class FieldBuilder<V = value> extends InputValidator<V>
       defaultInputValue,
       disabled,
       error,
-      extra,
+      extra: extra,
       extraProps,
       fullWidth,
       inputProps,
@@ -94,7 +94,7 @@ class FieldBuilder<V = value> extends InputValidator<V>
     super(props);
     const {
       extraProps,
-      extra,
+      extra: extra,
       ns,
       render,
       waitTime,

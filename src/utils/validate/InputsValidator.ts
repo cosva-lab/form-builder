@@ -1,5 +1,5 @@
 import { observable } from 'mobx';
-import { FieldsRenderProps } from '../..';
+import { FieldsProps } from '../..';
 import FieldBuilder from '../builders/FieldBuilder';
 import { ErrorField } from '../../types';
 
@@ -25,7 +25,7 @@ class InputsValidator {
   constructor({
     fields,
     validate,
-  }: Pick<FieldsRenderProps, 'fields' | 'validate'>) {
+  }: Pick<FieldsProps, 'fields' | 'validate'>) {
     this.fields = fields.map(
       field => new FieldBuilder({ ...field, validate }),
     );

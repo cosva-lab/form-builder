@@ -1,12 +1,12 @@
 import React from 'react';
 import { FieldRender } from './FieldRender';
 import { changeField } from './';
-import { FieldsRenderProps, BaseBuilder } from './types';
+import { FieldsRenderProps } from './types';
 import FieldBuilder from './utils/builders/FieldBuilder';
 
-declare type Props = FieldsRenderProps & BaseBuilder;
-
-export class FieldsRender extends React.PureComponent<Props> {
+export class FieldsRender extends React.PureComponent<
+  FieldsRenderProps
+> {
   public static defaultProps = {
     ns: 'inputs',
     transPosition: '',
@@ -30,7 +30,7 @@ export class FieldsRender extends React.PureComponent<Props> {
       getSteps,
       isNew,
       fields,
-      extra,
+      globalProps,
     } = this.props;
     return (
       <>
@@ -51,7 +51,7 @@ export class FieldsRender extends React.PureComponent<Props> {
               {...{
                 ...field,
                 ns: field.ns || ns,
-                extra,
+                globalProps,
                 transPosition,
                 label,
                 validate,

@@ -4,7 +4,7 @@ import { changeValueFields } from '../changeValues';
 import {
   extra,
   transPosition,
-  FieldsRenderProps,
+  FieldsProps,
   EventField,
   PropsField,
 } from '../../types';
@@ -12,13 +12,12 @@ import FieldBuilder from './FieldBuilder';
 
 declare type Callback = Function;
 
-declare type Props = FieldsRenderProps;
+declare type Props = FieldsProps;
 interface Fields {
   [key: string]: any;
 }
 
-class FieldsBuilder extends InputsValidator
-  implements FieldsRenderProps {
+class FieldsBuilder extends InputsValidator implements FieldsProps {
   @observable public ns?: string;
   @observable public isNew?: boolean;
   @observable public extra?: extra;
