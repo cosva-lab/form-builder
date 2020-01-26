@@ -314,6 +314,7 @@ class AutoCompleteComponent extends React.Component<
         </Typography>
       ),
       inputValue,
+      onInputChange,
     } = { ...extraProps };
     const selectStyles = {
       witdh: 100,
@@ -363,6 +364,7 @@ class AutoCompleteComponent extends React.Component<
               },
             }}
             options={options}
+            onInputChange={onInputChange}
             components={{
               ...(components as any),
               NoOptionsMessage,
@@ -393,6 +395,7 @@ class AutoCompleteComponent extends React.Component<
             }}
             value={value}
             onKeyDown={onKeyDown}
+            onInputChange={onInputChange}
             defaultInputValue={inputValue}
             onChange={(option: any) => {
               changeField({
