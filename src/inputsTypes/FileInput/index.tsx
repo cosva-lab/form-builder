@@ -15,12 +15,10 @@ import {
   ActionsFiles,
 } from './Props';
 import ListFiles from './Components/ListFiles';
-import { EventField } from '../..';
+import { EventField, ExtraProps } from '../..';
 import { Loading } from './Loading';
 
 const defaultPropsExtra = {
-  accept: '*',
-  extensions: ['.*'],
   validateExtensions: true,
   validateAccept: true,
   multiple: true,
@@ -60,7 +58,7 @@ class FileInput extends React.PureComponent<Props, State> {
       return typeof res === 'number' ? res : 0;
     });
 
-  get extraProps() {
+  get extraProps(): ExtraProps {
     return {
       ...defaultPropsExtra,
       ...this.propsParse.extraProps,
@@ -71,20 +69,16 @@ class FileInput extends React.PureComponent<Props, State> {
     return { ...this.props, ...this.props.fieldProxy };
   }
 
-  validExtensions(): boolean {
-    let error = false;
-    const extraProps = this.extraProps;
-    const extensions = extraProps.extensions;
-    if (extensions) {
-      try {
-        new RegExp(
-          `(${extensions.join('|').replace(/\./g, '\\.')})$`,
-        );
-      } catch (e) {
-        error = true;
-      }
+  getRegex(extensions?: string[]): RegExp | undefined {
+    let regExp = undefined;
+    try {
+      return new RegExp(
+        `(${(extensions || []).join('|').replace(/\./g, '\\.')})$`,
+      );
+    } catch (e) {
+      regExp = undefined;
     }
-    return error;
+    return regExp;
   }
 
   openFileDialog = () => {
@@ -115,7 +109,6 @@ class FileInput extends React.PureComponent<Props, State> {
 
   changeField: handleChangeFiles = async ({ files }) => {
     if (files && files.length) {
-      const newFiles: File[] = [];
       let newValue: FileValue[] = [];
       const valueTemp: FileValue[] = [];
       const tempFiles = Array.from(files);
@@ -124,11 +117,9 @@ class FileInput extends React.PureComponent<Props, State> {
         loading: true,
       });
 
-      const res = await import('mime-types').catch(() => undefined);
       this.setState({
         loading: false,
       });
-      const lookup = res && res.lookup;
 
       for (const file of tempFiles) {
         const { value } = this.propsParse;
@@ -150,11 +141,10 @@ class FileInput extends React.PureComponent<Props, State> {
           file,
           invalid: false,
         };
-        if (lookup && (await !this.validateFile(file.name, lookup))) {
+        if (!this.validateFile(file)) {
           va.invalid = true;
           valueTemp.push(va);
         } else {
-          newFiles.push(file);
           newValue.push(va);
         }
       }
@@ -197,7 +187,7 @@ class FileInput extends React.PureComponent<Props, State> {
       if (valueTemp.length) {
         setTimeout(() => {
           this.clearValueTemp();
-        }, 2000);
+        }, 3000);
       }
 
       if (this.isMount) {
@@ -321,7 +311,7 @@ class FileInput extends React.PureComponent<Props, State> {
     this.setState({ valueTemp: [] });
   };
 
-  convertAccept(param: string | string[]): string[] {
+  convertAccept(param?: string | string[]): string[] {
     let accept: string[] = [];
     if (typeof param === 'string') {
       if (this.convertToRegex(',').test(param)) {
@@ -339,10 +329,7 @@ class FileInput extends React.PureComponent<Props, State> {
     return accept;
   }
 
-  validateFile: (
-    fileName: string,
-    lookup: (filenameOrExt: string) => string | false,
-  ) => Promise<boolean> = async (fileName, lookup) => {
+  validateFile: (file: File) => boolean = file => {
     const {
       validateExtensions,
       validateAccept,
@@ -354,21 +341,18 @@ class FileInput extends React.PureComponent<Props, State> {
     const acceptValidate = () =>
       !!(
         accept.find((a: string): boolean => {
-          if (!lookup(fileName)) return false;
-          return !!(lookup(fileName) || '').match(
+          if (!file.name) return false;
+          return !!(file.name || '').match(
             new RegExp(`${a.replace(/(\.\*|\.|\*)$/, '')}.*`),
           );
         }) ||
         '*' === acceptFiles ||
-        acceptFiles === ''
+        !acceptFiles
       );
 
     const hasExtensions = (): boolean => {
-      if (this.validExtensions()) {
-        return new RegExp(
-          `(${extensions.join('|').replace(/\./g, '\\.')})$`,
-        ).test(fileName.toLowerCase());
-      }
+      const regex = this.getRegex(extensions);
+      if (regex) return regex.test(file.name.toLowerCase());
       return true;
     };
 
@@ -402,7 +386,7 @@ class FileInput extends React.PureComponent<Props, State> {
     } = {
       ...error,
     };
-    const files: FileValue[] = [...value, ...valueTemp];
+    const files: FileValue[] = value;
     return (
       <>
         <Paper
@@ -425,6 +409,7 @@ class FileInput extends React.PureComponent<Props, State> {
               multiple,
               subLabel,
               fieldProxy,
+              valueTemp,
               changeField: (...value) => this.changeField(...value),
               openFileDialog: (...value) =>
                 this.openFileDialog(...value),

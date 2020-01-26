@@ -314,7 +314,7 @@ class AutoCompleteComponent extends React.Component<
         </Typography>
       ),
       inputValue,
-    } = extraProps as any;
+    } = { ...extraProps };
     const selectStyles = {
       witdh: 100,
       input: (base: any) => ({

@@ -18,7 +18,7 @@ const styles = (theme: Theme) =>
     image: {
       width: 220,
       height: 125,
-      margin: theme.spacing(2),
+      margin: theme.spacing(3),
       alignItems: 'center',
       display: 'flex',
     },
@@ -41,6 +41,11 @@ const styles = (theme: Theme) =>
       width: '100%',
       padding: '1em',
     },
+    text: {
+      position: 'absolute',
+      top: 0,
+      padding: theme.spacing(2),
+    },
   });
 
 interface Props extends WithStyles<typeof styles> {
@@ -55,6 +60,7 @@ class FileItem extends React.PureComponent<Props> {
     const { classes } = props;
     const { value } = this.props;
     const invalid = value.invalid || false;
+
     return (
       <Paper className={classes.box}>
         <Grid
@@ -72,17 +78,16 @@ class FileItem extends React.PureComponent<Props> {
             }}
           >
             <Typography
-              variant="subtitle2"
+              className={classes.text}
+              variant="h6"
               noWrap
               style={{
                 zIndex: 10000,
-                flex: 1,
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
               }}
             >
-              {value instanceof File ? value.name : ''}
+              {value instanceof File
+                ? value.name
+                : (value.file && value.file.name) || ''}
             </Typography>
           </Grid>
 
@@ -115,6 +120,8 @@ class FileItem extends React.PureComponent<Props> {
         {invalid && (
           <div
             style={{
+              top: 0,
+              left: 0,
               cursor: 'not-allowed',
               width: '100%',
               height: '100%',

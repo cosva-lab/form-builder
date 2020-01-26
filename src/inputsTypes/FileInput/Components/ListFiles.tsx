@@ -22,6 +22,7 @@ import {
   handleChangeFiles,
   ListFilesProps,
   ListFilesStates,
+  Files,
 } from '../Props';
 import FileContainer from './FileContainer';
 import withWidth, { WithWidth } from '@material-ui/core/withWidth';
@@ -58,6 +59,7 @@ interface Props extends ListFilesProps, Pick<ActionsFiles, 'onSort'> {
   name: string;
   multiple: boolean | undefined;
   changeField: handleChangeFiles;
+  valueTemp: Files;
 }
 
 declare type AllProps = Props & WithStyles<typeof styles> & WithWidth;
@@ -163,10 +165,13 @@ export class ListFiles extends React.Component<
       children,
       classes,
       width,
+      valueTemp,
     } = this.props;
-    const files =
-      (this.props.fieldProxy && this.props.fieldProxy.value) ||
-      this.props.files;
+    const files = [
+      ...((this.props.fieldProxy && this.props.fieldProxy.value) ||
+        this.props.files),
+      ...valueTemp,
+    ];
 
     const isEmpty = !files.length;
 
