@@ -325,6 +325,8 @@ class FileInput extends React.PureComponent<Props, State> {
       } else {
         accept = [param];
       }
+    } else if (param) {
+      accept = param;
     }
     return accept;
   }
@@ -341,8 +343,8 @@ class FileInput extends React.PureComponent<Props, State> {
     const acceptValidate = () =>
       !!(
         accept.find((a: string): boolean => {
-          if (!file.name) return false;
-          return !!(file.name || '').match(
+          if (!file.type) return false;
+          return !!(file.type || '').match(
             new RegExp(`${a.replace(/(\.\*|\.|\*)$/, '')}.*`),
           );
         }) ||

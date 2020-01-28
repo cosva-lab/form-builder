@@ -5,6 +5,7 @@ import { Message } from '../../types';
 import FieldBuilder from '../../utils/builders/FieldBuilder';
 type ResBasic = { callBack: () => void } | void;
 type ResOnAdd = void | { callBack: () => void; value: Files } | Files;
+
 export interface ActionsFiles {
   onAdd?: ((file: Files) => Promise<ResOnAdd> | ResOnAdd) | null;
   onDelete?: ((file: Files) => Promise<ResBasic> | ResBasic) | null;
@@ -12,7 +13,6 @@ export interface ActionsFiles {
     changedFiles: { newFile: FileValue; oldFile: FileValue };
     sort: SortEnd;
   }) => Promise<ResBasic> | ResBasic;
-
   sort?: (a: FileValue, b: FileValue) => number | false | void;
   arrayMove?: (files: Files, from: number, to: number) => Files;
 }
