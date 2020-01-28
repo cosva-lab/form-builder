@@ -121,7 +121,7 @@ function initForm() {
         breakpoints: {
           sm: 12,
         },
-        extraProps: { extensions: ['rar'] },
+        extraProps: { accept: ['image/*'] },
         validChange: true,
         validations: [
           {
