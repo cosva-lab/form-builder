@@ -3,7 +3,6 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import {
   Input,
-  AutoComplete,
   DropdownList,
   FileInput,
   ListSwitch,
@@ -122,22 +121,6 @@ const Inputs = (props: FormInputProps) => {
           label={transformLabel({ label, ns, name })}
           name={name}
           extraProps={extraProps}
-        />
-      );
-    case 'autoComplete':
-      return (
-        <AutoComplete
-          {...{
-            ns,
-            extraProps,
-            label: transformLabel({ label, ns, name }),
-            name,
-            value,
-            type,
-            error,
-            disabled,
-            changeField,
-          }}
         />
       );
     case 'table':

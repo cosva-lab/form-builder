@@ -11,7 +11,6 @@ import FieldsBuilder from './utils/builders/FieldsBuilder';
 import FieldBuilder from './utils/builders/FieldBuilder';
 import validators from './utils/validate/validators';
 import { StepsBuilder } from './utils';
-import { ValueType, InputActionMeta } from 'react-select';
 
 export interface Message {
   ns?: string;
@@ -160,20 +159,7 @@ export interface ExtraProps extends ActionsFiles {
     onDelete(e: any): any;
     onAdd(e: any): any;
   };
-  onKeyDown?(event: any): void;
-  onInputChange?: (
-    value: ValueType<any>,
-    actionMeta: InputActionMeta,
-  ) => void;
   loading?: boolean;
-  options?: any[];
-  NoOptionsMessage?: React.ReactNode;
-  inputValue?: string;
-  filterOption?: (
-    option: { label: string; value: string; data: any },
-    rawInput: string,
-  ) => boolean;
-  filterOptions?: (options: any[]) => any[];
   accept?: string | string[];
   extensions?: string[];
   multiple?: boolean;
