@@ -16,9 +16,9 @@ import { FileValue, PropsGetThumbnail } from '../Props';
 const styles = (theme: Theme) =>
   createStyles({
     image: {
-      width: 220,
+      width: 'auto',
       height: 125,
-      margin: theme.spacing(3),
+      margin: theme.spacing(0, 3, 3, 3),
       alignItems: 'center',
       display: 'flex',
     },
@@ -41,10 +41,12 @@ const styles = (theme: Theme) =>
       width: '100%',
       padding: '1em',
     },
+    gridText: {
+      padding: theme.spacing(2, 0, 1, 0),
+    },
     text: {
-      position: 'absolute',
-      top: 0,
-      padding: theme.spacing(2),
+      zIndex: theme.zIndex.modal * 1.5,
+      maxWidth: `${theme.spacing(4)}%`,
     },
   });
 
@@ -73,21 +75,16 @@ class FileItem extends React.PureComponent<Props> {
           <Grid
             container
             justify="center"
-            style={{
-              bottom: '5px',
-            }}
+            className={classes.gridText}
           >
             <Typography
               className={classes.text}
-              variant="h6"
+              variant="subtitle1"
               noWrap
-              style={{
-                zIndex: 10000,
-              }}
             >
-              {value instanceof File
-                ? value.name
-                : (value.file && value.file.name) || ''}
+              {(value instanceof File && value.name) ||
+                (value.file && value.file.name) ||
+                ''}
             </Typography>
           </Grid>
 
