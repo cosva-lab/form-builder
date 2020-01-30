@@ -52,12 +52,9 @@ class FormStepsComponent extends React.Component<AllProps> {
     const { activeStep, isNew, loading, footerSteps } = stepsBuild;
     const steps = getSteps();
     const fieldsTemp = (activeStep: number) => {
-      const {
-        fields,
-        ns = stepsBuild.ns,
-        transPosition = false,
-        validate,
-      } = steps[activeStep];
+      const { fields, ns = stepsBuild.ns, validate } = steps[
+        activeStep
+      ];
       return (
         fields && (
           <>
@@ -65,7 +62,6 @@ class FormStepsComponent extends React.Component<AllProps> {
               {fields && (
                 <FieldsRender
                   ns={ns}
-                  transPosition={transPosition}
                   validate={validate}
                   fields={fields}
                   getSteps={() => steps}
