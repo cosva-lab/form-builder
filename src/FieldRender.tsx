@@ -4,39 +4,11 @@ import { Observer } from 'mobx-react';
 import Grid from '@material-ui/core/Grid';
 import Inputs from './Inputs';
 import { FieldRenderProps, changeField, ChangeField } from './';
-import { Message, BreakpointsField, value } from './types';
-import { observe, Lambda } from 'mobx';
+import { BreakpointsField, value } from './types';
 
 class FieldRender<V = value>
   extends React.PureComponent<FieldRenderProps<V>>
   implements ChangeField {
-  public subscription?: Lambda;
-  static defaultProps = {
-    ns: 'inputs',
-    transPosition: false,
-    search: {
-      state: false,
-    },
-  };
-
-  componentDidMount() {
-    if (this.props.fieldProxy) {
-      this.subscription = observe(
-        this.props.fieldProxy,
-        'status',
-        () => {
-          this.forceUpdate();
-        },
-      );
-    }
-  }
-
-  componentWillUnmount() {
-    this.subscription && this.subscription();
-  }
-
-  public errorFlag: Message | undefined;
-
   changeField: changeField = async ({ target }, callback) => {
     this.props.changeField({ target }, callback);
   };
@@ -57,12 +29,12 @@ class FieldRender<V = value>
       changeField: this.changeField,
     };
     const formInput = <Inputs {...propsForm} />;
-    if (render) {
+    if (render)
       return render({
         children: formInput,
         props: propsForm,
       });
-    }
+
     if (type === 'component') {
       if (
         React.isValidElement<FieldRenderProps<V>>(component) &&
@@ -78,7 +50,6 @@ class FieldRender<V = value>
             {() =>
               React.createElement<FieldRenderProps<V>>(component, {
                 ...propsForm,
-                ...fieldProxy,
               })
             }
           </Observer>
