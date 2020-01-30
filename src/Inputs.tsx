@@ -1,9 +1,9 @@
 import React from 'react';
 import { Input, FileInput } from './inputsTypes';
-import { FormInputProps } from './types';
+import { FieldProps } from './types';
 
-const Inputs = (props: FormInputProps) => {
-  const { multiple, changeField, fieldProxy } = props;
+const Inputs = (props: FieldProps) => {
+  const { changeField, fieldProxy } = props;
   const { type } = fieldProxy;
   switch (type) {
     case 'date':
@@ -19,15 +19,9 @@ const Inputs = (props: FormInputProps) => {
     case undefined:
       return <Input {...{ fieldProxy, changeField }} />;
     case 'file':
-      let onAdd, onDelete, onSort, sort, arrayMove;
-      const { extraProps } = fieldProxy;
-      if (extraProps) {
-        onAdd = extraProps.onAdd;
-        onDelete = extraProps.onDelete;
-        onSort = extraProps.onSort;
-        sort = extraProps.sort;
-        arrayMove = extraProps.arrayMove;
-      }
+      const { onAdd, onDelete, onSort, sort, arrayMove, multiple } = {
+        ...fieldProxy.extraProps,
+      };
       return (
         <FileInput
           {...{
