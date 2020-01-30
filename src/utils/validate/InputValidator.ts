@@ -11,7 +11,7 @@ import {
 } from '../../types';
 import Field from '../builders/Field';
 import validators from './validators';
-import { StatusField } from '../../types';
+import { StatusField, GlobalProps } from '../../types';
 
 export class InputValidator<V = value> extends Field<V>
   implements Validate<V> {
@@ -40,6 +40,20 @@ export class InputValidator<V = value> extends Field<V>
   @observable public error?: ErrorField;
 
   @observable public serverError?: string[] | string;
+
+  @observable private _globalProps?: GlobalProps;
+  public get globalProps(): GlobalProps | undefined {
+    return (
+      (this.fieldsBuilder && this.fieldsBuilder.globalProps) ||
+      this._globalProps
+    );
+  }
+
+  public set globalProps(globalProps: GlobalProps | undefined) {
+    if (this.fieldsBuilder && this.fieldsBuilder.globalProps) {
+      this.fieldsBuilder.globalProps = globalProps;
+    } else this._globalProps = globalProps;
+  }
 
   constructor(props: Validate<V> & PropsFieldBase) {
     super(props);

@@ -3,7 +3,6 @@ import {
   ExtraProps,
   InputPropsField,
   TextFieldPropsField,
-  GlobalProps,
   PropsField,
   value,
   RenderField,
@@ -15,7 +14,6 @@ import { InputValidator } from '../validate/InputValidator';
 class FieldBuilder<V = value> extends InputValidator<V>
   implements PropsField {
   @observable public extraProps?: ExtraProps;
-  @observable public globalProps?: GlobalProps;
   @observable public ns?: string;
   @observable public render?: RenderField;
   @observable public waitTime?: boolean;

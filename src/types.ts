@@ -82,7 +82,7 @@ export interface FormStepsProps extends InitialState {
 }
 
 export interface FieldsProps extends InitialState {
-  fields: (PropsField | FieldBuilder)[];
+  fields: FieldBuilder[];
 }
 
 export interface Step extends FieldsProps {
@@ -164,16 +164,16 @@ export interface ExtraProps extends ActionsFiles {
 }
 
 export type ChildrenRender = React.ReactElement<
-  FormInputProps,
-  JSXElementConstructor<FormInputProps>
+  FieldProps,
+  JSXElementConstructor<FieldProps>
 >;
 
 export type RenderField = (element: {
   children: ChildrenRender;
-  props: FieldRenderProps;
+  props: FieldProps;
 }) => React.CElement<any, any>;
 
-export type ComponentField = React.ElementType<FieldRenderProps>;
+export type ComponentField = React.ElementType<FieldProps>;
 
 export type TypeField =
   | 'component'
@@ -281,20 +281,15 @@ export interface Validate<V = value> extends Validations<V> {
   state?: boolean;
 }
 
-export interface FormInputProps extends BaseProps {
-  multiple?: boolean;
-}
-
 export interface BaseRender<V = value> {
   fieldProxy: FieldBuilder<V>;
-  globalProps?: GlobalProps;
 }
 
-export interface BaseProps<V = value>
+export interface FieldProps<V = value>
   extends BaseRender<V>,
     ChangeField {}
 
-export interface InputProps extends BaseProps {
+export interface InputProps extends FieldProps {
   type?:
     | 'date'
     | 'email'
@@ -306,18 +301,6 @@ export interface InputProps extends BaseProps {
     | 'time'
     | 'url'
     | 'week';
-}
-
-export interface InputPropsComplete extends BaseProps {
-  type: 'autoComplete';
-}
-
-export interface InputPropsChips extends BaseProps {
-  type: 'chips';
-}
-
-export interface InputPropsSwitchList extends BaseProps {
-  type: 'listSwitch';
 }
 
 export interface BaseBuilder<V = value> extends ChangeField<V> {

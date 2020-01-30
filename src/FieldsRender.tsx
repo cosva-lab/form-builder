@@ -2,7 +2,6 @@ import React from 'react';
 import { FieldRender } from './FieldRender';
 import { changeField } from './';
 import { FieldsRenderProps } from './types';
-import FieldBuilder from './utils/builders/FieldBuilder';
 
 export class FieldsRender extends React.PureComponent<
   FieldsRenderProps
@@ -27,15 +26,13 @@ export class FieldsRender extends React.PureComponent<
     return (
       <>
         {fields.map(field => {
+          if (!field.globalProps && globalProps)
+            field.globalProps = globalProps;
           return (
             <FieldRender
               key={field.name}
-              fieldProxy={
-                (field instanceof FieldBuilder && field) ||
-                new FieldBuilder(field)
-              }
+              fieldProxy={field}
               {...{
-                globalProps,
                 getSteps,
                 changeField: this.changeField,
                 getFields: () => this.props.fields,

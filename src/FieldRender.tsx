@@ -3,18 +3,18 @@ import * as ReactIs from 'react-is';
 import { Observer } from 'mobx-react';
 import Grid from '@material-ui/core/Grid';
 import Inputs from './Inputs';
-import { FieldRenderProps, changeField, ChangeField } from './';
+import { FieldProps, changeField, ChangeField } from './';
 import { BreakpointsField, value } from './types';
 
 class FieldRender<V = value>
-  extends React.PureComponent<FieldRenderProps<V>>
+  extends React.PureComponent<FieldProps<V>>
   implements ChangeField {
   changeField: changeField = async ({ target }, callback) => {
     this.props.changeField({ target }, callback);
   };
 
   public render() {
-    const { fieldProxy, globalProps } = this.props;
+    const { fieldProxy } = this.props;
     const breakpoints: BreakpointsField = {
       ...fieldProxy.breakpoints,
     };
@@ -24,9 +24,8 @@ class FieldRender<V = value>
     const { lg = md } = breakpoints;
     const { xl = lg } = breakpoints;
     const { component, render, type } = fieldProxy;
-    const propsForm: FieldRenderProps<V> = {
+    const propsForm: FieldProps<V> = {
       fieldProxy,
-      globalProps,
       changeField: this.changeField,
     };
     const formInput = <Inputs {...propsForm} />;
@@ -38,7 +37,7 @@ class FieldRender<V = value>
 
     if (type === 'component') {
       if (
-        React.isValidElement<FieldRenderProps<V>>(component) &&
+        React.isValidElement<FieldProps<V>>(component) &&
         typeof component !== 'function'
       ) {
         return (
@@ -49,7 +48,7 @@ class FieldRender<V = value>
         return (
           <Observer>
             {() =>
-              React.createElement<FieldRenderProps<V>>(component, {
+              React.createElement<FieldProps<V>>(component, {
                 ...propsForm,
               })
             }

@@ -1,5 +1,5 @@
 import { CSSProperties } from 'react';
-import { FormInputProps } from '../..';
+import { FieldProps } from '../..';
 import { SortEnd } from 'react-sortable-hoc';
 import { Message } from '../../types';
 import FieldBuilder from '../../utils/builders/FieldBuilder';
@@ -18,7 +18,7 @@ export interface ActionsFiles {
 }
 
 export interface Props
-  extends Partial<Pick<FormInputProps, 'changeField'>>,
+  extends Partial<Pick<FieldProps, 'changeField'>>,
     ActionsFiles {
   fieldProxy: FieldBuilder<Files>;
 }
