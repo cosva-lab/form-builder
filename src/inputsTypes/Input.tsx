@@ -39,20 +39,6 @@ class InputComponent extends React.Component<
   AllProps,
   { type: InputProps['type'] }
 > {
-  static defaultProps: Partial<AllProps> = {
-    error: {
-      ns: 'validations',
-      props: {},
-      state: false,
-      message: '',
-    },
-    fullWidth: true,
-    autoComplete: '',
-    inputProps: () => {
-      return {};
-    },
-  };
-
   constructor(props: AllProps) {
     super(props);
     this.state = { type: props.type };
@@ -69,73 +55,25 @@ class InputComponent extends React.Component<
     }
   }
 
-  getProps = (props: AllProps) => ({ ...props, ...props.fieldProxy });
+  getProps = (props: AllProps) => ({ ...props.fieldProxy });
 
   getLastProps = () => this.getProps(this.props);
 
-  textFieldProps = (): InputProps['textFieldProps'] => {
-    const { textFieldProps } = this.props;
-    if (!textFieldProps) return undefined;
-    const {
-      multiline,
-      rows,
-      autoComplete,
-      autoFocus,
-      color,
-      defaultValue,
-      disabled,
-      FormHelperTextProps,
-      fullWidth,
-      helperText,
-      id,
-      InputLabelProps,
-      inputRef,
-      label,
-      margin,
-      placeholder,
-      required,
-      rowsMax,
-      select,
-      SelectProps,
-    } = textFieldProps;
-    return {
-      multiline,
-      rows,
-      autoComplete,
-      autoFocus,
-      color,
-      defaultValue,
-      disabled,
-      FormHelperTextProps,
-      fullWidth,
-      helperText,
-      id,
-      InputLabelProps,
-      inputRef,
-      label,
-      margin,
-      placeholder,
-      required,
-      rowsMax,
-      select,
-      SelectProps,
-    };
-  };
-
   public render() {
+    const { classes, changeField, fieldProxy } = this.props;
     const {
       ns,
-      classes,
-      changeField,
       label,
       name,
-      value,
       disabled,
       fullWidth,
       error,
       autoComplete,
       inputProps,
-    } = this.getLastProps();
+      textFieldProps,
+      value,
+    } = fieldProxy;
+
     const { type } = this.state;
     return (
       <FormControl
@@ -183,13 +121,8 @@ class InputComponent extends React.Component<
             },
           }}
           onChange={({ target: { value: targetValue } }) => {
-            const { length } = targetValue;
-            const { length: lastLength } = this.lastValue;
             changeField({
               target: { name, value: targetValue, type },
-              waitTime: !(
-                lastLength - 1 !== length && lastLength + 1 !== length
-              ),
             });
             this.lastValue = targetValue;
           }}
@@ -198,7 +131,7 @@ class InputComponent extends React.Component<
             fieldProxy && fieldProxy.markAsTouched();
           }}
           {...{
-            ...this.textFieldProps(),
+            ...textFieldProps,
             name,
             type,
             value,

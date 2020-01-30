@@ -23,40 +23,21 @@ export class FieldsRender extends React.PureComponent<
    * @memberof FieldsRender
    */
   public render() {
-    const {
-      validate,
-      ns,
-      transPosition,
-      getSteps,
-      isNew,
-      fields,
-      globalProps,
-    } = this.props;
+    const { ns, getSteps, fields, globalProps } = this.props;
     return (
       <>
         {fields.map(field => {
-          const {
-            label = {
-              message: field.name,
-              ns,
-              notPos: !!transPosition,
-            },
-          } = field;
           return (
             <FieldRender
               key={field.name}
               fieldProxy={
-                (field instanceof FieldBuilder && field) || undefined
+                (field instanceof FieldBuilder && field) ||
+                new FieldBuilder(field)
               }
               {...{
-                ...field,
                 ns: field.ns || ns,
                 globalProps,
-                transPosition,
-                label,
-                validate,
                 getSteps,
-                isNew,
                 changeField: this.changeField,
                 getFields: () => this.props.fields,
               }}

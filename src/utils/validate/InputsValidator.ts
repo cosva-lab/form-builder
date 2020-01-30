@@ -5,7 +5,7 @@ import { ErrorField } from '../../types';
 
 class InputsValidator {
   @observable public valid = true;
-  public get inValid() {
+  public get invalid() {
     return !this.valid;
   }
   @observable public fields: FieldBuilder[];
@@ -54,7 +54,7 @@ class InputsValidator {
   private async validityBase(setErrors: boolean = true) {
     this.valid = true;
     await this.callbackField(async (field, cancel) => {
-      if (field.state) {
+      if (field.enabled) {
         field._validate = true;
         await field.hasErrors({ setErrors });
         if (!field.valid) {
@@ -74,7 +74,7 @@ class InputsValidator {
     const { setErrors = false } = { ...params };
     if (setErrors) this._validate = true;
     await this.validityBase(setErrors);
-    return this.inValid;
+    return this.invalid;
   }
 
   /**
@@ -125,8 +125,8 @@ class InputsValidator {
     const fields: {
       [key: string]: ErrorField[] | undefined;
     } = {};
-    for (const { name, errors, state } of this.fields)
-      if (errors && state) fields[name] = errors;
+    for (const { name, errors, enabled } of this.fields)
+      if (errors && enabled) fields[name] = errors;
     return fields;
   }
 }

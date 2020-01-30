@@ -21,8 +21,6 @@ export interface Message {
 
 export interface EventField<V = value> {
   target: { name: string; value: V; type?: string };
-  waitTime?: boolean;
-  changeStateComponent?: boolean;
 }
 
 export type changeField<V = value> = (
@@ -85,7 +83,7 @@ export interface FormStepsProps extends InitialState {
 }
 
 export interface FieldsProps extends InitialState {
-  fields: (FieldBuilder | PropsField)[];
+  fields: PropsField[];
   validate?: boolean;
   transPosition?: transPosition;
 }
@@ -181,15 +179,10 @@ export type RenderField = (element: {
 export type ComponentField = React.ElementType<FieldRenderProps>;
 
 export type TypeField =
-  | 'autoComplete'
-  | 'checkbox'
-  | 'chips'
   | 'component'
   | 'date'
   | 'email'
   | 'file'
-  | 'list'
-  | 'listSwitch'
   | 'number'
   | 'password'
   | 'search'
@@ -249,6 +242,17 @@ export type BreakpointsField = Partial<
   Record<Breakpoint, boolean | GridSize>
 >;
 
+export enum StatusField {
+  // This control has passed all validation checks.
+  'VALID' = 'VALID',
+  // This control has failed at least one validation check.
+  'INVALID' = 'INVALID',
+  // This control is in the midst of conducting a validation check.
+  'PENDING' = 'PENDING',
+  // This control is exempt from validation checks.
+  'DISABLED' = 'DISABLED',
+}
+
 export interface PropsFieldBase<V = value> {
   type?: TypeField;
   name: string;
@@ -256,14 +260,12 @@ export interface PropsFieldBase<V = value> {
   disabled?: boolean;
   defaultInputValue?: V;
   label?: LabelPropsField;
-  state?: boolean;
 }
 
 export interface PropsField<V = value>
   extends PropsFieldBase<V>,
     Validations<V>,
     InitialState {
-  fieldProxy?: FieldBuilder;
   extraProps?: ExtraProps;
   render?: RenderField;
   waitTime?: boolean;
@@ -286,8 +288,12 @@ export interface FormInputProps extends BaseProps {
   multiple?: boolean;
 }
 
+export interface PropsRenderField<V = value> {
+  fieldProxy: FieldBuilder<V>;
+}
+
 export interface BaseProps<V = value>
-  extends PropsField<V>,
+  extends PropsRenderField<V>,
     ChangeField {}
 
 export interface InputProps extends BaseProps {
@@ -329,7 +335,7 @@ export interface BaseBuilder<V = value>
 }
 
 export interface FieldRenderProps<V = value>
-  extends PropsField<V>,
+  extends PropsRenderField<V>,
     BaseBuilder<V> {}
 
 export type FieldsRenderProps = FieldsProps & BaseBuilder;

@@ -47,7 +47,6 @@ class FieldBuilder<V = value> extends InputValidator<V>
       ns,
       render,
       serverError,
-      state = true,
       textFieldProps,
       transPosition,
       type,
@@ -76,7 +75,6 @@ class FieldBuilder<V = value> extends InputValidator<V>
       ns,
       render,
       serverError,
-      state,
       textFieldProps,
       transPosition,
       type,
@@ -94,7 +92,7 @@ class FieldBuilder<V = value> extends InputValidator<V>
     super(props);
     const {
       extraProps,
-      extra: extra,
+      extra,
       ns,
       render,
       waitTime,

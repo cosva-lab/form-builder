@@ -1,5 +1,5 @@
 import { CSSProperties } from 'react';
-import { FormInputProps, PropsField } from '../..';
+import { FormInputProps, PropsRenderField } from '../..';
 import { SortEnd } from 'react-sortable-hoc';
 import { Message } from '../../types';
 import FieldBuilder from '../../utils/builders/FieldBuilder';
@@ -18,23 +18,9 @@ export interface ActionsFiles {
 }
 
 export interface Props
-  extends Pick<
-      FormInputProps,
-      | 'ns'
-      | 'multiple'
-      | 'inputProps'
-      | 'label'
-      | 'name'
-      | 'value'
-      | 'type'
-      | 'error'
-      | 'disabled'
-      | 'extraProps'
-    >,
-    Partial<Pick<FormInputProps, 'changeField'>>,
+  extends Partial<Pick<FormInputProps, 'changeField'>>,
     ActionsFiles {
-  value: Files;
-  fieldProxy?: FieldBuilder<Files>;
+  fieldProxy: FieldBuilder<Files>;
 }
 
 export interface ExtraFile {
@@ -68,7 +54,7 @@ export interface State {
 }
 
 export interface ListFilesProps
-  extends Pick<PropsField, 'label' | 'ns' | 'name' | 'fieldProxy'> {
+  extends Pick<PropsRenderField, 'fieldProxy'> {
   files: Files;
   openFileDialog: () => void;
   deleteFile: (index: number, sendChange?: boolean) => Promise<void>;

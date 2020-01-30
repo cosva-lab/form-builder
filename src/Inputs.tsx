@@ -1,34 +1,10 @@
 import React from 'react';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
-import {
-  Input,
-  DropdownList,
-  FileInput,
-  ListSwitch,
-  Chips,
-} from './inputsTypes';
+import { Input, FileInput } from './inputsTypes';
 import { FormInputProps } from './types';
-import { transformLabel } from './utils';
 
 const Inputs = (props: FormInputProps) => {
-  const {
-    multiple,
-    inputProps,
-    label,
-    changeField,
-    type,
-    value,
-    name,
-    error,
-    disabled,
-    extraProps,
-    ns,
-    fullWidth,
-    autoComplete,
-    fieldProxy,
-    textFieldProps,
-  } = props;
+  const { multiple, changeField, fieldProxy } = props;
+  const { type } = fieldProxy;
   switch (type) {
     case 'date':
     case 'email':
@@ -41,27 +17,10 @@ const Inputs = (props: FormInputProps) => {
     case 'url':
     case 'week':
     case undefined:
-      return (
-        <Input
-          {...{
-            ns,
-            inputProps,
-            label: transformLabel({ label, ns, name }),
-            name,
-            value,
-            type,
-            error,
-            disabled,
-            changeField,
-            fullWidth,
-            autoComplete,
-            fieldProxy,
-            textFieldProps,
-          }}
-        />
-      );
+      return <Input {...{ fieldProxy, changeField }} />;
     case 'file':
       let onAdd, onDelete, onSort, sort, arrayMove;
+      const { extraProps } = fieldProxy;
       if (extraProps) {
         onAdd = extraProps.onAdd;
         onDelete = extraProps.onDelete;
@@ -72,17 +31,8 @@ const Inputs = (props: FormInputProps) => {
       return (
         <FileInput
           {...{
-            ns,
             multiple,
-            inputProps,
-            label: transformLabel({ label, ns, name }),
-            name,
-            value,
-            type,
-            error,
-            disabled,
             changeField,
-            extraProps,
             onAdd,
             onDelete,
             onSort,
@@ -90,82 +40,6 @@ const Inputs = (props: FormInputProps) => {
             arrayMove,
             fieldProxy,
           }}
-        />
-      );
-    case 'listSwitch':
-      return (
-        <ListSwitch
-          {...{
-            ns,
-            multiple,
-            inputProps,
-            label: transformLabel({ label, ns, name }),
-            name,
-            value,
-            type,
-            error,
-            disabled,
-            changeField,
-          }}
-        />
-      );
-    case 'list':
-      return (
-        <DropdownList
-          fullWidth={true}
-          value={value}
-          error={error}
-          onChange={changeField}
-          disabled={disabled}
-          ns={ns}
-          label={transformLabel({ label, ns, name })}
-          name={name}
-          extraProps={extraProps}
-        />
-      );
-    case 'table':
-      return null;
-    /* return (
-          <BoxForm
-            value={value}
-            {...{ns, ...propsRest, label, name }}
-            onChange={changeField}
-          />
-        ); */
-    case 'chips':
-      return (
-        <Chips
-          {...{
-            ns,
-            inputProps,
-            label: transformLabel({ label, ns, name }),
-            name,
-            value,
-            type,
-            error,
-            disabled,
-            changeField,
-          }}
-        />
-      );
-    case 'checkbox':
-      return (
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={value}
-              onChange={e => {
-                const { target } = e;
-                const { name, checked, type } = target;
-                changeField({
-                  target: { name, value: checked, type },
-                });
-              }}
-              name={name}
-              disabled={disabled}
-            />
-          }
-          label={transformLabel({ label, ns, name })}
         />
       );
     default:

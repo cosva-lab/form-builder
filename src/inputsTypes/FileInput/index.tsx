@@ -15,7 +15,7 @@ import {
   ActionsFiles,
 } from './Props';
 import ListFiles from './Components/ListFiles';
-import { EventField, ExtraProps } from '../..';
+import { ExtraProps } from '../..';
 import { Loading } from './Loading';
 
 const defaultPropsExtra = {
@@ -85,14 +85,7 @@ class FileInput extends React.PureComponent<Props, State> {
     if (this.inputOpenFileRef) this.inputOpenFileRef.current.click();
   };
 
-  setChangeField = (
-    value: FileValue[],
-    callBack?: () => void,
-    options?: Pick<
-      EventField<FileValue[]>,
-      'changeStateComponent' | 'waitTime'
-    >,
-  ) => {
+  setChangeField = (value: FileValue[], callBack?: () => void) => {
     const { changeField, name } = this.propsParse;
     changeField &&
       changeField(
@@ -101,7 +94,6 @@ class FileInput extends React.PureComponent<Props, State> {
             name,
             value,
           },
-          ...options,
         },
         callBack,
       );
@@ -250,13 +242,9 @@ class FileInput extends React.PureComponent<Props, State> {
     if (this.isMount) {
       const setChangeField = () => {
         if (userErr)
-          this.setChangeField(
-            oldValue,
-            () => {
-              callBack && callBack();
-            },
-            { changeStateComponent: false },
-          );
+          this.setChangeField(oldValue, () => {
+            callBack && callBack();
+          });
         else callBack && callBack();
       };
       if (this.state.loading)

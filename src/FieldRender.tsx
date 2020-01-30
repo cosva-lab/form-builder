@@ -23,7 +23,7 @@ class FieldRender<V = value>
     if (this.props.fieldProxy) {
       this.subscription = observe(
         this.props.fieldProxy,
-        'state',
+        'status',
         () => {
           this.forceUpdate();
         },
@@ -42,22 +42,20 @@ class FieldRender<V = value>
   };
 
   public render() {
-    const { props } = this;
-    const breakpoints: BreakpointsField = { ...props.breakpoints };
+    const { fieldProxy } = this.props;
+    const breakpoints: BreakpointsField = {
+      ...fieldProxy.breakpoints,
+    };
     const { xs = 12 } = breakpoints;
     const { sm = xs } = breakpoints;
     const { md = sm } = breakpoints;
     const { lg = md } = breakpoints;
     const { xl = lg } = breakpoints;
-    const { render, type, component, fieldProxy } = props;
-    let { state = props.state } = { ...fieldProxy };
-    if (typeof state === 'undefined') state = true;
+    const { component, render, type } = fieldProxy;
     const propsForm: FieldRenderProps<V> = {
-      ...props,
+      fieldProxy,
       changeField: this.changeField,
-      component,
     };
-    if (!state) return null;
     const formInput = <Inputs {...propsForm} />;
     if (render) {
       return render({

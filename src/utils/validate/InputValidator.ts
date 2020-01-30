@@ -11,13 +11,10 @@ import {
 } from '../../types';
 import Field from '../builders/Field';
 import validators from './validators';
+import { StatusField } from '../../types';
 
 export class InputValidator<V = value> extends Field<V>
   implements Validate<V> {
-  @observable public valid: boolean = true;
-  public get inValid() {
-    return !this.valid;
-  }
   @observable public _validate?: boolean;
   public get validate() {
     return this._validate;
@@ -29,6 +26,11 @@ export class InputValidator<V = value> extends Field<V>
     else this.error = undefined;
   }
 
+  @observable public touched?: boolean;
+  public get untouched() {
+    return !this.touched;
+  }
+
   @observable public validations?: (
     | Validation
     | ValidationFunction<V>
@@ -36,7 +38,7 @@ export class InputValidator<V = value> extends Field<V>
   @observable public changed?: boolean;
   @observable public validChange?: boolean;
   @observable public error?: ErrorField;
-  public errors?: ErrorField[];
+
   @observable public serverError?: string[] | string;
 
   constructor(props: Validate<V> & PropsFieldBase) {
@@ -97,14 +99,14 @@ export class InputValidator<V = value> extends Field<V>
             typeof value === 'string' &&
             validator((value || '').toString(), args) === boolean
           ) {
-            this.valid = false;
+            this.status = StatusField.INVALID;
             return {
               state: true,
               message,
               ns,
               props,
             };
-          } else this.valid = true;
+          } else this.status = StatusField.VALID;
         }
       }
     }
@@ -115,12 +117,18 @@ export class InputValidator<V = value> extends Field<V>
     validate?: boolean;
   }): Promise<ErrorField[] | undefined> {
     const { validate = this.validate } = { ...params };
-    const { changed, validChange, validations, value, state } = this;
+    const {
+      changed,
+      validChange,
+      validations,
+      value,
+      enabled,
+    } = this;
     let errors: ErrorField[] | undefined = undefined;
     this.errors = errors;
 
     let messageResult: ErrorField | undefined = undefined;
-    if (!validate && !changed && !state) return messageResult;
+    if (!validate && !changed && !enabled) return messageResult;
 
     if (Array.isArray(validations) && (validChange || validate)) {
       for (const validation of validations) {
@@ -130,8 +138,8 @@ export class InputValidator<V = value> extends Field<V>
             if (!messageResult) messageResult = res;
             if (!errors) errors = [];
             errors.push(res);
-            this.valid = false;
-          } else this.valid = true;
+            this.status = StatusField.INVALID;
+          } else this.status = StatusField.VALID;
         } else {
           const res = await validation({
             changed,
@@ -144,10 +152,10 @@ export class InputValidator<V = value> extends Field<V>
           });
           if (res) {
             if (!messageResult) messageResult = res;
-            this.valid = false;
+            this.status = StatusField.INVALID;
             if (!errors) errors = [];
             errors.push(res);
-          } else this.valid = true;
+          } else this.status = StatusField.VALID;
         }
         this.errors = errors;
       }
@@ -158,7 +166,7 @@ export class InputValidator<V = value> extends Field<V>
   public async hasErrors(params?: { setErrors: boolean }) {
     const { setErrors = false } = { ...params };
     await this.validityBase(setErrors);
-    return this.inValid;
+    return this.invalid;
   }
 
   /**
@@ -170,7 +178,7 @@ export class InputValidator<V = value> extends Field<V>
 
   private touchToggle(state: boolean) {
     this.validate = state;
-    this.changed = state;
+    this.touched = state;
   }
 
   public markAsTouched() {

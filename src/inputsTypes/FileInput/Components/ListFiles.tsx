@@ -30,6 +30,7 @@ import { FileValue, ActionsFiles } from '../Props';
 import RootRef from '@material-ui/core/RootRef';
 import { Theme } from '@material-ui/core/styles';
 import { observer } from 'mobx-react';
+import { LabelPropsField } from '../../../types';
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -57,6 +58,7 @@ const defaultPropsExtra = {
 interface Props extends ListFilesProps, Pick<ActionsFiles, 'onSort'> {
   ns: string | undefined;
   name: string;
+  label?: LabelPropsField;
   multiple: boolean | undefined;
   changeField: handleChangeFiles;
   valueTemp: Files;

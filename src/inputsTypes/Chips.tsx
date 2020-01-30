@@ -49,7 +49,7 @@ export const Chips = withStyles(styles)(
     public deleteFlag = false;
 
     public handleDelete = (index: number) => () => {
-      const { value, name, extraProps } = this.props;
+      const { value, name, extraProps } = this.props.fieldProxy;
       let onDelete = ({ value, index }: any) => {
         value.splice(index, 1);
         return value;
@@ -71,10 +71,10 @@ export const Chips = withStyles(styles)(
         icon: iconGeneral,
         avatar: avatarGeneral,
         variant: variantGeneral,
-        value,
-        name,
         changeField,
+        fieldProxy,
       } = this.props;
+      const { value, name } = fieldProxy;
       const { input } = this.state;
       return (
         <React.Fragment>
@@ -114,7 +114,7 @@ export const Chips = withStyles(styles)(
                 }
                 if (e.key === 'Enter') {
                   const addDefault = (v: string) => ({ label: v });
-                  const { extraProps } = this.props;
+                  const { extraProps } = this.props.fieldProxy;
                   const onAdd =
                     (extraProps &&
                       extraProps.actions &&

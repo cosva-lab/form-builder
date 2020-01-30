@@ -122,10 +122,10 @@ class FieldsBuilder extends InputsValidator implements FieldsProps {
     callback && callback();
   }
 
-  getValues() {
-    const fields: Fields = {};
-    for (const { name, value, state } of toJS(this.fields)) {
-      if (state) fields[name] = value;
+  getValues<V extends Fields>() {
+    const fields: V = Object.create(null);
+    for (const { name, value, enabled } of toJS(this.fields)) {
+      if (enabled) fields[name as keyof V] = value;
     }
     return fields;
   }
@@ -135,6 +135,10 @@ class FieldsBuilder extends InputsValidator implements FieldsProps {
    */
   getFieldsObject() {
     return this.getValues();
+  }
+
+  get(fieldName: string) {
+    return this.fields.find(({ name }) => name === fieldName);
   }
 
   changeField(callback?: (event: EventField) => void) {
