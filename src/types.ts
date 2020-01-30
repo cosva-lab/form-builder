@@ -46,7 +46,7 @@ export interface InitialState {
 }
 
 export interface InitialStateSteps extends InitialState {
-  steps: Step[];
+  steps: StepProps[];
   activeStep: activeStep;
   loading?: boolean;
   footerSteps?: { [key: number]: Record<'next' | 'back', Message> };
@@ -82,10 +82,10 @@ export interface FormStepsProps extends InitialState {
 }
 
 export interface FieldsProps extends InitialState {
-  fields: FieldBuilder[];
+  fields: (PropsField | FieldBuilder)[];
 }
 
-export interface Step extends FieldsProps {
+export interface StepProps extends FieldsProps {
   label: Message | string;
   stepper?: boolean;
   elevation?: number;
@@ -105,7 +105,7 @@ export interface StepsRender extends ChangeField {
   handleBackStep: (activeStep: activeStep) => void;
   gridProps?: Omit<GridProps, 'children'>;
   stepperProps?: Omit<StepperProps, 'activeStep' | 'children'>;
-  getSteps?: () => Step[];
+  getSteps?: () => StepProps[];
   stepsBuild: InitialStateSteps;
 }
 
@@ -304,7 +304,7 @@ export interface InputProps extends FieldProps {
 }
 
 export interface BaseBuilder<V = value> extends ChangeField<V> {
-  getSteps?: () => Step[];
+  getSteps?: () => StepProps[];
   activeStep?: activeStep;
   getFields?: () => PropsField[];
 }

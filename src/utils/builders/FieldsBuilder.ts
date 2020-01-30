@@ -6,23 +6,19 @@ import {
   FieldsProps,
   EventField,
   PropsField,
-  InitialState,
 } from '../../types';
 import FieldBuilder from './FieldBuilder';
 
 declare type Callback = Function;
 
 declare type Props = FieldsProps;
-interface FieldsPropsLast extends InitialState {
-  fields: PropsField[];
-}
+
 interface Fields {
   [key: string]: any;
 }
 
 class FieldsBuilder extends InputsValidator implements FieldsProps {
   @observable public ns?: string;
-  @observable public?: boolean;
   @observable public globalProps?: GlobalProps;
   @observable public actionsExtra?: object;
   public get values(): Fields {
@@ -31,7 +27,7 @@ class FieldsBuilder extends InputsValidator implements FieldsProps {
 
   private originalParams: Props;
   private paramsLast?: Pick<
-    FieldsPropsLast,
+    FieldsProps,
     'fields' | 'ns' | 'validate'
   >;
 

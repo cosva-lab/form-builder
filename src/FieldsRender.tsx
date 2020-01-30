@@ -2,6 +2,7 @@ import React from 'react';
 import { FieldRender } from './FieldRender';
 import { changeField } from './';
 import { FieldsRenderProps } from './types';
+import FieldBuilder from './utils/builders/FieldBuilder';
 
 export class FieldsRender extends React.PureComponent<
   FieldsRenderProps
@@ -31,7 +32,10 @@ export class FieldsRender extends React.PureComponent<
           return (
             <FieldRender
               key={field.name}
-              fieldProxy={field}
+              fieldProxy={
+                (field instanceof FieldBuilder && field) ||
+                new FieldBuilder(field)
+              }
               {...{
                 getSteps,
                 changeField: this.changeField,

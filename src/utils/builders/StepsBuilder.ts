@@ -3,7 +3,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import {
   InitialStateSteps,
   EventField,
-  Step,
+  StepProps,
   activeStep,
 } from '../../types';
 import StepsValidator from '../validate/stepsValidator';
@@ -90,7 +90,7 @@ export default class StepsBuilder extends StepsValidator
     this.setActiveStep(this.activeStep - 1, callback);
   };
 
-  private setSteps(steps: Step[], callback?: Callback) {
+  private setSteps(steps: StepProps[], callback?: Callback) {
     const stepsTemp = steps.map(step => new StepValidator(step));
     this.steps = stepsTemp;
     callback && callback();

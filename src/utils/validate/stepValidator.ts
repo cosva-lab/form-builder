@@ -1,11 +1,11 @@
 import { observable } from 'mobx';
-import { Step } from '../../types';
+import { StepProps } from '../../types';
 import FieldsBuilder from '../builders/FieldsBuilder';
 
 export class StepValidator extends FieldsBuilder {
-  @observable public elevation: Step['elevation'];
-  @observable public label: Step['label'];
-  @observable public stepper: Step['stepper'];
+  @observable public elevation: StepProps['elevation'];
+  @observable public label: StepProps['label'];
+  @observable public stepper: StepProps['stepper'];
 
   constructor({
     elevation,
@@ -15,7 +15,7 @@ export class StepValidator extends FieldsBuilder {
     ns,
     stepper,
     validate,
-  }: Step) {
+  }: StepProps) {
     super({
       globalProps,
       fields,
