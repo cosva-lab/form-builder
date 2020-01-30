@@ -49,7 +49,7 @@ class FormStepsComponent extends React.Component<AllProps> {
       children,
       stepsBuild,
     } = props;
-    const { activeStep, isNew, loading, footerSteps } = stepsBuild;
+    const { activeStep, loading, footerSteps } = stepsBuild;
     const steps = getSteps();
     const fieldsTemp = (activeStep: number) => {
       const { fields, ns = stepsBuild.ns, validate } = steps[
@@ -66,7 +66,6 @@ class FormStepsComponent extends React.Component<AllProps> {
                   fields={fields}
                   getSteps={() => steps}
                   changeField={changeField}
-                  isNew={isNew}
                 />
               )}
             </Grid>
@@ -81,7 +80,6 @@ class FormStepsComponent extends React.Component<AllProps> {
                   footerRender,
                   activeStep,
                   loading,
-                  isNew,
                 }}
               />
             </Grid>

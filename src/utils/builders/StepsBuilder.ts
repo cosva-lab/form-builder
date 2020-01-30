@@ -17,7 +17,6 @@ declare type Props = InitialStateSteps;
 export default class StepsBuilder extends StepsValidator
   implements InitialStateSteps {
   @observable ns?: string;
-  @observable isNew?: boolean;
   @observable validate?: boolean;
   @observable activeStep: activeStep;
   @observable private originalParams: StepsBuilder;
@@ -25,7 +24,7 @@ export default class StepsBuilder extends StepsValidator
 
   constructor(props: Props) {
     super(props.steps);
-    const { ns, isNew, validate, activeStep } = props;
+    const { ns, validate, activeStep } = props;
     for (const step of this.steps) {
       for (const field of step.fields) {
         field.stepsBuilder = this;
@@ -35,7 +34,6 @@ export default class StepsBuilder extends StepsValidator
     this.activeStep = activeStep;
     this.setProps({
       ns,
-      isNew,
       validate,
       activeStep,
     });
@@ -43,7 +41,6 @@ export default class StepsBuilder extends StepsValidator
     this.restoreLast = this.restoreLast.bind(this);
     this.restore = this.restore.bind(this);
     this.getFieldsObject = this.getFieldsObject.bind(this);
-    this.setNew = this.setNew.bind(this);
     this.setSteps = this.setSteps.bind(this);
     this.changeField = this.changeField.bind(this);
     this.changeSteps = this.changeSteps.bind(this);
@@ -52,13 +49,9 @@ export default class StepsBuilder extends StepsValidator
   }
 
   private setProps: (
-    props: Pick<
-      StepsBuilder,
-      'ns' | 'isNew' | 'validate' | 'activeStep'
-    >,
-  ) => void = ({ ns, isNew, validate, activeStep }) => {
+    props: Pick<StepsBuilder, 'ns' | 'validate' | 'activeStep'>,
+  ) => void = ({ ns, validate, activeStep }) => {
     this.ns = ns;
-    this.isNew = isNew;
     this.validate = validate;
     this.activeStep = activeStep;
   };
@@ -78,15 +71,6 @@ export default class StepsBuilder extends StepsValidator
     this.setProps(rest);
     this.steps = steps;
     this.setSteps(steps);
-  }
-
-  setNew(value: boolean, callback?: Callback) {
-    if (this.isNew !== value)
-      this.parmsLast = {
-        ...this,
-      };
-    this.isNew = value;
-    callback && callback();
   }
 
   setActiveStep(value: number, callback?: Callback) {

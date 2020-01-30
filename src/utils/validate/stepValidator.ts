@@ -11,7 +11,6 @@ export class StepValidator extends FieldsBuilder {
     elevation,
     globalProps,
     fields,
-    isNew,
     label,
     ns,
     stepper,
@@ -20,7 +19,6 @@ export class StepValidator extends FieldsBuilder {
     super({
       globalProps,
       fields,
-      isNew,
       ns,
       validate,
     });

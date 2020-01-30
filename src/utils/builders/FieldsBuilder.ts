@@ -18,7 +18,7 @@ interface Fields {
 
 class FieldsBuilder extends InputsValidator implements FieldsProps {
   @observable public ns?: string;
-  @observable public isNew?: boolean;
+  @observable public?: boolean;
   @observable public globalProps?: GlobalProps;
   @observable public actionsExtra?: object;
   public get values(): Fields {
@@ -26,21 +26,17 @@ class FieldsBuilder extends InputsValidator implements FieldsProps {
   }
 
   private originalParams: Props;
-  private paramsLast?: Pick<
-    Props,
-    'fields' | 'ns' | 'isNew' | 'validate'
-  >;
+  private paramsLast?: Pick<Props, 'fields' | 'ns' | 'validate'>;
 
   constructor(props: Props) {
     super(props);
-    const { ns, isNew, validate } = props;
+    const { ns, validate } = props;
     for (const field of this.fields) {
       field.fieldsBuilder = this;
       if (!field.ns) field.ns = ns;
     }
     this.setProps({
       ns,
-      isNew,
       validate,
     });
     this.originalParams = props;
@@ -48,7 +44,6 @@ class FieldsBuilder extends InputsValidator implements FieldsProps {
     this.restore = this.restore.bind(this);
     this.restoreLast = this.restoreLast.bind(this);
     this.getFieldsObject = this.getFieldsObject.bind(this);
-    this.setNew = this.setNew.bind(this);
     this.changeField = this.changeField.bind(this);
     this.changeFields = this.changeFields.bind(this);
     this.setValidation = this.setValidation.bind(this);
@@ -58,12 +53,11 @@ class FieldsBuilder extends InputsValidator implements FieldsProps {
   }
 
   private setProps: (
-    props: Pick<FieldsBuilder, 'ns' | 'isNew'> & {
+    props: Pick<FieldsBuilder, 'ns'> & {
       validate?: boolean;
     },
-  ) => void = ({ ns, isNew, validate = true }) => {
+  ) => void = ({ ns, validate = true }) => {
     this.ns = ns;
-    this.isNew = isNew;
     this.validate = validate;
   };
 
@@ -89,13 +83,12 @@ class FieldsBuilder extends InputsValidator implements FieldsProps {
   }
 
   saveData() {
-    const { fields, ns, isNew, validate } = this;
+    const { fields, ns, validate } = this;
     this.paramsLast = {
       fields: fields.map(
         (field): PropsField => FieldBuilder.formatParams(field),
       ),
       ns,
-      isNew,
       validate,
     };
   }
@@ -113,11 +106,6 @@ class FieldsBuilder extends InputsValidator implements FieldsProps {
       this.setFields(fields);
       this.paramsLast = undefined;
     }
-  }
-
-  setNew(value: boolean, callback?: Callback) {
-    this.isNew = value;
-    callback && callback();
   }
 
   getValues<V extends Fields>() {
