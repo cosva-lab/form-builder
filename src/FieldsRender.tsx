@@ -23,7 +23,7 @@ export class FieldsRender extends React.PureComponent<
    * @memberof FieldsRender
    */
   public render() {
-    const { ns, getSteps, fields, globalProps } = this.props;
+    const { getSteps, fields, globalProps } = this.props;
     return (
       <>
         {fields.map(field => {
@@ -35,7 +35,6 @@ export class FieldsRender extends React.PureComponent<
                 new FieldBuilder(field)
               }
               {...{
-                ns: field.ns || ns,
                 globalProps,
                 getSteps,
                 changeField: this.changeField,

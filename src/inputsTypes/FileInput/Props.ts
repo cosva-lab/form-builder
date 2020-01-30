@@ -1,5 +1,5 @@
 import { CSSProperties } from 'react';
-import { FormInputProps, PropsRenderField } from '../..';
+import { FormInputProps } from '../..';
 import { SortEnd } from 'react-sortable-hoc';
 import { Message } from '../../types';
 import FieldBuilder from '../../utils/builders/FieldBuilder';
@@ -53,8 +53,8 @@ export interface State {
   loading: boolean;
 }
 
-export interface ListFilesProps
-  extends Pick<PropsRenderField, 'fieldProxy'> {
+export interface ListFilesProps {
+  fieldProxy: FieldBuilder<any>;
   files: Files;
   openFileDialog: () => void;
   deleteFile: (index: number, sendChange?: boolean) => Promise<void>;

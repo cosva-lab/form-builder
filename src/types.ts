@@ -33,7 +33,7 @@ export interface ChangeField<V = value> {
 }
 
 export type value = any;
-export type extra =
+export type GlobalProps =
   | { [key: string]: any }
   | (() => { [key: string]: any });
 export type transPosition = string | boolean;
@@ -43,7 +43,7 @@ export interface InitialState {
   ns?: string;
   isNew?: boolean;
   validate?: boolean;
-  extra?: extra;
+  globalProps?: GlobalProps;
 }
 
 export interface InitialStateSteps extends InitialState {
@@ -83,9 +83,7 @@ export interface FormStepsProps extends InitialState {
 }
 
 export interface FieldsProps extends InitialState {
-  fields: PropsField[];
-  validate?: boolean;
-  transPosition?: transPosition;
+  fields: (PropsField | FieldBuilder)[];
 }
 
 export interface Step extends FieldsProps {
@@ -288,12 +286,13 @@ export interface FormInputProps extends BaseProps {
   multiple?: boolean;
 }
 
-export interface PropsRenderField<V = value> {
+export interface BaseRender<V = value> {
   fieldProxy: FieldBuilder<V>;
+  globalProps?: GlobalProps;
 }
 
 export interface BaseProps<V = value>
-  extends PropsRenderField<V>,
+  extends BaseRender<V>,
     ChangeField {}
 
 export interface InputProps extends BaseProps {
@@ -322,21 +321,14 @@ export interface InputPropsSwitchList extends BaseProps {
   type: 'listSwitch';
 }
 
-export interface BaseRender {
-  globalProps?: extra;
-}
-
-export interface BaseBuilder<V = value>
-  extends ChangeField<V>,
-    BaseRender {
+export interface BaseBuilder<V = value> extends ChangeField<V> {
   getSteps?: () => Step[];
   activeStep?: activeStep;
   getFields?: () => PropsField[];
 }
 
-export interface FieldRenderProps<V = value>
-  extends PropsRenderField<V>,
-    BaseBuilder<V> {}
+export type FieldRenderProps<V = value> = BaseBuilder<V> &
+  BaseRender<V>;
 
 export type FieldsRenderProps = FieldsProps & BaseBuilder;
 

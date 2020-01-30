@@ -2,8 +2,7 @@ import { observable, toJS } from 'mobx';
 import InputsValidator from '../validate/InputsValidator';
 import { changeValueFields } from '../changeValues';
 import {
-  extra,
-  transPosition,
+  GlobalProps,
   FieldsProps,
   EventField,
   PropsField,
@@ -20,9 +19,8 @@ interface Fields {
 class FieldsBuilder extends InputsValidator implements FieldsProps {
   @observable public ns?: string;
   @observable public isNew?: boolean;
-  @observable public extra?: extra;
+  @observable public globalProps?: GlobalProps;
   @observable public actionsExtra?: object;
-  @observable public transPosition?: transPosition;
   public get values(): Fields {
     return this.getValues();
   }

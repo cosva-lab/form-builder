@@ -9,21 +9,19 @@ export class StepValidator extends FieldsBuilder {
 
   constructor({
     elevation,
-    extra,
+    globalProps,
     fields,
     isNew,
     label,
     ns,
     stepper,
-    transPosition,
     validate,
   }: Step) {
     super({
-      extra,
+      globalProps,
       fields,
       isNew,
       ns,
-      transPosition,
       validate,
     });
     this.elevation = elevation;

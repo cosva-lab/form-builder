@@ -3,8 +3,7 @@ import {
   ExtraProps,
   InputPropsField,
   TextFieldPropsField,
-  extra,
-  transPosition,
+  GlobalProps,
   PropsField,
   value,
   RenderField,
@@ -16,12 +15,11 @@ import { InputValidator } from '../validate/InputValidator';
 class FieldBuilder<V = value> extends InputValidator<V>
   implements PropsField {
   @observable public extraProps?: ExtraProps;
-  @observable public extra?: extra;
+  @observable public globalProps?: GlobalProps;
   @observable public ns?: string;
   @observable public render?: RenderField;
   @observable public waitTime?: boolean;
   @observable public fullWidth?: boolean;
-  @observable public transPosition?: transPosition;
   @observable public autoComplete?: string;
   @observable public inputProps?: InputPropsField;
   @observable public textFieldProps?: TextFieldPropsField;
@@ -38,7 +36,7 @@ class FieldBuilder<V = value> extends InputValidator<V>
       defaultInputValue,
       disabled,
       error,
-      extra: extra,
+      globalProps: extra,
       extraProps,
       fullWidth = true,
       inputProps,
@@ -48,7 +46,6 @@ class FieldBuilder<V = value> extends InputValidator<V>
       render,
       serverError,
       textFieldProps,
-      transPosition,
       type,
       value,
       waitTime,
@@ -66,7 +63,7 @@ class FieldBuilder<V = value> extends InputValidator<V>
       defaultInputValue,
       disabled,
       error,
-      extra: extra,
+      globalProps: extra,
       extraProps,
       fullWidth,
       inputProps,
@@ -76,7 +73,6 @@ class FieldBuilder<V = value> extends InputValidator<V>
       render,
       serverError,
       textFieldProps,
-      transPosition,
       type,
       value,
       waitTime,
@@ -92,12 +88,11 @@ class FieldBuilder<V = value> extends InputValidator<V>
     super(props);
     const {
       extraProps,
-      extra,
+      globalProps: extra,
       ns,
       render,
       waitTime,
       fullWidth,
-      transPosition,
       autoComplete,
       inputProps,
       textFieldProps,
@@ -106,12 +101,11 @@ class FieldBuilder<V = value> extends InputValidator<V>
     } = FieldBuilder.formatParams(props);
 
     this.extraProps = extraProps;
-    this.extra = extra;
+    this.globalProps = extra;
     this.ns = ns;
     this.render = render;
     this.waitTime = waitTime;
     this.fullWidth = fullWidth;
-    this.transPosition = transPosition;
     this.autoComplete = autoComplete;
     this.inputProps = inputProps;
     this.textFieldProps = textFieldProps;
