@@ -27,8 +27,7 @@ export class FieldsRender extends React.PureComponent<
     return (
       <>
         {fields.map(field => {
-          if (!field.globalProps && globalProps)
-            field.globalProps = globalProps;
+          if (globalProps) field.globalProps = globalProps;
           return (
             <FieldRender
               key={field.name}
