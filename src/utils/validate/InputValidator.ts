@@ -176,17 +176,13 @@ export class InputValidator<V = value> extends Field<V>
     return this.hasErrors(params);
   }
 
-  private touchToggle(state: boolean) {
-    this.validate = state;
-    this.touched = state;
-  }
-
   public markAsTouched() {
-    this.touchToggle(true);
+    this.validity();
+    this.touched = true;
   }
 
   public markAsUntouched() {
-    this.touchToggle(false);
+    this.touched = false;
   }
 
   private async validityBase(setErrors: boolean = true) {
