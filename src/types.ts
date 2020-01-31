@@ -35,9 +35,7 @@ export interface ChangeField<V = value> {
 }
 
 export type value = any;
-export type GlobalProps =
-  | { [key: string]: any }
-  | (() => { [key: string]: any });
+export type GlobalProps = () => { [key: string]: any };
 export type transPosition = string | boolean;
 export type activeStep = number;
 
