@@ -86,8 +86,8 @@ class FileInput extends React.PureComponent<FileInputProps, State> {
   };
 
   setChangeField = (value: FileValue[], callBack?: () => void) => {
-    const { changeField, name } = this.propsParse;
-    changeField &&
+    const { changeField, name, fieldProxy } = this.propsParse;
+    if (changeField)
       changeField(
         {
           target: {
@@ -97,6 +97,10 @@ class FileInput extends React.PureComponent<FileInputProps, State> {
         },
         callBack,
       );
+    else {
+      fieldProxy.setValue(value);
+      callBack && callBack();
+    }
   };
 
   changeField: handleChangeFiles = async ({ files }) => {
@@ -195,9 +199,7 @@ class FileInput extends React.PureComponent<FileInputProps, State> {
             );
           },
         );
-      } else {
-        callBack && callBack();
-      }
+      } else callBack && callBack();
     }
   };
 
