@@ -44,10 +44,15 @@ export type activeStep = number;
 export interface InitialState {
   ns?: string;
   validate?: boolean;
+}
+
+interface GlobalPropsInterface {
   globalProps?: GlobalProps;
 }
 
-export interface InitialStateSteps extends InitialState {
+export interface InitialStateSteps
+  extends InitialState,
+    GlobalPropsInterface {
   steps: StepProps[];
   activeStep: activeStep;
   loading?: boolean;
@@ -58,7 +63,9 @@ export declare function buildFields(a: PropsField[]): PropsField[];
 
 export type FieldsAll = PropsField[];
 
-export interface InitialStateFields extends InitialState {
+export interface InitialStateFields
+  extends InitialState,
+    GlobalPropsInterface {
   fields: PropsField[];
 }
 
@@ -78,12 +85,9 @@ export interface ChangeValueSteps {
   action: ChangeValueFields['action'];
 }
 
-export interface FormStepsProps extends InitialState {
-  handleNextStep({ activeStep }: { activeStep: activeStep }): void;
-  handleBackStep({ activeStep }: { activeStep: activeStep }): void;
-}
-
-export interface FieldsProps extends InitialState {
+export interface FieldsProps
+  extends InitialState,
+    GlobalPropsInterface {
   fields: (PropsField | FieldBuilder)[];
 }
 
