@@ -18,12 +18,12 @@ interface Fields {
 
 class FieldsBuilder extends InputsValidator implements FieldsProps {
   @observable public ns?: string;
-  @observable public globalProps?: GlobalProps;
   @observable public actionsExtra?: object;
   public get values(): Fields {
     return this.getValues();
   }
 
+  public globalProps?: GlobalProps;
   private originalParams: Props;
   private paramsLast?: Pick<
     FieldsProps,
