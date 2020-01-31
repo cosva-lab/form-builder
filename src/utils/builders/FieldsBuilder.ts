@@ -7,7 +7,6 @@ import {
   EventField,
   PropsField,
 } from '../../types';
-import FieldBuilder from './FieldBuilder';
 
 declare type Callback = Function;
 
@@ -88,9 +87,7 @@ class FieldsBuilder extends InputsValidator implements FieldsProps {
   saveData() {
     const { fields, ns, validate } = this;
     this.paramsLast = {
-      fields: fields.map(
-        (field): PropsField => FieldBuilder.formatParams(field),
-      ),
+      fields: fields.map((field): PropsField => toJS(field)),
       ns,
       validate,
     };
@@ -113,10 +110,9 @@ class FieldsBuilder extends InputsValidator implements FieldsProps {
 
   getValues<V extends Fields>() {
     const fields: V = Object.create(null);
-    for (const { name, value, enabled } of toJS(this.fields)) {
+    for (const { name, value, enabled } of this.fields)
       if (enabled) fields[name as keyof V] = value;
-    }
-    return fields;
+    return toJS(fields);
   }
 
   /**

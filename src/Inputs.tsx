@@ -17,7 +17,7 @@ const Inputs = (props: FieldProps) => {
     case 'url':
     case 'week':
     case undefined:
-      return <Input {...{ fieldProxy, changeField }} />;
+      return <Input {...{ fieldProxy, changeField, type }} />;
     case 'file':
       const { onAdd, onDelete, onSort, sort, arrayMove, multiple } = {
         ...fieldProxy.extraProps,

@@ -1,4 +1,5 @@
-import { observable, toJS } from 'mobx';
+import { observable } from 'mobx';
+
 import {
   ExtraProps,
   InputPropsField,
@@ -24,82 +25,24 @@ class FieldBuilder<V = value> extends InputValidator<V>
   @observable public breakpoints?: BreakpointsField;
   @observable public component?: ComponentField;
 
-  static formatParams<V = value>(
-    props: PropsField<V> | FieldBuilder<V>,
-  ): PropsField<V> {
-    const {
-      autoComplete,
-      breakpoints,
-      component,
-      defaultInputValue,
-      disabled,
-      error,
-      globalProps: extra,
-      extraProps,
-      fullWidth = true,
-      inputProps,
-      label,
-      name,
-      ns,
-      render,
-      serverError,
-      textFieldProps,
-      type,
-      value,
-      waitTime,
-      // Validations
-      changed,
-      validChange,
-      validate,
-      validations,
-    } = toJS(props);
-
-    return {
-      autoComplete,
-      breakpoints,
-      component,
-      defaultInputValue,
-      disabled,
-      error,
-      globalProps: extra,
-      extraProps,
-      fullWidth,
-      inputProps,
-      label,
-      name,
-      ns,
-      render,
-      serverError,
-      textFieldProps,
-      type,
-      value,
-      waitTime,
-      // Validations
-      changed,
-      validChange,
-      validate,
-      validations,
-    };
-  }
-
   constructor(props: PropsField<V>) {
     super(props);
     const {
       extraProps,
-      globalProps: extra,
+      globalProps,
       ns,
       render,
       waitTime,
-      fullWidth,
+      fullWidth = true,
       autoComplete,
       inputProps,
       textFieldProps,
       breakpoints,
       component,
-    } = FieldBuilder.formatParams(props);
+    } = props;
 
     this.extraProps = extraProps;
-    this.globalProps = extra;
+    this.globalProps = globalProps;
     this.ns = ns;
     this.render = render;
     this.waitTime = waitTime;

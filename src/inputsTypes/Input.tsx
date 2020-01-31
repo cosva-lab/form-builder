@@ -66,7 +66,7 @@ class InputComponent extends React.Component<
       label,
       name,
       disabled,
-      fullWidth,
+      fullWidth = true,
       error,
       autoComplete,
       inputProps,
