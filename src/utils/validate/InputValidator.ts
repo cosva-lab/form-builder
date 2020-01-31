@@ -42,7 +42,7 @@ export class InputValidator<V = value> extends Field<V>
 
   @observable public serverError?: string[] | string;
 
-  @observable private _globalProps?: GlobalProps;
+  private _globalProps?: GlobalProps;
   public get globalProps(): GlobalProps | undefined {
     return (
       (this.fieldsBuilder && this.fieldsBuilder.globalProps) ||
@@ -51,9 +51,9 @@ export class InputValidator<V = value> extends Field<V>
   }
 
   public set globalProps(globalProps: GlobalProps | undefined) {
-    if (this.fieldsBuilder && this.fieldsBuilder.globalProps) {
+    if (this.fieldsBuilder)
       this.fieldsBuilder.globalProps = globalProps;
-    } else this._globalProps = globalProps;
+    else this._globalProps = globalProps;
   }
 
   constructor(props: Validate<V> & PropsFieldBase) {
