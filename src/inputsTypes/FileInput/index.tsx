@@ -8,7 +8,7 @@ import arrayMove from 'array-move';
 
 import { getMessage, Animation } from '../../FieldTranslate';
 import {
-  Props,
+  FileInputProps,
   State,
   handleChangeFiles,
   FileValue,
@@ -26,7 +26,7 @@ const defaultPropsExtra = {
 };
 
 @observer
-class FileInput extends React.PureComponent<Props, State> {
+class FileInput extends React.PureComponent<FileInputProps, State> {
   static defaultProps = {
     extraProps: defaultPropsExtra,
     onAdd: null,

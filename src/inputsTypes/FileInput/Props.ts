@@ -1,4 +1,3 @@
-import { CSSProperties } from 'react';
 import { FieldProps } from '../..';
 import { SortEnd } from 'react-sortable-hoc';
 import { Message } from '../../types';
@@ -17,7 +16,7 @@ export interface ActionsFiles {
   arrayMove?: (files: Files, from: number, to: number) => Files;
 }
 
-export interface Props
+export interface FileInputProps
   extends Partial<Pick<FieldProps, 'changeField'>>,
     ActionsFiles {
   fieldProxy: FieldBuilder<Files>;
@@ -36,17 +35,6 @@ export interface FileValue {
 }
 export declare type Files = FileValue[];
 
-export declare type Lookup = (
-  filenameOrExt: string,
-) => string | false;
-export declare type ContentType = (
-  filenameOrExt: string,
-) => string | false;
-export declare type Extension = (
-  typeString: string,
-) => string | false;
-export declare type Charset = (typeString: string) => string | false;
-
 export interface State {
   valueTemp: Files;
   inputValue: string;
@@ -60,10 +48,6 @@ export interface ListFilesProps {
   deleteFile: (index: number, sendChange?: boolean) => Promise<void>;
   subLabel?: Message;
 }
-export declare type ListFilesStates = Pick<
-  CSSProperties,
-  'backgroundColor'
->;
 
 export declare type handleChangeFiles = (target: {
   files: FileList | null;
