@@ -6,9 +6,8 @@ import {
   StepProps,
   activeStep,
 } from '../../types';
-import StepsValidator from '../validate/stepsValidator';
+import { StepsValidator, StepValidator } from '../validate';
 import { changeValueSteps } from '../changeValues';
-import StepValidator from '../validate/stepValidator';
 
 declare type Callback = () => void;
 

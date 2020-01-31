@@ -1,5 +1,5 @@
 import { observable } from 'mobx';
-import StepValidator from './stepValidator';
+import StepValidator from './StepValidator';
 import { StepProps } from '../../types';
 
 class StepsValidator {

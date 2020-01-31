@@ -29,7 +29,6 @@ class FieldBuilder<V = value> extends InputValidator<V>
     super(props);
     const {
       extraProps,
-      globalProps,
       ns,
       render,
       waitTime,
@@ -42,7 +41,6 @@ class FieldBuilder<V = value> extends InputValidator<V>
     } = props;
 
     this.extraProps = extraProps;
-    this.globalProps = globalProps;
     this.ns = ns;
     this.render = render;
     this.waitTime = waitTime;

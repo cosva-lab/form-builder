@@ -6,11 +6,13 @@ import { Breakpoint } from '@material-ui/core/styles/createBreakpoints';
 import { TextFieldProps } from '@material-ui/core/TextField';
 
 import { ActionsFiles } from './inputsTypes/FileInput/Props';
-import StepValidator from './utils/validate/stepValidator';
-import FieldsBuilder from './utils/builders/FieldsBuilder';
-import FieldBuilder from './utils/builders/FieldBuilder';
+import {
+  StepsBuilder,
+  StepValidator,
+  FieldsBuilder,
+  FieldBuilder,
+} from './utils';
 import validators from './utils/validate/validators';
-import { StepsBuilder } from './utils';
 
 export interface Message {
   ns?: string;

@@ -8,10 +8,11 @@ import {
   ErrorField,
   Message,
   PropsFieldBase,
+  StatusField,
+  GlobalProps,
 } from '../../types';
 import Field from '../builders/Field';
-import validators from './validators';
-import { StatusField, GlobalProps } from '../../types';
+import { validators } from '../validate';
 
 export class InputValidator<V = value> extends Field<V>
   implements Validate<V> {
