@@ -3,6 +3,7 @@ import makeStyles from '@material-ui/styles/makeStyles';
 
 import { ComponentErrorsProps, Message } from './types';
 import { getMessage } from './FieldTranslate';
+import { useFieldError } from './FieldError/index';
 
 const useStyles = makeStyles(() => ({
   spanError: { display: 'block' },
@@ -20,20 +21,20 @@ export const RenderErrorsDefault = ({
   errors,
 }: ComponentErrorsProps) => {
   const { spanError } = useStyles();
-
+  const common = useFieldError();
   return (
     <div>
       {typeof errors === 'string'
         ? errors
         : errors.map((error, i) => {
-            if (React.isValidElement<{}>(error)) return error;
+            if (React.isValidElement<any>(error)) return error;
             return typeof error === 'string' ? (
               <span className={spanError} key={i}>
                 {error}
               </span>
             ) : isMessage(error) ? (
               <span className={spanError} key={i}>
-                {getMessage(error)}
+                {getMessage({ ...common, ...error })}
               </span>
             ) : (
               Object.values(error).map((e, j) => {
@@ -41,7 +42,9 @@ export const RenderErrorsDefault = ({
                   <span className={spanError} key={j}>
                     {typeof e === 'string'
                       ? e
-                      : (isMessage(e) && getMessage(e)) || e}
+                      : (isMessage(e) &&
+                          getMessage({ ...common, ...e })) ||
+                        null}
                   </span>
                 );
               })
