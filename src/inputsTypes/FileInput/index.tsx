@@ -6,7 +6,7 @@ import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import arrayMove from 'array-move';
 
-import { getMessage, Animation } from '../../FieldTranslate';
+import { Animation } from '../../FieldTranslate';
 import {
   Props,
   State,
@@ -17,6 +17,7 @@ import {
 import ListFiles from './Components/ListFiles';
 import { ExtraProps } from '../..';
 import { Loading } from './Loading';
+import { RenderErrorsDefault } from '../RenderErrorsDefault';
 
 const defaultPropsExtra = {
   validateExtensions: true,
@@ -364,18 +365,17 @@ class FileInput extends React.PureComponent<Props, State> {
 
   public render() {
     const { fieldProxy } = this.props;
-    const { error, label, name, ns, value } = this.propsParse;
+    const {
+      errors,
+      label,
+      name,
+      ns,
+      value,
+      renderErrors: RenderErrors,
+    } = this.propsParse;
     const { multiple, subLabel } = this.extraProps;
     const accept = this.convertAccept(this.extraProps.accept);
     const { valueTemp, inputValue, loading } = this.state;
-    const {
-      state = false,
-      message = '',
-      ns: nsError = ns,
-      props = {},
-    } = {
-      ...error,
-    };
     const files: FileValue[] = value;
     return (
       <>
@@ -385,7 +385,7 @@ class FileInput extends React.PureComponent<Props, State> {
             position: 'relative',
             padding: '1em',
             borderBottom:
-              state || valueTemp.length
+              errors || valueTemp.length
                 ? '2px solid #f44336'
                 : undefined,
           }}
@@ -443,19 +443,21 @@ class FileInput extends React.PureComponent<Props, State> {
             </Button>
           </Grid>
         </Paper>
-        {state && (
+        {errors && (
           <Animation>
-            <FormHelperText
-              error={state}
-              variant="outlined"
-              style={{
-                margin: '0',
-                marginTop: '8px',
-              }}
-              component="div"
-            >
-              {getMessage({ message: message, ns: nsError, props })}
-            </FormHelperText>
+            {(RenderErrors && <RenderErrors {...{ errors }} />) || (
+              <FormHelperText
+                error={true}
+                variant="outlined"
+                style={{
+                  margin: '0',
+                  marginTop: '8px',
+                }}
+                component="div"
+              >
+                <RenderErrorsDefault {...{ errors }} />
+              </FormHelperText>
+            )}
           </Animation>
         )}
       </>
