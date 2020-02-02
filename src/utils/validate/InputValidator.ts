@@ -9,6 +9,7 @@ import {
   PropsFieldBase,
   StatusField,
   GlobalProps,
+  ValidationsField,
 } from '../../types';
 import Field from '../builders/Field';
 import { validators } from '../validate';
@@ -16,14 +17,13 @@ import { validators } from '../validate';
 type PropsInput<V = value> = Validate<V> & PropsFieldBase<V>;
 export class InputValidator<V = value> extends Field<V>
   implements Validate<V> {
-  public originalFieldBuilder: Pick<
-    PropsInput<V>,
-    'value' | 'validate'
-  >;
+  public originalProps?: Pick<PropsInput<V>, 'value' | 'validate'>;
 
-  public _validate?: boolean;
+  public _validate?: ValidationsField<V>['validate'];
   public get validate() {
-    return this._validate;
+    return typeof this._validate === 'function'
+      ? this._validate(this)
+      : this._validate;
   }
 
   public set validate(validate: boolean | undefined) {
@@ -44,7 +44,7 @@ export class InputValidator<V = value> extends Field<V>
 
   @observable public serverError?: string[] | string;
 
-  @observable private _globalProps?: GlobalProps;
+  private _globalProps?: GlobalProps;
   public get globalProps(): GlobalProps | undefined {
     return (
       (this.fieldsBuilder && this.fieldsBuilder.globalProps) ||
@@ -60,10 +60,11 @@ export class InputValidator<V = value> extends Field<V>
 
   constructor(props: PropsInput<V>) {
     super(props);
-    const { validate, validations } = props;
-    this.validate = validate;
+    const { validate, validations, value } = props;
+    this._validate = validate;
     // validations is an array of validation rules specific to a form
     this.validations = validations;
+    this.originalProps = { value, validate };
     this.getErrors = this.getErrors.bind(this);
   }
 
@@ -113,7 +114,7 @@ export class InputValidator<V = value> extends Field<V>
   public async getErrors(params?: {
     validate?: boolean;
   }): Promise<ValidationErrors | undefined> {
-    const { validate = this.validate } = { ...params };
+    const { validate = true } = { ...params };
     const { validations, value } = this;
     let messageResult: ValidationErrors = [];
     if (!validate && !this.dirty && !this.enabled)
@@ -142,7 +143,7 @@ export class InputValidator<V = value> extends Field<V>
           if (typeof res === 'string') {
             errors.push(res);
           } else if (res) {
-            errors.push(...res);
+            errors.push(res);
           }
           if (res) messageResult = [...messageResult, ...errors];
         }
@@ -208,17 +209,23 @@ export class InputValidator<V = value> extends Field<V>
     this.value = value;
     this.markAsDirty();
     this.markAsTouched();
-    if (this.validate) this.updateValueAndValidity();
+    if (
+      typeof this.validate !== 'undefined'
+        ? this.validate
+        : this.dirty
+    )
+      this.updateValueAndValidity();
   }
 
   public reset() {
     this.markAsPristine();
     this.markAsUntouched();
-    const {
-      originalFieldBuilder: { validate, value },
-    } = this;
-    this._validate = validate;
-    this.value = value;
+    const { originalProps } = this;
+    if (originalProps) {
+      const { validate, value } = originalProps;
+      this._validate = validate;
+      this.value = value;
+    }
   }
 }
 

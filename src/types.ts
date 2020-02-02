@@ -12,7 +12,11 @@ import {
   FieldsBuilder,
   FieldBuilder,
 } from './utils';
-import { validators, InputValidator } from './utils/validate';
+import {
+  validators,
+  InputValidator,
+  InputsValidator,
+} from './utils/validate';
 
 export interface Message {
   ns?: string;
@@ -41,7 +45,6 @@ export type activeStep = number;
 
 export interface InitialState {
   ns?: string;
-  validate?: boolean;
 }
 
 interface GlobalPropsInterface {
@@ -51,6 +54,7 @@ interface GlobalPropsInterface {
 export interface InitialStateSteps
   extends InitialState,
     GlobalPropsInterface {
+  validate?: boolean;
   steps: StepProps[];
   activeStep: activeStep;
   loading?: boolean;
@@ -64,6 +68,9 @@ export type FieldsAll = PropsField[];
 export interface InitialStateFields
   extends InitialState,
     GlobalPropsInterface {
+  validate?:
+    | boolean
+    | ((inputsValidator: InputsValidator) => boolean);
   fields: PropsField[];
 }
 
@@ -83,9 +90,12 @@ export interface ChangeValueSteps {
   action: ChangeValueFields['action'];
 }
 
+export type ValidateInputsValidator = ValidationsFields['validate'];
+
 export interface FieldsProps
   extends InitialState,
-    GlobalPropsInterface {
+    GlobalPropsInterface,
+    ValidationsFields {
   fields: (PropsField | FieldBuilder)[];
 }
 
@@ -140,9 +150,21 @@ export type ValidationFunction<V = value> = (
   | Promise<ValidationErrors | undefined | void>;
 
 export interface Validations<V = value> {
-  validate?: boolean;
+  validate?: boolean | ((arg: any) => boolean);
   value: V;
   validations?: (Validation | ValidationFunction<V>)[];
+}
+
+export interface ValidationsField<V = value> extends Validations<V> {
+  validate?:
+    | boolean
+    | ((inputValidator: InputValidator<V>) => boolean);
+}
+
+export interface ValidationsFields {
+  validate?:
+    | boolean
+    | ((inputsValidator: InputsValidator) => boolean);
 }
 
 export interface ExtraProps extends ActionsFiles {
@@ -281,7 +303,7 @@ export interface PropsFieldBase<V = value> {
 
 export interface PropsField<V = value>
   extends PropsFieldBase<V>,
-    Validations<V>,
+    ValidationsField<V>,
     InitialState {
   extraProps?: ExtraProps;
   render?: RenderField;

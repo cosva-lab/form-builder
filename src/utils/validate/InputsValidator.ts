@@ -2,7 +2,10 @@ import { observable } from 'mobx';
 
 import { FieldsProps } from '../..';
 import FieldBuilder from '../builders/FieldBuilder';
-import { ValidationErrors } from '../../types';
+import {
+  ValidationErrors,
+  ValidateInputsValidator,
+} from '../../types';
 
 class InputsValidator {
   @observable public valid = true;
@@ -10,9 +13,11 @@ class InputsValidator {
     return !this.valid;
   }
   @observable public fields: FieldBuilder[];
-  @observable public _validate?: boolean;
+  @observable public _validate?: ValidateInputsValidator;
   public get validate() {
-    return this._validate;
+    return typeof this._validate === 'function'
+      ? this._validate(this)
+      : this._validate;
   }
 
   public set validate(validate: boolean | undefined) {
@@ -27,14 +32,12 @@ class InputsValidator {
     fields,
     validate,
   }: Pick<FieldsProps, 'fields' | 'validate'>) {
-    this.fields = fields.map(
-      field => new FieldBuilder({ ...field, validate }),
-    );
-    this.validate = validate;
+    this._validate = validate;
     this.callbackField = this.callbackField.bind(this);
     this.addErrors = this.addErrors.bind(this);
     this.hasErrors = this.hasErrors.bind(this);
     this.getErrors = this.getErrors.bind(this);
+    this.fields = fields.map(field => new FieldBuilder(field));
   }
 
   async callbackField(
