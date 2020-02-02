@@ -1,7 +1,7 @@
 import { CSSProperties } from 'react';
 import { FieldProps } from '../..';
 import { SortEnd } from 'react-sortable-hoc';
-import { Message } from '../../types';
+import { LabelPropsField } from '../../types';
 import FieldBuilder from '../../utils/builders/FieldBuilder';
 type ResBasic = { callBack: () => void } | void;
 type ResOnAdd = void | { callBack: () => void; value: Files } | Files;
@@ -52,7 +52,7 @@ export interface ListFilesProps {
   files: Files;
   openFileDialog: () => void;
   deleteFile: (index: number, sendChange?: boolean) => Promise<void>;
-  subLabel?: Message;
+  subLabel?: LabelPropsField;
 }
 export declare type ListFilesStates = Pick<
   CSSProperties,
