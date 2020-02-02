@@ -6,16 +6,14 @@ import Inputs from './Inputs';
 import { FieldProps, changeField, ChangeField } from './';
 import { BreakpointsField, value } from './types';
 
-@observer
-class FieldRenderObserver extends React.Component<{
-  FieldComponent: React.ElementType<FieldProps<any>>;
+const FieldRenderObserver = (props: {
+  component: React.ElementType<FieldProps<any>>;
   propsForm: FieldProps<any>;
-}> {
-  render() {
-    const { FieldComponent, propsForm } = this.props;
-    return <FieldComponent {...propsForm} />;
-  }
-}
+}) => {
+  const { component, propsForm } = props;
+  const FieldComponent = observer(component);
+  return <FieldComponent {...propsForm} />;
+};
 
 class FieldRender<V = value>
   extends React.PureComponent<FieldProps<V>>
@@ -58,7 +56,7 @@ class FieldRender<V = value>
       if (ReactIs.isValidElementType(component))
         return (
           <FieldRenderObserver
-            FieldComponent={component}
+            component={component}
             propsForm={propsForm}
           />
         );
