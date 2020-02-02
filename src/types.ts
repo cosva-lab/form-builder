@@ -143,7 +143,6 @@ export interface Validations<V = value> {
   validate?: boolean;
   value: V;
   validations?: (Validation | ValidationFunction<V>)[];
-  validChange?: boolean;
 }
 
 export interface ExtraProps extends ActionsFiles {

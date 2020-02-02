@@ -35,7 +35,6 @@ export class InputValidator<V = value> extends Field<V>
     | Validation
     | ValidationFunction<V>
   )[];
-  @observable public validChange?: boolean;
 
   @observable public serverError?: string[] | string;
 
@@ -55,8 +54,7 @@ export class InputValidator<V = value> extends Field<V>
 
   constructor(props: Validate<V> & PropsFieldBase) {
     super(props);
-    const { validChange = true, validate, validations } = props;
-    this.validChange = validChange;
+    const { validate, validations } = props;
     this.validate = validate;
     // validations is an array of validation rules specific to a form
     this.validations = validations;
@@ -110,7 +108,7 @@ export class InputValidator<V = value> extends Field<V>
     validate?: boolean;
   }): Promise<ValidationErrors | undefined> {
     const { validate = this.validate } = { ...params };
-    const { validChange, validations, value } = this;
+    const { validations, value } = this;
     let messageResult: ValidationErrors = [];
     if (!validate && !this.dirty && !this.enabled)
       return messageResult;
@@ -130,7 +128,6 @@ export class InputValidator<V = value> extends Field<V>
             field: this,
             fieldsBuilder: this.fieldsBuilder,
             stepsBuilder: this.stepsBuilder,
-            validChange,
             validate,
             value,
           });
@@ -205,8 +202,7 @@ export class InputValidator<V = value> extends Field<V>
     this.value = value;
     this.markAsDirty();
     this.markAsTouched();
-    if (this.validChange || this.validate)
-      this.updateValueAndValidity();
+    if (this.validate) this.updateValueAndValidity();
   }
 }
 
