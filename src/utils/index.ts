@@ -1,4 +1,4 @@
 export * from './validate';
 export * from './changeValues';
 export * from './builders';
-export { transformLabel } from './transformLabel';
+export { TransformLabel } from './TransformLabel';
