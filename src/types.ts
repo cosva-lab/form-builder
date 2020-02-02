@@ -154,7 +154,7 @@ export interface AllPropsValidationFunction<V = value>
 type ValidationErrorBase =
   | Record<string, string | Message>
   | string
-  | React.ReactElement<{}>
+  | React.ReactElement<any>
   | Message;
 
 export type ValidationErrors = string | ValidationErrorBase[];
@@ -273,10 +273,8 @@ export type TextFieldPropsField = Pick<
 
 export type LabelPropsField =
   | string
-  | (Message & {
-      notPos?: boolean;
-      transPosition?: transPosition;
-    });
+  | React.ReactElement<any>
+  | Message;
 
 export type InputPropsField = (a: {
   type: InputProps['type'];
