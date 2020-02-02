@@ -63,7 +63,6 @@ function initForm() {
         breakpoints: {
           sm: 6,
         },
-        validChange: true,
         validations: [
           {
             rule: 'isEmpty',
@@ -122,7 +121,6 @@ function initForm() {
           sm: 12,
         },
         extraProps: { accept: ['image/*'] },
-        validChange: true,
         validations: [
           {
             rule: 'isEmpty',
