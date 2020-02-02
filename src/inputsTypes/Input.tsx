@@ -14,7 +14,7 @@ import isEmpty from 'lodash/isEmpty';
 
 import { InputProps } from '..';
 import { transformLabel } from '../utils/transformLabel';
-import { RenderErrorsDefault } from './RenderErrorsDefault';
+import { RenderErrorsDefault } from '../RenderErrorsDefault';
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -104,9 +104,9 @@ class InputComponent extends React.Component<
           }}
           helperText={
             errors &&
-            ((RenderErrors && <RenderErrors {...{ errors }} />) || (
-              <RenderErrorsDefault {...{ errors }} />
-            ))
+            ((RenderErrors && (
+              <RenderErrors {...{ errors, fieldProxy }} />
+            )) || <RenderErrorsDefault {...{ errors, fieldProxy }} />)
           }
           InputProps={
             inputProps &&

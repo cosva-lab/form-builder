@@ -17,7 +17,7 @@ import {
 import ListFiles from './Components/ListFiles';
 import { ExtraProps } from '../..';
 import { Loading } from './Loading';
-import { RenderErrorsDefault } from '../RenderErrorsDefault';
+import { RenderErrorsDefault } from '../../RenderErrorsDefault';
 
 const defaultPropsExtra = {
   validateExtensions: true,
@@ -375,10 +375,10 @@ class FileInput extends React.PureComponent<FileInputProps, State> {
       errors,
       label,
       name,
-      ns,
       value,
       renderErrors: RenderErrors,
     } = this.propsParse;
+    const ns = fieldProxy.ns;
     const { multiple, subLabel } = this.extraProps;
     const accept = this.convertAccept(this.extraProps.accept);
     const { valueTemp, inputValue, loading } = this.state;
@@ -451,7 +451,9 @@ class FileInput extends React.PureComponent<FileInputProps, State> {
         </Paper>
         {errors && (
           <Animation>
-            {(RenderErrors && <RenderErrors {...{ errors }} />) || (
+            {(RenderErrors && (
+              <RenderErrors {...{ errors, fieldProxy }} />
+            )) || (
               <FormHelperText
                 error={true}
                 variant="outlined"
@@ -461,7 +463,7 @@ class FileInput extends React.PureComponent<FileInputProps, State> {
                 }}
                 component="div"
               >
-                <RenderErrorsDefault {...{ errors }} />
+                <RenderErrorsDefault {...{ errors, fieldProxy }} />
               </FormHelperText>
             )}
           </Animation>
