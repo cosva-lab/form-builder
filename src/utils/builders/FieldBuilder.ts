@@ -16,7 +16,17 @@ import { ComponentErrors } from '../../types';
 class FieldBuilder<V = value> extends InputValidator<V>
   implements PropsField {
   @observable public extraProps?: ExtraProps;
-  @observable public ns?: string;
+  @observable _ns?: string;
+  public get ns(): string | undefined {
+    return typeof this._ns === 'undefined'
+      ? this.fieldsBuilder && this.fieldsBuilder.ns
+      : this._ns;
+  }
+
+  public set ns(ns: string | undefined) {
+    this._ns = ns;
+  }
+
   @observable public render?: RenderField;
   @observable public waitTime?: boolean;
   @observable public fullWidth?: boolean;
