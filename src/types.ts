@@ -118,7 +118,6 @@ type Rules = keyof typeof validators;
 export interface Validation {
   rule: Rules;
   message: string;
-  state?: boolean;
   ns?: string;
   props?: {};
   args?: any;
@@ -134,13 +133,16 @@ export interface AllPropsValidationFunction<V = value>
 
 export type ValidationFunction<V = value> = (
   all: AllPropsValidationFunction<V>,
-) => ErrorField | Promise<ErrorField> | void;
+) =>
+  | undefined
+  | void
+  | ValidationErrors
+  | Promise<ValidationErrors | undefined | void>;
 
 export interface Validations<V = value> {
   validate?: boolean;
   value: V;
   validations?: (Validation | ValidationFunction<V>)[];
-  changed?: boolean;
   validChange?: boolean;
 }
 
@@ -178,6 +180,12 @@ export type RenderField = (element: {
 }) => React.CElement<any, any>;
 
 export type ComponentField = React.ElementType<FieldProps>;
+
+export interface ComponentErrorsProps {
+  errors: ValidationErrors;
+}
+
+export type ComponentErrors = React.ElementType<ComponentErrorsProps>;
 
 export type TypeField =
   | 'component'
@@ -238,7 +246,16 @@ export type InputPropsField = (a: {
   ) => void;
 }) => Partial<OutlinedInputProps>;
 
-export type ErrorField = Message & { errorServer?: boolean };
+/**
+ * @description
+ * Defines the map of errors returned from failed validation checks.
+ *
+ * @publicApi
+ */
+export type ValidationErrors =
+  | string
+  | (Record<string, string | Validation> | string)[];
+
 export type BreakpointsField = Partial<
   Record<Breakpoint, boolean | GridSize>
 >;
@@ -272,13 +289,14 @@ export interface PropsField<V = value>
   waitTime?: boolean;
   fullWidth?: boolean;
   transPosition?: transPosition;
-  error?: ErrorField;
+  errors?: ValidationErrors;
   serverError?: string[] | string;
   autoComplete?: string;
   inputProps?: InputPropsField;
   textFieldProps?: TextFieldPropsField;
   breakpoints?: BreakpointsField;
   component?: ComponentField;
+  renderErrors?: ComponentErrors;
 }
 
 export interface Validate<V = value> extends Validations<V> {

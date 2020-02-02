@@ -11,6 +11,7 @@ import {
   BreakpointsField,
 } from '../../types';
 import { InputValidator } from '../validate/InputValidator';
+import { ComponentErrors } from '../../types';
 
 class FieldBuilder<V = value> extends InputValidator<V>
   implements PropsField {
@@ -24,6 +25,7 @@ class FieldBuilder<V = value> extends InputValidator<V>
   @observable public textFieldProps?: TextFieldPropsField;
   @observable public breakpoints?: BreakpointsField;
   @observable public component?: ComponentField;
+  public renderErrors?: ComponentErrors;
 
   constructor(props: PropsField<V>) {
     super(props);
@@ -38,6 +40,7 @@ class FieldBuilder<V = value> extends InputValidator<V>
       textFieldProps,
       breakpoints,
       component,
+      renderErrors,
     } = props;
 
     this.extraProps = extraProps;
@@ -50,6 +53,7 @@ class FieldBuilder<V = value> extends InputValidator<V>
     this.textFieldProps = textFieldProps;
     this.breakpoints = breakpoints;
     this.component = component;
+    this.renderErrors = renderErrors;
   }
 }
 

@@ -1,7 +1,8 @@
 import { observable } from 'mobx';
+
 import { FieldsProps } from '../..';
 import FieldBuilder from '../builders/FieldBuilder';
-import { ErrorField } from '../../types';
+import { ValidationErrors } from '../../types';
 
 class InputsValidator {
   @observable public valid = true;
@@ -19,7 +20,7 @@ class InputsValidator {
     if (validate) this.validity();
     for (const field of this.fields)
       if (validate) field._validate = true;
-      else field.error = undefined;
+      else field.errors = undefined;
   }
 
   constructor({
@@ -32,7 +33,6 @@ class InputsValidator {
     this.validate = validate;
     this.callbackField = this.callbackField.bind(this);
     this.addErrors = this.addErrors.bind(this);
-    this.haveErrors = this.haveErrors.bind(this);
     this.hasErrors = this.hasErrors.bind(this);
     this.getErrors = this.getErrors.bind(this);
   }
@@ -51,16 +51,19 @@ class InputsValidator {
     return fields;
   }
 
-  private async validityBase(setErrors: boolean = true) {
+  private async validityBase(args?: {
+    setErrors?: boolean;
+    throwFirstError?: boolean;
+  }) {
     this.valid = true;
+    const { setErrors = true, throwFirstError = false } = { ...args };
     await this.callbackField(async (field, cancel) => {
       if (field.enabled) {
-        field._validate = true;
-        await field.hasErrors({ setErrors });
-        if (!field.valid) {
-          this.valid = field.valid;
-          if (!setErrors) cancel();
-        }
+        const fieldView = setErrors ? field : new FieldBuilder(field);
+        fieldView._validate = true;
+        await fieldView.hasErrors();
+        if (!fieldView.valid) this.valid = fieldView.valid;
+        if (throwFirstError) cancel();
       }
     });
   }
@@ -70,19 +73,16 @@ class InputsValidator {
     await this.validityBase();
   }
 
-  async hasErrors(params?: { setErrors: boolean }) {
-    const { setErrors = false } = { ...params };
+  async hasErrors(params?: {
+    setErrors?: boolean;
+    throwFirstError?: boolean;
+  }) {
+    const { setErrors = false, throwFirstError = false } = {
+      ...params,
+    };
     if (setErrors) this._validate = true;
-    await this.validityBase(setErrors);
+    await this.validityBase({ setErrors, throwFirstError });
     return this.invalid;
-  }
-
-  /**
-   * @param params
-   * @deprecated Please use `hasErrors`
-   */
-  async haveErrors(params?: { setErrors: boolean }) {
-    return this.hasErrors(params);
   }
 
   async addErrors(errors: Record<string, string | string[]>) {
@@ -105,11 +105,7 @@ class InputsValidator {
             serverErrors.push(...serverError);
           }
           if (serverErrors.find(name => name === key)) {
-            field.error = observable({
-              message: error[0],
-              state: true,
-              errorServer: true,
-            });
+            field.errors = error;
           }
         });
       }
@@ -123,7 +119,7 @@ class InputsValidator {
 
   async getErrors() {
     const fields: {
-      [key: string]: ErrorField[] | undefined;
+      [key: string]: ValidationErrors | undefined;
     } = {};
     for (const { name, errors, enabled } of this.fields)
       if (errors && enabled) fields[name] = errors;
