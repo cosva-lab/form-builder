@@ -7,13 +7,13 @@ import withStyles, {
 } from '@material-ui/core/styles/withStyles';
 import TextField from '@material-ui/core/TextField';
 import FormControl from '@material-ui/core/FormControl';
-import { Animation, getMessage } from '../FieldTranslate';
 import { Theme } from '@material-ui/core/styles/createMuiTheme';
 import createStyles from '@material-ui/core/styles/createStyles';
 import isEmpty from 'lodash/isEmpty';
 
 import { InputProps } from '..';
-import { transformLabel } from '../utils/transformLabel';
+import { Animation } from '../FieldTranslate';
+import { TransformLabel } from '../utils/TransformLabel';
 import { RenderErrorsDefault } from '../RenderErrorsDefault';
 
 const styles = (theme: Theme) =>
@@ -86,7 +86,7 @@ class InputComponent extends React.Component<
         variant="outlined"
       >
         <TextField
-          label={getMessage(transformLabel({ label, ns, name }))}
+          label={<TransformLabel {...{ label, ns, name }} />}
           error={!isEmpty(errors)}
           FormHelperTextProps={{
             component: ({ children, className }) => {
