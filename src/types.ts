@@ -145,13 +145,25 @@ export interface AllPropsValidationFunction<V = value>
   activeStep?: activeStep;
 }
 
+/**
+ * @description
+ * Defines the map of errors returned from failed validation checks.
+ *
+ * @publicApi
+ */
+type ValidationErrorBase =
+  | Record<string, string | Message>
+  | string
+  | React.ReactElement<{}>
+  | Message;
+
+export type ValidationErrors = string | ValidationErrorBase[];
+
+export type ValidationError = undefined | void | ValidationErrorBase;
+
 export type ValidationFunction<V = value> = (
   all: AllPropsValidationFunction<V>,
-) =>
-  | undefined
-  | void
-  | ValidationErrors
-  | Promise<ValidationErrors | undefined | void>;
+) => ValidationError | Promise<ValidationError>;
 
 export interface Validations<V = value> {
   validate?: boolean | ((arg: any) => boolean);
@@ -206,11 +218,14 @@ export type RenderField = (element: {
 
 export type ComponentField = React.ElementType<FieldProps>;
 
-export interface ComponentErrorsProps {
+export interface ComponentErrorsProps<V = any> {
   errors: ValidationErrors;
+  fieldProxy: FieldBuilder<V>;
 }
 
-export type ComponentErrors = React.ElementType<ComponentErrorsProps>;
+export type ComponentErrors<V = any> = React.ElementType<
+  ComponentErrorsProps<V>
+>;
 
 export type TypeField =
   | 'component'
@@ -271,16 +286,6 @@ export type InputPropsField = (a: {
   ) => void;
 }) => Partial<OutlinedInputProps>;
 
-/**
- * @description
- * Defines the map of errors returned from failed validation checks.
- *
- * @publicApi
- */
-export type ValidationErrors =
-  | string
-  | (Record<string, string | Validation> | string)[];
-
 export type BreakpointsField = Partial<
   Record<Breakpoint, boolean | GridSize>
 >;
@@ -321,7 +326,7 @@ export interface PropsField<V = value>
   textFieldProps?: TextFieldPropsField;
   breakpoints?: BreakpointsField;
   component?: ComponentField;
-  renderErrors?: ComponentErrors;
+  renderErrors?: ComponentErrors<V>;
 }
 
 export interface Validate<V = value> extends Validations<V> {
