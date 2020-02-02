@@ -17,7 +17,7 @@ export interface ActionsFiles {
   arrayMove?: (files: Files, from: number, to: number) => Files;
 }
 
-export interface Props
+export interface FileInputProps
   extends Partial<Pick<FieldProps, 'changeField'>>,
     ActionsFiles {
   fieldProxy: FieldBuilder<Files>;
@@ -46,12 +46,6 @@ export declare type Extension = (
   typeString: string,
 ) => string | false;
 export declare type Charset = (typeString: string) => string | false;
-
-export interface State {
-  valueTemp: Files;
-  inputValue: string;
-  loading: boolean;
-}
 
 export interface ListFilesProps {
   fieldProxy: FieldBuilder<any>;

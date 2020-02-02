@@ -8,11 +8,11 @@ import arrayMove from 'array-move';
 
 import { Animation } from '../../FieldTranslate';
 import {
-  Props,
-  State,
+  FileInputProps,
   handleChangeFiles,
   FileValue,
   ActionsFiles,
+  Files,
 } from './Props';
 import ListFiles from './Components/ListFiles';
 import { ExtraProps } from '../..';
@@ -26,8 +26,14 @@ const defaultPropsExtra = {
   subLabel: undefined,
 };
 
+interface State {
+  valueTemp: Files;
+  inputValue: string;
+  loading: boolean;
+}
+
 @observer
-class FileInput extends React.PureComponent<Props, State> {
+class FileInput extends React.PureComponent<FileInputProps, State> {
   static defaultProps = {
     extraProps: defaultPropsExtra,
     onAdd: null,
