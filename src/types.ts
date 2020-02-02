@@ -21,7 +21,6 @@ import {
 export interface Message {
   ns?: string;
   message: string;
-  state?: boolean;
   props?: any;
 }
 
@@ -58,7 +57,12 @@ export interface InitialStateSteps
   steps: StepProps[];
   activeStep: activeStep;
   loading?: boolean;
-  footerSteps?: { [key: number]: Record<'next' | 'back', Message> };
+  footerSteps?: {
+    [key: number]: Record<
+      'next' | 'back',
+      Message & { state?: boolean }
+    >;
+  };
 }
 
 export declare function buildFields(a: PropsField[]): PropsField[];
@@ -114,7 +118,7 @@ export interface StepsRender extends ChangeField {
     stepsLength: number;
     activeStep: activeStep;
     footerSteps: Partial<InitialStateSteps['footerSteps']>;
-  }) => Record<'next' | 'back', Message>;
+  }) => Record<'next' | 'back', Message & { state?: boolean }>;
   handleNextStep: (activeStep: activeStep) => void;
   handleBackStep: (activeStep: activeStep) => void;
   gridProps?: Omit<GridProps, 'children'>;
