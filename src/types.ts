@@ -129,11 +129,8 @@ export interface StepsRender extends ChangeField {
 
 type Rules = keyof typeof validators;
 
-export interface Validation {
+export interface Validation extends Message {
   rule: Rules;
-  message: string;
-  ns?: string;
-  props?: {};
   args?: any;
 }
 
