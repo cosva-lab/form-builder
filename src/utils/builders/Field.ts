@@ -174,8 +174,7 @@ class Field<V = value> implements PropsFieldBase<V> {
     this.type = type;
     this.name = name;
     this.value = value;
-    if (disabled !== undefined && !disabled)
-      this.status = StatusField.DISABLED;
+    if (disabled) this.status = StatusField.DISABLED;
     else this.status = StatusField.VALID;
     this.defaultInputValue = defaultInputValue;
     this.label = label;
