@@ -131,10 +131,7 @@ function initForm() {
           ({ value }) => {
             const max = 3;
             return value && value.length > max
-              ? {
-                  message: `You cannot upload more than ${max} files`,
-                  state: true,
-                }
+              ? `You cannot upload more than ${max} files`
               : undefined;
           },
         ],
@@ -209,10 +206,12 @@ export default function App() {
               variant="outlined"
               color="primary"
               onClick={async () => {
-                await fieldsBuilder.haveErrors({
-                  setErrors: true,
-                });
-                console.log(await getErrors());
+                if (
+                  await fieldsBuilder.hasErrors({
+                    setErrors: true,
+                  })
+                )
+                  console.log(await getErrors());
               }}
             >
               Validate
@@ -221,7 +220,7 @@ export default function App() {
               variant="outlined"
               color="secondary"
               onClick={async () => {
-                if (!(await fieldsBuilder.haveErrors())) {
+                if (!(await fieldsBuilder.hasErrors())) {
                   console.log(fieldsBuilder.getValues());
                 }
               }}
