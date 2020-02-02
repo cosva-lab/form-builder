@@ -12,7 +12,7 @@ import {
   FieldsBuilder,
   FieldBuilder,
 } from './utils';
-import validators from './utils/validate/validators';
+import { validators, InputValidator } from './utils/validate';
 
 export interface Message {
   ns?: string;
@@ -126,7 +126,7 @@ export interface Validation {
 export interface AllPropsValidationFunction<V = value>
   extends Partial<Validate<V>> {
   fieldsBuilder?: FieldsBuilder;
-  field: FieldBuilder;
+  field: FieldBuilder | InputValidator;
   stepsBuilder?: StepsBuilder;
   activeStep?: activeStep;
 }

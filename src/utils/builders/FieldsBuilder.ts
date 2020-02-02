@@ -69,14 +69,8 @@ class FieldsBuilder extends InputsValidator implements FieldsProps {
     );
     if (field) {
       field.fieldsBuilder = this;
-      for (const key in fieldOriginal) {
-        if (
-          fieldOriginal.hasOwnProperty(key) &&
-          field.hasOwnProperty(key)
-        ) {
-          field[key] = fieldOriginal[key];
-        }
-      }
+      field.value = fieldOriginal.value;
+      field.errors = fieldOriginal.errors;
     }
   }
 
@@ -94,9 +88,11 @@ class FieldsBuilder extends InputsValidator implements FieldsProps {
   }
 
   restore() {
-    const { fields, ...rest } = this.originalParams;
+    const { ...rest } = this.originalParams;
     this.setProps(rest);
-    this.setFields(fields);
+    for (const field of this.fields) {
+      field.reset();
+    }
   }
 
   restoreLast() {

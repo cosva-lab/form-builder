@@ -13,8 +13,14 @@ import {
 import Field from '../builders/Field';
 import { validators } from '../validate';
 
+type PropsInput<V = value> = Validate<V> & PropsFieldBase<V>;
 export class InputValidator<V = value> extends Field<V>
   implements Validate<V> {
+  public originalFieldBuilder: Pick<
+    PropsInput<V>,
+    'value' | 'validate'
+  >;
+
   public _validate?: boolean;
   public get validate() {
     return this._validate;
@@ -52,7 +58,7 @@ export class InputValidator<V = value> extends Field<V>
     } else this._globalProps = globalProps;
   }
 
-  constructor(props: Validate<V> & PropsFieldBase) {
+  constructor(props: PropsInput<V>) {
     super(props);
     const { validate, validations } = props;
     this.validate = validate;
@@ -203,6 +209,16 @@ export class InputValidator<V = value> extends Field<V>
     this.markAsDirty();
     this.markAsTouched();
     if (this.validate) this.updateValueAndValidity();
+  }
+
+  public reset() {
+    this.markAsPristine();
+    this.markAsUntouched();
+    const {
+      originalFieldBuilder: { validate, value },
+    } = this;
+    this._validate = validate;
+    this.value = value;
   }
 }
 
