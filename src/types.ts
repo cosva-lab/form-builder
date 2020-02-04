@@ -127,7 +127,7 @@ export interface StepsRender extends ChangeField {
   stepsBuild: InitialStateSteps;
 }
 
-type Rules = keyof typeof validators;
+export type Rules = keyof typeof validators;
 
 export interface Validation extends Message {
   rule: Rules;
@@ -149,12 +149,13 @@ export interface AllPropsValidationFunction<V = value>
  * @publicApi
  */
 type ValidationErrorBase =
+  | Record<Rules, string | Message>
   | Record<string, string | Message>
   | string
   | React.ReactElement<any>
   | Message;
 
-export type ValidationErrors = string | ValidationErrorBase[];
+export type ValidationErrors = ValidationErrorBase[];
 
 export type ValidationError = undefined | void | ValidationErrorBase;
 
@@ -217,7 +218,7 @@ export type ComponentField = React.ElementType<FieldProps>;
 
 export interface ComponentErrorsProps<V = any> {
   errors: ValidationErrors;
-  fieldProxy: FieldBuilder<V>;
+  fieldProxy?: FieldBuilder<V>;
 }
 
 export type ComponentErrors<V = any> = React.ElementType<

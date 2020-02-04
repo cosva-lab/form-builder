@@ -18,12 +18,7 @@ import {
 
 import { getMessage } from '../../../FieldTranslate';
 import { TransformLabel } from '../../../utils/TransformLabel';
-import {
-  handleChangeFiles,
-  ListFilesProps,
-  ListFilesStates,
-  Files,
-} from '../Props';
+import { handleChangeFiles, ListFilesProps, Files } from '../Props';
 import FileContainer from './FileContainer';
 import withWidth, { WithWidth } from '@material-ui/core/withWidth';
 import { FileValue, ActionsFiles } from '../Props';
