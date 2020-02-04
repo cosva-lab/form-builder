@@ -7,6 +7,7 @@ import {
   EventField,
   PropsField,
 } from '../../types';
+import { StepsBuilder } from '.';
 
 declare type Callback = Function;
 
@@ -17,14 +18,24 @@ interface Fields {
 }
 
 class FieldsBuilder extends InputsValidator implements FieldsProps {
-  @observable public ns?: string;
+  @observable public stepsBuilder?: StepsBuilder;
+  @observable _ns?: string;
+  public get ns(): string | undefined {
+    return typeof this._ns === 'undefined'
+      ? this.stepsBuilder && this.stepsBuilder.ns
+      : this._ns;
+  }
+
+  public set ns(ns: string | undefined) {
+    this._ns = ns;
+  }
+
+  public globalProps?: GlobalProps;
   @observable public actionsExtra?: object;
   public get values(): Fields {
     return this.getValues();
   }
 
-  public globalProps?: GlobalProps;
-  private originalParams: Props;
   private paramsLast?: Pick<
     FieldsProps,
     'fields' | 'ns' | 'validate'
@@ -32,16 +43,13 @@ class FieldsBuilder extends InputsValidator implements FieldsProps {
 
   constructor(props: Props) {
     super(props);
-    const { ns, validate } = props;
+    const { ns, validate = true, globalProps } = props;
+    this._ns = ns;
+    this._validate = validate;
+    this.globalProps = globalProps;
     for (const field of this.fields) {
       field.fieldsBuilder = this;
-      if (!field.ns) field.ns = ns;
     }
-    this.setProps({
-      ns,
-      validate,
-    });
-    this.originalParams = props;
     this.saveData = this.saveData.bind(this);
     this.restore = this.restore.bind(this);
     this.restoreLast = this.restoreLast.bind(this);
@@ -54,29 +62,14 @@ class FieldsBuilder extends InputsValidator implements FieldsProps {
     this.getValues = this.getValues.bind(this);
   }
 
-  private setProps: (
-    props: Pick<FieldsBuilder, 'ns'> & {
-      validate?: boolean;
-    },
-  ) => void = ({ ns, validate = true }) => {
-    this.ns = ns;
-    this.validate = validate;
-  };
-
   private setField(fieldOriginal: PropsField) {
     const field = this.fields.find(
       ({ name }) => fieldOriginal.name === name,
     );
     if (field) {
       field.fieldsBuilder = this;
-      for (const key in fieldOriginal) {
-        if (
-          fieldOriginal.hasOwnProperty(key) &&
-          field.hasOwnProperty(key)
-        ) {
-          field[key] = fieldOriginal[key];
-        }
-      }
+      field.value = fieldOriginal.value;
+      field.errors = fieldOriginal.errors;
     }
   }
 
@@ -94,15 +87,14 @@ class FieldsBuilder extends InputsValidator implements FieldsProps {
   }
 
   restore() {
-    const { fields, ...rest } = this.originalParams;
-    this.setProps(rest);
-    this.setFields(fields);
+    for (const field of this.fields) {
+      field.reset();
+    }
   }
 
   restoreLast() {
     if (this.paramsLast) {
-      const { fields, ...rest } = this.paramsLast;
-      this.setProps(rest);
+      const { fields } = this.paramsLast;
       this.setFields(fields);
       this.paramsLast = undefined;
     }

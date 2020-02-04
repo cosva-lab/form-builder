@@ -17,8 +17,13 @@ import {
 } from 'react-sortable-hoc';
 
 import { getMessage } from '../../../FieldTranslate';
-import { transformLabel } from '../../../utils/transformLabel';
-import { handleChangeFiles, ListFilesProps, Files } from '../Props';
+import { TransformLabel } from '../../../utils/TransformLabel';
+import {
+  handleChangeFiles,
+  ListFilesProps,
+  ListFilesStates,
+  Files,
+} from '../Props';
 import FileContainer from './FileContainer';
 import withWidth, { WithWidth } from '@material-ui/core/withWidth';
 import { FileValue, ActionsFiles } from '../Props';
@@ -268,19 +273,22 @@ export class ListFiles extends React.Component<
                   <CloudUploadIcon fontSize="inherit" />
                 </Typography>
                 <Typography align="center" variant="h5">
-                  {getMessage(transformLabel({ label, ns, name }))}
+                  <TransformLabel {...{ label, ns, name }} />
                 </Typography>
                 <Typography align="center" variant="h6">
-                  {getMessage({
-                    message: ``,
-                    ns,
-                    styles: {
-                      top: '-8px',
-                      position: 'absolute',
-                    },
-                    props: {},
-                    ...subLabel,
-                  })}
+                  {React.isValidElement(subLabel)
+                    ? subLabel
+                    : getMessage({
+                        message: ``,
+                        ns,
+                        styles: {
+                          top: '-8px',
+                          position: 'absolute',
+                        },
+                        ...(typeof subLabel === 'string'
+                          ? { message: subLabel }
+                          : subLabel),
+                      })}
                 </Typography>
               </Grid>
             )}

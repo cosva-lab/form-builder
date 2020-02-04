@@ -1,6 +1,6 @@
 import { FieldProps } from '../..';
 import { SortEnd } from 'react-sortable-hoc';
-import { Message } from '../../types';
+import { LabelPropsField } from '../../types';
 import FieldBuilder from '../../utils/builders/FieldBuilder';
 type ResBasic = { callBack: () => void } | void;
 type ResOnAdd = void | { callBack: () => void; value: Files } | Files;
@@ -35,18 +35,12 @@ export interface FileValue {
 }
 export declare type Files = FileValue[];
 
-export interface State {
-  valueTemp: Files;
-  inputValue: string;
-  loading: boolean;
-}
-
 export interface ListFilesProps {
   fieldProxy: FieldBuilder<any>;
   files: Files;
   openFileDialog: () => void;
   deleteFile: (index: number, sendChange?: boolean) => Promise<void>;
-  subLabel?: Message;
+  subLabel?: LabelPropsField;
 }
 
 export declare type handleChangeFiles = (target: {

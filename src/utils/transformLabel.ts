@@ -1,30 +1,28 @@
+import React from 'react';
 import { PropsField } from '..';
+import { getMessage } from '../FieldTranslate';
 
-export const transformLabel = ({
+export const TransformLabel = ({
   ns,
   name,
   label,
 }: Pick<PropsField, 'ns' | 'name' | 'label'>) => {
+  if (React.isValidElement(label)) return label;
   let message;
   let props;
   const nsLabel = ns;
-  let transPosition = '';
   if (typeof label === 'string') {
     message = label;
   } else {
     if (label) {
       message = label.message || name;
-      if (typeof label.transPosition === 'string') {
-        transPosition = label.transPosition || '';
-      }
     } else {
       message = name;
     }
   }
-  if (transPosition !== '') transPosition += '.';
-  return {
-    message: `${transPosition}${message}`,
+  return getMessage({
+    message,
     ns: nsLabel,
     props,
-  };
+  });
 };

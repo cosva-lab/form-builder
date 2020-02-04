@@ -7,11 +7,14 @@ import withStyles, {
 } from '@material-ui/core/styles/withStyles';
 import TextField from '@material-ui/core/TextField';
 import FormControl from '@material-ui/core/FormControl';
-import { Animation, getMessage } from '../FieldTranslate';
 import { Theme } from '@material-ui/core/styles/createMuiTheme';
 import createStyles from '@material-ui/core/styles/createStyles';
+import isEmpty from 'lodash/isEmpty';
+
 import { InputProps } from '..';
-import { transformLabel } from '../utils/transformLabel';
+import { Animation } from '../FieldTranslate';
+import { TransformLabel } from '../utils/TransformLabel';
+import { RenderErrorsDefault } from '../RenderErrorsDefault';
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -48,9 +51,9 @@ class InputComponent extends React.Component<
   lastValue = '';
 
   UNSAFE_componentWillUpdate(newProps: AllProps) {
-    const { error } = this.getProps(newProps);
+    const { errors } = this.getProps(newProps);
     const props = this.getLastProps();
-    if (props.error && error && error.state !== props.error.state) {
+    if (props.errors && errors !== props.errors) {
       this.animation = true;
     }
   }
@@ -67,11 +70,12 @@ class InputComponent extends React.Component<
       name,
       disabled,
       fullWidth = true,
-      error,
+      errors,
       autoComplete,
       inputProps,
       textFieldProps,
       value,
+      renderErrors: RenderErrors,
     } = fieldProxy;
 
     const { type } = this.state;
@@ -82,14 +86,14 @@ class InputComponent extends React.Component<
         variant="outlined"
       >
         <TextField
-          label={getMessage(transformLabel({ label, ns, name }))}
-          error={error && error.state}
+          label={<TransformLabel {...{ label, ns, name }} />}
+          error={!isEmpty(errors)}
           FormHelperTextProps={{
             component: ({ children, className }) => {
               const child = (
                 <div className={className}>{children}</div>
               );
-              if (this.animation && error && error.state) {
+              if (this.animation && !isEmpty(errors)) {
                 this.animation = false;
                 return <Animation>{child}</Animation>;
               }
@@ -98,9 +102,12 @@ class InputComponent extends React.Component<
             style: {},
             classes: { root: classes.formHelperTextPropsRoot },
           }}
-          helperText={getMessage(
-            error || { message: '', state: false },
-          )}
+          helperText={
+            errors &&
+            ((RenderErrors && (
+              <RenderErrors {...{ errors, fieldProxy }} />
+            )) || <RenderErrorsDefault {...{ errors, fieldProxy }} />)
+          }
           InputProps={
             inputProps &&
             inputProps({

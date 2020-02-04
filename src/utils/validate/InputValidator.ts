@@ -1,33 +1,38 @@
 import { observable } from 'mobx';
-import { createViewModel } from 'mobx-utils';
+
 import {
   Validation,
   ValidationFunction,
   value,
   Validate,
-  ErrorField,
-  Message,
+  ValidationErrors,
   PropsFieldBase,
   StatusField,
   GlobalProps,
+  ValidationsField,
 } from '../../types';
 import Field from '../builders/Field';
 import { validators } from '../validate';
 
+type PropsInput<V = value> = Validate<V> & PropsFieldBase<V>;
 export class InputValidator<V = value> extends Field<V>
   implements Validate<V> {
-  @observable public _validate?: boolean;
+  public originalProps?: Pick<PropsInput<V>, 'value' | 'validate'>;
+
+  public _validate?: ValidationsField<V>['validate'];
   public get validate() {
-    return this._validate;
+    return typeof this._validate === 'function'
+      ? this._validate(this)
+      : this._validate;
   }
 
   public set validate(validate: boolean | undefined) {
     this._validate = validate;
     if (validate) this.validity();
-    else this.error = undefined;
+    else this.errors = undefined;
   }
 
-  @observable public touched?: boolean;
+  public touched?: boolean;
   public get untouched() {
     return !this.touched;
   }
@@ -36,9 +41,6 @@ export class InputValidator<V = value> extends Field<V>
     | Validation
     | ValidationFunction<V>
   )[];
-  @observable public changed?: boolean;
-  @observable public validChange?: boolean;
-  @observable public error?: ErrorField;
 
   @observable public serverError?: string[] | string;
 
@@ -56,143 +58,113 @@ export class InputValidator<V = value> extends Field<V>
     else this._globalProps = globalProps;
   }
 
-  constructor(props: Validate<V> & PropsFieldBase) {
+  constructor(props: PropsInput<V>) {
     super(props);
-    const { changed, validChange, validate, validations } = props;
-    this.changed = changed;
-    this.validChange = validChange;
-    this.validate = validate;
+    const { validate, validations, value } = props;
+    this._validate = validate;
     // validations is an array of validation rules specific to a form
     this.validations = validations;
-    /* this.getErrors = this.getErrors.bind(this); */
+    this.originalProps = { value, validate };
+    this.getErrors = this.getErrors.bind(this);
   }
 
-  public getError({
-    value,
-    validation,
-  }: {
-    value: V;
-    validation: Validation;
-  }): Message | undefined {
-    if (typeof validation === 'object') {
-      let rule = validation.rule || 'isEmpty';
-      const {
-        message,
-        ns = 'validations',
-        props = undefined,
-        args = [],
-      } = validation;
-      if (
-        ![
-          'contains',
-          'equals',
-          'isAfter',
-          'isAlpha',
-          'isAlphanumeric',
-          'isAscii',
-          'isDecimal',
-          'isEmail',
-          'isEmpty',
-          'isFloat',
-          'isNumeric',
-        ].includes(rule)
-      ) {
-        console.error(rule, `the rule don't exists`);
-        rule = 'isEmpty';
-      } else {
-        const validator = validators[rule];
-        if (validator) {
-          let boolean = false;
-          switch (rule) {
-            case 'isEmpty':
-              boolean = true;
-              break;
-            default:
-              break;
-          }
-          if (
-            typeof value === 'string' &&
-            validator((value || '').toString(), args) === boolean
-          ) {
-            this.status = StatusField.INVALID;
-            return {
-              state: true,
-              message,
-              ns,
-              props,
-            };
-          } else this.status = StatusField.VALID;
+  private hasValidationError(validation: Validation): boolean {
+    let rule = validation.rule || 'isEmpty';
+    const { args = [] } = validation;
+    if (
+      ![
+        'contains',
+        'equals',
+        'isAfter',
+        'isAlpha',
+        'isAlphanumeric',
+        'isAscii',
+        'isDecimal',
+        'isEmail',
+        'isEmpty',
+        'isFloat',
+        'isNumeric',
+      ].includes(rule)
+    ) {
+      console.error(rule, `the rule don't exists`);
+      rule = 'isEmpty';
+    } else {
+      const validator = validators[rule];
+      if (validator) {
+        let boolean = false;
+        switch (rule) {
+          case 'isEmpty':
+            boolean = true;
+            break;
+          default:
+            break;
         }
+        if (
+          typeof this.value === 'string' &&
+          validator((this.value || '').toString(), args) === boolean
+        ) {
+          this.status = StatusField.INVALID;
+          return true;
+        } else this.status = StatusField.VALID;
       }
     }
-    return;
+    return false;
   }
 
   public async getErrors(params?: {
     validate?: boolean;
-  }): Promise<ErrorField[] | undefined> {
-    const { validate = this.validate } = { ...params };
-    const {
-      changed,
-      validChange,
-      validations,
-      value,
-      enabled,
-    } = this;
-    let errors: ErrorField[] | undefined = undefined;
-    this.errors = errors;
+  }): Promise<ValidationErrors | undefined> {
+    const { validate = true } = { ...params };
+    const { validations, value } = this;
+    let messageResult: ValidationErrors = [];
+    if (!validate && !this.dirty && !this.enabled)
+      return messageResult;
 
-    let messageResult: ErrorField | undefined = undefined;
-    if (!validate && !changed && !enabled) return messageResult;
-
-    if (Array.isArray(validations) && (validChange || validate)) {
+    if (Array.isArray(validations) && validate) {
       for (const validation of validations) {
         if (typeof validation === 'object') {
-          const res = this.getError({ validation, value });
+          const res = this.hasValidationError(validation);
           if (res) {
-            if (!messageResult) messageResult = res;
-            if (!errors) errors = [];
-            errors.push(res);
-            this.status = StatusField.INVALID;
-          } else this.status = StatusField.VALID;
+            messageResult = [
+              ...messageResult,
+              { [validation.rule]: validation },
+            ];
+          }
         } else {
           const res = await validation({
-            changed,
             field: this,
             fieldsBuilder: this.fieldsBuilder,
             stepsBuilder: this.stepsBuilder,
-            validChange,
             validate,
             value,
           });
-          if (res) {
-            if (!messageResult) messageResult = res;
-            this.status = StatusField.INVALID;
-            if (!errors) errors = [];
+
+          const errors: ValidationErrors = [];
+          if (typeof res === 'string') {
             errors.push(res);
-          } else this.status = StatusField.VALID;
+          } else if (res) {
+            errors.push(res);
+          }
+          if (res) messageResult = [...messageResult, ...errors];
         }
-        this.errors = errors;
       }
     }
-    return errors;
+    return messageResult.length ? messageResult : undefined;
   }
 
-  public async hasErrors(params?: { setErrors: boolean }) {
-    const { setErrors = false } = { ...params };
-    await this.validityBase(setErrors);
+  public async hasErrors() {
+    await this.validityBase();
     return this.invalid;
   }
 
   /**
    * @deprecated Please use `hasErrors`
    */
-  public async haveErrors(params?: { setErrors: boolean }) {
-    return this.hasErrors(params);
+  public async haveErrors() {
+    return this.hasErrors();
   }
 
   public markAsTouched() {
-    this.validity();
     this.touched = true;
   }
 
@@ -200,16 +172,18 @@ export class InputValidator<V = value> extends Field<V>
     this.touched = false;
   }
 
-  private async validityBase(setErrors: boolean = true) {
-    const viewField = createViewModel(this);
-    const setError = (error?: Message) => {
-      viewField.error = error;
-      if (setErrors) viewField.submit();
-      else {
+  private async validityBase() {
+    const setError = (errors?: ValidationErrors) => {
+      if (errors && errors.length) {
+        this.errors = errors;
+        this.status = StatusField.INVALID;
+      } else {
+        this.errors = undefined;
+        this.status = StatusField.VALID;
       }
     };
     const errors = await this.getErrors();
-    setError(errors && errors[0]);
+    setError(errors);
   }
 
   public async validity() {
@@ -217,16 +191,41 @@ export class InputValidator<V = value> extends Field<V>
     await this.validityBase();
   }
 
+  private _calculateStatus(): StatusField {
+    if (this.disabled) return StatusField.DISABLED;
+    if (this.errors) return StatusField.INVALID;
+    return StatusField.VALID;
+  }
+
+  async updateValueAndValidity() {
+    this._setInitialStatus();
+    if (this.enabled) {
+      await this.validity();
+      this.status = this._calculateStatus();
+    }
+  }
+
   setValue(value: V) {
     this.value = value;
+    this.markAsDirty();
     this.markAsTouched();
-    if (this.error) {
-      if (this.error.state) this.error.state = false;
-      if (this.error.message) this.error.message = '';
-    } else {
-      this.error = { state: false, message: '' };
+    if (
+      typeof this.validate !== 'undefined'
+        ? this.validate
+        : this.dirty
+    )
+      this.updateValueAndValidity();
+  }
+
+  public reset() {
+    this.markAsPristine();
+    this.markAsUntouched();
+    const { originalProps } = this;
+    if (originalProps) {
+      const { validate, value } = originalProps;
+      this._validate = validate;
+      this.value = value;
     }
-    if (!this.changed) this.changed = true;
   }
 }
 

@@ -11,11 +11,22 @@ import {
   BreakpointsField,
 } from '../../types';
 import { InputValidator } from '../validate/InputValidator';
+import { ComponentErrors } from '../../types';
 
 class FieldBuilder<V = value> extends InputValidator<V>
   implements PropsField {
   @observable public extraProps?: ExtraProps;
-  @observable public ns?: string;
+  @observable _ns?: string;
+  public get ns(): string | undefined {
+    return typeof this._ns === 'undefined'
+      ? this.fieldsBuilder && this.fieldsBuilder.ns
+      : this._ns;
+  }
+
+  public set ns(ns: string | undefined) {
+    this._ns = ns;
+  }
+
   @observable public render?: RenderField;
   @observable public waitTime?: boolean;
   @observable public fullWidth?: boolean;
@@ -24,6 +35,7 @@ class FieldBuilder<V = value> extends InputValidator<V>
   @observable public textFieldProps?: TextFieldPropsField;
   @observable public breakpoints?: BreakpointsField;
   @observable public component?: ComponentField;
+  public renderErrors?: ComponentErrors;
 
   constructor(props: PropsField<V>) {
     super(props);
@@ -38,6 +50,7 @@ class FieldBuilder<V = value> extends InputValidator<V>
       textFieldProps,
       breakpoints,
       component,
+      renderErrors,
     } = props;
 
     this.extraProps = extraProps;
@@ -50,6 +63,7 @@ class FieldBuilder<V = value> extends InputValidator<V>
     this.textFieldProps = textFieldProps;
     this.breakpoints = breakpoints;
     this.component = component;
+    this.renderErrors = renderErrors;
   }
 }
 

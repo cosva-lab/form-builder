@@ -11,14 +11,14 @@ class StepsValidator {
   constructor(steps: StepProps[]) {
     this.steps = steps.map(step => new StepValidator(step));
     this.stepsWithErros = [...this.steps];
-    this.haveErrors = this.haveErrors.bind(this);
+    this.hasErrors = this.hasErrors.bind(this);
   }
 
-  async haveErrors() {
+  async hasErrors() {
     for (const key in this.steps) {
       if (this.steps.hasOwnProperty(key)) {
         const stepValidator = this.steps[key];
-        if ((await stepValidator.haveErrors()) && !this.inValid) {
+        if ((await stepValidator.hasErrors()) && !this.inValid) {
           this.inValid = true;
           this.stepError = Number(key);
           break;

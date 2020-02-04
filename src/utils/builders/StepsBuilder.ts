@@ -25,6 +25,7 @@ export default class StepsBuilder extends StepsValidator
     super(props.steps);
     const { ns, validate, activeStep } = props;
     for (const step of this.steps) {
+      step.stepsBuilder = this;
       for (const field of step.fields) {
         field.stepsBuilder = this;
         if (!field.ns) field.ns = ns;

@@ -1,7 +1,7 @@
 import { observable } from 'mobx';
 import FieldsBuilder from './FieldsBuilder';
 import StepsBuilder from './StepsBuilder';
-import { ErrorField } from '../../types';
+import { ValidationErrors } from '../../types';
 import {
   LabelPropsField,
   value,
@@ -19,7 +19,21 @@ class Field<V = value> implements PropsFieldBase<V> {
   @observable public defaultInputValue?: V;
   @observable public label?: LabelPropsField;
   @observable public status: StatusField;
-  @observable public errors?: ErrorField[] | null;
+  @observable public errors?: ValidationErrors;
+
+  public pristine: boolean = true;
+
+  /**
+   * A control is `dirty` if the user has changed the value
+   * in the UI.
+   *
+   * @returns True if the user has changed the value of this control in the UI; compare `pristine`.
+   * Programmatic changes to a control's value do not mark it dirty.
+   */
+  get dirty(): boolean {
+    return !this.pristine;
+  }
+
   /**
    * A control is `valid` when its `status` is `VALID`.
    *
@@ -96,7 +110,7 @@ class Field<V = value> implements PropsFieldBase<V> {
     // If parent has been marked artificially dirty we don't want to re-calculate the
     // parent's dirtiness based on the children.
     this.status = StatusField.DISABLED;
-    this.errors = null;
+    this.errors = undefined;
   }
 
   /**
@@ -114,6 +128,41 @@ class Field<V = value> implements PropsFieldBase<V> {
     this.status = StatusField.VALID;
   }
 
+  /**
+   * Marks the control as `dirty`. A control becomes dirty when
+   * the control's value is changed through the UI; compare `markAsTouched`.
+   *
+   * @see `markAsTouched()`
+   * @see `markAsUntouched()`
+   * @see `markAsPristine()`
+   *
+   */
+  markAsDirty(): void {
+    this.pristine = false;
+  }
+
+  /**
+   * Marks the control as `pristine`.
+   *
+   * If the control has any children, marks all children as `pristine`,
+   * and recalculates the `pristine` status of all parent
+   * controls.
+   *
+   * @see `markAsTouched()`
+   * @see `markAsUntouched()`
+   * @see `markAsDirty()`
+   *
+   */
+  markAsPristine(): void {
+    this.pristine = true;
+  }
+
+  _setInitialStatus() {
+    this.status = this.disabled
+      ? StatusField.DISABLED
+      : StatusField.VALID;
+  }
+
   constructor({
     type,
     name,
@@ -121,14 +170,12 @@ class Field<V = value> implements PropsFieldBase<V> {
     disabled,
     defaultInputValue,
     label,
-    status,
-  }: PropsFieldBase & { status?: StatusField }) {
+  }: PropsFieldBase) {
     this.type = type;
     this.name = name;
     this.value = value;
-    if (disabled !== undefined && !disabled)
-      this.status = StatusField.DISABLED;
-    else if (status) this.status = status;
+    if (disabled) this.status = StatusField.DISABLED;
+    else this.status = StatusField.VALID;
     this.defaultInputValue = defaultInputValue;
     this.label = label;
   }

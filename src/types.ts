@@ -12,12 +12,15 @@ import {
   FieldsBuilder,
   FieldBuilder,
 } from './utils';
-import validators from './utils/validate/validators';
+import {
+  validators,
+  InputValidator,
+  InputsValidator,
+} from './utils/validate';
 
 export interface Message {
   ns?: string;
   message: string;
-  state?: boolean;
   props?: any;
 }
 
@@ -41,7 +44,6 @@ export type activeStep = number;
 
 export interface InitialState {
   ns?: string;
-  validate?: boolean;
 }
 
 interface GlobalPropsInterface {
@@ -51,10 +53,16 @@ interface GlobalPropsInterface {
 export interface InitialStateSteps
   extends InitialState,
     GlobalPropsInterface {
+  validate?: boolean;
   steps: StepProps[];
   activeStep: activeStep;
   loading?: boolean;
-  footerSteps?: { [key: number]: Record<'next' | 'back', Message> };
+  footerSteps?: {
+    [key: number]: Record<
+      'next' | 'back',
+      Message & { state?: boolean }
+    >;
+  };
 }
 
 export declare function buildFields(a: PropsField[]): PropsField[];
@@ -64,6 +72,9 @@ export type FieldsAll = PropsField[];
 export interface InitialStateFields
   extends InitialState,
     GlobalPropsInterface {
+  validate?:
+    | boolean
+    | ((inputsValidator: InputsValidator) => boolean);
   fields: PropsField[];
 }
 
@@ -83,9 +94,12 @@ export interface ChangeValueSteps {
   action: ChangeValueFields['action'];
 }
 
+export type ValidateInputsValidator = ValidationsFields['validate'];
+
 export interface FieldsProps
   extends InitialState,
-    GlobalPropsInterface {
+    GlobalPropsInterface,
+    ValidationsFields {
   fields: (PropsField | FieldBuilder)[];
 }
 
@@ -104,7 +118,7 @@ export interface StepsRender extends ChangeField {
     stepsLength: number;
     activeStep: activeStep;
     footerSteps: Partial<InitialStateSteps['footerSteps']>;
-  }) => Record<'next' | 'back', Message>;
+  }) => Record<'next' | 'back', Message & { state?: boolean }>;
   handleNextStep: (activeStep: activeStep) => void;
   handleBackStep: (activeStep: activeStep) => void;
   gridProps?: Omit<GridProps, 'children'>;
@@ -115,33 +129,55 @@ export interface StepsRender extends ChangeField {
 
 type Rules = keyof typeof validators;
 
-export interface Validation {
+export interface Validation extends Message {
   rule: Rules;
-  message: string;
-  state?: boolean;
-  ns?: string;
-  props?: {};
   args?: any;
 }
 
 export interface AllPropsValidationFunction<V = value>
   extends Partial<Validate<V>> {
   fieldsBuilder?: FieldsBuilder;
-  field: FieldBuilder;
+  field: FieldBuilder | InputValidator;
   stepsBuilder?: StepsBuilder;
   activeStep?: activeStep;
 }
 
+/**
+ * @description
+ * Defines the map of errors returned from failed validation checks.
+ *
+ * @publicApi
+ */
+type ValidationErrorBase =
+  | Record<string, string | Message>
+  | string
+  | React.ReactElement<any>
+  | Message;
+
+export type ValidationErrors = string | ValidationErrorBase[];
+
+export type ValidationError = undefined | void | ValidationErrorBase;
+
 export type ValidationFunction<V = value> = (
   all: AllPropsValidationFunction<V>,
-) => ErrorField | Promise<ErrorField> | void;
+) => ValidationError | Promise<ValidationError>;
 
 export interface Validations<V = value> {
-  validate?: boolean;
+  validate?: boolean | ((arg: any) => boolean);
   value: V;
   validations?: (Validation | ValidationFunction<V>)[];
-  changed?: boolean;
-  validChange?: boolean;
+}
+
+export interface ValidationsField<V = value> extends Validations<V> {
+  validate?:
+    | boolean
+    | ((inputValidator: InputValidator<V>) => boolean);
+}
+
+export interface ValidationsFields {
+  validate?:
+    | boolean
+    | ((inputsValidator: InputsValidator) => boolean);
 }
 
 export interface ExtraProps extends ActionsFiles {
@@ -178,6 +214,15 @@ export type RenderField = (element: {
 }) => React.CElement<any, any>;
 
 export type ComponentField = React.ElementType<FieldProps>;
+
+export interface ComponentErrorsProps<V = any> {
+  errors: ValidationErrors;
+  fieldProxy: FieldBuilder<V>;
+}
+
+export type ComponentErrors<V = any> = React.ElementType<
+  ComponentErrorsProps<V>
+>;
 
 export type TypeField =
   | 'component'
@@ -225,10 +270,8 @@ export type TextFieldPropsField = Pick<
 
 export type LabelPropsField =
   | string
-  | (Message & {
-      notPos?: boolean;
-      transPosition?: transPosition;
-    });
+  | React.ReactElement<any>
+  | Message;
 
 export type InputPropsField = (a: {
   type: InputProps['type'];
@@ -238,7 +281,6 @@ export type InputPropsField = (a: {
   ) => void;
 }) => Partial<OutlinedInputProps>;
 
-export type ErrorField = Message & { errorServer?: boolean };
 export type BreakpointsField = Partial<
   Record<Breakpoint, boolean | GridSize>
 >;
@@ -265,20 +307,21 @@ export interface PropsFieldBase<V = value> {
 
 export interface PropsField<V = value>
   extends PropsFieldBase<V>,
-    Validations<V>,
+    ValidationsField<V>,
     InitialState {
   extraProps?: ExtraProps;
   render?: RenderField;
   waitTime?: boolean;
   fullWidth?: boolean;
   transPosition?: transPosition;
-  error?: ErrorField;
+  errors?: ValidationErrors;
   serverError?: string[] | string;
   autoComplete?: string;
   inputProps?: InputPropsField;
   textFieldProps?: TextFieldPropsField;
   breakpoints?: BreakpointsField;
   component?: ComponentField;
+  renderErrors?: ComponentErrors<V>;
 }
 
 export interface Validate<V = value> extends Validations<V> {
