@@ -10,6 +10,7 @@ import FormControl from '@material-ui/core/FormControl';
 import { Theme } from '@material-ui/core/styles/createMuiTheme';
 import createStyles from '@material-ui/core/styles/createStyles';
 import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
 
 import { InputProps } from '..';
 import { Animation } from '../FieldTranslate';
@@ -48,12 +49,11 @@ class InputComponent extends React.Component<
   }
 
   animation = true;
-  lastValue = '';
 
   UNSAFE_componentWillUpdate(newProps: AllProps) {
     const { errors } = this.getProps(newProps);
     const props = this.getLastProps();
-    if (props.errors && errors !== props.errors) {
+    if (isEqual(errors, props.errors)) {
       this.animation = true;
     }
   }
@@ -128,10 +128,15 @@ class InputComponent extends React.Component<
             },
           }}
           onChange={({ target: { value: targetValue } }) => {
+            const value =
+              type === 'date' ? new Date(targetValue) : targetValue;
             changeField({
-              target: { name, value: targetValue, type },
+              target: {
+                name,
+                value,
+                type,
+              },
             });
-            this.lastValue = targetValue;
           }}
           onBlur={() => {
             const { fieldProxy } = this.props;
