@@ -21,7 +21,7 @@ class Field<V = value> implements PropsFieldBase<V> {
   @observable public label?: LabelPropsField;
   @observable public status: StatusField;
   @observable public errors?: ValidationErrors;
-  @observable public ref?: React.Ref<any>;
+  @observable public inputRef?: HTMLInputElement;
 
   public pristine: boolean = true;
 

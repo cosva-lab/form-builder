@@ -87,7 +87,7 @@ class InputComponent extends React.Component<
       >
         <TextField
           label={<TransformLabel {...{ label, ns, name }} />}
-          innerRef={fieldProxy.ref}
+          inputRef={element => (fieldProxy.inputRef = element)}
           error={!isEmpty(errors)}
           FormHelperTextProps={{
             component: ({ children, className }) => {
