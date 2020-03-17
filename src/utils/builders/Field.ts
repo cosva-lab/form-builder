@@ -1,3 +1,4 @@
+import React from 'react';
 import { observable } from 'mobx';
 import FieldsBuilder from './FieldsBuilder';
 import StepsBuilder from './StepsBuilder';
@@ -20,6 +21,7 @@ class Field<V = value> implements PropsFieldBase<V> {
   @observable public label?: LabelPropsField;
   @observable public status: StatusField;
   @observable public errors?: ValidationErrors;
+  @observable public ref?: React.Ref<any>;
 
   public pristine: boolean = true;
 
