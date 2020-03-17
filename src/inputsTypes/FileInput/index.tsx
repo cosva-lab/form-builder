@@ -101,6 +101,7 @@ class FileInput extends React.PureComponent<FileInputProps, State> {
             name,
             value,
           },
+          fieldProxy,
         },
         callBack,
       );
