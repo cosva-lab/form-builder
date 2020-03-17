@@ -112,6 +112,17 @@ function initForm() {
             message: 'This field can not be empty',
           },
         ],
+        onChange: ({ fieldProxy, target }) => {
+          let cb = () => {};
+          if (target instanceof HTMLInputElement) {
+            const start = target.selectionStart;
+            const end = target.selectionEnd;
+            cb = () =>
+              start && end && target.setSelectionRange(start, end);
+          }
+          fieldProxy.setValue(target.value.trim().toLowerCase());
+          return () => cb && cb();
+        },
       },
       createField<File[]>({
         name: 'files',
