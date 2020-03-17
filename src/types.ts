@@ -311,6 +311,7 @@ export interface PropsFieldBase<V = value> {
   disabled?: boolean;
   defaultInputValue?: V;
   label?: LabelPropsField;
+  onChange?: changeField<V>;
 }
 
 export interface PropsField<V = value>
