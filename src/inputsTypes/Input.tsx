@@ -112,6 +112,7 @@ class InputComponent extends React.Component<
             inputProps &&
             inputProps({
               type,
+              fieldProxy,
               changeType: (type, callback) => {
                 if (type !== this.state.type)
                   this.setState({ type }, callback);
