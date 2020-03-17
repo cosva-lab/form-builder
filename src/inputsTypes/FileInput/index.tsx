@@ -5,6 +5,7 @@ import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import arrayMove from 'array-move';
+import assign from 'lodash/assign';
 
 import { Animation } from '../../FieldTranslate';
 import {
@@ -50,6 +51,13 @@ class FileInput extends React.PureComponent<FileInputProps, State> {
     loading: false,
   };
 
+  callbacks: Function[] = [];
+
+  componentDidUpdate() {
+    this.callbacks.forEach(callback => callback());
+    this.callbacks = [];
+  }
+
   componentWillUnmount() {
     this.isMount = false;
   }
@@ -94,18 +102,20 @@ class FileInput extends React.PureComponent<FileInputProps, State> {
 
   setChangeField = (value: FileValue[], callBack?: () => void) => {
     const { changeField, name, fieldProxy } = this.propsParse;
-    if (changeField)
-      changeField(
-        {
+    const { onChange } = fieldProxy;
+    if (changeField) {
+      const res = (onChange || changeField)(
+        assign({
           target: {
             name,
             value,
           },
           fieldProxy,
-        },
+        }),
         callBack,
       );
-    else {
+      typeof res === 'function' && this.callbacks.push(res);
+    } else {
       fieldProxy.setValue(value);
       callBack && callBack();
     }
