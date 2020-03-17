@@ -29,9 +29,14 @@ export interface EventField<V = value> {
 }
 
 export type changeField<V = value> = (
-  e: EventField<V>,
+  e: (
+    | EventField<V>
+    | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) & {
+    fieldProxy: FieldBuilder<V>;
+  },
   callback?: () => void,
-) => void;
+) => (void | (() => void));
 
 export interface ChangeField<V = value> {
   changeField: changeField<V>;
@@ -100,7 +105,7 @@ export interface FieldsProps
   extends InitialState,
     GlobalPropsInterface,
     ValidationsFields {
-  fields: (PropsField | FieldBuilder)[];
+  fields: PropsField[];
 }
 
 export interface StepProps extends FieldsProps {
