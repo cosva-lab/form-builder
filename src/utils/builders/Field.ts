@@ -1,4 +1,3 @@
-import React from 'react';
 import { observable } from 'mobx';
 import FieldsBuilder from './FieldsBuilder';
 import StepsBuilder from './StepsBuilder';
