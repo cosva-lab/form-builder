@@ -11,6 +11,7 @@ import { Theme } from '@material-ui/core/styles/createMuiTheme';
 import createStyles from '@material-ui/core/styles/createStyles';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
+import assign from 'lodash/assign';
 
 import { InputProps } from '..';
 import { Animation } from '../FieldTranslate';
@@ -47,6 +48,7 @@ class InputComponent extends React.Component<
     super(props);
     this.state = { type: props.type };
   }
+  callbacks: Function[] = [];
 
   animation = true;
 
@@ -56,6 +58,11 @@ class InputComponent extends React.Component<
     if (isEqual(errors, props.errors)) {
       this.animation = true;
     }
+  }
+
+  componentDidUpdate() {
+    this.callbacks.forEach(callback => callback());
+    this.callbacks = [];
   }
 
   getProps = (props: AllProps) => ({ ...props.fieldProxy });
@@ -129,16 +136,13 @@ class InputComponent extends React.Component<
               ),
             },
           }}
-          onChange={({ target: { value: targetValue } }) => {
-            const value =
-              type === 'date' ? new Date(targetValue) : targetValue;
-            changeField({
-              target: {
-                name,
-                value,
-                type,
-              },
-            });
+          onChange={e => {
+            const { onChange } = fieldProxy;
+            const callback = (onChange || changeField)(
+              assign(e, { fieldProxy }),
+            );
+            typeof callback === 'function' &&
+              this.callbacks.push(callback);
           }}
           onBlur={() => {
             const { fieldProxy } = this.props;
