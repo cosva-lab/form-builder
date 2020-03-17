@@ -1,7 +1,7 @@
 import { observable } from 'mobx';
 import FieldsBuilder from './FieldsBuilder';
 import StepsBuilder from './StepsBuilder';
-import { ValidationErrors } from '../../types';
+import { ValidationErrors, changeField } from '../../types';
 import {
   LabelPropsField,
   value,
@@ -21,6 +21,7 @@ class Field<V = value> implements PropsFieldBase<V> {
   @observable public status: StatusField;
   @observable public errors?: ValidationErrors;
   @observable public inputRef?: HTMLInputElement;
+  @observable public onChange?: changeField<V>;
 
   public pristine: boolean = true;
 
@@ -171,6 +172,7 @@ class Field<V = value> implements PropsFieldBase<V> {
     disabled,
     defaultInputValue,
     label,
+    onChange,
   }: PropsFieldBase) {
     this.type = type;
     this.name = name;
@@ -179,6 +181,7 @@ class Field<V = value> implements PropsFieldBase<V> {
     else this.status = StatusField.VALID;
     this.defaultInputValue = defaultInputValue;
     this.label = label;
+    this.onChange = onChange;
   }
 }
 
