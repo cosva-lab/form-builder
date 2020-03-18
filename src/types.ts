@@ -33,10 +33,10 @@ export type changeField<V = value> = (
     | EventField<V>
     | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) & {
-    fieldProxy: FieldBuilder<V>;
+    fieldProxy?: FieldBuilder<V>;
   },
   callback?: () => void,
-) => (void | (() => void));
+) => void | (() => void);
 
 export interface ChangeField<V = value> {
   changeField: changeField<V>;

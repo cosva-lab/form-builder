@@ -120,7 +120,8 @@ function initForm() {
             cb = () =>
               start && end && target.setSelectionRange(start, end);
           }
-          fieldProxy.setValue(target.value.trim().toLowerCase());
+          fieldProxy &&
+            fieldProxy.setValue(target.value.trim().toLowerCase());
           return () => cb && cb();
         },
       },
