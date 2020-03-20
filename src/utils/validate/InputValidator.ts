@@ -15,7 +15,7 @@ import Field from '../builders/Field';
 import { validators } from '../validate';
 
 type PropsInput<V = value> = Validate<V> & PropsFieldBase<V>;
-export class InputValidator<V = value> extends Field<V>
+export abstract class InputValidator<V = value> extends Field<V>
   implements Validate<V> {
   public originalProps?: Pick<PropsInput<V>, 'value' | 'validate'>;
 
