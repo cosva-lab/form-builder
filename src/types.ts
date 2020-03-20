@@ -142,7 +142,7 @@ export interface Validation extends Message {
 export interface AllPropsValidationFunction<V = value>
   extends Partial<Validate<V>> {
   fieldsBuilder?: FieldsBuilder;
-  field: FieldBuilder | InputValidator;
+  field: FieldBuilder;
   stepsBuilder?: StepsBuilder;
   activeStep?: activeStep;
 }
