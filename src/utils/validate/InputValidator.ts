@@ -65,10 +65,9 @@ export abstract class InputValidator<V = value> extends Field<V>
     // validations is an array of validation rules specific to a form
     this.validations = validations;
     this.originalProps = { value, validate };
-    this.getErrors = this.getErrors.bind(this);
   }
 
-  private hasValidationError(validation: Validation): boolean {
+  protected hasValidationError(validation: Validation): boolean {
     let rule = validation.rule || 'isEmpty';
     const { args = [] } = validation;
     if (
@@ -111,47 +110,12 @@ export abstract class InputValidator<V = value> extends Field<V>
     return false;
   }
 
-  public async getErrors(params?: {
+  public abstract getErrors(params?: {
     validate?: boolean;
-  }): Promise<ValidationErrors | undefined> {
-    const { validate = true } = { ...params };
-    const { validations, value } = this;
-    let messageResult: ValidationErrors = [];
-    if (!validate && !this.dirty && !this.enabled)
-      return messageResult;
-
-    if (Array.isArray(validations) && validate) {
-      for (const validation of validations) {
-        if (typeof validation === 'object') {
-          const res = this.hasValidationError(validation);
-          if (res) {
-            messageResult = [
-              ...messageResult,
-              { [validation.rule]: validation },
-            ];
-          }
-        } else {
-          const res = await validation({
-            field: this,
-            fieldsBuilder: this.fieldsBuilder,
-            stepsBuilder: this.stepsBuilder,
-            validate,
-            value,
-          });
-
-          const errors: ValidationErrors = [];
-          if (typeof res === 'string') {
-            errors.push(res);
-          } else if (res) {
-            errors.push(res);
-          }
-          if (res) messageResult = [...messageResult, ...errors];
-        }
-      }
-    }
-    return messageResult.length ? messageResult : undefined;
-  }
-
+  }):
+    | Promise<ValidationErrors | undefined>
+    | ValidationErrors
+    | undefined;
   public async hasErrors() {
     await this.validityBase();
     return this.invalid;
