@@ -11,7 +11,7 @@ import {
   BreakpointsField,
 } from '../../types';
 import { InputValidator } from '../validate/InputValidator';
-import { ComponentErrors } from '../../types';
+import { ComponentErrors, ValidationErrors } from '../../types';
 
 class FieldBuilder<V = value> extends InputValidator<V>
   implements PropsField {
@@ -64,6 +64,48 @@ class FieldBuilder<V = value> extends InputValidator<V>
     this.breakpoints = breakpoints;
     this.component = component;
     this.renderErrors = renderErrors;
+    this.getErrors = this.getErrors.bind(this);
+  }
+
+  public async getErrors(params?: {
+    validate?: boolean;
+  }): Promise<ValidationErrors | undefined> {
+    const { validate = true } = { ...params };
+    const { validations, value } = this;
+    let messageResult: ValidationErrors = [];
+    if (!validate && !this.dirty && !this.enabled)
+      return messageResult;
+
+    if (Array.isArray(validations) && validate) {
+      for (const validation of validations) {
+        if (typeof validation === 'object') {
+          const res = this.hasValidationError(validation);
+          if (res) {
+            messageResult = [
+              ...messageResult,
+              { [validation.rule]: validation },
+            ];
+          }
+        } else {
+          const res = await validation({
+            field: this,
+            fieldsBuilder: this.fieldsBuilder,
+            stepsBuilder: this.stepsBuilder,
+            validate,
+            value,
+          });
+
+          const errors: ValidationErrors = [];
+          if (typeof res === 'string') {
+            errors.push(res);
+          } else if (res) {
+            errors.push(res);
+          }
+          if (res) messageResult = [...messageResult, ...errors];
+        }
+      }
+    }
+    return messageResult.length ? messageResult : undefined;
   }
 }
 
