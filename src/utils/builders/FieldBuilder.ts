@@ -16,7 +16,7 @@ import { ComponentErrors } from '../../types';
 class FieldBuilder<V = value> extends InputValidator<V>
   implements PropsField {
   @observable public extraProps?: ExtraProps;
-  @observable _ns?: string;
+  @observable private _ns?: string;
   public get ns(): string | undefined {
     return typeof this._ns === 'undefined'
       ? this.fieldsBuilder && this.fieldsBuilder.ns

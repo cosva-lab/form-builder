@@ -19,7 +19,7 @@ interface Fields {
 
 class FieldsBuilder extends InputsValidator implements FieldsProps {
   @observable public stepsBuilder?: StepsBuilder;
-  @observable _ns?: string;
+  @observable private _ns?: string;
   public get ns(): string | undefined {
     return typeof this._ns === 'undefined'
       ? this.stepsBuilder && this.stepsBuilder.ns
