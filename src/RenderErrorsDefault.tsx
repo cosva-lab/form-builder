@@ -27,7 +27,8 @@ export const RenderErrorsDefault = ({
   return (
     <>
       {errors.map((error, i) => {
-        if (React.isValidElement<any>(error)) return error;
+        if (React.isValidElement<any>(error))
+          return <error.type key={error.key || i} />;
         return typeof error === 'string' ? (
           <span className={spanError} key={i}>
             {error}
