@@ -2,6 +2,7 @@ import React from 'react';
 import compose from 'recompose/compose';
 import clsx from 'clsx';
 import { observer } from 'mobx-react';
+import { toJS } from 'mobx';
 import withStyles, {
   WithStyles,
 } from '@material-ui/core/styles/withStyles';
@@ -17,6 +18,7 @@ import { InputProps } from '..';
 import { Animation } from '../FieldTranslate';
 import { TransformLabel } from '../utils/TransformLabel';
 import { RenderErrorsDefault } from '../RenderErrorsDefault';
+import { ValidationErrors } from '../types';
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -49,13 +51,13 @@ class InputComponent extends React.Component<
     this.state = { type: props.type };
   }
   callbacks: Function[] = [];
+  errors: ValidationErrors = [];
 
   animation = true;
 
   UNSAFE_componentWillUpdate(newProps: AllProps) {
     const { errors } = this.getProps(newProps);
-    const props = this.getLastProps();
-    if (isEqual(errors, props.errors)) {
+    if (!isEqual(toJS(errors), this.errors)) {
       this.animation = true;
     }
   }
@@ -63,6 +65,7 @@ class InputComponent extends React.Component<
   componentDidUpdate() {
     this.callbacks.forEach(callback => callback());
     this.callbacks = [];
+    this.errors = toJS(this.props.fieldProxy.errors || []);
   }
 
   getProps = (props: AllProps) => ({ ...props.fieldProxy });
