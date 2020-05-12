@@ -79,7 +79,7 @@ class InputComponent extends React.Component<
       fullWidth = true,
       errors,
       autoComplete,
-      inputProps,
+      InputProps,
       textFieldProps,
       value,
       renderErrors: RenderErrors,
@@ -117,15 +117,16 @@ class InputComponent extends React.Component<
             )) || <RenderErrorsDefault {...{ errors, fieldProxy }} />)
           }
           InputProps={
-            inputProps &&
-            inputProps({
-              type,
-              fieldProxy,
-              changeType: (type, callback) => {
-                if (type !== this.state.type)
-                  this.setState({ type }, callback);
-              },
-            })
+            typeof InputProps === 'function'
+              ? InputProps({
+                  type,
+                  fieldProxy,
+                  changeType: (type, callback) => {
+                    if (type !== this.state.type)
+                      this.setState({ type }, callback);
+                  },
+                })
+              : InputProps
           }
           InputLabelProps={{
             shrink: type === 'date' ? true : undefined,

@@ -279,15 +279,17 @@ export type LabelPropsField =
   | React.ReactElement<any>
   | Message;
 
-export type InputPropsField = (
-  a: {
-    type: InputProps['type'];
-    changeType: (
-      type: InputProps['type'],
-      callback?: () => void,
-    ) => void;
-  } & BaseRender,
-) => Partial<OutlinedInputProps>;
+export type InputPropsField =
+  | ((
+      a: {
+        type: InputProps['type'];
+        changeType: (
+          type: InputProps['type'],
+          callback?: () => void,
+        ) => void;
+      } & BaseRender,
+    ) => Partial<OutlinedInputProps>)
+  | Partial<OutlinedInputProps>;
 
 export type BreakpointsField = Partial<
   Record<Breakpoint, boolean | GridSize>
@@ -326,7 +328,7 @@ export interface PropsField<V = value>
   errors?: ValidationErrors;
   serverError?: string[] | string;
   autoComplete?: string;
-  inputProps?: InputPropsField;
+  InputProps?: InputPropsField;
   textFieldProps?: TextFieldPropsField;
   breakpoints?: BreakpointsField;
   component?: ComponentField;
