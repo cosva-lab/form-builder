@@ -21,6 +21,9 @@ import {
 export interface Message {
   ns?: string;
   message: string;
+  /**
+   * @description Properties to be passed to translate
+   */
   props?: any;
 }
 
@@ -155,7 +158,6 @@ export interface AllPropsValidationFunction<V = value>
  */
 type ValidationErrorBase =
   | Record<Rules, string | Message>
-  | Record<string, string | Message>
   | string
   | React.ReactElement<any>
   | Message;
