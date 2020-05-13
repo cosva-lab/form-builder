@@ -81,10 +81,7 @@ class FieldBuilder<V = value> extends InputValidator<V>
         if (typeof validation === 'object') {
           const res = this.hasValidationError(validation);
           if (res) {
-            messageResult = [
-              ...messageResult,
-              { [validation.rule]: validation },
-            ];
+            messageResult = [...messageResult, validation];
           }
         } else {
           const res = await validation({
