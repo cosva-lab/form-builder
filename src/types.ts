@@ -157,7 +157,6 @@ export interface AllPropsValidationFunction<V = value>
  * @publicApi
  */
 export type ValidationError =
-  | Record<Rules, string | Message>
   | string
   | React.ReactElement<any>
   | Message;

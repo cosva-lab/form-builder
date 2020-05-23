@@ -1,4 +1,4 @@
-import { observable } from 'mobx';
+import { observable, action } from 'mobx';
 
 import {
   Validation,
@@ -135,6 +135,7 @@ export abstract class InputValidator<V = value> extends Field<V>
     this.touched = false;
   }
 
+  @action
   private async validityBase() {
     const setError = (errors?: ValidationErrors) => {
       if (errors && errors.length) {
@@ -168,6 +169,7 @@ export abstract class InputValidator<V = value> extends Field<V>
     }
   }
 
+  @action
   setValue(value: V) {
     this.value = value;
     this.markAsDirty();
@@ -180,6 +182,7 @@ export abstract class InputValidator<V = value> extends Field<V>
       this.updateValueAndValidity();
   }
 
+  @action
   public reset() {
     this.markAsPristine();
     this.markAsUntouched();
@@ -192,6 +195,7 @@ export abstract class InputValidator<V = value> extends Field<V>
     }
   }
 
+  @action
   addError(error: ValidationError) {
     if (error) {
       if (this.status !== StatusField.INVALID)
@@ -201,6 +205,7 @@ export abstract class InputValidator<V = value> extends Field<V>
     }
   }
 
+  @action
   addErrors(errors: ValidationErrors) {
     this.status = StatusField.INVALID;
     const oldErrors = this.errors || [];

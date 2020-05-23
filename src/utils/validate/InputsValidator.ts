@@ -1,4 +1,4 @@
-import { observable } from 'mobx';
+import { observable, action } from 'mobx';
 
 import { FieldsProps } from '../..';
 import FieldBuilder from '../builders/FieldBuilder';
@@ -54,6 +54,7 @@ class InputsValidator {
     return fields;
   }
 
+  @action
   private async validityBase(args?: {
     setErrors?: boolean;
     throwFirstError?: boolean;
@@ -76,6 +77,7 @@ class InputsValidator {
     await this.validityBase();
   }
 
+  @action
   async hasErrors(params?: {
     setErrors?: boolean;
     throwFirstError?: boolean;
@@ -88,6 +90,7 @@ class InputsValidator {
     return this.invalid;
   }
 
+  @action
   addErrors(errors: Record<string, ValidationErrors>) {
     if (!this.validate) this.validate = true;
     for (const key in errors) {
@@ -100,6 +103,7 @@ class InputsValidator {
     }
   }
 
+  @action
   setErrors(errors?: Record<string, ValidationErrors>) {
     errors && this.addErrors(errors);
   }
