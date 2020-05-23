@@ -145,7 +145,7 @@ export interface Validation extends Message {
 export interface AllPropsValidationFunction<V = value>
   extends Partial<Validate<V>> {
   fieldsBuilder?: FieldsBuilder;
-  field: FieldBuilder;
+  field: FieldBuilder<V>;
   stepsBuilder?: StepsBuilder;
   activeStep?: activeStep;
 }
@@ -156,15 +156,13 @@ export interface AllPropsValidationFunction<V = value>
  *
  * @publicApi
  */
-type ValidationErrorBase =
+export type ValidationError =
   | Record<Rules, string | Message>
   | string
   | React.ReactElement<any>
   | Message;
 
-export type ValidationErrors = ValidationErrorBase[];
-
-export type ValidationError = undefined | void | ValidationErrorBase;
+export type ValidationErrors = ValidationError[];
 
 export type ValidationFunction<V = value> = (
   all: AllPropsValidationFunction<V>,
@@ -328,7 +326,6 @@ export interface PropsField<V = value>
   fullWidth?: boolean;
   transPosition?: transPosition;
   errors?: ValidationErrors;
-  serverError?: string[] | string;
   autoComplete?: string;
   InputProps?: InputPropsField;
   textFieldProps?: TextFieldPropsField;
