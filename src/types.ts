@@ -163,10 +163,10 @@ export type ValidationError =
   | Message;
 
 export type ValidationErrors = ValidationError[];
-
+type ReturnValidationError = undefined | void | ValidationError;
 export type ValidationFunction<V = value> = (
   all: AllPropsValidationFunction<V>,
-) => ValidationError | Promise<ValidationError>;
+) => ReturnValidationError | Promise<ReturnValidationError>;
 
 export interface Validations<V = value> {
   validate?: boolean | ((arg: any) => boolean);
