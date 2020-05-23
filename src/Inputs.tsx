@@ -16,6 +16,7 @@ const Inputs = (props: FieldProps) => {
     case 'time':
     case 'url':
     case 'week':
+    case 'datetime-local':
     case undefined:
       return <Input {...{ fieldProxy, changeField, type }} />;
     case 'file':

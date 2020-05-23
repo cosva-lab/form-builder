@@ -229,20 +229,20 @@ export type ComponentErrors<V = any> = React.ElementType<
   ComponentErrorsProps<V>
 >;
 
-export type TypeField =
-  | 'component'
+export type TypeTextField =
   | 'date'
   | 'email'
-  | 'file'
   | 'number'
   | 'password'
   | 'search'
-  | 'table'
   | 'tel'
   | 'text'
   | 'time'
   | 'url'
-  | 'week';
+  | 'week'
+  | 'datetime-local';
+
+export type TypeField = 'component' | 'file' | TypeTextField;
 
 export function createField<V = value>(
   params: PropsField<V>,
@@ -350,17 +350,7 @@ export interface FieldProps<V = value>
     ChangeField {}
 
 export interface InputProps extends FieldProps {
-  type?:
-    | 'date'
-    | 'email'
-    | 'number'
-    | 'password'
-    | 'search'
-    | 'tel'
-    | 'text'
-    | 'time'
-    | 'url'
-    | 'week';
+  type?: TypeTextField;
 }
 
 export interface BaseBuilder<V = value> extends ChangeField<V> {
