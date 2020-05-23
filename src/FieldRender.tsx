@@ -1,10 +1,26 @@
 import React from 'react';
 import * as ReactIs from 'react-is';
-import { Observer } from 'mobx-react';
+import { observer } from 'mobx-react';
 import Grid from '@material-ui/core/Grid';
 import Inputs from './Inputs';
 import { FieldProps, changeField, ChangeField } from './';
 import { BreakpointsField, value } from './types';
+
+interface FieldRenderObserverProps {
+  component: React.ElementType<FieldProps<any>>;
+  propsForm: FieldProps<any>;
+}
+
+const FieldRenderObserver = ({
+  component,
+  propsForm,
+}: FieldRenderObserverProps) => {
+  let FieldComponent = component;
+  try {
+    FieldComponent = observer(component);
+  } catch (error) {}
+  return <FieldComponent {...propsForm} />;
+};
 
 class FieldRender<V = value>
   extends React.PureComponent<FieldProps<V>>
@@ -26,7 +42,9 @@ class FieldRender<V = value>
       component: Component,
       render,
       type,
-      grid = true,
+      grid = typeof this.props.grid !== 'undefined'
+        ? this.props.grid
+        : true,
     } = fieldProxy;
     const propsForm: FieldProps<V> = {
       fieldProxy,
@@ -50,7 +68,10 @@ class FieldRender<V = value>
       }
       if (ReactIs.isValidElementType(Component))
         return (
-          <Observer>{() => <Component {...propsForm} />}</Observer>
+          <FieldRenderObserver
+            component={Component}
+            propsForm={propsForm}
+          />
         );
       return null;
     }
