@@ -104,10 +104,18 @@ export interface ChangeValueSteps {
 
 export type ValidateInputsValidator = ValidationsFields['validate'];
 
+interface GridRender {
+  /**
+   * @default true
+   */
+  grid?: boolean;
+}
+
 export interface FieldsProps
   extends InitialState,
     GlobalPropsInterface,
-    ValidationsFields {
+    ValidationsFields,
+    GridRender {
   fields: PropsField[];
 }
 
@@ -318,14 +326,11 @@ export interface PropsFieldBase<V = value> {
 export interface PropsField<V = value>
   extends PropsFieldBase<V>,
     ValidationsField<V>,
-    InitialState {
+    InitialState,
+    GridRender {
   extraProps?: ExtraProps;
   render?: RenderField;
   fullWidth?: boolean;
-  /**
-   * @default true
-   */
-  grid?: boolean;
   errors?: ValidationErrors;
   autoComplete?: string;
   InputProps?: InputPropsField;
@@ -345,7 +350,8 @@ export interface BaseRender<V = value> {
 
 export interface FieldProps<V = value>
   extends BaseRender<V>,
-    ChangeField {}
+    ChangeField,
+    GridRender {}
 
 export interface InputProps extends FieldProps {
   type?: TypeTextField;
