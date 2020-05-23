@@ -323,6 +323,10 @@ export interface PropsField<V = value>
   render?: RenderField;
   waitTime?: boolean;
   fullWidth?: boolean;
+  /**
+   * @default true
+   */
+  grid?: boolean;
   transPosition?: transPosition;
   errors?: ValidationErrors;
   autoComplete?: string;

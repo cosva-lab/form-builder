@@ -35,7 +35,10 @@ class FieldRender<V = value>
     const { md = sm } = breakpoints;
     const { lg = md } = breakpoints;
     const { xl = lg } = breakpoints;
-    const { component, render, type } = fieldProxy;
+      render,
+      type,
+      grid = true,
+    } = fieldProxy;
     const propsForm: FieldProps<V> = {
       fieldProxy,
       changeField: this.changeField,
