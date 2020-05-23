@@ -1,23 +1,10 @@
 import React from 'react';
 import * as ReactIs from 'react-is';
-import { observer } from 'mobx-react';
+import { Observer } from 'mobx-react';
 import Grid from '@material-ui/core/Grid';
 import Inputs from './Inputs';
 import { FieldProps, changeField, ChangeField } from './';
 import { BreakpointsField, value } from './types';
-
-interface FieldRenderObserverProps {
-  component: React.ElementType<FieldProps<any>>;
-  propsForm: FieldProps<any>;
-}
-
-const FieldRenderObserver = ({
-  component,
-  propsForm,
-}: FieldRenderObserverProps) => {
-  const FieldComponent = observer(component);
-  return <FieldComponent {...propsForm} />;
-};
 
 class FieldRender<V = value>
   extends React.PureComponent<FieldProps<V>>
@@ -35,6 +22,8 @@ class FieldRender<V = value>
     const { md = sm } = breakpoints;
     const { lg = md } = breakpoints;
     const { xl = lg } = breakpoints;
+    const {
+      component: Component,
       render,
       type,
       grid = true,
@@ -52,26 +41,25 @@ class FieldRender<V = value>
 
     if (type === 'component') {
       if (
-        React.isValidElement<FieldProps<V>>(component) &&
-        typeof component !== 'function'
+        React.isValidElement<FieldProps<V>>(Component) &&
+        typeof Component !== 'function'
       ) {
         return (
-          <component.type {...{ ...component.props, ...propsForm }} />
+          <Component.type {...{ ...Component.props, ...propsForm }} />
         );
       }
-      if (ReactIs.isValidElementType(component))
+      if (ReactIs.isValidElementType(Component))
         return (
-          <FieldRenderObserver
-            component={component}
-            propsForm={propsForm}
-          />
+          <Observer>{() => <Component {...propsForm} />}</Observer>
         );
       return null;
     }
-    return (
+    return grid ? (
       <Grid item xs={xs} sm={sm} md={md} lg={lg} xl={xl}>
         {formInput}
       </Grid>
+    ) : (
+      formInput
     );
   }
 }
