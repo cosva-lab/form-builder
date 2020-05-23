@@ -23,7 +23,7 @@ export class FieldsRender extends React.PureComponent<
    * @memberof FieldsRender
    */
   public render() {
-    const { getSteps, fields, globalProps } = this.props;
+    const { getSteps, fields, globalProps, grid } = this.props;
     return (
       <>
         {fields.map(field => {
@@ -40,6 +40,7 @@ export class FieldsRender extends React.PureComponent<
                 getSteps,
                 changeField: this.changeField,
                 getFields: () => this.props.fields,
+                grid,
               }}
             />
           );
