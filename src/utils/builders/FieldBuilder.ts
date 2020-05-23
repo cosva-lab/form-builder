@@ -28,7 +28,6 @@ class FieldBuilder<V = value> extends InputValidator<V>
   }
 
   @observable public render?: RenderField;
-  @observable public waitTime?: boolean;
   @observable public fullWidth?: boolean;
   @observable public grid?: boolean;
   @observable public autoComplete?: string;
@@ -44,7 +43,6 @@ class FieldBuilder<V = value> extends InputValidator<V>
       extraProps,
       ns,
       render,
-      waitTime,
       fullWidth = true,
       grid = true,
       autoComplete,
@@ -58,7 +56,6 @@ class FieldBuilder<V = value> extends InputValidator<V>
     this.extraProps = extraProps;
     this.ns = ns;
     this.render = render;
-    this.waitTime = waitTime;
     this.fullWidth = fullWidth;
     this.grid = grid;
     this.autoComplete = autoComplete;
