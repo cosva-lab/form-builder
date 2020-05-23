@@ -6,8 +6,10 @@ import {
   FieldsProps,
   EventField,
   PropsField,
+  value,
 } from '../../types';
-import { StepsBuilder } from '.';
+import StepsBuilder from './StepsBuilder';
+import FieldBuilder from './FieldBuilder';
 
 declare type Callback = Function;
 
@@ -114,7 +116,7 @@ class FieldsBuilder extends InputsValidator implements FieldsProps {
     return this.getValues();
   }
 
-  get(fieldName: string) {
+  get<V = value>(fieldName: string): FieldBuilder<V> | undefined {
     return this.fields.find(({ name }) => name === fieldName);
   }
 

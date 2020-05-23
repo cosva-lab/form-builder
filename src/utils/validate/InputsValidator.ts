@@ -88,36 +88,20 @@ class InputsValidator {
     return this.invalid;
   }
 
-  async addErrors(errors: Record<string, string | string[]>) {
+  addErrors(errors: Record<string, ValidationErrors>) {
     if (!this.validate) this.validate = true;
     for (const key in errors) {
       if (errors.hasOwnProperty(key)) {
-        const e = errors[key];
-        const error: string[] = [];
-        if (typeof e === 'string') {
-          error.push(e);
-        } else {
-          error.push(...e);
-        }
-        await this.callbackField(field => {
-          const serverError = field.serverError || field.name;
-          const serverErrors: string[] = [];
-          if (typeof serverError === 'string') {
-            serverErrors.push(serverError);
-          } else if (serverError) {
-            serverErrors.push(...serverError);
-          }
-          if (serverErrors.find(name => name === key)) {
-            field.errors = error;
-          }
+        const error = errors[key];
+        this.callbackField(field => {
+          field.addErrors(error);
         });
       }
     }
-    return this.fields;
   }
 
-  async setErrors(errors?: Record<string, string | string[]>) {
-    errors && (await this.addErrors(errors));
+  setErrors(errors?: Record<string, ValidationErrors>) {
+    errors && this.addErrors(errors);
   }
 
   async getErrors() {

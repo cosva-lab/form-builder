@@ -6,6 +6,7 @@ import {
   value,
   Validate,
   ValidationErrors,
+  ValidationError,
   PropsFieldBase,
   StatusField,
   GlobalProps,
@@ -41,8 +42,6 @@ export abstract class InputValidator<V = value> extends Field<V>
     | Validation
     | ValidationFunction<V>
   )[];
-
-  @observable public serverError?: string[] | string;
 
   private _globalProps?: GlobalProps;
   public get globalProps(): GlobalProps | undefined {
@@ -184,12 +183,36 @@ export abstract class InputValidator<V = value> extends Field<V>
   public reset() {
     this.markAsPristine();
     this.markAsUntouched();
+    this._setInitialStatus();
     const { originalProps } = this;
     if (originalProps) {
       const { validate, value } = originalProps;
       this._validate = validate;
       this.value = value;
     }
+  }
+
+  addError(error: ValidationError) {
+    if (error) {
+      if (this.status !== StatusField.INVALID)
+        this.status = StatusField.INVALID;
+      if (!this.errors) this.errors = [];
+      this.errors.unshift(error);
+    }
+  }
+
+  addErrors(errors: ValidationErrors) {
+    this.status = StatusField.INVALID;
+    const oldErrors = this.errors || [];
+    this.errors = [...errors, ...oldErrors];
+  }
+
+  setError(error: ValidationError) {
+    this.addError(error);
+  }
+
+  setErrors(errors: ValidationErrors) {
+    this.addErrors(errors);
   }
 }
 
