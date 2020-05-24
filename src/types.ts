@@ -41,6 +41,12 @@ export type changeField<V = value> = (
   callback?: () => void,
 ) => void | (() => void);
 
+export type onSetValue<V = value> = (e: {
+  lastValue: V;
+  newValue: V;
+  field: FieldBuilder<V>;
+}) => void;
+
 export interface ChangeField<V = value> {
   changeField: changeField<V>;
 }
