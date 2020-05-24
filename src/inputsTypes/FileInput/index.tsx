@@ -102,9 +102,9 @@ class FileInput extends React.PureComponent<FileInputProps, State> {
 
   setChangeField = (value: FileValue[], callBack?: () => void) => {
     const { changeField, name, fieldProxy } = this.propsParse;
-    const { onChange } = fieldProxy;
-    if (changeField) {
-      const res = (onChange || changeField)(
+    const onChange = fieldProxy.onChange || changeField;
+    if (onChange) {
+      const res = onChange(
         assign({
           target: {
             name,

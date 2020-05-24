@@ -13,7 +13,8 @@ export class FieldsRender extends React.PureComponent<
   };
 
   changeField: changeField = (event, callback) => {
-    this.props.changeField(event, callback);
+    const { changeField } = this.props;
+    changeField && changeField(event, callback);
   };
 
   /**

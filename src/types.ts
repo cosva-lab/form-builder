@@ -48,7 +48,7 @@ export type onSetValue<V = value> = (e: {
 }) => void;
 
 export interface ChangeField<V = value> {
-  changeField: changeField<V>;
+  changeField?: changeField<V>;
 }
 
 export type value = any;

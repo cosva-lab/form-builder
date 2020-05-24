@@ -25,8 +25,10 @@ const FieldRenderObserver = ({
 class FieldRender<V = value>
   extends React.PureComponent<FieldProps<V>>
   implements ChangeField {
-  changeField: changeField = (e, callback) =>
-    this.props.changeField(e, callback);
+  changeField: changeField = (e, callback) => {
+    const { changeField } = this.props;
+    changeField && changeField(e, callback);
+  };
 
   public render() {
     const { fieldProxy } = this.props;

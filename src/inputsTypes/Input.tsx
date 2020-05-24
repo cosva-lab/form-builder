@@ -63,9 +63,10 @@ class InputComponent extends React.Component<
   }
 
   componentDidUpdate() {
+    const { fieldProxy } = this.props;
     this.callbacks.forEach(callback => callback());
     this.callbacks = [];
-    this.errors = toJS(this.props.fieldProxy.errors || []);
+    this.errors = toJS(fieldProxy.errors || []);
   }
 
   getProps = (props: AllProps) => ({ ...props.fieldProxy });
@@ -141,12 +142,14 @@ class InputComponent extends React.Component<
             },
           }}
           onChange={e => {
-            const { onChange } = fieldProxy;
-            const callback = (onChange || changeField)(
-              assign(e, { fieldProxy }),
-            );
-            typeof callback === 'function' &&
-              this.callbacks.push(callback);
+            const onChange = fieldProxy.onChange || changeField;
+            if (onChange) {
+              const callback = onChange(assign(e, { fieldProxy }));
+              typeof callback === 'function' &&
+                this.callbacks.push(callback);
+            } else {
+              fieldProxy.setValue(e.target.value);
+            }
           }}
           onBlur={() => {
             const { fieldProxy } = this.props;
