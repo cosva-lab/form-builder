@@ -170,19 +170,6 @@ export abstract class InputValidator<V = value> extends Field<V>
   }
 
   @action
-  setValue(value: V) {
-    this.value = value;
-    this.markAsDirty();
-    this.markAsTouched();
-    if (
-      typeof this.validate !== 'undefined'
-        ? this.validate
-        : this.dirty
-    )
-      this.updateValueAndValidity();
-  }
-
-  @action
   public reset() {
     this.markAsPristine();
     this.markAsUntouched();

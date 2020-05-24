@@ -1,4 +1,4 @@
-import { observable } from 'mobx';
+import { observable, action, toJS } from 'mobx';
 
 import {
   ExtraProps,
@@ -103,6 +103,25 @@ class FieldBuilder<V = value> extends InputValidator<V>
       }
     }
     return messageResult.length ? messageResult : undefined;
+  }
+
+  @action
+  setValue(value: V) {
+    this.onSetValue &&
+      this.onSetValue({
+        lastValue: toJS(this.value),
+        newValue: value,
+        field: this,
+      });
+    this.value = value;
+    this.markAsDirty();
+    this.markAsTouched();
+    if (
+      typeof this.validate !== 'undefined'
+        ? this.validate
+        : this.dirty
+    )
+      this.updateValueAndValidity();
   }
 }
 

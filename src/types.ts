@@ -327,6 +327,7 @@ export interface PropsFieldBase<V = value> {
   defaultInputValue?: V;
   label?: LabelPropsField;
   onChange?: changeField<V>;
+  onSetValue?: onSetValue<V>;
 }
 
 export interface PropsField<V = value>
