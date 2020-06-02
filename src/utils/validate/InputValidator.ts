@@ -150,7 +150,8 @@ export abstract class InputValidator<V = value> extends Field<V>
 
   private _calculateStatus(): StatusField {
     if (this.disabled) return StatusField.DISABLED;
-    if (this.errors) return StatusField.INVALID;
+    else if (this.errors && this.errors.length)
+      return StatusField.INVALID;
     return StatusField.VALID;
   }
 
