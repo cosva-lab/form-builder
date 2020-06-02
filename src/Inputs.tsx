@@ -3,8 +3,8 @@ import { Input, FileInput } from './inputsTypes';
 import { FieldProps } from './types';
 
 const Inputs = (props: FieldProps) => {
-  const { changeField, fieldProxy } = props;
-  const { type } = fieldProxy;
+  const { changeField, field } = props;
+  const { type } = field;
   switch (type) {
     case 'date':
     case 'email':
@@ -18,10 +18,10 @@ const Inputs = (props: FieldProps) => {
     case 'week':
     case 'datetime-local':
     case undefined:
-      return <Input {...{ fieldProxy, changeField, type }} />;
+      return <Input {...{ field, changeField, type }} />;
     case 'file':
       const { onAdd, onDelete, onSort, sort, arrayMove, multiple } = {
-        ...fieldProxy.extraProps,
+        ...field.extraProps,
       };
       return (
         <FileInput
@@ -33,7 +33,7 @@ const Inputs = (props: FieldProps) => {
             onSort,
             sort,
             arrayMove,
-            fieldProxy,
+            field,
           }}
         />
       );

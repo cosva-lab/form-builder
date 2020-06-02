@@ -81,7 +81,7 @@ class FileInput extends React.PureComponent<FileInputProps, State> {
   }
 
   get propsParse() {
-    return { ...this.props, ...this.props.fieldProxy };
+    return { ...this.props, ...this.props.field };
   }
 
   getRegex(extensions?: string[]): RegExp | undefined {
@@ -101,8 +101,8 @@ class FileInput extends React.PureComponent<FileInputProps, State> {
   };
 
   setChangeField = (value: FileValue[], callBack?: () => void) => {
-    const { changeField, name, fieldProxy } = this.propsParse;
-    const onChange = fieldProxy.onChange || changeField;
+    const { changeField, name, field } = this.propsParse;
+    const onChange = field.onChange || changeField;
     if (onChange) {
       const res = onChange(
         assign({
@@ -110,13 +110,13 @@ class FileInput extends React.PureComponent<FileInputProps, State> {
             name,
             value,
           },
-          fieldProxy,
+          field,
         }),
         callBack,
       );
       typeof res === 'function' && this.callbacks.push(res);
     } else {
-      fieldProxy.setValue(value);
+      field.setValue(value);
       callBack && callBack();
     }
   };
@@ -383,7 +383,7 @@ class FileInput extends React.PureComponent<FileInputProps, State> {
   }
 
   public render() {
-    const { fieldProxy } = this.props;
+    const { field } = this.props;
     const {
       errors,
       label,
@@ -391,7 +391,7 @@ class FileInput extends React.PureComponent<FileInputProps, State> {
       value,
       renderErrors: RenderErrors,
     } = this.propsParse;
-    const ns = fieldProxy.ns;
+    const ns = field.ns;
     const { multiple, subLabel } = this.extraProps;
     const accept = this.convertAccept(this.extraProps.accept);
     const { valueTemp, inputValue, loading } = this.state;
@@ -417,7 +417,7 @@ class FileInput extends React.PureComponent<FileInputProps, State> {
               files,
               multiple,
               subLabel,
-              fieldProxy,
+              field,
               valueTemp,
               changeField: (...value) => this.changeField(...value),
               openFileDialog: (...value) =>
@@ -465,7 +465,7 @@ class FileInput extends React.PureComponent<FileInputProps, State> {
         {errors && (
           <Animation>
             {(RenderErrors && (
-              <RenderErrors {...{ errors, fieldProxy }} />
+              <RenderErrors {...{ errors, field }} />
             )) || (
               <FormHelperText
                 error={true}
@@ -476,7 +476,7 @@ class FileInput extends React.PureComponent<FileInputProps, State> {
                 }}
                 component="div"
               >
-                <RenderErrorsDefault {...{ errors, fieldProxy }} />
+                <RenderErrorsDefault {...{ errors, field }} />
               </FormHelperText>
             )}
           </Animation>

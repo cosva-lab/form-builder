@@ -19,7 +19,7 @@ export interface ActionsFiles {
 export interface FileInputProps
   extends Partial<Pick<FieldProps, 'changeField'>>,
     ActionsFiles {
-  fieldProxy: FieldBuilder<Files>;
+  field: FieldBuilder<Files>;
 }
 
 export interface ExtraFile {
@@ -36,7 +36,7 @@ export interface FileValue {
 export declare type Files = FileValue[];
 
 export interface ListFilesProps {
-  fieldProxy: FieldBuilder<any>;
+  field: FieldBuilder<any>;
   files: Files;
   openFileDialog: () => void;
   deleteFile: (index: number, sendChange?: boolean) => Promise<void>;

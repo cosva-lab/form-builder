@@ -112,7 +112,7 @@ function initForm() {
             message: 'This field can not be empty',
           },
         ],
-        onChange: ({ fieldProxy, target }) => {
+        onChange: ({ field, target }) => {
           let cb = () => {};
           if (target instanceof HTMLInputElement) {
             const start = target.selectionStart;
@@ -120,8 +120,8 @@ function initForm() {
             cb = () =>
               start && end && target.setSelectionRange(start, end);
           }
-          fieldProxy &&
-            fieldProxy.setValue(target.value.trim().toLowerCase());
+          field &&
+            field.setValue(target.value.trim().toLowerCase());
           return () => cb && cb();
         },
       },

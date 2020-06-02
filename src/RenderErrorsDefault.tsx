@@ -19,9 +19,9 @@ function isMessage(args: any): args is Message {
 
 export const RenderErrorsDefault = ({
   errors,
-  fieldProxy,
+  field,
 }: ComponentErrorsProps) => {
-  const ns = fieldProxy && fieldProxy.ns;
+  const ns = field && field.ns;
   const { spanError } = useStyles();
   const common = useFieldError();
   return (

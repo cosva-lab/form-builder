@@ -33,7 +33,7 @@ export class FieldsRender extends React.PureComponent<
           return (
             <FieldRender
               key={field.name}
-              fieldProxy={
+              field={
                 (field instanceof FieldBuilder && field) ||
                 new FieldBuilder(field)
               }

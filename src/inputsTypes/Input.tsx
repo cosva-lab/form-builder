@@ -63,18 +63,18 @@ class InputComponent extends React.Component<
   }
 
   componentDidUpdate() {
-    const { fieldProxy } = this.props;
+    const { field } = this.props;
     this.callbacks.forEach(callback => callback());
     this.callbacks = [];
-    this.errors = toJS(fieldProxy.errors || []);
+    this.errors = toJS(field.errors || []);
   }
 
-  getProps = (props: AllProps) => ({ ...props.fieldProxy });
+  getProps = (props: AllProps) => ({ ...props.field });
 
   getLastProps = () => this.getProps(this.props);
 
   public render() {
-    const { classes, changeField, fieldProxy } = this.props;
+    const { classes, changeField, field } = this.props;
     const {
       ns,
       label,
@@ -87,7 +87,7 @@ class InputComponent extends React.Component<
       textFieldProps,
       value,
       renderErrors: RenderErrors,
-    } = fieldProxy;
+    } = field;
 
     const { type } = this.state;
     return (
@@ -98,7 +98,7 @@ class InputComponent extends React.Component<
       >
         <TextField
           label={<TransformLabel {...{ label, ns, name }} />}
-          inputRef={element => (fieldProxy.inputRef = element)}
+          inputRef={element => (field.inputRef = element)}
           error={!isEmpty(errors)}
           FormHelperTextProps={{
             component: ({ children, className }) => {
@@ -117,14 +117,14 @@ class InputComponent extends React.Component<
           helperText={
             errors &&
             ((RenderErrors && (
-              <RenderErrors {...{ errors, fieldProxy }} />
-            )) || <RenderErrorsDefault {...{ errors, fieldProxy }} />)
+              <RenderErrors {...{ errors, field }} />
+            )) || <RenderErrorsDefault {...{ errors, field }} />)
           }
           InputProps={
             typeof InputProps === 'function'
               ? InputProps({
                   type,
-                  fieldProxy,
+                  field,
                   changeType: (type, callback) => {
                     if (type !== this.state.type)
                       this.setState({ type }, callback);
@@ -142,18 +142,18 @@ class InputComponent extends React.Component<
             },
           }}
           onChange={e => {
-            const onChange = fieldProxy.onChange || changeField;
+            const onChange = field.onChange || changeField;
             if (onChange) {
-              const callback = onChange(assign(e, { fieldProxy }));
+              const callback = onChange(assign(e, { field }));
               typeof callback === 'function' &&
                 this.callbacks.push(callback);
             } else {
-              fieldProxy.setValue(e.target.value);
+              field.setValue(e.target.value);
             }
           }}
           onBlur={() => {
-            const { fieldProxy } = this.props;
-            fieldProxy && fieldProxy.markAsTouched();
+            const { field } = this.props;
+            field && field.markAsTouched();
           }}
           {...{
             ...textFieldProps,

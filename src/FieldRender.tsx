@@ -31,9 +31,9 @@ class FieldRender<V = value>
   };
 
   public render() {
-    const { fieldProxy } = this.props;
+    const { field } = this.props;
     const breakpoints: BreakpointsField = {
-      ...fieldProxy.breakpoints,
+      ...field.breakpoints,
     };
     const { xs = 12 } = breakpoints;
     const { sm = xs } = breakpoints;
@@ -47,9 +47,9 @@ class FieldRender<V = value>
       grid = typeof this.props.grid !== 'undefined'
         ? this.props.grid
         : true,
-    } = fieldProxy;
+    } = field;
     const propsForm: FieldProps<V> = {
-      fieldProxy,
+      field,
       changeField: this.changeField,
     };
     const formInput = <Inputs {...propsForm} />;

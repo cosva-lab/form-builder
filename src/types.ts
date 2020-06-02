@@ -36,7 +36,7 @@ export type changeField<V = value> = (
     | EventField<V>
     | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) & {
-    fieldProxy?: FieldBuilder<V>;
+    field?: FieldBuilder<V>;
   },
   callback?: () => void,
 ) => void | (() => void);
@@ -236,7 +236,7 @@ export type ComponentField = React.ElementType<FieldProps>;
 
 export interface ComponentErrorsProps<V = any> {
   errors: ValidationErrors;
-  fieldProxy?: FieldBuilder<V>;
+  field?: FieldBuilder<V>;
 }
 
 export type ComponentErrors<V = any> = React.ElementType<
@@ -352,7 +352,7 @@ export interface Validate<V = value> extends Validations<V> {
 }
 
 export interface BaseRender<V = value> {
-  fieldProxy: FieldBuilder<V>;
+  field: FieldBuilder<V>;
 }
 
 export interface FieldProps<V = value>

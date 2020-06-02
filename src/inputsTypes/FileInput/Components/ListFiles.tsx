@@ -167,7 +167,7 @@ export class ListFiles extends React.Component<
       valueTemp,
     } = this.props;
     const files = [
-      ...((this.props.fieldProxy && this.props.fieldProxy.value) ||
+      ...((this.props.field && this.props.field.value) ||
         this.props.files),
       ...valueTemp,
     ];
