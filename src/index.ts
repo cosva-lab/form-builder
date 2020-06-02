@@ -3,6 +3,7 @@ export { FieldsRender } from './FieldsRender';
 export { FormSteps } from './FormSteps';
 export { Inputs } from './Inputs';
 export { RenderErrorsDefault } from './RenderErrorsDefault';
+export * from './Hooks';
 
 export * from './utils';
 export * from './FieldTranslate';

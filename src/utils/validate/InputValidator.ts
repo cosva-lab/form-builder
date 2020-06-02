@@ -120,13 +120,6 @@ export abstract class InputValidator<V = value> extends Field<V>
     return this.invalid;
   }
 
-  /**
-   * @deprecated Please use `hasErrors`
-   */
-  public async haveErrors() {
-    return this.hasErrors();
-  }
-
   public markAsTouched() {
     this.touched = true;
   }
