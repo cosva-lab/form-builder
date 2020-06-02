@@ -176,7 +176,10 @@ export type ValidationError =
   | Message;
 
 export type ValidationErrors = ValidationError[];
-type ReturnValidationError = undefined | void | ValidationError;
+export type ReturnValidationError =
+  | undefined
+  | void
+  | ValidationError;
 export type ValidationFunction<V = value> = (
   all: AllPropsValidationFunction<V>,
 ) => ReturnValidationError | Promise<ReturnValidationError>;
