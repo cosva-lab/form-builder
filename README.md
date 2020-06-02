@@ -19,7 +19,7 @@ import {
   FieldsBuilder,
   createField,
   FieldTranslateProvider,
-} from './@cosva-lab/form-builder';
+} from '@cosva-lab/form-builder';
 import { Grid, Button, ButtonGroup } from '@material-ui/core';
 
 export default function App() {
