@@ -11,7 +11,11 @@ import {
   BreakpointsField,
 } from '../../types';
 import { InputValidator } from '../validate/InputValidator';
-import { ComponentErrors, ValidationErrors } from '../../types';
+import {
+  ComponentErrors,
+  ValidationErrors,
+  ReturnValidationError,
+} from '../../types';
 
 class FieldBuilder<V = value> extends InputValidator<V>
   implements PropsField {
@@ -67,42 +71,51 @@ class FieldBuilder<V = value> extends InputValidator<V>
     this.getErrors = this.getErrors.bind(this);
   }
 
-  public async getErrors(params?: {
-    validate?: boolean;
+  public async getErrorsBase(props?: {
+    sequential: boolean;
   }): Promise<ValidationErrors | undefined> {
-    const { validate = true } = { ...params };
+    const { sequential = false } = { ...props };
     const { validations, value } = this;
-    let messageResult: ValidationErrors = [];
-    if (!validate && !this.dirty && !this.enabled)
-      return messageResult;
+
+    const validate = this.validate;
+    let errors: ValidationErrors = [];
+    if (!validate && !this.dirty && !this.enabled) return errors;
 
     if (Array.isArray(validations) && validate) {
       for (const validation of validations) {
+        let error: ReturnValidationError | undefined;
         if (typeof validation === 'object') {
-          const res = this.hasValidationError(validation);
-          if (res) {
-            messageResult = [...messageResult, validation];
-          }
-        } else {
-          const res = await validation({
+          if (this.hasValidationError(validation)) error = validation;
+        } else if (typeof validation === 'function') {
+          error = await validation({
             field: this,
             fieldsBuilder: this.fieldsBuilder,
             stepsBuilder: this.stepsBuilder,
             validate,
             value,
           });
-
-          const errors: ValidationErrors = [];
-          if (typeof res === 'string') {
-            errors.push(res);
-          } else if (res) {
-            errors.push(res);
-          }
-          if (res) messageResult = [...messageResult, ...errors];
+        }
+        if (error) {
+          errors = [...errors, error];
+          if (sequential) break;
         }
       }
     }
-    return messageResult.length ? messageResult : undefined;
+    return errors.length ? errors : undefined;
+  }
+
+  public getErrors(): Promise<ValidationErrors | undefined> {
+    return this.getErrorsBase();
+  }
+
+  public async hasErrors(): Promise<boolean> {
+    const errors = await this.getErrorsBase({ sequential: true });
+    return !!(errors && errors.length);
+  }
+
+  public async hasValid(): Promise<boolean> {
+    const hasErrors = await this.hasErrors();
+    return !hasErrors;
   }
 
   @action

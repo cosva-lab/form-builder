@@ -109,16 +109,10 @@ export abstract class InputValidator<V = value> extends Field<V>
     return false;
   }
 
-  public abstract getErrors(params?: {
-    validate?: boolean;
-  }):
+  public abstract getErrors():
     | Promise<ValidationErrors | undefined>
     | ValidationErrors
     | undefined;
-  public async hasErrors() {
-    await this.validityBase();
-    return this.invalid;
-  }
 
   public markAsTouched() {
     this.touched = true;
@@ -130,22 +124,24 @@ export abstract class InputValidator<V = value> extends Field<V>
 
   @action
   private async validityBase() {
-    const setError = (errors?: ValidationErrors) => {
-      if (errors && errors.length) {
-        this.errors = errors;
-        this.status = StatusField.INVALID;
-      } else {
-        this.errors = undefined;
-        this.status = StatusField.VALID;
-      }
-    };
     const errors = await this.getErrors();
-    setError(errors);
+    if (errors && errors.length) {
+      this.errors = errors;
+      this.status = StatusField.INVALID;
+    } else {
+      this.errors = undefined;
+      this.status = StatusField.VALID;
+    }
   }
 
+  /**
+   * @description Returns true if the field is valid
+   * @return {Promise<boolean>}
+   */
   public async validity() {
     this._validate = true;
     await this.validityBase();
+    return this.valid;
   }
 
   private _calculateStatus(): StatusField {
