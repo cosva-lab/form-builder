@@ -71,12 +71,13 @@ class FieldBuilder<V = value> extends InputValidator<V>
     this.getErrors = this.getErrors.bind(this);
   }
 
-  public async getErrorsBase(props?: {
+  protected async getErrorsBase(props?: {
     sequential: boolean;
   }): Promise<ValidationErrors | undefined> {
     const { sequential = false } = { ...props };
     const { validations, value } = this;
 
+    if (typeof this.validate !== 'function') this._validate = true;
     const validate = this.validate;
     let errors: ValidationErrors = [];
     if (!validate && !this.dirty && !this.enabled) return errors;
@@ -105,8 +106,6 @@ class FieldBuilder<V = value> extends InputValidator<V>
   }
 
   public getErrors(): Promise<ValidationErrors | undefined> {
-    const validate = this.validate;
-    if (typeof validate !== 'function') this._validate = true;
     return this.getErrorsBase();
   }
 
