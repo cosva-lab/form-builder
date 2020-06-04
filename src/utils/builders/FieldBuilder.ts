@@ -105,6 +105,8 @@ class FieldBuilder<V = value> extends InputValidator<V>
   }
 
   public getErrors(): Promise<ValidationErrors | undefined> {
+    const validate = this.validate;
+    if (typeof validate !== 'function') this._validate = true;
     return this.getErrorsBase();
   }
 
