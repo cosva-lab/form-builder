@@ -322,7 +322,8 @@ export enum StatusField {
   'DISABLED' = 'DISABLED',
 }
 
-export interface PropsFieldBase<V = value> {
+export interface PropsFieldBase<V = value>
+  extends GlobalPropsInterface {
   type?: TypeField;
   name: string;
   value: V;
