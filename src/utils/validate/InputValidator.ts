@@ -59,11 +59,12 @@ export abstract class InputValidator<V = value> extends Field<V>
 
   constructor(props: PropsInput<V>) {
     super(props);
-    const { validate, validations, value } = props;
+    const { validate, validations, value, globalProps } = props;
     this._validate = validate;
     // validations is an array of validation rules specific to a form
     this.validations = validations;
     this.originalProps = { value, validate };
+    this.globalProps = globalProps;
   }
 
   protected hasValidationError(validation: Validation): boolean {
