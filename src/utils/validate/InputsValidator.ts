@@ -63,18 +63,19 @@ class InputsValidator {
     const { setErrors = true, throwFirstError = false } = { ...args };
     await this.callbackField(async (field, cancel) => {
       if (field.enabled) {
-        const fieldView = setErrors ? field : new FieldBuilder(field);
-        fieldView._validate = true;
-        await fieldView.hasErrors();
-        if (!fieldView.valid) this.valid = fieldView.valid;
-        if (throwFirstError) cancel();
+        const valid = setErrors
+          ? await field.validity()
+          : await field.hasErrors();
+        this.valid = valid;
+        if (throwFirstError && !this.valid) cancel();
       }
     });
+    return this.valid;
   }
 
-  async validity() {
+  validity() {
     this._validate = true;
-    await this.validityBase();
+    return this.validityBase();
   }
 
   @action
@@ -86,8 +87,11 @@ class InputsValidator {
       ...params,
     };
     if (setErrors) this._validate = true;
-    await this.validityBase({ setErrors, throwFirstError });
-    return this.invalid;
+    const valid = await this.validityBase({
+      setErrors,
+      throwFirstError,
+    });
+    return !valid;
   }
 
   @action
