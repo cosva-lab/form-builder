@@ -133,6 +133,8 @@ export abstract class InputValidator<V = value> extends Field<V>
       this.errors = undefined;
       this.status = StatusField.VALID;
     }
+
+    return this.valid;
   }
 
   /**
@@ -141,8 +143,7 @@ export abstract class InputValidator<V = value> extends Field<V>
    */
   public async validity() {
     this._validate = true;
-    await this.validityBase();
-    return this.valid;
+    return this.validityBase();
   }
 
   private _calculateStatus(): StatusField {
