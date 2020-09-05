@@ -65,8 +65,8 @@ class InputsValidator {
       if (field.enabled) {
         const valid = setErrors
           ? await field.validity()
-          : await field.hasErrors();
-        this.valid = valid;
+          : !(await field.hasErrors());
+        if (!valid) this.valid = valid;
         if (throwFirstError && !this.valid) cancel();
       }
     });
