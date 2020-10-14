@@ -101,7 +101,8 @@ class InputsValidator {
       if (errors.hasOwnProperty(key)) {
         const error = errors[key];
         this.callbackField(field => {
-          field.addErrors(error);
+          const keys: string[] = [field.name];
+          if (keys.some(name => name === key)) field.addErrors(error);
         });
       }
     }
