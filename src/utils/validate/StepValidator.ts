@@ -1,4 +1,4 @@
-import { observable } from 'mobx';
+import { observable, makeObservable } from 'mobx';
 import { StepProps } from '../../types';
 import FieldsBuilder from '../builders/FieldsBuilder';
 
@@ -22,6 +22,7 @@ export class StepValidator extends FieldsBuilder {
       ns,
       validate,
     });
+    makeObservable(this);
     this.elevation = elevation;
     this.label = label;
     this.stepper = stepper;

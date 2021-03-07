@@ -1,4 +1,4 @@
-import { observable } from 'mobx';
+import { observable, makeObservable } from 'mobx';
 import StepValidator from './StepValidator';
 import { StepProps } from '../../types';
 
@@ -9,6 +9,7 @@ class StepsValidator {
   @observable protected stepsWithErros: StepValidator[];
 
   constructor(steps: StepProps[]) {
+    makeObservable(this);
     this.steps = steps.map(step => new StepValidator(step));
     this.stepsWithErros = [...this.steps];
     this.hasErrors = this.hasErrors.bind(this);

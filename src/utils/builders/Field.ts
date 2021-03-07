@@ -1,4 +1,4 @@
-import { observable } from 'mobx';
+import { observable, makeObservable } from 'mobx';
 import FieldsBuilder from './FieldsBuilder';
 import StepsBuilder from './StepsBuilder';
 import {
@@ -180,6 +180,7 @@ class Field<V = value> implements PropsFieldBase<V> {
     onChange,
     onSetValue,
   }: PropsFieldBase) {
+    makeObservable(this);
     this.type = type;
     this.name = name;
     this.value = value;

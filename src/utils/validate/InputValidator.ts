@@ -1,4 +1,4 @@
-import { observable, action } from 'mobx';
+import { observable, action, makeObservable } from 'mobx';
 
 import {
   Validation,
@@ -59,6 +59,7 @@ export abstract class InputValidator<V = value> extends Field<V>
 
   constructor(props: PropsInput<V>) {
     super(props);
+    makeObservable(this);
     const { validate, validations, value, globalProps } = props;
     this._validate = validate;
     // validations is an array of validation rules specific to a form

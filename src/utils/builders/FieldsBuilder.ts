@@ -1,4 +1,4 @@
-import { observable, toJS } from 'mobx';
+import { observable, toJS, makeObservable } from 'mobx';
 import InputsValidator from '../validate/InputsValidator';
 import { changeValueFields } from '../changeValues';
 import {
@@ -45,6 +45,7 @@ class FieldsBuilder extends InputsValidator implements FieldsProps {
 
   constructor(props: Props) {
     super(props);
+    makeObservable(this);
     const { ns, validate = true, globalProps } = props;
     this._ns = ns;
     this._validate = validate;

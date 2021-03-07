@@ -1,4 +1,4 @@
-import { observable, action, toJS } from 'mobx';
+import { observable, action, toJS, makeObservable } from 'mobx';
 
 import {
   ExtraProps,
@@ -43,6 +43,7 @@ class FieldBuilder<V = value> extends InputValidator<V>
 
   constructor(props: PropsField<V>) {
     super(props);
+    makeObservable(this);
     const {
       extraProps,
       ns,

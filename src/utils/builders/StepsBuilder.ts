@@ -1,4 +1,4 @@
-import { observable } from 'mobx';
+import { observable, makeObservable } from 'mobx';
 import cloneDeep from 'lodash/cloneDeep';
 import {
   InitialStateSteps,
@@ -23,6 +23,7 @@ export default class StepsBuilder extends StepsValidator
 
   constructor(props: Props) {
     super(props.steps);
+    makeObservable(this);
     const { ns, validate, activeStep } = props;
     for (const step of this.steps) {
       step.stepsBuilder = this;

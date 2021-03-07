@@ -1,4 +1,4 @@
-import { observable, action } from 'mobx';
+import { observable, action, makeObservable } from 'mobx';
 
 import { FieldsProps } from '../..';
 import FieldBuilder from '../builders/FieldBuilder';
@@ -32,6 +32,7 @@ class InputsValidator {
     fields,
     validate,
   }: Pick<FieldsProps, 'fields' | 'validate'>) {
+    makeObservable(this);
     this._validate = validate;
     this.callbackField = this.callbackField.bind(this);
     this.addErrors = this.addErrors.bind(this);

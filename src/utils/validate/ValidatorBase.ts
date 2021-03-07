@@ -1,4 +1,4 @@
-import { observable } from 'mobx';
+import { observable, makeObservable } from 'mobx';
 import FieldBuilder from '../builders/FieldBuilder';
 
 class ValidatorBase {
@@ -17,6 +17,7 @@ class ValidatorBase {
   }
 
   constructor({ validate = false }: { validate?: boolean }) {
+    makeObservable(this);
     this.validate = validate;
   }
 }
