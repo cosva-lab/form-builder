@@ -1,6 +1,6 @@
 {
   "name": "@cosva-lab/form-builder",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "React form builder.",
   "author": "andres112013",
   "license": "MIT",
@@ -18,7 +18,7 @@
     "clean": "rm -Rf ./lib/* ./build/* ./meta/bundlesize/* ./meta/coverage/* ./.rpt2_cache",
     "prebuild": "npm run clean",
     "build": "npm run build:cjs && npm run build:esm && npm run build:es",
-    "build:cjs": "npx tsc --outDir ./build",
+    "build:cjs": "cross-env NODE_ENV=production BABEL_ENV=cjs babel --config-file ./babel.config.js --extensions .ts,.tsx ./src --out-dir ./build --ignore \"**/*.test.js\" && npx tsc --emitDeclarationOnly --outDir ./build",
     "build:esm": "cross-env NODE_ENV=production BABEL_ENV=es babel --config-file ./babel.config.js --extensions .ts,.tsx ./src --out-dir ./build/esm --ignore \"**/*.test.js\"",
     "build:es": "cross-env NODE_ENV=production BABEL_ENV=es babel --config-file ./babel.config.js --extensions .ts,.tsx ./src --out-dir ./build/es --ignore \"**/*.test.js\"",
     "build:umd": "cross-env BABEL_ENV=production-umd rollup -c",
