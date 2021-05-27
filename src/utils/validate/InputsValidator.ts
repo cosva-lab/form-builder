@@ -1,4 +1,9 @@
-import { observable, action, makeObservable } from 'mobx';
+import {
+  observable,
+  action,
+  makeObservable,
+  runInAction,
+} from 'mobx';
 
 import { FieldsProps } from '../..';
 import FieldBuilder from '../builders/FieldBuilder';
@@ -20,20 +25,20 @@ class InputsValidator {
       : this._validate;
   }
 
-  public set validate(validate: boolean | undefined) {
+  public set validate(validate: ValidateInputsValidator | undefined) {
     this._validate = validate;
     if (validate) this.validity();
-    for (const field of this.fields)
+    for (const field of this.fields || [])
       if (validate) field._validate = true;
       else field.errors = undefined;
   }
 
   constructor({
     fields,
-    validate,
+    validate = true,
   }: Pick<FieldsProps, 'fields' | 'validate'>) {
     makeObservable(this);
-    this._validate = validate;
+    this.validate = validate;
     this.callbackField = this.callbackField.bind(this);
     this.addErrors = this.addErrors.bind(this);
     this.hasErrors = this.hasErrors.bind(this);
@@ -45,7 +50,7 @@ class InputsValidator {
     callback: (field: FieldBuilder, cancel: () => void) => void,
   ) {
     const fields = this.fields;
-    for (const field of this.fields) {
+    for (const field of this.fields || []) {
       let cancel = false;
       await callback(field, () => {
         cancel = true;
@@ -67,7 +72,9 @@ class InputsValidator {
         const valid = setErrors
           ? await field.validity()
           : !(await field.hasErrors());
-        if (!valid) this.valid = valid;
+        runInAction(() => {
+          if (!valid) this.valid = valid;
+        });
         if (throwFirstError && !this.valid) cancel();
       }
     });
