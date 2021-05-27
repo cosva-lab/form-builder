@@ -25,11 +25,15 @@ export abstract class InputValidator<V = value> extends Field<V>
   implements Validate<V> {
   public originalProps?: Pick<PropsInput<V>, 'value' | 'validate'>;
 
-  public _validate?: ValidationsField<V>['validate'];
+  static getValidation<V = value>(obj: InputValidator<V>) {
+    return typeof obj._validate === 'function'
+      ? obj._validate(obj)
+      : obj._validate;
+  }
+
+  public _validate: ValidationsField<V>['validate'] = false;
   public get validate() {
-    return typeof this._validate === 'function'
-      ? this._validate(this)
-      : this._validate;
+    return InputValidator.getValidation(this);
   }
 
   public set validate(validate: boolean | undefined) {
@@ -66,7 +70,7 @@ export abstract class InputValidator<V = value> extends Field<V>
     super(props);
     makeObservable(this);
     const { validate, validations, value, globalProps } = props;
-    this._validate = validate;
+    if (typeof validate !== 'undefined') this._validate = validate;
     // validations is an array of validation rules specific to a form
     this.validations = validations;
     this.originalProps = { value, validate };
