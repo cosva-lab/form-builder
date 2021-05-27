@@ -1,4 +1,4 @@
-import { observable, toJS, makeObservable } from 'mobx';
+import { observable, toJS, makeObservable, action } from 'mobx';
 import InputsValidator from '../validate/InputsValidator';
 import { changeValueFields } from '../changeValues';
 import {
@@ -21,7 +21,7 @@ interface Fields {
 
 class FieldsBuilder extends InputsValidator implements FieldsProps {
   @observable public stepsBuilder?: StepsBuilder;
-  @observable private _ns?: string;
+  @observable private _ns?: string = undefined;
   public get ns(): string | undefined {
     return typeof this._ns === 'undefined'
       ? this.stepsBuilder && this.stepsBuilder.ns
@@ -46,9 +46,8 @@ class FieldsBuilder extends InputsValidator implements FieldsProps {
   constructor(props: Props) {
     super(props);
     makeObservable(this);
-    const { ns, validate = true, globalProps } = props;
+    const { ns, globalProps } = props;
     this._ns = ns;
-    this._validate = validate;
     this.globalProps = globalProps;
     for (const field of this.fields) {
       field.fieldsBuilder = this;
@@ -121,6 +120,7 @@ class FieldsBuilder extends InputsValidator implements FieldsProps {
     return this.fields.find(({ name }) => name === fieldName);
   }
 
+  @action
   changeField(callback?: (event: EventField) => void) {
     return (event: EventField, callbackEvent?: Callback) => {
       const { value, name } = event.target;
@@ -136,6 +136,7 @@ class FieldsBuilder extends InputsValidator implements FieldsProps {
     };
   }
 
+  @action
   changeFields(callback?: Callback) {
     return (fields: EventField[]) => {
       fields.forEach(field => {
@@ -145,6 +146,7 @@ class FieldsBuilder extends InputsValidator implements FieldsProps {
     };
   }
 
+  @action
   setValidation(validate: boolean, callback?: Callback) {
     this.validate = validate;
     callback && callback();
