@@ -1,4 +1,4 @@
-import { observable, makeObservable } from 'mobx';
+import { observable, makeObservable, action } from 'mobx';
 import FieldsBuilder from './FieldsBuilder';
 import StepsBuilder from './StepsBuilder';
 import {
@@ -15,18 +15,18 @@ import {
 } from '../../types';
 
 class Field<V = value> implements PropsFieldBase<V> {
-  @observable public fieldsBuilder?: FieldsBuilder;
-  @observable public stepsBuilder?: StepsBuilder;
-  @observable public type?: TypeField;
+  @observable public fieldsBuilder?: FieldsBuilder = undefined;
+  @observable public stepsBuilder?: StepsBuilder = undefined;
+  @observable public type?: TypeField = undefined;
   @observable public name: string;
   @observable public value: V;
-  @observable public defaultInputValue?: V;
-  @observable public label?: LabelPropsField;
+  @observable public defaultInputValue?: V = undefined;
+  @observable public label?: LabelPropsField = undefined;
   @observable public status: StatusField;
-  @observable public errors?: ValidationErrors;
-  @observable public inputRef?: HTMLInputElement;
-  @observable public onChange?: changeField<V>;
-  @observable public onSetValue?: onSetValue<V>;
+  @observable public errors?: ValidationErrors = [];
+  public inputRef?: HTMLInputElement;
+  @observable public onChange?: changeField<V> = undefined;
+  @observable public onSetValue?: onSetValue<V> = undefined;
 
   public pristine: boolean = true;
 
@@ -113,11 +113,12 @@ class Field<V = value> implements PropsFieldBase<V> {
    *
    * @see {@link Field.status}
    */
+  @action
   disable(): void {
     // If parent has been marked artificially dirty we don't want to re-calculate the
     // parent's dirtiness based on the children.
     this.status = StatusField.DISABLED;
-    this.errors = undefined;
+    this.errors = this.errors = [];
   }
 
   /**
@@ -129,6 +130,7 @@ class Field<V = value> implements PropsFieldBase<V> {
    *
    * @see {@link Field.status}
    */
+  @action
   enable(): void {
     // If parent has been marked artificially dirty we don't want to re-calculate the
     // parent's dirtiness based on the children.
@@ -164,6 +166,7 @@ class Field<V = value> implements PropsFieldBase<V> {
     this.pristine = true;
   }
 
+  @action
   _setInitialStatus() {
     this.status = this.disabled
       ? StatusField.DISABLED
