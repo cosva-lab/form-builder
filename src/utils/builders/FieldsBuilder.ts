@@ -52,6 +52,7 @@ class FieldsBuilder extends InputsValidator implements FieldsProps {
     for (const field of this.fields) {
       field.fieldsBuilder = this;
     }
+    this.validate = this._validate;
     this.saveData = this.saveData.bind(this);
     this.restore = this.restore.bind(this);
     this.restoreLast = this.restoreLast.bind(this);
