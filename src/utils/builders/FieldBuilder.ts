@@ -63,7 +63,7 @@ class FieldBuilder<V = value> extends InputValidator<V>
       component,
       renderErrors,
     } = props;
-
+    this.validate = InputValidator.getValidation(this);
     this.extraProps = extraProps;
     this.ns = ns;
     this.render = render;
