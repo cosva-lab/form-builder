@@ -127,7 +127,7 @@ class FieldBuilder<V = value> extends InputValidator<V>
   }
 
   @action
-  setValue(value: V) {
+  async setValue(value: V) {
     this.value = value;
     this.markAsDirty();
     this.markAsTouched();
@@ -135,8 +135,11 @@ class FieldBuilder<V = value> extends InputValidator<V>
       typeof this.validate !== 'undefined'
         ? this.validate
         : this.dirty
-    )
-      this.updateValueAndValidity();
+    ) {
+      runInAction(() => {
+        this.updateValueAndValidity();
+      });
+    }
     this.onSetValue &&
       this.onSetValue({
         lastValue: toJS(this.value),
