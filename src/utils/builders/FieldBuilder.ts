@@ -1,4 +1,10 @@
-import { observable, action, toJS, makeObservable } from 'mobx';
+import {
+  observable,
+  action,
+  toJS,
+  makeObservable,
+  runInAction,
+} from 'mobx';
 
 import {
   ExtraProps,
@@ -19,8 +25,8 @@ import {
 
 class FieldBuilder<V = value> extends InputValidator<V>
   implements PropsField {
-  @observable public extraProps?: ExtraProps;
-  @observable private _ns?: string;
+  @observable public extraProps?: ExtraProps = undefined;
+  @observable private _ns?: string = undefined;
   public get ns(): string | undefined {
     return typeof this._ns === 'undefined'
       ? this.fieldsBuilder && this.fieldsBuilder.ns
@@ -31,14 +37,14 @@ class FieldBuilder<V = value> extends InputValidator<V>
     this._ns = ns;
   }
 
-  @observable public render?: RenderField;
-  @observable public fullWidth?: boolean;
-  @observable public grid?: boolean;
-  @observable public autoComplete?: string;
-  @observable public InputProps?: InputPropsField;
-  @observable public textFieldProps?: TextFieldPropsField;
-  @observable public breakpoints?: BreakpointsField;
-  @observable public component?: ComponentField;
+  @observable public render?: RenderField = undefined;
+  @observable public fullWidth?: boolean = undefined;
+  @observable public grid?: boolean = undefined;
+  @observable public autoComplete?: string = undefined;
+  @observable public InputProps?: InputPropsField = undefined;
+  @observable public textFieldProps?: TextFieldPropsField = undefined;
+  @observable public breakpoints?: BreakpointsField = undefined;
+  @observable public component?: ComponentField = undefined;
   public renderErrors?: ComponentErrors;
 
   constructor(props: PropsField<V>) {
