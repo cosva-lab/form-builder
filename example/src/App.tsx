@@ -54,12 +54,12 @@ const useStyles = makeStyles((theme: Theme) =>
 
 function initForm() {
   return new FieldsBuilder({
-    validate: false,
     fields: [
       {
         name: 'name',
         label: 'Name',
         value: '',
+        validate: false,
         breakpoints: {
           sm: 6,
         },
@@ -120,8 +120,7 @@ function initForm() {
             cb = () =>
               start && end && target.setSelectionRange(start, end);
           }
-          field &&
-            field.setValue(target.value.trim().toLowerCase());
+          field && field.setValue(target.value.trim().toLowerCase());
           return () => cb && cb();
         },
       },
@@ -162,6 +161,7 @@ export default function App() {
     getErrors,
   } = fieldsBuilder;
   const classes = useStyles();
+  console.log(fields);
 
   return (
     <ThemeProvider theme={theme}>
