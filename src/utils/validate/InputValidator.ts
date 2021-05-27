@@ -1,4 +1,9 @@
-import { observable, action, makeObservable } from 'mobx';
+import {
+  observable,
+  action,
+  makeObservable,
+  runInAction,
+} from 'mobx';
 
 import {
   Validation,
@@ -30,7 +35,7 @@ export abstract class InputValidator<V = value> extends Field<V>
   public set validate(validate: boolean | undefined) {
     this._validate = validate;
     if (validate) this.validity();
-    else this.errors = undefined;
+    else this.errors = [];
   }
 
   public touched?: boolean;
@@ -68,6 +73,7 @@ export abstract class InputValidator<V = value> extends Field<V>
     this.globalProps = globalProps;
   }
 
+  @action
   protected hasValidationError(validation: Validation): boolean {
     let rule = validation.rule || 'isEmpty';
     const { args = [] } = validation;
@@ -127,14 +133,15 @@ export abstract class InputValidator<V = value> extends Field<V>
   @action
   private async validityBase() {
     const errors = await this.getErrors();
-    if (errors && errors.length) {
-      this.errors = errors;
-      this.status = StatusField.INVALID;
-    } else {
-      this.errors = undefined;
-      this.status = StatusField.VALID;
-    }
-
+    runInAction(() => {
+      if (errors && errors.length) {
+        this.errors = errors;
+        this.status = StatusField.INVALID;
+      } else {
+        this.errors = this.errors = [];
+        this.status = StatusField.VALID;
+      }
+    });
     return this.valid;
   }
 
@@ -142,6 +149,7 @@ export abstract class InputValidator<V = value> extends Field<V>
    * @description Returns true if the field is valid
    * @return {Promise<boolean>}
    */
+  @action
   public async validity() {
     this._validate = true;
     return this.validityBase();
@@ -154,11 +162,14 @@ export abstract class InputValidator<V = value> extends Field<V>
     return StatusField.VALID;
   }
 
+  @action
   async updateValueAndValidity() {
     this._setInitialStatus();
     if (this.enabled) {
       await this.validity();
-      this.status = this._calculateStatus();
+      runInAction(() => {
+        this.status = this._calculateStatus();
+      });
     }
   }
 
