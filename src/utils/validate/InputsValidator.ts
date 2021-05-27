@@ -18,7 +18,7 @@ class InputsValidator {
     return !this.valid;
   }
   @observable public fields: FieldBuilder[];
-  @observable public _validate?: ValidateInputsValidator;
+  @observable public _validate: ValidateInputsValidator = false;
   public get validate() {
     return typeof this._validate === 'function'
       ? this._validate(this)
@@ -29,16 +29,16 @@ class InputsValidator {
     this._validate = validate;
     if (validate) this.validity();
     for (const field of this.fields || [])
-      if (validate) field._validate = true;
+      if (validate && !field._validate) field._validate = true;
       else field.errors = undefined;
   }
 
   constructor({
     fields,
-    validate = true,
+    validate,
   }: Pick<FieldsProps, 'fields' | 'validate'>) {
     makeObservable(this);
-    this.validate = validate;
+    if (typeof validate !== 'undefined') this._validate = validate;
     this.callbackField = this.callbackField.bind(this);
     this.addErrors = this.addErrors.bind(this);
     this.hasErrors = this.hasErrors.bind(this);
