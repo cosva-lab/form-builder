@@ -128,7 +128,9 @@ class FieldBuilder<V = value> extends InputValidator<V>
 
   @action
   async setValue(value: V) {
-    this.value = value;
+    runInAction(() => {
+      this.value = value;
+    });
     this.markAsDirty();
     this.markAsTouched();
     if (

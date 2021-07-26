@@ -2,7 +2,7 @@ import React from 'react';
 import compose from 'recompose/compose';
 import clsx from 'clsx';
 import { observer } from 'mobx-react';
-import { toJS } from 'mobx';
+import { intercept } from 'mobx';
 import withStyles, {
   WithStyles,
 } from '@material-ui/core/styles/withStyles';
@@ -11,7 +11,6 @@ import FormControl from '@material-ui/core/FormControl';
 import { Theme } from '@material-ui/core/styles/createMuiTheme';
 import createStyles from '@material-ui/core/styles/createStyles';
 import isEmpty from 'lodash/isEmpty';
-import isEqual from 'lodash/isEqual';
 import assign from 'lodash/assign';
 
 import { InputProps } from '..';
@@ -23,9 +22,12 @@ import { ValidationErrors } from '../types';
 const styles = (theme: Theme) =>
   createStyles({
     root: {
-      ...theme.mixins.gutters(),
       paddingTop: theme.spacing(2),
       paddingBottom: theme.spacing(2),
+      [theme.breakpoints.up('sm')]: {
+        paddingLeft: theme.spacing(3),
+        paddingRight: theme.spacing(3),
+      },
     },
     formControl: {},
     widthNormal: { width: '100%' },
@@ -55,18 +57,17 @@ class InputComponent extends React.Component<
 
   animation = true;
 
-  UNSAFE_componentWillUpdate(newProps: AllProps) {
-    const { errors } = this.getProps(newProps);
-    if (!isEqual(toJS(errors), this.errors)) {
+  componentDidMount() {
+    const { field } = this.props;
+    intercept(field, 'errors', change => {
       this.animation = true;
-    }
+      return change;
+    });
   }
 
   componentDidUpdate() {
-    const { field } = this.props;
     this.callbacks.forEach(callback => callback());
     this.callbacks = [];
-    this.errors = toJS(field.errors || []);
   }
 
   getProps = (props: AllProps) => ({ ...props.field });

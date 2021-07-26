@@ -22,9 +22,12 @@ import { getMessage } from '../FieldTranslate';
 const styles = (theme: Theme) =>
   createStyles({
     root: {
-      ...theme.mixins.gutters(),
       paddingTop: theme.spacing(2),
       paddingBottom: theme.spacing(4),
+      [theme.breakpoints.up('sm')]: {
+        paddingLeft: theme.spacing(3),
+        paddingRight: theme.spacing(3),
+      },
       margin: theme.spacing(2),
       width: '100%',
     },

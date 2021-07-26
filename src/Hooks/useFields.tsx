@@ -1,4 +1,4 @@
-import { useLocalStore } from 'mobx-react';
+import { useLocalObservable } from 'mobx-react';
 
 import { FieldsProps } from '../types';
 import { FieldsBuilder } from '../utils';
@@ -6,7 +6,7 @@ import { FieldsBuilder } from '../utils';
 export const useFields = (
   props: FieldsProps | (() => FieldsProps),
 ) => {
-  const fields = useLocalStore(() => {
+  const fields = useLocalObservable(() => {
     const fieldsProps = typeof props === 'function' ? props() : props;
     return new FieldsBuilder(fieldsProps);
   });
