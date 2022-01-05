@@ -33,7 +33,7 @@
     "mobx": "^6.0.0",
     "mobx-react": "^7.0.0",
     "recompose": "^0.30.0",
-    "validator": "^11.1.0"
+    "validator": "^13.7.0"
   },
   "peerDependencies": {
     "prop-types": "^15.5.4",
