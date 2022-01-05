@@ -5,7 +5,6 @@ import { StepperProps } from '@material-ui/core/Stepper';
 import { Breakpoint } from '@material-ui/core/styles/createBreakpoints';
 import { TextFieldProps } from '@material-ui/core/TextField';
 
-import { ActionsFiles } from './inputsTypes/FileInput/Props';
 import {
   StepsBuilder,
   StepValidator,
@@ -202,29 +201,6 @@ export interface ValidationsFields {
     | ((inputsValidator: InputsValidator) => boolean);
 }
 
-export interface ExtraProps extends ActionsFiles {
-  helpMessage?: boolean;
-  searchField?:
-    | string
-    | number
-    | ((e: PropsField[]) => string | number);
-  searchId?: string;
-  search?: { state: boolean; value: string | number };
-  renderItem?: React.ReactNode;
-  timeConsult?: number;
-  actions?: {
-    onDelete(e: any): any;
-    onAdd(e: any): any;
-  };
-  loading?: boolean;
-  accept?: string | string[];
-  extensions?: string[];
-  multiple?: boolean;
-  validateExtensions?: boolean;
-  validateAccept?: boolean;
-  subLabel?: Message;
-}
-
 export type ChildrenRender = React.ReactElement<
   FieldProps,
   JSXElementConstructor<FieldProps>
@@ -259,7 +235,7 @@ export type TypeTextField =
   | 'week'
   | 'datetime-local';
 
-export type TypeField = 'component' | 'file' | TypeTextField;
+export type TypeField = 'component' | TypeTextField;
 
 export function createField<V = value>(
   params: PropsField<V>,
@@ -339,7 +315,6 @@ export interface PropsField<V = value>
     ValidationsField<V>,
     InitialState,
     GridRender {
-  extraProps?: ExtraProps;
   render?: RenderField;
   fullWidth?: boolean;
   errors?: ValidationErrors;

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Input, FileInput } from './inputsTypes';
+import { Input } from './inputsTypes';
 import { FieldProps } from './types';
 
 const Inputs = (props: FieldProps) => {
@@ -19,24 +19,6 @@ const Inputs = (props: FieldProps) => {
     case 'datetime-local':
     case undefined:
       return <Input {...{ field, changeField, type }} />;
-    case 'file':
-      const { onAdd, onDelete, onSort, sort, arrayMove, multiple } = {
-        ...field.extraProps,
-      };
-      return (
-        <FileInput
-          {...{
-            multiple,
-            changeField,
-            onAdd,
-            onDelete,
-            onSort,
-            sort,
-            arrayMove,
-            field,
-          }}
-        />
-      );
     default:
       return null;
   }

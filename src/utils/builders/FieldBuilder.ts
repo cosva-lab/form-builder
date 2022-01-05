@@ -7,7 +7,6 @@ import {
 } from 'mobx';
 
 import {
-  ExtraProps,
   InputPropsField,
   TextFieldPropsField,
   PropsField,
@@ -25,7 +24,6 @@ import {
 
 class FieldBuilder<V = value> extends InputValidator<V>
   implements PropsField {
-  @observable public extraProps?: ExtraProps = undefined;
   @observable private _ns?: string = undefined;
   public get ns(): string | undefined {
     return typeof this._ns === 'undefined'
@@ -51,7 +49,6 @@ class FieldBuilder<V = value> extends InputValidator<V>
     super(props);
     makeObservable(this);
     const {
-      extraProps,
       ns,
       render,
       fullWidth = true,
@@ -64,7 +61,6 @@ class FieldBuilder<V = value> extends InputValidator<V>
       renderErrors,
     } = props;
     this.validate = InputValidator.getValidation(this);
-    this.extraProps = extraProps;
     this.ns = ns;
     this.render = render;
     this.fullWidth = fullWidth;
