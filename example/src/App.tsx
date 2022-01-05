@@ -7,7 +7,6 @@ import {
 import {
   FieldsRender,
   FieldsBuilder,
-  createField,
   FieldTranslateProvider,
 } from './@cosva-lab/form-builder';
 import { Grid, Button, ButtonGroup } from '@material-ui/core';
@@ -124,27 +123,6 @@ function initForm() {
           return () => cb && cb();
         },
       },
-      createField<File[]>({
-        name: 'files',
-        type: 'file',
-        value: [],
-        breakpoints: {
-          sm: 12,
-        },
-        extraProps: { accept: ['image/*'] },
-        validations: [
-          {
-            rule: 'isEmpty',
-            message: 'This field can not be empty',
-          },
-          ({ value }) => {
-            const max = 3;
-            return value && value.length > max
-              ? `You cannot upload more than ${max} files`
-              : undefined;
-          },
-        ],
-      }),
     ],
   });
 }

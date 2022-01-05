@@ -17,7 +17,6 @@ import React from 'react';
 import {
   FieldsRender,
   FieldsBuilder,
-  createField,
   FieldTranslateProvider,
 } from '@cosva-lab/form-builder';
 import { Grid, Button, ButtonGroup } from '@material-ui/core';
@@ -71,30 +70,6 @@ export default function App() {
             },
           ],
         },
-        createField<File[]>({
-          name: 'files',
-          type: 'file',
-          value: [],
-          breakpoints: {
-            sm: 12,
-          },
-          validChange: true,
-          validations: [
-            {
-              rule: 'isEmpty',
-              message: 'This field can not be empty',
-            },
-            ({ value }) => {
-              const max = 3;
-              return value && value.length > max
-                ? {
-                    message: `You cannot upload more than ${max} files`,
-                    state: true,
-                  }
-                : undefined;
-            },
-          ],
-        }),
       ],
     }),
   );
