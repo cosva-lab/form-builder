@@ -16,7 +16,7 @@ import { observer } from 'mobx-react';
 
 import { FieldsRender } from '../FieldsRender';
 import FooterSteps from './FooterSteps';
-import { StepsRender } from '..';
+import { StepsRenderProps } from '..';
 import { getMessage } from '../FieldTranslate';
 
 const styles = (theme: Theme) =>
@@ -33,7 +33,7 @@ const styles = (theme: Theme) =>
     },
   });
 
-type Props = StepsRender;
+type Props = StepsRenderProps;
 
 type AllProps = Props & WithStyles<typeof styles>;
 

@@ -1,4 +1,4 @@
-import { JSXElementConstructor } from 'react';
+import { JSXElementConstructor, ReactNode } from 'react';
 import { GridSize, GridProps } from '@material-ui/core/Grid';
 import { OutlinedInputProps } from '@material-ui/core/OutlinedInput';
 import { StepperProps } from '@material-ui/core/Stepper';
@@ -61,6 +61,7 @@ export interface InitialState {
 
 interface GlobalPropsInterface {
   globalProps?: GlobalProps;
+  children?: ReactNode;
 }
 
 export interface InitialStateSteps
@@ -130,7 +131,7 @@ export interface StepProps extends FieldsProps {
   elevation?: number;
 }
 
-export interface StepsRender extends ChangeField {
+export interface StepsRenderProps extends ChangeField {
   footerRender?: ({
     stepsLength,
     activeStep,
@@ -146,6 +147,7 @@ export interface StepsRender extends ChangeField {
   stepperProps?: Omit<StepperProps, 'activeStep' | 'children'>;
   getSteps?: () => StepProps[];
   stepsBuild: InitialStateSteps;
+  children: ReactNode;
 }
 
 export type Rules = keyof typeof validators;
@@ -347,6 +349,7 @@ export interface BaseBuilder<V = value> extends ChangeField<V> {
   getSteps?: () => StepProps[];
   activeStep?: activeStep;
   getFields?: () => PropsField[];
+  children?: ReactNode;
 }
 
 export type FieldRenderProps<V = value> = BaseBuilder<V> &

@@ -1,6 +1,6 @@
 {
   "name": "@cosva-lab/form-builder",
-  "version": "1.5.4",
+  "version": "1.5.5",
   "description": "React form builder.",
   "author": "andres112013",
   "license": "MIT",
@@ -37,8 +37,8 @@
   },
   "peerDependencies": {
     "prop-types": "^15.5.4",
-    "react": "^15.0.0 || ^16.0.0 || ^17.0.0",
-    "react-dom": "^15.0.0 || ^16.0.0 || ^17.0.0",
+    "react": "^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0",
+    "react-dom": "^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0",
     "@material-ui/core": "^4.4.3",
     "@material-ui/icons": "^4.4.3",
     "@material-ui/styles": "^4.4.3"

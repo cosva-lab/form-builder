@@ -10,7 +10,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import pink from '@material-ui/core/colors/pink';
 
 import createStyles from '@material-ui/core/styles/createStyles';
-import { StepsRender, InitialStateSteps } from '..';
+import { StepsRenderProps, InitialStateSteps } from '..';
 import { getMessage } from '../FieldTranslate';
 
 const styles = () =>
@@ -35,7 +35,7 @@ const styles = () =>
 
 interface Props
   extends Pick<
-      StepsRender,
+      StepsRenderProps,
       'handleNextStep' | 'handleBackStep' | 'footerRender'
     >,
     Pick<
