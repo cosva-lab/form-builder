@@ -1,47 +1,44 @@
 import React from 'react';
-import compose from 'recompose/compose';
 import clsx from 'clsx';
 import { observer } from 'mobx-react';
 import { intercept } from 'mobx';
-import withStyles, {
-  WithStyles,
-} from '@material-ui/core/styles/withStyles';
-import TextField from '@material-ui/core/TextField';
-import FormControl from '@material-ui/core/FormControl';
-import { Theme } from '@material-ui/core/styles/createMuiTheme';
-import createStyles from '@material-ui/core/styles/createStyles';
+import { Theme } from '@mui/material/styles';
+import { makeStyles } from '@mui/styles';
+import TextField from '@mui/material/TextField';
+import FormControl from '@mui/material/FormControl';
 import isEmpty from 'lodash/isEmpty';
 import assign from 'lodash/assign';
 
 import { InputProps } from '..';
-import { Animation } from '../FieldTranslate';
 import { TransformLabel } from '../utils/TransformLabel';
 import { RenderErrorsDefault } from '../RenderErrorsDefault';
 import { ValidationErrors } from '../types';
+import { AnimateHelperText } from './AnimateHelperText';
 
-const styles = (theme: Theme) =>
-  createStyles({
-    root: {
-      paddingTop: theme.spacing(2),
-      paddingBottom: theme.spacing(2),
-      [theme.breakpoints.up('sm')]: {
-        paddingLeft: theme.spacing(3),
-        paddingRight: theme.spacing(3),
-      },
+const useStyles = makeStyles((theme: Theme) => ({
+  root: {
+    paddingTop: theme.spacing(2),
+    paddingBottom: theme.spacing(2),
+    [theme.breakpoints.up('sm')]: {
+      paddingLeft: theme.spacing(3),
+      paddingRight: theme.spacing(3),
     },
-    formControl: {},
-    widthNormal: { width: '100%' },
-    InputLabelProps: {
-      overflow: 'hidden',
-      whiteSpace: 'nowrap',
-      textOverflow: 'ellipsis',
-    },
-    formHelperTextPropsRoot: {
-      wordBreak: 'break-word',
-    },
-  });
+  },
+  formControl: {},
+  widthNormal: { width: '100%' },
+  InputLabelProps: {
+    overflow: 'hidden',
+    whiteSpace: 'nowrap',
+    textOverflow: 'ellipsis',
+  },
+  formHelperTextPropsRoot: {
+    wordBreak: 'break-word',
+  },
+}));
 
-interface AllProps extends InputProps, WithStyles<typeof styles> {}
+interface AllProps extends InputProps {
+  classes: ReturnType<typeof useStyles>;
+}
 
 @observer
 class InputComponent extends React.Component<
@@ -75,7 +72,7 @@ class InputComponent extends React.Component<
   getLastProps = () => this.getProps(this.props);
 
   public render() {
-    const { classes, changeField, field } = this.props;
+    const { changeField, field, classes } = this.props;
     const {
       ns,
       label,
@@ -91,6 +88,11 @@ class InputComponent extends React.Component<
     } = field;
 
     const { type } = this.state;
+    const helperText =
+      errors &&
+      ((RenderErrors && <RenderErrors {...{ errors, field }} />) || (
+        <RenderErrorsDefault {...{ errors, field }} />
+      ));
     return (
       <FormControl
         {...{ fullWidth }}
@@ -102,24 +104,20 @@ class InputComponent extends React.Component<
           inputRef={element => (field.inputRef = element)}
           error={!isEmpty(errors)}
           FormHelperTextProps={{
-            component: ({ children, className }) => {
-              const child = (
-                <div className={className}>{children}</div>
-              );
-              if (this.animation && !isEmpty(errors)) {
-                this.animation = false;
-                return <Animation>{child}</Animation>;
-              }
-              return child;
-            },
             style: {},
             classes: { root: classes.formHelperTextPropsRoot },
           }}
           helperText={
-            errors &&
-            ((RenderErrors && (
-              <RenderErrors {...{ errors, field }} />
-            )) || <RenderErrorsDefault {...{ errors, field }} />)
+            helperText ? (
+              <AnimateHelperText
+                animation={this.animation}
+                errors={errors}
+              >
+                {helperText}
+              </AnimateHelperText>
+            ) : (
+              undefined
+            )
           }
           InputProps={
             typeof InputProps === 'function'
@@ -170,8 +168,9 @@ class InputComponent extends React.Component<
   }
 }
 
-export const Input = compose<AllProps, InputProps>(
-  withStyles(styles, { name: 'Input' }),
-)(InputComponent);
+export const Input = (props: InputProps) => {
+  const classes = useStyles();
+  return <InputComponent {...{ ...props, classes }} />;
+};
 
 export default Input;

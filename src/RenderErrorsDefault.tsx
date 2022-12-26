@@ -1,5 +1,5 @@
 import React from 'react';
-import makeStyles from '@material-ui/styles/makeStyles';
+import makeStyles from '@mui/styles/makeStyles';
 
 import { ComponentErrorsProps, Message } from './types';
 import { getMessage } from './FieldTranslate';

@@ -1,24 +1,25 @@
 import React from 'react';
-import {
-  createStyles,
-  makeStyles,
-  Theme,
-} from '@material-ui/core/styles';
+import { Theme, adaptV4Theme } from '@mui/material/styles';
+import createStyles from '@mui/styles/createStyles';
+import makeStyles from '@mui/styles/makeStyles';
 import {
   FieldsRender,
   FieldsBuilder,
   FieldTranslateProvider,
 } from './@cosva-lab/form-builder';
-import { Grid, Button, ButtonGroup } from '@material-ui/core';
-import {
-  darken,
-  ThemeProvider,
-  createMuiTheme,
-} from '@material-ui/core/styles';
+import { Grid, Button, ButtonGroup } from '@mui/material';
+import { darken, ThemeProvider, StyledEngineProvider, createTheme } from '@mui/material/styles';
 
-import { teal, grey, blue } from '@material-ui/core/colors';
+import { teal, grey, blue } from '@mui/material/colors';
 
-const theme = createMuiTheme({
+
+declare module '@mui/styles/defaultTheme' {
+  // eslint-disable-next-line @typescript-eslint/no-empty-interface
+  interface DefaultTheme extends Theme {}
+}
+
+
+const theme = createTheme(adaptV4Theme({
   palette: {
     primary: {
       main: teal[400],
@@ -35,7 +36,7 @@ const theme = createMuiTheme({
     fontFamily:
       '"Quicksand","Roboto", "Helvetica", "Arial", sans-serif',
   },
-});
+}));
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -142,82 +143,78 @@ export default function App() {
   console.log(fields);
 
   return (
-    <ThemeProvider theme={theme}>
-      <FieldTranslateProvider translator={({ message }) => message}>
-        <div className={classes.container}>
-          <Grid container>
-            <ButtonGroup
-              fullWidth
-              aria-label="full width outlined button group"
+    <StyledEngineProvider injectFirst>
+      <ThemeProvider theme={theme}>
+        <FieldTranslateProvider translator={({ message }) => message}>
+          <div className={classes.container}>
+            <Grid container>
+              <ButtonGroup
+                fullWidth
+                aria-label="full width outlined button group"
+              >
+                <Button
+                  onClick={async () => {
+                    restore();
+                  }}>
+                  Reset
+                </Button>
+                <Button
+                  onClick={async () => {
+                    restoreLast();
+                  }}>
+                  Restore
+                </Button>
+                <Button
+                  onClick={async () => {
+                    saveData();
+                  }}>
+                  Save
+                </Button>
+              </ButtonGroup>
+            </Grid>
+            <Grid container spacing={4}>
+              <FieldsRender
+                {...{
+                  fields,
+                  changeField: changeField(),
+                  validate,
+                }}
+              />
+            </Grid>
+            <Grid
+              container
+              className={classes.buttons}
+              justifyContent="flex-end"
             >
               <Button
-                color="default"
+                variant="outlined"
+                color="primary"
                 onClick={async () => {
-                  restore();
+                  if (
+                    await fieldsBuilder.hasErrors({
+                      setErrors: true,
+                    })
+                  )
+                    console.log(await getErrors());
                 }}
               >
-                Reset
+                Validate
               </Button>
               <Button
-                color="default"
+                variant="outlined"
+                color="secondary"
                 onClick={async () => {
-                  restoreLast();
+                  if (!(await fieldsBuilder.hasErrors())) {
+                    console.log(fieldsBuilder.getValues());
+                  }
                 }}
               >
-                Restore
+                Get Values
               </Button>
-              <Button
-                color="default"
-                onClick={async () => {
-                  saveData();
-                }}
-              >
-                Save
-              </Button>
-            </ButtonGroup>
-          </Grid>
-          <Grid container spacing={4}>
-            <FieldsRender
-              {...{
-                fields,
-                changeField: changeField(),
-                validate,
-              }}
-            />
-          </Grid>
-          <Grid
-            container
-            className={classes.buttons}
-            justify="flex-end"
-          >
-            <Button
-              variant="outlined"
-              color="primary"
-              onClick={async () => {
-                if (
-                  await fieldsBuilder.hasErrors({
-                    setErrors: true,
-                  })
-                )
-                  console.log(await getErrors());
-              }}
-            >
-              Validate
-            </Button>
-            <Button
-              variant="outlined"
-              color="secondary"
-              onClick={async () => {
-                if (!(await fieldsBuilder.hasErrors())) {
-                  console.log(fieldsBuilder.getValues());
-                }
-              }}
-            >
-              Get Values
-            </Button>
-          </Grid>
-        </div>
-      </FieldTranslateProvider>
-    </ThemeProvider>
+            </Grid>
+          </div>
+        </FieldTranslateProvider>
+      </ThemeProvider>
+    </StyledEngineProvider>
   );
 }

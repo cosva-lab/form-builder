@@ -1,7 +1,7 @@
 import React from 'react';
 import * as ReactIs from 'react-is';
 import { observer } from 'mobx-react';
-import Grid from '@material-ui/core/Grid';
+import Grid from '@mui/material/Grid';
 import Inputs from './Inputs';
 import { FieldProps, changeField, ChangeField } from './';
 import { BreakpointsField, value } from './types';
@@ -60,10 +60,7 @@ class FieldRender<V = value>
       });
 
     if (type === 'component') {
-      if (
-        React.isValidElement<FieldProps<V>>(Component) &&
-        typeof Component !== 'function'
-      ) {
+      if (React.isValidElement<FieldProps<V>>(Component)) {
         return (
           <Component.type {...{ ...Component.props, ...propsForm }} />
         );

@@ -1,5 +1,5 @@
 import React, { CSSProperties } from 'react';
-import Grow from '@material-ui/core/Grow';
+import Grow from '@mui/material/Grow';
 import Loading from '../Loading';
 import { Message } from '../types';
 

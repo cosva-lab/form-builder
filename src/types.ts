@@ -1,9 +1,9 @@
 import { JSXElementConstructor, ReactNode } from 'react';
-import { GridSize, GridProps } from '@material-ui/core/Grid';
-import { OutlinedInputProps } from '@material-ui/core/OutlinedInput';
-import { StepperProps } from '@material-ui/core/Stepper';
-import { Breakpoint } from '@material-ui/core/styles/createBreakpoints';
-import { TextFieldProps } from '@material-ui/core/TextField';
+import { GridSize, GridProps } from '@mui/material/Grid';
+import { OutlinedInputProps } from '@mui/material/OutlinedInput';
+import { StepperProps } from '@mui/material/Stepper';
+import { Breakpoint } from '@mui/material/styles';
+import { TextFieldProps } from '@mui/material/TextField';
 
 import {
   StepsBuilder,
@@ -263,7 +263,6 @@ export type TextFieldPropsField = Pick<
   | 'margin'
   | 'placeholder'
   | 'required'
-  | 'rowsMax'
   | 'select'
   | 'SelectProps'
 >;

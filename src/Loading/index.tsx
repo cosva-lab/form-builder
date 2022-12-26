@@ -1,13 +1,12 @@
 import React, { CSSProperties } from 'react';
 import CircularProgress, {
   CircularProgressProps,
-} from '@material-ui/core/CircularProgress';
-import { Theme } from '@material-ui/core/styles/createMuiTheme';
-import {
-  withStyles,
-  createStyles,
-  WithStyles,
-} from '@material-ui/core/styles';
+} from '@mui/material/CircularProgress';
+import { Theme } from '@mui/material/styles';
+
+import { WithStyles } from '@mui/styles';
+import withStyles from '@mui/styles/withStyles';
+import createStyles from '@mui/styles/createStyles';
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -43,7 +42,7 @@ class CircularIndeterminate extends React.PureComponent<
     } = this.props;
     return (
       <CircularProgress
-        variant="indeterminate"
+        variant={variant || 'indeterminate'}
         className={classes.progress}
         {...{
           style,
@@ -51,7 +50,6 @@ class CircularIndeterminate extends React.PureComponent<
           color,
           disableShrink,
           thickness,
-          variant,
         }}
       />
     );
