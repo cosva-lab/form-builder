@@ -7,7 +7,7 @@ import {
 
 import { FieldsProps } from '../..';
 import FieldBuilder from '../builders/FieldBuilder';
-import {
+import type {
   ValidationErrors,
   ValidateInputsValidator,
 } from '../../types';

@@ -1,10 +1,10 @@
 import { observable, makeObservable } from 'mobx';
 import cloneDeep from 'lodash/cloneDeep';
-import {
+import type {
   InitialStateSteps,
   EventField,
   StepProps,
-  activeStep,
+  ActiveStep
 } from '../../types';
 import { StepsValidator, StepValidator } from '../validate';
 import { changeValueSteps } from '../changeValues';
@@ -17,7 +17,7 @@ export default class StepsBuilder extends StepsValidator
   implements InitialStateSteps {
   @observable ns?: string;
   @observable validate?: boolean;
-  @observable activeStep: activeStep;
+  @observable activeStep: ActiveStep;
   @observable private originalParams: StepsBuilder;
   @observable private parmsLast?: StepsBuilder;
 

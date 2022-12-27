@@ -2,50 +2,23 @@ import React from 'react';
 import clsx from 'clsx';
 import { observer } from 'mobx-react';
 import { intercept } from 'mobx';
-import { Theme } from '@mui/material/styles';
-import { makeStyles } from '@mui/styles';
 import TextField from '@mui/material/TextField';
 import FormControl from '@mui/material/FormControl';
 import isEmpty from 'lodash/isEmpty';
 import assign from 'lodash/assign';
 
-import { InputProps } from '..';
-import { TransformLabel } from '../utils/TransformLabel';
-import { RenderErrorsDefault } from '../RenderErrorsDefault';
-import { ValidationErrors } from '../types';
-import { AnimateHelperText } from './AnimateHelperText';
-
-const useStyles = makeStyles((theme: Theme) => ({
-  root: {
-    paddingTop: theme.spacing(2),
-    paddingBottom: theme.spacing(2),
-    [theme.breakpoints.up('sm')]: {
-      paddingLeft: theme.spacing(3),
-      paddingRight: theme.spacing(3),
-    },
-  },
-  formControl: {},
-  widthNormal: { width: '100%' },
-  InputLabelProps: {
-    overflow: 'hidden',
-    whiteSpace: 'nowrap',
-    textOverflow: 'ellipsis',
-  },
-  formHelperTextPropsRoot: {
-    wordBreak: 'break-word',
-  },
-}));
-
-interface AllProps extends InputProps {
-  classes: ReturnType<typeof useStyles>;
-}
+import { TransformLabel } from '../../utils/TransformLabel';
+import { RenderErrorsDefault } from '../../RenderErrorsDefault';
+import type { ValidationErrors, InputProps } from '../../types';
+import { AnimateHelperText } from '../AnimateHelperText';
+import classes from './Input.module.scss';
 
 @observer
-class InputComponent extends React.Component<
-  AllProps,
+export class Input extends React.Component<
+  InputProps,
   { type: InputProps['type'] }
 > {
-  constructor(props: AllProps) {
+  constructor(props: InputProps) {
     super(props);
     this.state = { type: props.type };
   }
@@ -56,23 +29,23 @@ class InputComponent extends React.Component<
 
   componentDidMount() {
     const { field } = this.props;
-    intercept(field, 'errors', change => {
+    intercept(field, 'errors', (change) => {
       this.animation = true;
       return change;
     });
   }
 
   componentDidUpdate() {
-    this.callbacks.forEach(callback => callback());
+    this.callbacks.forEach((callback) => callback());
     this.callbacks = [];
   }
 
-  getProps = (props: AllProps) => ({ ...props.field });
+  getProps = (props: InputProps) => ({ ...props.field });
 
   getLastProps = () => this.getProps(this.props);
 
   public render() {
-    const { changeField, field, classes } = this.props;
+    const { changeField, field } = this.props;
     const {
       ns,
       label,
@@ -101,7 +74,7 @@ class InputComponent extends React.Component<
       >
         <TextField
           label={<TransformLabel {...{ label, ns, name }} />}
-          inputRef={element => (field.inputRef = element)}
+          inputRef={(element) => (field.inputRef = element)}
           error={!isEmpty(errors)}
           FormHelperTextProps={{
             style: {},
@@ -115,9 +88,7 @@ class InputComponent extends React.Component<
               >
                 {helperText}
               </AnimateHelperText>
-            ) : (
-              undefined
-            )
+            ) : undefined
           }
           InputProps={
             typeof InputProps === 'function'
@@ -140,7 +111,7 @@ class InputComponent extends React.Component<
               ),
             },
           }}
-          onChange={e => {
+          onChange={(e) => {
             const onChange = field.onChange || changeField;
             if (onChange) {
               const callback = onChange(assign(e, { field }));
@@ -167,10 +138,5 @@ class InputComponent extends React.Component<
     );
   }
 }
-
-export const Input = (props: InputProps) => {
-  const classes = useStyles();
-  return <InputComponent {...{ ...props, classes }} />;
-};
 
 export default Input;

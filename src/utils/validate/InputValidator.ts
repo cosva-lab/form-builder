@@ -5,7 +5,7 @@ import {
   runInAction,
 } from 'mobx';
 
-import {
+import type {
   Validation,
   ValidationFunction,
   value,
@@ -13,16 +13,18 @@ import {
   ValidationErrors,
   ValidationError,
   PropsFieldBase,
-  StatusField,
   GlobalProps,
   ValidationsField,
 } from '../../types';
+import { StatusField } from '../../enums';
 import Field from '../builders/Field';
-import { validators } from '../validate';
+import validators from '../validate/validators';
 
 type PropsInput<V = value> = Validate<V> & PropsFieldBase<V>;
-export abstract class InputValidator<V = value> extends Field<V>
-  implements Validate<V> {
+export abstract class InputValidator<V = value>
+  extends Field<V>
+  implements Validate<V>
+{
   public originalProps?: Pick<PropsInput<V>, 'value' | 'validate'>;
 
   static getValidation<V = value>(obj: InputValidator<V>) {

@@ -6,7 +6,7 @@ import {
   runInAction,
 } from 'mobx';
 
-import {
+import type {
   InputPropsField,
   TextFieldPropsField,
   PropsField,
@@ -14,13 +14,11 @@ import {
   RenderField,
   ComponentField,
   BreakpointsField,
-} from '../../types';
-import { InputValidator } from '../validate/InputValidator';
-import {
   ComponentErrors,
   ValidationErrors,
   ReturnValidationError,
 } from '../../types';
+import { InputValidator } from '../validate/InputValidator';
 
 class FieldBuilder<V = value> extends InputValidator<V>
   implements PropsField {

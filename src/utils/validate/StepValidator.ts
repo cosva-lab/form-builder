@@ -1,5 +1,5 @@
 import { observable, makeObservable } from 'mobx';
-import { StepProps } from '../../types';
+import type { StepProps } from '../../types';
 import FieldsBuilder from '../builders/FieldsBuilder';
 
 export class StepValidator extends FieldsBuilder {

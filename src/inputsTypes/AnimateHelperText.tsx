@@ -2,7 +2,7 @@ import React from 'react';
 import isEmpty from 'lodash/isEmpty';
 
 import { Animation } from '../FieldTranslate';
-import { ValidationErrors } from '../types';
+import type { ValidationErrors } from '../types';
 
 export const AnimateHelperText: React.FC<{
   errors?: ValidationErrors;

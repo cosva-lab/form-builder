@@ -9,7 +9,7 @@ const FieldError = React.createContext<Props>({ ns: 'validations' });
 
 export const useFieldError = () => React.useContext(FieldError);
 
-export const FieldTranslateProvider = ({
+export const FieldErrorProvider = ({
   children,
   ...rest
 }: React.PropsWithChildren<Props>) => {

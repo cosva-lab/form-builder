@@ -1,7 +1,7 @@
 import React from 'react';
 import makeStyles from '@mui/styles/makeStyles';
 
-import { ComponentErrorsProps, Message } from './types';
+import type { ComponentErrorsProps, Message } from './types';
 import { getMessage } from './FieldTranslate';
 import { useFieldError } from './FieldError/index';
 

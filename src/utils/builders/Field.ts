@@ -1,18 +1,16 @@
 import { observable, makeObservable, action } from 'mobx';
 import FieldsBuilder from './FieldsBuilder';
 import StepsBuilder from './StepsBuilder';
-import {
+import type {
   ValidationErrors,
-  onSetValue,
-  changeField,
-} from '../../types';
-import {
+  OnSetValue,
+  ChangeFieldCallback,
   LabelPropsField,
   value,
   TypeField,
   PropsFieldBase,
-  StatusField,
 } from '../../types';
+import { StatusField } from "../../enums";
 
 class Field<V = value> implements PropsFieldBase<V> {
   @observable public fieldsBuilder?: FieldsBuilder = undefined;
@@ -22,11 +20,11 @@ class Field<V = value> implements PropsFieldBase<V> {
   @observable public value: V;
   @observable public defaultInputValue?: V = undefined;
   @observable public label?: LabelPropsField = undefined;
-  @observable public status: StatusField;
+  @observable public status?: StatusField;
   @observable public errors?: ValidationErrors = [];
-  public inputRef?: HTMLInputElement;
-  @observable public onChange?: changeField<V> = undefined;
-  @observable public onSetValue?: onSetValue<V> = undefined;
+  public inputRef?: HTMLInputElement | null;
+  @observable public onChange?: ChangeFieldCallback<V> = undefined;
+  @observable public onSetValue?: OnSetValue<V> = undefined;
 
   public pristine: boolean = true;
 

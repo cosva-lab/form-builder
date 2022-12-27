@@ -1,6 +1,6 @@
 import { observable, makeObservable } from 'mobx';
 import StepValidator from './StepValidator';
-import { StepProps } from '../../types';
+import type { StepProps } from '../../types';
 
 class StepsValidator {
   @observable inValid = false;

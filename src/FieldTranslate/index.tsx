@@ -1,7 +1,7 @@
 import React, { CSSProperties } from 'react';
 import Grow from '@mui/material/Grow';
 import Loading from '../Loading';
-import { Message } from '../types';
+import type { Message } from '../types';
 
 export const Animation = ({
   children,

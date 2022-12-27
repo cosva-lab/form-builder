@@ -1,6 +1,6 @@
 import React from 'react';
 import { Input } from './inputsTypes';
-import { FieldProps } from './types';
+import type { FieldProps } from './types';
 
 const Inputs = (props: FieldProps) => {
   const { changeField, field } = props;
@@ -30,6 +30,7 @@ Inputs.defaultProps = {
   extraProps: {},
   route: '',
 };
+console.log(Inputs);
 
 export { Inputs };
 export default Inputs;

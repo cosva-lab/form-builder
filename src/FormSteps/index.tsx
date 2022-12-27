@@ -8,7 +8,7 @@ import { StepContent } from '@mui/material';
 
 import { FieldsRender } from '../FieldsRender';
 import FooterSteps from './FooterSteps';
-import { StepsRenderProps } from '../types';
+import type { StepsRenderProps } from '../types';
 import { getMessage } from '../FieldTranslate';
 
 export const FormSteps = observer((props: StepsRenderProps) => {

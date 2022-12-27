@@ -7,5 +7,7 @@ export * from './Hooks';
 
 export * from './utils';
 export * from './FieldTranslate';
+export * from './FieldError';
 export * from './inputsTypes';
 export * from './types';
+export * from './enums';

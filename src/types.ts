@@ -30,7 +30,7 @@ export interface EventField<V = value> {
   target: { name: string; value: V; type?: string };
 }
 
-export type changeField<V = value> = (
+export type ChangeFieldCallback<V = value> = (
   e: (
     | EventField<V>
     | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -40,20 +40,20 @@ export type changeField<V = value> = (
   callback?: () => void,
 ) => void | (() => void);
 
-export type onSetValue<V = value> = (e: {
+export type OnSetValue<V = value> = (e: {
   lastValue: V;
   newValue: V;
   field: FieldBuilder<V>;
 }) => void;
 
 export interface ChangeField<V = value> {
-  changeField?: changeField<V>;
+  changeField?: ChangeFieldCallback<V>;
 }
 
 export type value = any;
 export type GlobalProps = () => { [key: string]: any };
 export type transPosition = string | boolean;
-export type activeStep = number;
+export type ActiveStep = number;
 
 export interface InitialState {
   ns?: string;
@@ -69,7 +69,7 @@ export interface InitialStateSteps
     GlobalPropsInterface {
   validate?: boolean;
   steps: StepProps[];
-  activeStep: activeStep;
+  activeStep: ActiveStep;
   loading?: boolean;
   footerSteps?: {
     [key: number]: Record<
@@ -103,7 +103,7 @@ export interface ChangeValueFields<V = value> {
 }
 
 export interface ChangeValueSteps {
-  activeStep: activeStep;
+  activeStep: ActiveStep;
   steps: StepValidator[];
   action: ChangeValueFields['action'];
 }
@@ -138,11 +138,11 @@ export interface StepsRenderProps extends ChangeField {
     footerSteps,
   }: {
     stepsLength: number;
-    activeStep: activeStep;
+    activeStep: ActiveStep;
     footerSteps: Partial<InitialStateSteps['footerSteps']>;
   }) => Record<'next' | 'back', Message & { state?: boolean }>;
-  handleNextStep: (activeStep: activeStep) => void;
-  handleBackStep: (activeStep: activeStep) => void;
+  handleNextStep: (activeStep: ActiveStep) => void;
+  handleBackStep: (activeStep: ActiveStep) => void;
   gridProps?: Omit<GridProps, 'children'>;
   stepperProps?: Omit<StepperProps, 'activeStep' | 'children'>;
   getSteps?: () => StepProps[];
@@ -162,7 +162,7 @@ export interface AllPropsValidationFunction<V = value>
   fieldsBuilder?: FieldsBuilder;
   field: FieldBuilder<V>;
   stepsBuilder?: StepsBuilder;
-  activeStep?: activeStep;
+  activeStep?: ActiveStep;
 }
 
 /**
@@ -288,17 +288,6 @@ export type BreakpointsField = Partial<
   Record<Breakpoint, boolean | GridSize>
 >;
 
-export enum StatusField {
-  // This control has passed all validation checks.
-  'VALID' = 'VALID',
-  // This control has failed at least one validation check.
-  'INVALID' = 'INVALID',
-  // This control is in the midst of conducting a validation check.
-  'PENDING' = 'PENDING',
-  // This control is exempt from validation checks.
-  'DISABLED' = 'DISABLED',
-}
-
 export interface PropsFieldBase<V = value>
   extends GlobalPropsInterface {
   type?: TypeField;
@@ -307,8 +296,8 @@ export interface PropsFieldBase<V = value>
   disabled?: boolean;
   defaultInputValue?: V;
   label?: LabelPropsField;
-  onChange?: changeField<V>;
-  onSetValue?: onSetValue<V>;
+  onChange?: ChangeFieldCallback<V>;
+  onSetValue?: OnSetValue<V>;
 }
 
 export interface PropsField<V = value>
@@ -346,7 +335,7 @@ export interface InputProps extends FieldProps {
 
 export interface BaseBuilder<V = value> extends ChangeField<V> {
   getSteps?: () => StepProps[];
-  activeStep?: activeStep;
+  activeStep?: ActiveStep;
   getFields?: () => PropsField[];
   children?: ReactNode;
 }

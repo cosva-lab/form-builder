@@ -1,6 +1,6 @@
 import { useLocalObservable } from 'mobx-react';
 
-import { FieldsProps } from '../types';
+import type { FieldsProps } from '../types';
 import { FieldsBuilder } from '../utils';
 
 export const useFields = (

@@ -1,7 +1,7 @@
 import { observable, toJS, makeObservable, action } from 'mobx';
 import InputsValidator from '../validate/InputsValidator';
 import { changeValueFields } from '../changeValues';
-import {
+import type {
   GlobalProps,
   FieldsProps,
   EventField,
