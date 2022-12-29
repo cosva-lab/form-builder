@@ -1,4 +1,3 @@
-import PropTypes from 'prop-types';
 import type {
   PropsField,
   ChangeValueFields,
@@ -34,11 +33,5 @@ function changeValueSteps({
     fieldsBuilder: steps[activeStep],
   });
 }
-
-changeValueSteps.propTypes = {
-  activeStep: PropTypes.number.isRequired,
-  steps: PropTypes.object.isRequired,
-  action: PropTypes.object.isRequired,
-};
 
 export { changeValueSteps, changeValueField, changeValueFields };

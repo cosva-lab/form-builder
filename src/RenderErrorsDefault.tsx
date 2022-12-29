@@ -1,13 +1,8 @@
 import React from 'react';
-import makeStyles from '@mui/styles/makeStyles';
 
 import type { ComponentErrorsProps, Message } from './types';
 import { getMessage } from './FieldTranslate';
 import { useFieldError } from './FieldError/index';
-
-const useStyles = makeStyles(() => ({
-  spanError: { display: 'block' },
-}));
 
 function isMessage(args: any): args is Message {
   return (
@@ -22,7 +17,6 @@ export const RenderErrorsDefault = ({
   field,
 }: ComponentErrorsProps) => {
   const ns = field && field.ns;
-  const { spanError } = useStyles();
   const common = useFieldError();
   return (
     <>
@@ -30,23 +24,19 @@ export const RenderErrorsDefault = ({
         if (React.isValidElement<any>(error))
           return <error.type {...error.props} key={error.key || i} />;
         return typeof error === 'string' ? (
-          <span className={spanError} key={i}>
-            {error}
-          </span>
+          <div key={i}>{error}</div>
         ) : isMessage(error) ? (
-          <span className={spanError} key={i}>
-            {getMessage({ ns, ...common, ...error })}
-          </span>
+          <div key={i}>{getMessage({ ns, ...common, ...error })}</div>
         ) : (
           Object.values(error).map((e, j) => {
             return (
-              <span className={spanError} key={j}>
+              <div key={j}>
                 {typeof e === 'string'
                   ? e
                   : (isMessage(e) &&
                       getMessage({ ns, ...common, ...e })) ||
                     null}
-              </span>
+              </div>
             );
           })
         );

@@ -6,7 +6,7 @@ class ValidatorBase {
   public get inValid() {
     return !this.valid;
   }
-  @observable public fields: FieldBuilder[];
+  @observable public fields!: FieldBuilder[];
   public _validate?: boolean;
   public get validate() {
     return this._validate;

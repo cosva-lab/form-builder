@@ -1,7 +1,7 @@
 import { useLocalObservable } from 'mobx-react';
 
 import type { value, PropsField } from '../types';
-import { FieldBuilder } from '../utils';
+import { FieldBuilder } from '../utils/builders';
 
 export const useField = <V extends value>(
   props: PropsField<V> | (() => PropsField<V>),

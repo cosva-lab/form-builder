@@ -5,13 +5,13 @@ import { StepperProps } from '@mui/material/Stepper';
 import { Breakpoint } from '@mui/material/styles';
 import { TextFieldProps } from '@mui/material/TextField';
 
-import {
+import type {
   StepsBuilder,
-  StepValidator,
   FieldsBuilder,
   FieldBuilder,
-} from './utils';
+} from './utils/builders';
 import {
+  StepValidator,
   validators,
   InputValidator,
   InputsValidator,
@@ -345,6 +345,5 @@ export type FieldRenderProps<V = value> = BaseBuilder<V> &
 
 export type FieldsRenderProps = FieldsProps & BaseBuilder;
 
-export type FieldRenderComponentProps<V = value> = FieldRenderProps<
-  V
->;
+export type FieldRenderComponentProps<V = value> =
+  FieldRenderProps<V>;

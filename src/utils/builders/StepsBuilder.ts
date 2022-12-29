@@ -1,25 +1,34 @@
 import { observable, makeObservable } from 'mobx';
-import cloneDeep from 'lodash/cloneDeep';
 import type {
   InitialStateSteps,
   EventField,
   StepProps,
-  ActiveStep
+  ActiveStep,
 } from '../../types';
 import { StepsValidator, StepValidator } from '../validate';
 import { changeValueSteps } from '../changeValues';
+import { cloneDeep } from '../../utils/cloneDeep';
 
 declare type Callback = () => void;
 
 declare type Props = InitialStateSteps;
 
-export default class StepsBuilder extends StepsValidator
-  implements InitialStateSteps {
+declare type OriginalParams = {
+  steps: StepProps[];
+  ns?: string;
+  validate?: boolean;
+  activeStep: ActiveStep;
+};
+
+export class StepsBuilder
+  extends StepsValidator
+  implements InitialStateSteps
+{
   @observable ns?: string;
   @observable validate?: boolean;
   @observable activeStep: ActiveStep;
-  @observable private originalParams: StepsBuilder;
-  @observable private parmsLast?: StepsBuilder;
+  @observable private originalParams: OriginalParams;
+  @observable private paramsLast?: StepsBuilder;
 
   constructor(props: Props) {
     super(props.steps);
@@ -38,7 +47,12 @@ export default class StepsBuilder extends StepsValidator
       validate,
       activeStep,
     });
-    this.originalParams = cloneDeep(this);
+    this.originalParams = cloneDeep({
+      steps: props.steps,
+      activeStep,
+      ns,
+      validate,
+    });
     this.restoreLast = this.restoreLast.bind(this);
     this.restore = this.restore.bind(this);
     this.getFieldsObject = this.getFieldsObject.bind(this);
@@ -58,25 +72,24 @@ export default class StepsBuilder extends StepsValidator
   };
 
   restoreLast() {
-    if (this.parmsLast) {
-      const { steps, ...rest } = this.parmsLast;
+    if (this.paramsLast) {
+      const { steps, ...rest } = this.paramsLast;
       this.setProps(rest);
       this.steps = steps;
       this.setSteps(steps);
-      this.parmsLast = undefined;
+      this.paramsLast = undefined;
     }
   }
 
   restore() {
     const { steps, ...rest } = this.originalParams;
     this.setProps(rest);
-    this.steps = steps;
     this.setSteps(steps);
   }
 
   setActiveStep(value: number, callback?: Callback) {
     if (this.activeStep !== value)
-      this.parmsLast = {
+      this.paramsLast = {
         ...this,
       };
     this.activeStep = value;
@@ -92,7 +105,7 @@ export default class StepsBuilder extends StepsValidator
   };
 
   private setSteps(steps: StepProps[], callback?: Callback) {
-    const stepsTemp = steps.map(step => new StepValidator(step));
+    const stepsTemp = steps.map((step) => new StepValidator(step));
     this.steps = stepsTemp;
     callback && callback();
   }
@@ -101,7 +114,7 @@ export default class StepsBuilder extends StepsValidator
     const steps: {
       [key: string]: any;
     } = {};
-    this.steps.forEach(step => {
+    this.steps.forEach((step) => {
       step.fields.forEach(({ name, value }) => {
         steps[name] = value;
       });
@@ -126,7 +139,7 @@ export default class StepsBuilder extends StepsValidator
 
   changeSteps(callback?: Callback) {
     return (steps: EventField[][]) => {
-      steps.forEach(fields => {
+      steps.forEach((fields) => {
         for (const field of fields) {
           this.changeField()(field);
         }
@@ -145,3 +158,5 @@ export default class StepsBuilder extends StepsValidator
     this.steps = this.stepsWithErros;
   }
 }
+
+export default StepsBuilder;

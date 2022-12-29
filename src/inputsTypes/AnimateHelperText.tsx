@@ -1,6 +1,6 @@
 import React from 'react';
-import isEmpty from 'lodash/isEmpty';
 
+import { isEmpty } from '../utils/isEmpty';
 import { Animation } from '../FieldTranslate';
 import type { ValidationErrors } from '../types';
 

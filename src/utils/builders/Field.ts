@@ -1,6 +1,6 @@
 import { observable, makeObservable, action } from 'mobx';
-import FieldsBuilder from './FieldsBuilder';
-import StepsBuilder from './StepsBuilder';
+import type FieldsBuilder from './FieldsBuilder';
+import type StepsBuilder from './StepsBuilder';
 import type {
   ValidationErrors,
   OnSetValue,
@@ -10,9 +10,9 @@ import type {
   TypeField,
   PropsFieldBase,
 } from '../../types';
-import { StatusField } from "../../enums";
+import { StatusField } from '../../enums';
 
-class Field<V = value> implements PropsFieldBase<V> {
+export class Field<V = value> implements PropsFieldBase<V> {
   @observable public fieldsBuilder?: FieldsBuilder = undefined;
   @observable public stepsBuilder?: StepsBuilder = undefined;
   @observable public type?: TypeField = undefined;

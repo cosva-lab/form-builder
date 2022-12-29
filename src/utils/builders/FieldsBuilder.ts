@@ -19,7 +19,10 @@ interface Fields {
   [key: string]: any;
 }
 
-class FieldsBuilder extends InputsValidator implements FieldsProps {
+export class FieldsBuilder
+  extends InputsValidator
+  implements FieldsProps
+{
   @observable public stepsBuilder?: StepsBuilder;
   @observable private _ns?: string = undefined;
   public get ns(): string | undefined {
@@ -77,7 +80,7 @@ class FieldsBuilder extends InputsValidator implements FieldsProps {
   }
 
   private setFields(fields: PropsField[]) {
-    fields.forEach(fieldOriginal => this.setField(fieldOriginal));
+    fields.forEach((fieldOriginal) => this.setField(fieldOriginal));
   }
 
   saveData() {
@@ -140,7 +143,7 @@ class FieldsBuilder extends InputsValidator implements FieldsProps {
   @action
   changeFields(callback?: Callback) {
     return (fields: EventField[]) => {
-      fields.forEach(field => {
+      fields.forEach((field) => {
         this.changeField()(field);
       });
       callback && callback();

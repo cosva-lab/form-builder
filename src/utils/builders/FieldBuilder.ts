@@ -20,8 +20,10 @@ import type {
 } from '../../types';
 import { InputValidator } from '../validate/InputValidator';
 
-class FieldBuilder<V = value> extends InputValidator<V>
-  implements PropsField {
+export class FieldBuilder<V = value>
+  extends InputValidator<V>
+  implements PropsField
+{
   @observable private _ns?: string = undefined;
   public get ns(): string | undefined {
     return typeof this._ns === 'undefined'

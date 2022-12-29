@@ -24,13 +24,5 @@ const Inputs = (props: FieldProps) => {
   }
 };
 
-Inputs.defaultProps = {
-  disabled: false,
-  multiple: true,
-  extraProps: {},
-  route: '',
-};
-console.log(Inputs);
-
 export { Inputs };
 export default Inputs;

@@ -4,9 +4,8 @@ import { observer } from 'mobx-react';
 import { intercept } from 'mobx';
 import TextField from '@mui/material/TextField';
 import FormControl from '@mui/material/FormControl';
-import isEmpty from 'lodash/isEmpty';
-import assign from 'lodash/assign';
 
+import { isEmpty } from '../../utils/isEmpty';
 import { TransformLabel } from '../../utils/TransformLabel';
 import { RenderErrorsDefault } from '../../RenderErrorsDefault';
 import type { ValidationErrors, InputProps } from '../../types';
@@ -22,6 +21,7 @@ export class Input extends React.Component<
     super(props);
     this.state = { type: props.type };
   }
+
   callbacks: Function[] = [];
   errors: ValidationErrors = [];
 
@@ -114,7 +114,7 @@ export class Input extends React.Component<
           onChange={(e) => {
             const onChange = field.onChange || changeField;
             if (onChange) {
-              const callback = onChange(assign(e, { field }));
+              const callback = onChange(Object.assign(e, { field }));
               typeof callback === 'function' &&
                 this.callbacks.push(callback);
             } else {
