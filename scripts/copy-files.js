@@ -5,7 +5,7 @@ const fse = require('fs-extra');
 const glob = require('glob');
 
 const packagePath = process.cwd();
-const buildPath = path.join(packagePath, './build');
+const buildPath = path.join(packagePath, './dist');
 const srcPath = path.join(packagePath, './lib');
 
 async function includeFileInBuild(file) {
@@ -72,10 +72,10 @@ async function createModulePackages({ from, to }) {
     .map(path.dirname);
 
   await Promise.all(
-    directoryPackages.map(async directoryPackage => {
+    directoryPackages.map(async (directoryPackage) => {
       const packageJson = {
         sideEffects: false,
-        module: path.join('../esm', directoryPackage, 'index.js'),
+        module: path.join('../', directoryPackage, 'index.js'),
         typings: './index.d.ts',
       };
       const packageJsonPath = path.join(
@@ -109,7 +109,7 @@ async function typescriptCopy({ from, to }) {
   }
   const files = glob.sync('**/*+(.ts|.d.ts)', { cwd: from });
 
-  const cmds = files.map(file =>
+  const cmds = files.map((file) =>
     fse.copy(path.resolve(from, file), path.resolve(to, file)),
   );
   return Promise.all(cmds);
@@ -130,10 +130,9 @@ async function createPackageFile() {
   const newPackageData = {
     ...packageDataOther,
     private: false,
-    main: './index.js',
-    module: './esm/index.js',
-    typings: './index.d.ts',
-    'jsnext:main': './esm/index.js',
+    main: path.relative(buildPath, packageDataOther.main),
+    module: path.relative(buildPath, packageDataOther.module),
+    types: path.relative(buildPath, packageDataOther.types),
   };
   const targetPath = path.resolve(buildPath, './package.json');
 
@@ -160,12 +159,7 @@ async function addLicense(packageData) {
  */
 `;
   await Promise.all(
-    [
-      './index.js',
-      './esm/index.js',
-      './umd/material-ui.development.js',
-      './umd/material-ui.production.min.js',
-    ].map(async file => {
+    ['./index.js', './cjs/index.js'].map(async (file) => {
       try {
         await prepend(path.resolve(buildPath, file), license);
       } catch (err) {
@@ -184,11 +178,9 @@ async function run() {
     const packageData = await createPackageFile();
 
     await Promise.all(
-      [
-        './README.md',
-        '../../CHANGELOG.md',
-        '../../LICENSE',
-      ].map(file => includeFileInBuild(file).catch(() => {})),
+      ['./README.md', '../../CHANGELOG.md', '../../LICENSE'].map(
+        (file) => includeFileInBuild(file).catch(() => {}),
+      ),
     );
 
     await addLicense(packageData);
