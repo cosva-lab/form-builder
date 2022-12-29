@@ -1,5 +1,4 @@
 import React from 'react';
-import { makeStyles } from '@mui/styles';
 
 import Button from '@mui/material/Button';
 import CardActions from '@mui/material/CardActions';
@@ -8,27 +7,8 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { StepsRenderProps, InitialStateSteps } from '../..';
 
 import { getMessage } from '../../FieldTranslate';
-import { pink } from '@mui/material/colors';
 import { footerRenderDefault } from './footerRenderDefault';
-
-const useStyles = makeStyles({
-  buttons: {
-    width: '100%',
-    display: 'flex',
-    justifyContent: 'flex-end',
-  },
-  wrapper: {
-    position: 'relative',
-  },
-  buttonProgress: {
-    color: pink[500],
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    marginTop: -12,
-    marginLeft: -12,
-  },
-});
+import classes from './FooterSteps.module.scss';
 
 export interface Props
   extends Pick<
@@ -43,7 +23,6 @@ export interface Props
 type AllProps = Props;
 
 const FooterSteps = (props: AllProps) => {
-  const classes = useStyles();
   const {
     steps,
     activeStep,

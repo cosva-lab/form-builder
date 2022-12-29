@@ -2,20 +2,10 @@ import React, { CSSProperties } from 'react';
 import CircularProgress, {
   CircularProgressProps,
 } from '@mui/material/CircularProgress';
-import { Theme } from '@mui/material/styles';
 
-import { WithStyles } from '@mui/styles';
-import withStyles from '@mui/styles/withStyles';
-import createStyles from '@mui/styles/createStyles';
+import classes from './Loading.module.scss';
 
-const styles = (theme: Theme) =>
-  createStyles({
-    progress: {
-      margin: theme.spacing(1),
-    },
-  });
-
-interface Props extends WithStyles<typeof styles> {
+interface Props {
   style: CSSProperties;
 }
 
@@ -31,15 +21,8 @@ class CircularIndeterminate extends React.PureComponent<
   };
 
   public render() {
-    const {
-      classes,
-      size,
-      color,
-      disableShrink,
-      thickness,
-      variant,
-      style,
-    } = this.props;
+    const { size, color, disableShrink, thickness, variant, style } =
+      this.props;
     return (
       <CircularProgress
         variant={variant || 'indeterminate'}
@@ -56,4 +39,4 @@ class CircularIndeterminate extends React.PureComponent<
   }
 }
 
-export default withStyles(styles)(CircularIndeterminate);
+export default CircularIndeterminate;
