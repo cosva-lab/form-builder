@@ -1,12 +1,10 @@
 import React from 'react';
-import { FieldRender } from './FieldRender';
+import FieldRender from './FieldRender';
 import { ChangeFieldCallback } from './';
 import type { FieldsRenderProps } from './types';
 import FieldBuilder from './utils/builders/FieldBuilder';
 
-export class FieldsRender extends React.PureComponent<
-  FieldsRenderProps
-> {
+export class FieldsRender extends React.PureComponent<FieldsRenderProps> {
   public static defaultProps = {
     ns: 'inputs',
     transPosition: '',
@@ -27,7 +25,7 @@ export class FieldsRender extends React.PureComponent<
     const { getSteps, fields, globalProps, grid } = this.props;
     return (
       <>
-        {fields.map(field => {
+        {fields.map((field) => {
           if (field instanceof FieldBuilder && globalProps)
             field.globalProps = globalProps;
           return (

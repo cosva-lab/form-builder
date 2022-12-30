@@ -1,6 +1,6 @@
-export { FieldRender } from './FieldRender';
-export { FieldsRender } from './FieldsRender';
-export { FormSteps } from './FormSteps';
+export { default as FieldRender } from './FieldRender';
+export { default as FieldsRender } from './FieldsRender';
+export { default as FormSteps } from './FormSteps';
 export { Inputs } from './Inputs';
 export { RenderErrorsDefault } from './RenderErrorsDefault';
 export * from './hooks';

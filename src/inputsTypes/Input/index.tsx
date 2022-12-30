@@ -4,12 +4,12 @@ import { observer } from 'mobx-react';
 import { intercept } from 'mobx';
 import TextField from '@mui/material/TextField';
 import FormControl from '@mui/material/FormControl';
+import FormHelperText from '@mui/material/FormHelperText';
 
 import { isEmpty } from '../../utils/isEmpty';
 import { TransformLabel } from '../../utils/TransformLabel';
 import { RenderErrorsDefault } from '../../RenderErrorsDefault';
 import type { ValidationErrors, InputProps } from '../../types';
-import { AnimateHelperText } from '../AnimateHelperText';
 import classes from './Input.module.scss';
 
 @observer
@@ -80,16 +80,7 @@ export class Input extends React.Component<
             style: {},
             classes: { root: classes.formHelperTextPropsRoot },
           }}
-          helperText={
-            helperText ? (
-              <AnimateHelperText
-                animation={this.animation}
-                errors={errors}
-              >
-                {helperText}
-              </AnimateHelperText>
-            ) : undefined
-          }
+          helperText={helperText}
           InputProps={
             typeof InputProps === 'function'
               ? InputProps({

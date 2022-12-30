@@ -4,14 +4,14 @@ import Grid from '@mui/material/Grid';
 import Stepper from '@mui/material/Stepper';
 import StepComponent from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
-import { StepContent } from '@mui/material';
+import StepContent from '@mui/material/StepContent';
 
 import { FieldsRender } from '../FieldsRender';
 import FooterSteps from './FooterSteps';
 import type { StepsRenderProps } from '../types';
 import { getMessage } from '../FieldTranslate';
 
-export const FormSteps = observer((props: StepsRenderProps) => {
+const FormSteps = observer((props: StepsRenderProps) => {
   const {
     getSteps = () => props.stepsBuild.steps,
     handleNextStep,
@@ -26,9 +26,11 @@ export const FormSteps = observer((props: StepsRenderProps) => {
   const { activeStep, loading, footerSteps } = stepsBuild;
   const steps = getSteps();
   const fieldsTemp = (activeStep: number) => {
-    const { fields, ns = stepsBuild.ns, validate } = steps[
-      activeStep
-    ];
+    const {
+      fields,
+      ns = stepsBuild.ns,
+      validate,
+    } = steps[activeStep];
     return (
       fields && (
         <>

@@ -19,7 +19,7 @@ export const RenderErrorsDefault = ({
   const ns = field && field.ns;
   const common = useFieldError();
   return (
-    <>
+    <div>
       {errors.map((error, i) => {
         if (React.isValidElement<any>(error))
           return <error.type {...error.props} key={error.key || i} />;
@@ -41,6 +41,6 @@ export const RenderErrorsDefault = ({
           })
         );
       })}
-    </>
+    </div>
   );
 };

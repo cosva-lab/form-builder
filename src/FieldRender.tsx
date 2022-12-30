@@ -3,8 +3,13 @@ import * as ReactIs from 'react-is';
 import { observer } from 'mobx-react';
 import Grid from '@mui/material/Grid';
 import Inputs from './Inputs';
-import { FieldProps, ChangeFieldCallback, ChangeField } from './';
-import { BreakpointsField, value } from './types';
+import type {
+  FieldProps,
+  ChangeFieldCallback,
+  ChangeField,
+  BreakpointsField,
+  value,
+} from './types';
 
 interface FieldRenderObserverProps {
   component: React.ElementType<FieldProps<any>>;
@@ -24,7 +29,8 @@ const FieldRenderObserver = ({
 
 class FieldRender<V = value>
   extends React.PureComponent<FieldProps<V>>
-  implements ChangeField {
+  implements ChangeField
+{
   changeField: ChangeFieldCallback = (e, callback) => {
     const { changeField } = this.props;
     changeField && changeField(e, callback);
@@ -83,5 +89,5 @@ class FieldRender<V = value>
     );
   }
 }
-export { FieldRender };
+
 export default FieldRender;
