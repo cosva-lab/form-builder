@@ -1,34 +1,19 @@
 import path from 'path';
 import fs from 'fs';
-import typescript from 'typescript';
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import pluginTypescript from 'rollup-plugin-typescript2';
 import postcss from 'rollup-plugin-postcss';
 import peerDepsExternal from 'rollup-plugin-peer-deps-external';
+import { uglify } from 'rollup-plugin-uglify';
 
-/**
- *
- * @returns {import('typescript').TranspileOptions}
- */
-const getTsConfig = function (configPath) {
-  const configJson = typescript.sys.readFile(configPath);
-  return typescript.parseConfigFileTextToJson(configPath, configJson)
-    .config;
-};
-
-const file = typescript.findConfigFile(
-  './',
-  typescript.sys.fileExists,
-);
-const config = getTsConfig(file);
-
-// eslint-disable-next-line
 const packageJson = JSON.parse(
   fs.readFileSync('./package.json', 'utf-8'),
 );
 
-const esmDir = path.dirname(packageJson.module);
+const mainDir = path.dirname(packageJson.main);
+const moduleDir = path.dirname(packageJson.module);
+const esmDir = path.dirname(packageJson.esnext);
 const typesDir = path.dirname(packageJson.types);
 
 /**
@@ -39,9 +24,17 @@ const options = [
     input: 'src/index.ts',
     output: [
       {
-        file: packageJson.main,
-        format: 'cjs',
+        file: 'dist/umd/form-builder-development.js',
+        format: 'umd',
         sourcemap: true,
+        name: 'FormBuilder',
+      },
+      {
+        file: 'dist/umd/form-builder-production.min.js',
+        format: 'umd',
+        sourcemap: true,
+        name: 'FormBuilder',
+        plugins: [uglify()],
       },
     ],
     plugins: [
@@ -49,12 +42,25 @@ const options = [
       resolve(),
       commonjs(),
       pluginTypescript({ tsconfig: './tsconfig.json' }),
-      postcss(),
+      postcss({ extract: true, minimize: true }),
     ],
   },
   {
     input: 'src/index.ts',
     output: [
+      {
+        dir: moduleDir,
+        format: 'es',
+        sourcemap: true,
+        preserveModules: true,
+      },
+      {
+        dir: mainDir,
+        format: 'cjs',
+        sourcemap: true,
+        preserveModules: true,
+        interop: 'auto',
+      },
       {
         dir: esmDir,
         format: 'esm',
@@ -63,7 +69,6 @@ const options = [
       },
     ],
     plugins: [
-      peerDepsExternal(),
       pluginTypescript({
         tsconfig: './tsconfig.json',
         tsconfigDefaults: {
@@ -73,8 +78,9 @@ const options = [
           },
         },
       }),
+      peerDepsExternal(),
       postcss({
-        extract: path.resolve(esmDir, 'styles.css'),
+        extract: true,
         minimize: true,
       }),
     ],

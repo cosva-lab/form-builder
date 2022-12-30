@@ -1,17 +1,13 @@
 {
   "compilerOptions": {
     // Default
-    "target": "ES6",
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
+    "target": "ES5",
     "strict": true,
     "skipLibCheck": true,
 
     // Added
     "jsx": "react",
-    "module": "ESNext",
     "sourceMap": true,
-    "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true
   },

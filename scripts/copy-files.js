@@ -132,6 +132,7 @@ async function createPackageFile() {
     private: false,
     main: path.relative(buildPath, packageDataOther.main),
     module: path.relative(buildPath, packageDataOther.module),
+    esnext: path.relative(buildPath, packageDataOther.esnext),
     types: path.relative(buildPath, packageDataOther.types),
   };
   const targetPath = path.resolve(buildPath, './package.json');
