@@ -66,18 +66,21 @@ class FieldRender<V = value>
       });
 
     if (type === 'component') {
+      if (Component)
+        Component.displayName = `[fields.${field.name}].component`;
       if (React.isValidElement<FieldProps<V>>(Component)) {
         return (
           <Component.type {...{ ...Component.props, ...propsForm }} />
         );
       }
-      if (ReactIs.isValidElementType(Component))
+      if (ReactIs.isValidElementType(Component)) {
         return (
           <FieldRenderObserver
             component={Component}
             propsForm={propsForm}
           />
         );
+      }
       return null;
     }
     return grid ? (

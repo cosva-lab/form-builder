@@ -61,7 +61,7 @@ export class Input extends React.Component<
     } = field;
 
     const { type } = this.state;
-    const helperText =
+    const errorsNode =
       errors &&
       ((RenderErrors && <RenderErrors {...{ errors, field }} />) || (
         <RenderErrorsDefault {...{ errors, field }} />
@@ -76,11 +76,6 @@ export class Input extends React.Component<
           label={<TransformLabel {...{ label, ns, name }} />}
           inputRef={(element) => (field.inputRef = element)}
           error={!isEmpty(errors)}
-          FormHelperTextProps={{
-            style: {},
-            classes: { root: classes.formHelperTextPropsRoot },
-          }}
-          helperText={helperText}
           InputProps={
             typeof InputProps === 'function'
               ? InputProps({
@@ -125,6 +120,15 @@ export class Input extends React.Component<
             autoComplete,
           }}
         />
+        {errorsNode && (
+          <FormHelperText
+            component="div"
+            error
+            className={classes.formHelperTextPropsRoot}
+          >
+            {errorsNode}
+          </FormHelperText>
+        )}
       </FormControl>
     );
   }

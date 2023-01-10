@@ -120,6 +120,10 @@ async function createPackageFile() {
     path.resolve(packagePath, './package.json'),
     'utf8',
   );
+
+  const relative = (p) =>
+    path.relative(buildPath, p).replace(/\\/g, '/');
+
   const {
     nyc,
     scripts,
@@ -130,10 +134,10 @@ async function createPackageFile() {
   const newPackageData = {
     ...packageDataOther,
     private: false,
-    main: path.relative(buildPath, packageDataOther.main),
-    module: path.relative(buildPath, packageDataOther.module),
-    esnext: path.relative(buildPath, packageDataOther.esnext),
-    types: path.relative(buildPath, packageDataOther.types),
+    main: relative(packageDataOther.main),
+    module: relative(packageDataOther.module),
+    esnext: relative(packageDataOther.esnext),
+    types: relative(packageDataOther.types),
   };
   const targetPath = path.resolve(buildPath, './package.json');
 

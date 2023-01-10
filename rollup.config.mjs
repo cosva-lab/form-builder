@@ -5,7 +5,7 @@ import commonjs from '@rollup/plugin-commonjs';
 import pluginTypescript from 'rollup-plugin-typescript2';
 import postcss from 'rollup-plugin-postcss';
 import peerDepsExternal from 'rollup-plugin-peer-deps-external';
-import { uglify } from 'rollup-plugin-uglify';
+import terser from '@rollup/plugin-terser';
 
 const packageJson = JSON.parse(
   fs.readFileSync('./package.json', 'utf-8'),
@@ -34,7 +34,7 @@ const options = [
         format: 'umd',
         sourcemap: true,
         name: 'FormBuilder',
-        plugins: [uglify()],
+        plugins: [terser()],
       },
     ],
     plugins: [
