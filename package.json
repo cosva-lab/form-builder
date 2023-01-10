@@ -1,6 +1,6 @@
 {
   "name": "@cosva-lab/form-builder",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "React form builder.",
   "author": "andres112013",
   "license": "MIT",
@@ -28,14 +28,13 @@
     "deploy": "gh-pages -d example/build"
   },
   "peerDependencies": {
-    "prop-types": "^15.5.4",
-    "react": "^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0",
-    "react-dom": "^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0",
-    "react-is": "^16.0.0 || ^17.0.0 || ^18.0.0",
     "@mui/material": "^5.0.0",
     "clsx": "^1.0.0",
     "mobx": "^6.0.0",
     "mobx-react": "^7.0.0",
+    "prop-types": "^15.5.4",
+    "react": "^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0",
+    "react-is": "^16.0.0 || ^17.0.0 || ^18.0.0",
     "validator": "^11.0.0 || ^12.0.0 || ^13.0.0"
   },
   "devDependencies": {
@@ -44,6 +43,7 @@
     "@mui/material": "^5.11.2",
     "@rollup/plugin-commonjs": "^24.0.0",
     "@rollup/plugin-node-resolve": "^15.0.1",
+    "@rollup/plugin-terser": "^0.3.0",
     "@types/jest": "^23.1.5",
     "@types/lodash": "^4.14.140",
     "@types/react": "^18.0.26",
@@ -59,7 +59,6 @@
     "mobx-react": "^7.0.0",
     "postcss": "^8.4.20",
     "prettier": "^2.8.1",
-    "react-dom": "^16.4.1",
     "rollup": "^3.8.1",
     "rollup-plugin-commonjs": "^9.3.4",
     "rollup-plugin-delete": "^2.0.0",
@@ -67,7 +66,6 @@
     "rollup-plugin-peer-deps-external": "^2.2.0",
     "rollup-plugin-postcss": "^4.0.2",
     "rollup-plugin-typescript2": "^0.34.1",
-    "rollup-plugin-uglify": "^6.0.4",
     "sass": "^1.57.1",
     "sass-loader": "^13.2.0",
     "tslib": "^2.4.1",
