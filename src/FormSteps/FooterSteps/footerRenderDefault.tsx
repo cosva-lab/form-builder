@@ -1,7 +1,9 @@
 import { Props } from './index';
 
 export const footerRenderDefault: Required<Props>['footerRender'] = ({
-  stepsLength, footerSteps, ...rest
+  stepsLength,
+  footerSteps,
+  ...rest
 }) => {
   const activeStep = rest.activeStep;
   let steps = {
@@ -17,7 +19,7 @@ export const footerRenderDefault: Required<Props>['footerRender'] = ({
     },
   };
   if (footerSteps) {
-    Object.keys(footerSteps).forEach(step => {
+    Object.keys(footerSteps).forEach((step) => {
       if (activeStep.toString() === step) {
         if (footerSteps.hasOwnProperty(step)) {
           const footerStep = footerSteps[activeStep];

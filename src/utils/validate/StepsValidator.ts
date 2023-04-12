@@ -10,7 +10,7 @@ class StepsValidator {
 
   constructor(steps: StepProps[]) {
     makeObservable(this);
-    this.steps = steps.map(step => new StepValidator(step));
+    this.steps = steps.map((step) => new StepValidator(step));
     this.stepsWithErros = [...this.steps];
     this.hasErrors = this.hasErrors.bind(this);
   }

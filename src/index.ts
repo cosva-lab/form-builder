@@ -6,7 +6,8 @@ export { RenderErrorsDefault } from './RenderErrorsDefault';
 export * from './hooks';
 
 export * from './utils';
-export * from './FieldTranslate';
+export * from './contexts/GlobalTranslate';
+export * from './contexts/TranslateFieldErrorProvider';
 export * from './FieldError';
 export * from './inputsTypes';
 export * from './types';

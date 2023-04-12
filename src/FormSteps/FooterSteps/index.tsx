@@ -6,7 +6,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 
 import { StepsRenderProps, InitialStateSteps } from '../..';
 
-import { getMessage } from '../../FieldTranslate';
+import { GlobalTranslate } from '../../contexts/GlobalTranslate';
 import { footerRenderDefault } from './footerRenderDefault';
 import classes from './FooterSteps.module.scss';
 
@@ -47,7 +47,7 @@ const FooterSteps = (props: AllProps) => {
               disabled={activeStep === 0 || loading}
               onClick={() => handleBackStep(activeStep)}
             >
-              {getMessage(back)}
+              <GlobalTranslate {...back} />
             </Button>
           </div>
         )}
@@ -59,7 +59,7 @@ const FooterSteps = (props: AllProps) => {
               disabled={loading}
               onClick={() => handleNextStep(activeStep)}
             >
-              {getMessage(next)}
+              <GlobalTranslate {...next} />
             </Button>
             {loading && (
               <CircularProgress

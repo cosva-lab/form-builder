@@ -43,7 +43,7 @@ class InputsValidator {
     this.addErrors = this.addErrors.bind(this);
     this.hasErrors = this.hasErrors.bind(this);
     this.getErrors = this.getErrors.bind(this);
-    this.fields = fields.map(field => new FieldBuilder(field));
+    this.fields = fields.map((field) => new FieldBuilder(field));
   }
 
   async callbackField(
@@ -108,9 +108,10 @@ class InputsValidator {
     for (const key in errors) {
       if (errors.hasOwnProperty(key)) {
         const error = errors[key];
-        this.callbackField(field => {
+        this.callbackField((field) => {
           const keys: string[] = [field.name];
-          if (keys.some(name => name === key)) field.addErrors(error);
+          if (keys.some((name) => name === key))
+            field.addErrors(error);
         });
       }
     }

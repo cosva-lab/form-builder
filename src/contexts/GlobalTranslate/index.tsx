@@ -1,7 +1,7 @@
 import React, { CSSProperties } from 'react';
 import Grow from '@mui/material/Grow';
-import Loading from '../Loading';
-import type { Message } from '../types';
+import Loading from '../../Loading';
+import type { Message } from '../../types';
 
 export const Animation = ({
   children,
@@ -18,34 +18,31 @@ interface Props extends Message {
   styles?: CSSProperties;
 }
 
-const FieldTranslate = React.createContext<
+const GlobalTranslateContext = React.createContext<
   (props: Props) => React.ReactNode
->(({ message }) => {
-  return message;
-});
+>(({ message }) => message);
 
-const useFieldTranslate = () => React.useContext(FieldTranslate);
+export const useGlobalTranslate = () =>
+  React.useContext(GlobalTranslateContext);
 
-export const FieldTranslateProvider = ({
+export const GlobalTranslateProvider = ({
   children,
   translator,
 }: React.PropsWithChildren<{
   translator: (props: Message) => React.ReactNode;
-}>) => {
-  return (
-    <FieldTranslate.Provider value={translator}>
-      {children}
-    </FieldTranslate.Provider>
-  );
-};
-export const FieldTranslateConsumer = FieldTranslate.Consumer;
+}>) => (
+  <GlobalTranslateContext.Provider value={translator}>
+    {children}
+  </GlobalTranslateContext.Provider>
+);
+export const FieldTranslateConsumer = GlobalTranslateContext.Consumer;
 
 const Comp = (props: Message) => {
-  const translate = useFieldTranslate();
+  const translate = useGlobalTranslate();
   return <span>{translate(props)}</span>;
 };
 
-export const getMessage: React.FC<Props> = props => {
+export const GlobalTranslate: React.FC<Props> = (props) => {
   const { styles, ...rest } = props;
   return (
     <React.Suspense
@@ -68,7 +65,7 @@ export const getMessage: React.FC<Props> = props => {
   );
 };
 
-getMessage.defaultProps = {
+GlobalTranslate.defaultProps = {
   styles: {},
   props: {},
 };

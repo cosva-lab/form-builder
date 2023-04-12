@@ -1,8 +1,8 @@
 import React from 'react';
 
 import type { ComponentErrorsProps, Message } from './types';
-import { getMessage } from './FieldTranslate';
-import { useFieldError } from './FieldError/index';
+import { useFieldError } from './FieldError';
+import { TranslateFieldError } from './contexts/TranslateFieldErrorProvider';
 
 function isMessage(args: any): args is Message {
   return (
@@ -12,6 +12,14 @@ function isMessage(args: any): args is Message {
   );
 }
 
+interface SpanFullWidthProps {
+  children: React.ReactNode;
+}
+
+const Text = ({ children }: SpanFullWidthProps) => (
+  <div>{children}</div>
+);
+
 export const RenderErrorsDefault = ({
   errors,
   field,
@@ -19,28 +27,33 @@ export const RenderErrorsDefault = ({
   const ns = field && field.ns;
   const common = useFieldError();
   return (
-    <div>
+    <>
       {errors.map((error, i) => {
         if (React.isValidElement<any>(error))
           return <error.type {...error.props} key={error.key || i} />;
         return typeof error === 'string' ? (
-          <div key={i}>{error}</div>
+          <Text key={i}>{error}</Text>
         ) : isMessage(error) ? (
-          <div key={i}>{getMessage({ ns, ...common, ...error })}</div>
+          <Text key={i}>
+            <TranslateFieldError {...{ ns, ...common, ...error }} />
+          </Text>
         ) : (
           Object.values(error).map((e, j) => {
             return (
-              <div key={j}>
+              <Text key={j}>
                 {typeof e === 'string'
                   ? e
-                  : (isMessage(e) &&
-                      getMessage({ ns, ...common, ...e })) ||
+                  : (isMessage(e) && (
+                      <TranslateFieldError
+                        {...{ ns, ...common, ...e }}
+                      />
+                    )) ||
                     null}
-              </div>
+              </Text>
             );
           })
         );
       })}
-    </div>
+    </>
   );
 };

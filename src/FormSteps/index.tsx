@@ -9,7 +9,7 @@ import StepContent from '@mui/material/StepContent';
 import { FieldsRender } from '../FieldsRender';
 import FooterSteps from './FooterSteps';
 import type { StepsRenderProps } from '../types';
-import { getMessage } from '../FieldTranslate';
+import { GlobalTranslate } from '../contexts/GlobalTranslate';
 
 const FormSteps = observer((props: StepsRenderProps) => {
   const {
@@ -77,16 +77,18 @@ const FormSteps = observer((props: StepsRenderProps) => {
               return stepperState ? (
                 <StepComponent key={`step-${key}`}>
                   <StepLabel>
-                    {getMessage({
-                      ns:
-                        typeof label === 'string'
-                          ? ns
-                          : label.ns || ns,
-                      message:
-                        typeof label === 'string'
-                          ? label
-                          : label.message,
-                    })}
+                    <GlobalTranslate
+                      {...{
+                        ns:
+                          typeof label === 'string'
+                            ? ns
+                            : label.ns || ns,
+                        message:
+                          typeof label === 'string'
+                            ? label
+                            : label.message,
+                      }}
+                    />
                   </StepLabel>
                   {stepperProps &&
                     stepperProps.orientation === 'vertical' && (

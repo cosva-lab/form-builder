@@ -7,7 +7,7 @@ import StepLabel from '@mui/material/StepLabel';
 import Grid from '@mui/material/Grid';
 import { getMessage } from '../MessagesTranslate';
 
-const StepperComponents = props => {
+const StepperComponents = (props) => {
   const { itemsStepper, activeStep } = props;
   return (
     <Grid item xs={12}>
