@@ -9,15 +9,31 @@ import FormHelperText from '@mui/material/FormHelperText';
 import { isEmpty } from '../../utils/isEmpty';
 import { TransformLabel } from '../../utils/TransformLabel';
 import { RenderErrorsDefault } from '../../RenderErrorsDefault';
-import type { ValidationErrors, InputProps } from '../../types';
+import type {
+  ValidationErrors,
+  NameField,
+  value,
+  TypeTextField,
+  FieldProps,
+} from '../../types';
 import classes from './Input.module.scss';
 
+export interface InputProps<
+  V = value,
+  Name extends NameField = string,
+> extends FieldProps<V, Name> {
+  type?: TypeTextField;
+}
+
 @observer
-export class Input extends React.Component<
-  InputProps,
+export class Input<
+  V = value,
+  Name extends NameField = string,
+> extends React.Component<
+  InputProps<V, Name>,
   { type: InputProps['type'] }
 > {
-  constructor(props: InputProps) {
+  constructor(props: InputProps<V, Name>) {
     super(props);
     this.state = { type: props.type };
   }
@@ -34,7 +50,7 @@ export class Input extends React.Component<
     });
   }
 
-  getProps = (props: InputProps) => ({ ...props.field });
+  getProps = (props: InputProps<V, Name>) => ({ ...props.field });
 
   getLastProps = () => this.getProps(this.props);
 
@@ -58,7 +74,7 @@ export class Input extends React.Component<
     const errorsNode =
       errors &&
       ((RenderErrors && <RenderErrors {...{ errors, field }} />) || (
-        <RenderErrorsDefault {...{ errors, field }} />
+        <RenderErrorsDefault<V, Name> {...{ errors, field }} />
       ));
     return (
       <FormControl
@@ -92,19 +108,19 @@ export class Input extends React.Component<
             },
           }}
           onChange={(e) => {
-            const onChange = field.onChange || onChangeField;
-            const value = e.target.value;
+            const onChange = field.onChange;
+            const value = e.target.value as V;
             if (onChange)
               onChange({ name: field.name, value, field }, e);
-            else field.setValue(e.target.value);
+            else field.setValue(value);
           }}
           onBlur={() => {
             const { field } = this.props;
             field && field.markAsTouched();
           }}
+          name={name.toString()}
           {...{
             ...textFieldProps,
-            name,
             type,
             value,
             disabled,

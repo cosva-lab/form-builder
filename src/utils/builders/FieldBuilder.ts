@@ -17,12 +17,13 @@ import type {
   ComponentErrors,
   ValidationErrors,
   ReturnValidationError,
+  NameField,
 } from '../../types';
 import { InputValidator } from '../validate/InputValidator';
 
-export class FieldBuilder<V = value>
-  extends InputValidator<V>
-  implements PropsField
+export class FieldBuilder<V = value, Name extends NameField = string>
+  extends InputValidator<V, Name>
+  implements PropsField<V, Name>
 {
   @observable private _ns?: string = undefined;
   public get ns(): string | undefined {
@@ -35,17 +36,18 @@ export class FieldBuilder<V = value>
     this._ns = ns;
   }
 
-  @observable public render?: RenderField = undefined;
+  @observable public render?: RenderField<V, Name> = undefined;
   @observable public fullWidth?: boolean = undefined;
   @observable public grid?: boolean = undefined;
   @observable public autoComplete?: string = undefined;
-  @observable public InputProps?: InputPropsField = undefined;
+  @observable public InputProps?: InputPropsField<V, Name> =
+    undefined;
   @observable public textFieldProps?: TextFieldPropsField = undefined;
   @observable public breakpoints?: BreakpointsField = undefined;
-  @observable public component?: ComponentField = undefined;
-  public renderErrors?: ComponentErrors;
+  @observable public component?: ComponentField<V, Name> = undefined;
+  public renderErrors?: ComponentErrors<V, Name>;
 
-  constructor(props: PropsField<V>) {
+  constructor(props: PropsField<V, Name>) {
     super(props);
     makeObservable(this);
     const {
@@ -60,7 +62,7 @@ export class FieldBuilder<V = value>
       component,
       renderErrors,
     } = props;
-    this.validate = InputValidator.getValidation(this);
+    this.validate = InputValidator.getValidation<V, Name>(this);
     this.ns = ns;
     this.render = render;
     this.fullWidth = fullWidth;
@@ -93,8 +95,7 @@ export class FieldBuilder<V = value>
         } else if (typeof validation === 'function') {
           error = await validation({
             field: this,
-            fieldsBuilder: this.fieldsBuilder,
-            stepsBuilder: this.stepsBuilder,
+            fieldsBuilder: this.fieldsBuilder as any,
             validate,
             value,
           });

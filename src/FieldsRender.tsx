@@ -1,18 +1,50 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import FieldRender from './FieldRender';
-import { OnChangeField } from './';
-import type { FieldsRenderProps } from './types';
 import FieldBuilder from './utils/builders/FieldBuilder';
+import {
+  EventField,
+  GetArrayValues,
+  GetFields,
+  GlobalPropsInterface,
+  GridRender,
+  InitialState,
+  NameField,
+  ValidationsFields,
+  value,
+} from './types';
+import { Reducer } from './utils/types';
 
-export class FieldsRender extends React.PureComponent<FieldsRenderProps> {
+export interface FieldsRenderProps<
+  Name extends NameField,
+  Item extends FieldBuilder<value, Name>,
+  Fields extends Item[],
+  FieldsObject,
+> extends InitialState,
+    GlobalPropsInterface,
+    ValidationsFields<Name, Item, Fields, FieldsObject>,
+    GridRender {
+  onChangeField?<Field extends keyof FieldsObject>(
+    event: EventField<FieldsObject[Field], Field>,
+    nativeEvent?: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement
+    >,
+  ): void | (() => void);
+
+  children?: ReactNode;
+  fields: GetArrayValues<GetFields<FieldsObject>>;
+}
+
+export class FieldsRender<
+  Name extends NameField,
+  Item extends FieldBuilder<value, Name>,
+  Fields extends Item[],
+  FieldsObject,
+> extends React.PureComponent<
+  FieldsRenderProps<Name, Item, Fields, FieldsObject>
+> {
   public static defaultProps = {
     ns: 'inputs',
     transPosition: '',
-  };
-
-  changeField: OnChangeField = (event, callback) => {
-    const { onChangeField } = this.props;
-    onChangeField?.(event, callback);
   };
 
   /**
@@ -22,23 +54,18 @@ export class FieldsRender extends React.PureComponent<FieldsRenderProps> {
    * @memberof FieldsRender
    */
   public render() {
-    const { getSteps, fields, globalProps, grid } = this.props;
+    const { fields, globalProps, grid, onChangeField } = this.props;
     return (
       <>
         {fields.map((field) => {
           if (field instanceof FieldBuilder && globalProps)
             field.globalProps = globalProps;
           return (
-            <FieldRender
-              key={field.name}
-              field={
-                (field instanceof FieldBuilder && field) ||
-                new FieldBuilder(field)
-              }
+            <FieldRender<any, any>
+              key={field.name.toString()}
+              field={field}
+              onChangeField={onChangeField}
               {...{
-                getSteps,
-                onChangeField: this.changeField,
-                getFields: () => this.props.fields,
                 grid,
               }}
             />

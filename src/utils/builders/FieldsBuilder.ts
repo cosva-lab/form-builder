@@ -5,34 +5,25 @@ import type {
   FieldsProps,
   EventField,
   PropsField,
+  EventChangeValue,
+  NameField,
+  GetArrayValues,
   value,
 } from '../../types';
-import StepsBuilder from './StepsBuilder';
-import FieldBuilder from './FieldBuilder';
-import { EventChangeValue, OnChangeFieldEvent } from '../../types';
-
-declare type Callback = Function;
-
-declare type Props = FieldsProps;
-
-interface Fields {
-  [key: string]: any;
-}
+import { Reducer } from '../types';
+import { GetFields } from '../../types';
 
 export class FieldsBuilder<
-    Name extends string,
-    Item extends PropsField,
-    Input extends Item[],
-  >
-  extends InputsValidator<Name, Item, Input>
-  implements FieldsProps
-{
-  @observable public stepsBuilder?: StepsBuilder;
+  Name extends NameField = any,
+  Item extends PropsField<value, Name> = PropsField<value, Name>,
+  Fields extends Item[] = Item[],
+  FieldsObject = Reducer<Fields>,
+  Partial = false,
+> extends InputsValidator<Name, Item, Fields, FieldsObject> {
   @observable private _ns?: string = undefined;
+
   public get ns(): string | undefined {
-    return typeof this._ns === 'undefined'
-      ? this.stepsBuilder && this.stepsBuilder.ns
-      : this._ns;
+    return this._ns;
   }
 
   public set ns(ns: string | undefined) {
@@ -41,29 +32,29 @@ export class FieldsBuilder<
 
   public globalProps?: GlobalProps;
   @observable public actionsExtra?: object;
-  public get values(): Fields {
+  public get values() {
     return this.getValues();
   }
 
   private paramsLast?: Pick<
-    FieldsProps,
+    FieldsProps<Name, Item, Fields, FieldsObject>,
     'fields' | 'ns' | 'validate'
   >;
 
-  constructor(props: Props) {
+  constructor(props: FieldsProps<Name, Item, Fields, FieldsObject>) {
     super(props);
     makeObservable(this);
     const { ns, globalProps } = props;
     this._ns = ns;
     this.globalProps = globalProps;
+
     for (const field of this.fields) {
-      field.fieldsBuilder = this;
+      field.fieldsBuilder = this as any;
     }
     this.validate = this._validate;
     this.saveData = this.saveData.bind(this);
     this.restore = this.restore.bind(this);
     this.restoreLast = this.restoreLast.bind(this);
-    this.getFieldsObject = this.getFieldsObject.bind(this);
     this.onChangeField = this.onChangeField.bind(this);
     this.onChangeFields = this.onChangeFields.bind(this);
     this.setValidation = this.setValidation.bind(this);
@@ -77,7 +68,7 @@ export class FieldsBuilder<
       ({ name }) => fieldOriginal.name === name,
     );
     if (field) {
-      field.fieldsBuilder = this;
+      field.fieldsBuilder = this as any;
       field.value = fieldOriginal.value;
       field.errors = fieldOriginal.errors;
     }
@@ -90,7 +81,7 @@ export class FieldsBuilder<
   saveData() {
     const { fields, ns, validate } = this;
     this.paramsLast = {
-      fields: fields.map((field): PropsField => toJS(field)),
+      fields: toJS(fields as any),
       ns,
       validate,
     };
@@ -105,45 +96,57 @@ export class FieldsBuilder<
   restoreLast() {
     if (this.paramsLast) {
       const { fields } = this.paramsLast;
-      this.setFields(fields);
+      this.setFields(fields as any);
       this.paramsLast = undefined;
     }
   }
 
-  getValues<V extends Fields>() {
-    const fields: V = Object.create(null);
-    for (const { name, value, enabled } of this.fields)
-      if (enabled) fields[name as keyof V] = value;
-    return toJS(fields);
+  getValues() {
+    const values: {
+      [Key in keyof FieldsObject]: FieldsObject[Key];
+    } = Object.create(null);
+    for (const { name, value } of this.fields) values[name] = value;
+    return toJS(values);
   }
 
-  /**
-   * @deprecated 'Use getValues instead of getFieldsObject'
-   */
-  getFieldsObject() {
-    return this.getValues();
+  get<FieldName extends keyof FieldsObject>(
+    fieldName: FieldName,
+  ):
+    | (Partial extends true ? undefined : never)
+    | GetFields<FieldsObject>[FieldName] {
+    return this.fieldsMap[fieldName];
   }
 
-  get<V = value>(fieldName: string): FieldBuilder<V> | undefined {
+  getField<FieldName extends keyof FieldsObject>(
+    fieldName: FieldName,
+  ):
+    | (Partial extends true ? undefined : never)
+    | GetFields<FieldsObject>[FieldName] {
     return this.fieldsMap[fieldName];
   }
 
   @action
-  onChangeField(event: EventField) {
+  onChangeField<Field extends keyof FieldsObject>(
+    event: EventField<FieldsObject[Field], Field>,
+  ) {
     const { value, name } = event;
-    const field = this.get(name);
+    const field = this.fieldsMap[name];
     if (field) field.setValue(value);
-    else console.warn(`Field ${name} not found`);
+    else console.warn(`Field ${name.toString()} not found`);
   }
 
   @action
-  onChangeFields(events: EventField[]) {
-    events.forEach((field) => this.onChangeField(field));
+  onChangeFields<Fields extends keyof FieldsObject>(
+    events: GetArrayValues<{
+      [Field in Fields]: EventField<FieldsObject[Field], Field>;
+    }>,
+  ) {
+    events.forEach((event) => this.onChangeField(event));
   }
 
   @action
   changeValue({ name, value }: EventChangeValue) {
-    const field = this.get(name);
+    const field = this.get(name as keyof FieldsObject);
     if (field) field.value = value;
     else console.warn(`Field ${name} not found`);
   }
@@ -154,9 +157,8 @@ export class FieldsBuilder<
   }
 
   @action
-  setValidation(validate: boolean, callback?: Callback) {
+  setValidation(validate: boolean) {
     this.validate = validate;
-    callback && callback();
   }
 }
 

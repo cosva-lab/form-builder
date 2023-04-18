@@ -1,7 +1,6 @@
 import type {
   PropsField,
   ChangeValueFields,
-  ChangeValueSteps,
   ChangeValueField,
 } from '../../types';
 
@@ -23,15 +22,4 @@ const changeValueFields: (props: ChangeValueFields) => void = ({
     changeValueField({ field: fields[index], action });
 };
 
-function changeValueSteps({
-  activeStep,
-  steps,
-  action,
-}: ChangeValueSteps): void {
-  changeValueFields({
-    action,
-    fieldsBuilder: steps[activeStep],
-  });
-}
-
-export { changeValueSteps, changeValueField, changeValueFields };
+export { changeValueField, changeValueFields };

@@ -11,27 +11,44 @@ import type {
   ValidationErrors,
   ValidateInputsValidator,
   PropsField,
+  NameField,
+  GetArrayValues,
+  GetFields,
+  value,
 } from '../../types';
+import { Reducer } from '../types';
 
 class InputsValidator<
-  Name extends string = string,
-  Item extends PropsField<Name> = PropsField<Name>,
+  Name extends NameField = any,
+  Item extends PropsField<value, Name> = PropsField<value, Name>,
   Fields extends Item[] = Item[],
+  FieldsObject = Reducer<Fields>,
 > {
   @observable public valid = true;
   public get invalid() {
     return !this.valid;
   }
-  @observable public fields: FieldBuilder[];
-  @observable public fieldsMap: Record<string, FieldBuilder> = {};
-  @observable public _validate: ValidateInputsValidator = false;
+  @observable public fields: GetArrayValues<GetFields<FieldsObject>>;
+
+  public fieldsMap = {} as GetFields<FieldsObject>;
+
+  @observable public _validate: ValidateInputsValidator<
+    Name,
+    Item,
+    Fields,
+    FieldsObject
+  > = false;
   public get validate() {
     return typeof this._validate === 'function'
       ? this._validate(this)
       : this._validate;
   }
 
-  public set validate(validate: ValidateInputsValidator | undefined) {
+  public set validate(
+    validate:
+      | ValidateInputsValidator<Name, Item, Fields, FieldsObject>
+      | undefined,
+  ) {
     this._validate = validate;
     if (validate) this.validity();
     for (const field of this.fields || [])
@@ -42,27 +59,35 @@ class InputsValidator<
   constructor({
     fields,
     validate,
-  }: Pick<FieldsProps<[...Fields]>, 'fields' | 'validate'>) {
+  }: Pick<
+    FieldsProps<Name, Item, Fields, FieldsObject>,
+    'fields' | 'validate'
+  >) {
     makeObservable(this);
     if (typeof validate !== 'undefined') this._validate = validate;
     this.callbackField = this.callbackField.bind(this);
     this.addErrors = this.addErrors.bind(this);
     this.hasErrors = this.hasErrors.bind(this);
     this.getErrors = this.getErrors.bind(this);
-    this.fields = fields.map((field) => new FieldBuilder(field));
-    for (const field of this.fields)
-      this.fieldsMap[field.name] = field;
+    this.fields = fields.map(
+      (field) => new FieldBuilder<any, any>(field),
+    );
+    for (const field of this.fields) {
+      const name = field.name;
+      this.fieldsMap[name] = field;
+    }
   }
 
   async callbackField(
-    callback: (field: FieldBuilder, cancel: () => void) => void,
+    callback: (
+      field: FieldBuilder<value, keyof FieldsObject>,
+      cancel: () => void,
+    ) => void,
   ) {
     const fields = this.fields;
     for (const field of this.fields || []) {
       let cancel = false;
-      await callback(field, () => {
-        cancel = true;
-      });
+      await callback(field, () => (cancel = true));
       if (cancel) break;
     }
     return fields;
@@ -117,7 +142,7 @@ class InputsValidator<
       if (errors.hasOwnProperty(key)) {
         const error = errors[key];
         this.callbackField((field) => {
-          const keys: string[] = [field.name];
+          const keys = [field.name];
           if (keys.some((name) => name === key))
             field.addErrors(error);
         });
@@ -131,12 +156,12 @@ class InputsValidator<
   }
 
   async getErrors() {
-    const fields: {
-      [key: string]: ValidationErrors | undefined;
+    const fieldsErrors: {
+      [P in keyof FieldsObject]?: ValidationErrors;
     } = {};
     for (const { name, errors, enabled } of this.fields)
-      if (errors && enabled) fields[name] = errors;
-    return fields;
+      if (errors && enabled) fieldsErrors[name] = errors;
+    return fieldsErrors;
   }
 }
 

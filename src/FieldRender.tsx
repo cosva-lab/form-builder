@@ -4,22 +4,28 @@ import { observer } from 'mobx-react';
 import Grid from '@mui/material/Grid';
 import Inputs from './Inputs';
 import type {
-  FieldProps,
   OnChangeField,
-  ChangeField,
   BreakpointsField,
   value,
+  NameField,
+  FieldProps,
 } from './types';
 
-interface FieldRenderObserverProps {
-  component: React.ElementType<FieldProps<any>>;
-  propsForm: FieldProps<any>;
+interface FieldRenderObserverProps<
+  V = value,
+  Name extends NameField = string,
+> {
+  component: React.ElementType<FieldProps<V, Name>>;
+  propsForm: FieldProps<V, Name>;
 }
 
-const FieldRenderObserver = ({
+const FieldRenderObserver = <
+  V = value,
+  Name extends NameField = string,
+>({
   component,
   propsForm,
-}: FieldRenderObserverProps) => {
+}: FieldRenderObserverProps<V, Name>) => {
   let FieldComponent = component;
   try {
     FieldComponent = observer(component);
@@ -27,11 +33,11 @@ const FieldRenderObserver = ({
   return <FieldComponent {...propsForm} />;
 };
 
-class FieldRender<V = value>
-  extends React.PureComponent<FieldProps<V>>
-  implements ChangeField
-{
-  onChangeField: OnChangeField = (e, callback) => {
+class FieldRender<
+  V = value,
+  Name extends NameField = string,
+> extends React.PureComponent<FieldProps<V, Name>> {
+  onChangeField: OnChangeField<V, Name> = (e, callback) => {
     const { onChangeField } = this.props;
     onChangeField?.(e, callback);
   };
@@ -54,7 +60,7 @@ class FieldRender<V = value>
         ? this.props.grid
         : true,
     } = field;
-    const propsForm: FieldProps<V> = {
+    const propsForm: FieldProps<V, Name> = {
       field,
       onChangeField: this.onChangeField,
     };
@@ -67,20 +73,19 @@ class FieldRender<V = value>
 
     if (type === 'component') {
       if (Component)
-        Component.displayName = `[fields.${field.name}].component`;
-      if (React.isValidElement<FieldProps<V>>(Component)) {
+        Component.displayName = `[fields.${field.name.toString()}].component`;
+      if (React.isValidElement<FieldProps<V, Name>>(Component))
         return (
           <Component.type {...{ ...Component.props, ...propsForm }} />
         );
-      }
-      if (ReactIs.isValidElementType(Component)) {
+
+      if (ReactIs.isValidElementType(Component))
         return (
           <FieldRenderObserver
             component={Component}
             propsForm={propsForm}
           />
         );
-      }
       return null;
     }
     return grid ? (

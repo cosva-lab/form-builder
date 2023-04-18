@@ -1,6 +1,5 @@
 import { observable, makeObservable, action } from 'mobx';
 import type FieldsBuilder from './FieldsBuilder';
-import type StepsBuilder from './StepsBuilder';
 import type {
   ValidationErrors,
   OnSetValue,
@@ -9,15 +8,15 @@ import type {
   value,
   TypeField,
   PropsFieldBase,
+  NameField,
 } from '../../types';
 import { StatusField } from '../../enums';
+import { GenericFieldsBuilder } from '../../types';
 
-export class Field<Name = string, V = value>
-  implements PropsFieldBase<Name, V>
+export class Field<V = value, Name extends NameField = string>
+  implements PropsFieldBase<V, Name>
 {
-  @observable public fieldsBuilder?: FieldsBuilder<string, any, any> =
-    undefined;
-  @observable public stepsBuilder?: StepsBuilder = undefined;
+  public fieldsBuilder?: GenericFieldsBuilder = undefined;
   @observable public type?: TypeField = undefined;
   @observable public name: Name;
   @observable public value: V;
@@ -26,8 +25,8 @@ export class Field<Name = string, V = value>
   @observable public status?: StatusField;
   @observable public errors?: ValidationErrors = [];
   public inputRef?: HTMLInputElement | null;
-  @observable public onChange?: OnChangeField<V> = undefined;
-  @observable public onSetValue?: OnSetValue<V> = undefined;
+  @observable public onChange?: OnChangeField<V, Name> = undefined;
+  @observable public onSetValue?: OnSetValue<V, Name> = undefined;
 
   public pristine: boolean = true;
 
@@ -183,7 +182,7 @@ export class Field<Name = string, V = value>
     label,
     onChange,
     onSetValue,
-  }: PropsFieldBase<Name, V>) {
+  }: PropsFieldBase<V, Name>) {
     makeObservable(this);
     this.type = type;
     this.name = name;

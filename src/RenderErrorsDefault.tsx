@@ -1,6 +1,10 @@
 import React from 'react';
 
-import type { ComponentErrorsProps, Message } from './types';
+import type {
+  ComponentErrorsProps,
+  Message,
+  NameField,
+} from './types';
 import { useFieldError } from './FieldError';
 import { TranslateFieldError } from './contexts/TranslateFieldErrorProvider';
 
@@ -20,10 +24,13 @@ const Text = ({ children }: SpanFullWidthProps) => (
   <div>{children}</div>
 );
 
-export const RenderErrorsDefault = ({
+export const RenderErrorsDefault = <
+  V = any,
+  Name extends NameField = string,
+>({
   errors,
   field,
-}: ComponentErrorsProps) => {
+}: ComponentErrorsProps<V, Name>) => {
   const ns = field && field.ns;
   const common = useFieldError();
   return (

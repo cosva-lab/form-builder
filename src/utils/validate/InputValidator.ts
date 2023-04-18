@@ -15,25 +15,37 @@ import type {
   PropsFieldBase,
   GlobalProps,
   ValidationsField,
+  NameField,
 } from '../../types';
 import { StatusField } from '../../enums';
 import Field from '../builders/Field';
 import validators from '../validate/validators';
 
-type PropsInput<V = value> = Validate<V> & PropsFieldBase<V>;
-export abstract class InputValidator<V = value>
-  extends Field<V>
-  implements Validate<V>
+type PropsInput<
+  V = value,
+  Name extends NameField = string,
+> = Validate<V, Name> & PropsFieldBase<V, Name>;
+export abstract class InputValidator<
+    V extends value = value,
+    Name extends NameField = string,
+  >
+  extends Field<V, Name>
+  implements Validate<V, Name>
 {
-  public originalProps?: Pick<PropsInput<V>, 'value' | 'validate'>;
+  public originalProps?: Pick<
+    PropsInput<V, Name>,
+    'value' | 'validate'
+  >;
 
-  static getValidation<V = value>(obj: InputValidator<V>) {
+  static getValidation<V = value, Name extends NameField = string>(
+    obj: InputValidator<V, Name>,
+  ) {
     return typeof obj._validate === 'function'
       ? obj._validate(obj)
       : obj._validate;
   }
 
-  public _validate: ValidationsField<V>['validate'] = false;
+  public _validate: ValidationsField<V, Name>['validate'] = false;
   public get validate() {
     return InputValidator.getValidation(this);
   }
@@ -51,7 +63,7 @@ export abstract class InputValidator<V = value>
 
   @observable public validations?: (
     | Validation
-    | ValidationFunction<V>
+    | ValidationFunction<V, Name>
   )[];
 
   private _globalProps?: GlobalProps;
@@ -68,7 +80,7 @@ export abstract class InputValidator<V = value>
     else this._globalProps = globalProps;
   }
 
-  constructor(props: PropsInput<V>) {
+  constructor(props: PropsInput<V, Name>) {
     super(props);
     makeObservable(this);
     const { validate, validations, value, globalProps } = props;
