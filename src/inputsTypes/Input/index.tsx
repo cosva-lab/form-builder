@@ -22,7 +22,6 @@ export class Input extends React.Component<
     this.state = { type: props.type };
   }
 
-  callbacks: Function[] = [];
   errors: ValidationErrors = [];
 
   animation = true;
@@ -35,17 +34,12 @@ export class Input extends React.Component<
     });
   }
 
-  componentDidUpdate() {
-    this.callbacks.forEach((callback) => callback());
-    this.callbacks = [];
-  }
-
   getProps = (props: InputProps) => ({ ...props.field });
 
   getLastProps = () => this.getProps(this.props);
 
   public render() {
-    const { changeField, field } = this.props;
+    const { onChangeField, field } = this.props;
     const {
       ns,
       label,
@@ -98,14 +92,11 @@ export class Input extends React.Component<
             },
           }}
           onChange={(e) => {
-            const onChange = field.onChange || changeField;
-            if (onChange) {
-              const callback = onChange(Object.assign(e, { field }));
-              typeof callback === 'function' &&
-                this.callbacks.push(callback);
-            } else {
-              field.setValue(e.target.value);
-            }
+            const onChange = field.onChange || onChangeField;
+            const value = e.target.value;
+            if (onChange)
+              onChange({ name: field.name, value, field }, e);
+            else field.setValue(e.target.value);
           }}
           onBlur={() => {
             const { field } = this.props;

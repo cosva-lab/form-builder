@@ -27,17 +27,25 @@ export interface Message {
 }
 
 export interface EventField<V = value> {
-  target: { name: string; value: V; type?: string };
+  name: string;
+  value: V;
+  type?: string;
 }
 
-export type ChangeFieldCallback<V = value> = (
-  e: (
-    | EventField<V>
-    | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) & {
-    field?: FieldBuilder<V>;
-  },
-  callback?: () => void,
+export interface EventChangeValue<V = value> {
+  name: string;
+  value: V;
+}
+
+export type OnChangeFieldEvent<V = value> = EventField<V> & {
+  field: FieldBuilder<V>;
+};
+
+export type OnChangeField<V = value> = (
+  e: OnChangeFieldEvent<V>,
+  nativeEvent?: React.ChangeEvent<
+    HTMLInputElement | HTMLTextAreaElement
+  >,
 ) => void | (() => void);
 
 export type OnSetValue<V = value> = (e: {
@@ -47,7 +55,7 @@ export type OnSetValue<V = value> = (e: {
 }) => void;
 
 export interface ChangeField<V = value> {
-  changeField?: ChangeFieldCallback<V>;
+  onChangeField?: OnChangeField<V>;
 }
 
 export type value = any;
@@ -94,12 +102,12 @@ export interface InitialStateFields
 
 export interface ChangeValueField<V = value> {
   field: FieldBuilder;
-  action: EventField<V>['target'];
+  action: EventField<V>;
 }
 
 export interface ChangeValueFields<V = value> {
   fieldsBuilder: FieldsBuilder;
-  action: EventField<V>['target'];
+  action: EventField<V>;
 }
 
 export interface ChangeValueSteps {
@@ -117,12 +125,12 @@ interface GridRender {
   grid?: boolean;
 }
 
-export interface FieldsProps
+export interface FieldsProps<Fields = PropsField[]>
   extends InitialState,
     GlobalPropsInterface,
     ValidationsFields,
     GridRender {
-  fields: PropsField[];
+  fields: Fields;
 }
 
 export interface StepProps extends FieldsProps {
@@ -288,15 +296,15 @@ export type BreakpointsField = Partial<
   Record<Breakpoint, boolean | GridSize>
 >;
 
-export interface PropsFieldBase<V = value>
+export interface PropsFieldBase<Name = string, V = value>
   extends GlobalPropsInterface {
   type?: TypeField;
-  name: string;
+  name: Name;
   value: V;
   disabled?: boolean;
   defaultInputValue?: V;
   label?: LabelPropsField;
-  onChange?: ChangeFieldCallback<V>;
+  onChange?: OnChangeField<V>;
   onSetValue?: OnSetValue<V>;
 }
 

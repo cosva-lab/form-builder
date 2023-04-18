@@ -15,7 +15,7 @@ const FormSteps = observer((props: StepsRenderProps) => {
   const {
     getSteps = () => props.stepsBuild.steps,
     handleNextStep,
-    changeField,
+    onChangeField,
     handleBackStep,
     footerRender,
     stepperProps,
@@ -41,7 +41,7 @@ const FormSteps = observer((props: StepsRenderProps) => {
                 validate={validate}
                 fields={fields}
                 getSteps={() => steps}
-                changeField={changeField}
+                onChangeField={onChangeField}
               />
             )}
           </Grid>

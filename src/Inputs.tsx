@@ -3,7 +3,7 @@ import { Input } from './inputsTypes';
 import type { FieldProps } from './types';
 
 const Inputs = (props: FieldProps) => {
-  const { changeField, field } = props;
+  const { onChangeField, field } = props;
   const { type } = field;
   switch (type) {
     case 'date':
@@ -18,7 +18,7 @@ const Inputs = (props: FieldProps) => {
     case 'week':
     case 'datetime-local':
     case undefined:
-      return <Input {...{ field, changeField, type }} />;
+      return <Input {...{ field, onChangeField, type }} />;
     default:
       return null;
   }

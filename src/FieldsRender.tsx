@@ -1,6 +1,6 @@
 import React from 'react';
 import FieldRender from './FieldRender';
-import { ChangeFieldCallback } from './';
+import { OnChangeField } from './';
 import type { FieldsRenderProps } from './types';
 import FieldBuilder from './utils/builders/FieldBuilder';
 
@@ -10,9 +10,9 @@ export class FieldsRender extends React.PureComponent<FieldsRenderProps> {
     transPosition: '',
   };
 
-  changeField: ChangeFieldCallback = (event, callback) => {
-    const { changeField } = this.props;
-    changeField && changeField(event, callback);
+  changeField: OnChangeField = (event, callback) => {
+    const { onChangeField } = this.props;
+    onChangeField?.(event, callback);
   };
 
   /**
@@ -37,7 +37,7 @@ export class FieldsRender extends React.PureComponent<FieldsRenderProps> {
               }
               {...{
                 getSteps,
-                changeField: this.changeField,
+                onChangeField: this.changeField,
                 getFields: () => this.props.fields,
                 grid,
               }}

@@ -123,8 +123,7 @@ export class StepsBuilder
   }
 
   changeField(callback?: Callback) {
-    return ({ target }: EventField) => {
-      const { value, name } = target;
+    return ({ value, name }: EventField) => {
       changeValueSteps({
         activeStep: this.activeStep,
         steps: this.steps,

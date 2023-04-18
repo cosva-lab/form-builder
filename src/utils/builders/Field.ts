@@ -4,7 +4,7 @@ import type StepsBuilder from './StepsBuilder';
 import type {
   ValidationErrors,
   OnSetValue,
-  ChangeFieldCallback,
+  OnChangeField,
   LabelPropsField,
   value,
   TypeField,
@@ -12,18 +12,21 @@ import type {
 } from '../../types';
 import { StatusField } from '../../enums';
 
-export class Field<V = value> implements PropsFieldBase<V> {
-  @observable public fieldsBuilder?: FieldsBuilder = undefined;
+export class Field<Name = string, V = value>
+  implements PropsFieldBase<Name, V>
+{
+  @observable public fieldsBuilder?: FieldsBuilder<string, any, any> =
+    undefined;
   @observable public stepsBuilder?: StepsBuilder = undefined;
   @observable public type?: TypeField = undefined;
-  @observable public name: string;
+  @observable public name: Name;
   @observable public value: V;
   @observable public defaultInputValue?: V = undefined;
   @observable public label?: LabelPropsField = undefined;
   @observable public status?: StatusField;
   @observable public errors?: ValidationErrors = [];
   public inputRef?: HTMLInputElement | null;
-  @observable public onChange?: ChangeFieldCallback<V> = undefined;
+  @observable public onChange?: OnChangeField<V> = undefined;
   @observable public onSetValue?: OnSetValue<V> = undefined;
 
   public pristine: boolean = true;
@@ -180,7 +183,7 @@ export class Field<V = value> implements PropsFieldBase<V> {
     label,
     onChange,
     onSetValue,
-  }: PropsFieldBase) {
+  }: PropsFieldBase<Name, V>) {
     makeObservable(this);
     this.type = type;
     this.name = name;

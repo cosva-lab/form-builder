@@ -10,14 +10,20 @@ import FieldBuilder from '../builders/FieldBuilder';
 import type {
   ValidationErrors,
   ValidateInputsValidator,
+  PropsField,
 } from '../../types';
 
-class InputsValidator {
+class InputsValidator<
+  Name extends string = string,
+  Item extends PropsField<Name> = PropsField<Name>,
+  Fields extends Item[] = Item[],
+> {
   @observable public valid = true;
   public get invalid() {
     return !this.valid;
   }
   @observable public fields: FieldBuilder[];
+  @observable public fieldsMap: Record<string, FieldBuilder> = {};
   @observable public _validate: ValidateInputsValidator = false;
   public get validate() {
     return typeof this._validate === 'function'
@@ -36,7 +42,7 @@ class InputsValidator {
   constructor({
     fields,
     validate,
-  }: Pick<FieldsProps, 'fields' | 'validate'>) {
+  }: Pick<FieldsProps<[...Fields]>, 'fields' | 'validate'>) {
     makeObservable(this);
     if (typeof validate !== 'undefined') this._validate = validate;
     this.callbackField = this.callbackField.bind(this);
@@ -44,6 +50,8 @@ class InputsValidator {
     this.hasErrors = this.hasErrors.bind(this);
     this.getErrors = this.getErrors.bind(this);
     this.fields = fields.map((field) => new FieldBuilder(field));
+    for (const field of this.fields)
+      this.fieldsMap[field.name] = field;
   }
 
   async callbackField(

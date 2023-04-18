@@ -1,6 +1,5 @@
 import { observable, toJS, makeObservable, action } from 'mobx';
 import InputsValidator from '../validate/InputsValidator';
-import { changeValueFields } from '../changeValues';
 import type {
   GlobalProps,
   FieldsProps,
@@ -10,6 +9,7 @@ import type {
 } from '../../types';
 import StepsBuilder from './StepsBuilder';
 import FieldBuilder from './FieldBuilder';
+import { EventChangeValue, OnChangeFieldEvent } from '../../types';
 
 declare type Callback = Function;
 
@@ -19,8 +19,12 @@ interface Fields {
   [key: string]: any;
 }
 
-export class FieldsBuilder
-  extends InputsValidator
+export class FieldsBuilder<
+    Name extends string,
+    Item extends PropsField,
+    Input extends Item[],
+  >
+  extends InputsValidator<Name, Item, Input>
   implements FieldsProps
 {
   @observable public stepsBuilder?: StepsBuilder;
@@ -60,8 +64,8 @@ export class FieldsBuilder
     this.restore = this.restore.bind(this);
     this.restoreLast = this.restoreLast.bind(this);
     this.getFieldsObject = this.getFieldsObject.bind(this);
-    this.changeField = this.changeField.bind(this);
-    this.changeFields = this.changeFields.bind(this);
+    this.onChangeField = this.onChangeField.bind(this);
+    this.onChangeFields = this.onChangeFields.bind(this);
     this.setValidation = this.setValidation.bind(this);
     this.setErrors = this.setErrors.bind(this);
     this.getErrors = this.getErrors.bind(this);
@@ -121,33 +125,32 @@ export class FieldsBuilder
   }
 
   get<V = value>(fieldName: string): FieldBuilder<V> | undefined {
-    return this.fields.find(({ name }) => name === fieldName);
+    return this.fieldsMap[fieldName];
   }
 
   @action
-  changeField(callback?: (event: EventField) => void) {
-    return (event: EventField, callbackEvent?: Callback) => {
-      const { value, name } = event.target;
-      changeValueFields({
-        fieldsBuilder: this,
-        action: {
-          name,
-          value,
-        },
-      });
-      callback && callback(event);
-      callbackEvent && callbackEvent();
-    };
+  onChangeField(event: EventField) {
+    const { value, name } = event;
+    const field = this.get(name);
+    if (field) field.setValue(value);
+    else console.warn(`Field ${name} not found`);
   }
 
   @action
-  changeFields(callback?: Callback) {
-    return (fields: EventField[]) => {
-      fields.forEach((field) => {
-        this.changeField()(field);
-      });
-      callback && callback();
-    };
+  onChangeFields(events: EventField[]) {
+    events.forEach((field) => this.onChangeField(field));
+  }
+
+  @action
+  changeValue({ name, value }: EventChangeValue) {
+    const field = this.get(name);
+    if (field) field.value = value;
+    else console.warn(`Field ${name} not found`);
+  }
+
+  @action
+  changeValues(events: EventChangeValue[]) {
+    events.forEach((event) => this.changeValue(event));
   }
 
   @action

@@ -5,7 +5,7 @@ import Grid from '@mui/material/Grid';
 import Inputs from './Inputs';
 import type {
   FieldProps,
-  ChangeFieldCallback,
+  OnChangeField,
   ChangeField,
   BreakpointsField,
   value,
@@ -31,9 +31,9 @@ class FieldRender<V = value>
   extends React.PureComponent<FieldProps<V>>
   implements ChangeField
 {
-  changeField: ChangeFieldCallback = (e, callback) => {
-    const { changeField } = this.props;
-    changeField && changeField(e, callback);
+  onChangeField: OnChangeField = (e, callback) => {
+    const { onChangeField } = this.props;
+    onChangeField?.(e, callback);
   };
 
   public render() {
@@ -56,7 +56,7 @@ class FieldRender<V = value>
     } = field;
     const propsForm: FieldProps<V> = {
       field,
-      changeField: this.changeField,
+      onChangeField: this.onChangeField,
     };
     const formInput = <Inputs {...propsForm} />;
     if (render)
