@@ -61,6 +61,8 @@ export class FieldsBuilder<
     this.setErrors = this.setErrors.bind(this);
     this.getErrors = this.getErrors.bind(this);
     this.getValues = this.getValues.bind(this);
+    this.get = this.get.bind(this);
+    this.getField = this.getField.bind(this);
   }
 
   private setField(fieldOriginal: PropsField) {
