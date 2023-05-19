@@ -23,7 +23,7 @@
     "postbuild": "npm run build:copy-files",
     "build:copy-files": "node ./scripts/copy-files.js",
     "start": "npx tsc -w --outDir ./example/src/@cosva-lab/form-builder",
-    "release": "npm run build && npm publish dist",
+    "release": "npm run build && npm publish dist/",
     "predeploy": "cd example && npm install && npm run build",
     "deploy": "gh-pages -d example/build",
     "test": "ts-mocha --require ignore-styles -r global-jsdom/register \"./src/{,/**/}*.spec.ts\""
