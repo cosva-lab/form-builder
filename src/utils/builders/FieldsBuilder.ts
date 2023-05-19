@@ -9,6 +9,7 @@ import type {
   NameField,
   GetArrayValues,
   value,
+  LabelPropsField,
 } from '../../types';
 import { Reducer } from '../types';
 import { GetFields } from '../../types';
@@ -65,7 +66,7 @@ export class FieldsBuilder<
     this.getField = this.getField.bind(this);
   }
 
-  private setField(fieldOriginal: PropsField) {
+  private setField(fieldOriginal: PropsField<value, NameField, any>) {
     const field = this.fields.find(
       ({ name }) => fieldOriginal.name === name,
     );
@@ -76,7 +77,7 @@ export class FieldsBuilder<
     }
   }
 
-  private setFields(fields: PropsField[]) {
+  private setFields(fields: PropsField<value, NameField, any>[]) {
     fields.forEach((fieldOriginal) => this.setField(fieldOriginal));
   }
 

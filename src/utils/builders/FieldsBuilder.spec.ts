@@ -32,6 +32,7 @@ describe('FieldsBuilder', () => {
         {
           name: 'age',
           value: 22,
+          label: 'Age',
         },
         lastNameField(),
       ],

@@ -8,15 +8,15 @@ import {
   GlobalPropsInterface,
   GridRender,
   InitialState,
+  LabelPropsField,
   NameField,
   ValidationsFields,
   value,
 } from './types';
-import { Reducer } from './utils/types';
 
 export interface FieldsRenderProps<
   Name extends NameField,
-  Item extends FieldBuilder<value, Name>,
+  Item extends FieldBuilder<value, Name, LabelPropsField>,
   Fields extends Item[],
   FieldsObject,
 > extends InitialState,
@@ -36,7 +36,7 @@ export interface FieldsRenderProps<
 
 export class FieldsRender<
   Name extends NameField,
-  Item extends FieldBuilder<value, Name>,
+  Item extends FieldBuilder<value, Name, LabelPropsField>,
   Fields extends Item[],
   FieldsObject,
 > extends React.PureComponent<

@@ -10,7 +10,6 @@ import type {
   InputPropsField,
   TextFieldPropsField,
   PropsField,
-  value,
   RenderField,
   ComponentField,
   BreakpointsField,
@@ -18,12 +17,17 @@ import type {
   ValidationErrors,
   ReturnValidationError,
   NameField,
+  LabelPropsField,
 } from '../../types';
 import { InputValidator } from '../validate/InputValidator';
 
-export class FieldBuilder<V = value, Name extends NameField = string>
-  extends InputValidator<V, Name>
-  implements PropsField<V, Name>
+export class FieldBuilder<
+    V,
+    Name extends NameField,
+    Label extends LabelPropsField = undefined,
+  >
+  extends InputValidator<V, Name, Label>
+  implements PropsField<V, Name, Label>
 {
   @observable private _ns?: string = undefined;
   public get ns(): string | undefined {
@@ -36,18 +40,19 @@ export class FieldBuilder<V = value, Name extends NameField = string>
     this._ns = ns;
   }
 
-  @observable public render?: RenderField<V, Name> = undefined;
+  @observable public render?: RenderField<V, Name, Label> = undefined;
   @observable public fullWidth?: boolean = undefined;
   @observable public grid?: boolean = undefined;
   @observable public autoComplete?: string = undefined;
-  @observable public InputProps?: InputPropsField<V, Name> =
+  @observable public InputProps?: InputPropsField<V, Name, Label> =
     undefined;
   @observable public textFieldProps?: TextFieldPropsField = undefined;
   @observable public breakpoints?: BreakpointsField = undefined;
-  @observable public component?: ComponentField<V, Name> = undefined;
-  public renderErrors?: ComponentErrors<V, Name>;
+  @observable public component?: ComponentField<V, Name, Label> =
+    undefined;
+  public renderErrors?: ComponentErrors<V, Name, Label>;
 
-  constructor(props: PropsField<V, Name>) {
+  constructor(props: PropsField<V, Name, Label>) {
     super(props);
     makeObservable(this);
     const {
@@ -62,7 +67,9 @@ export class FieldBuilder<V = value, Name extends NameField = string>
       component,
       renderErrors,
     } = props;
-    this.validate = InputValidator.getValidation<V, Name>(this);
+    this.validate = InputValidator.getValidation<V, Name, Label>(
+      this,
+    );
     this.ns = ns;
     this.render = render;
     this.fullWidth = fullWidth;

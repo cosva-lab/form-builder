@@ -16,36 +16,42 @@ import type {
   GlobalProps,
   ValidationsField,
   NameField,
+  LabelPropsField,
 } from '../../types';
 import { StatusField } from '../../enums';
 import Field from '../builders/Field';
 import validators from '../validate/validators';
 
 type PropsInput<
-  V = value,
-  Name extends NameField = string,
-> = Validate<V, Name> & PropsFieldBase<V, Name>;
+  V,
+  Name extends NameField,
+  Label extends LabelPropsField,
+> = Validate<V, Name, Label> & PropsFieldBase<V, Name, Label>;
 export abstract class InputValidator<
-    V extends value = value,
-    Name extends NameField = string,
+    V extends value,
+    Name extends NameField,
+    Label extends LabelPropsField,
   >
-  extends Field<V, Name>
-  implements Validate<V, Name>
+  extends Field<V, Name, Label>
+  implements Validate<V, Name, Label>
 {
   public originalProps?: Pick<
-    PropsInput<V, Name>,
+    PropsInput<V, Name, Label>,
     'value' | 'validate'
   >;
 
-  static getValidation<V = value, Name extends NameField = string>(
-    obj: InputValidator<V, Name>,
-  ) {
+  static getValidation<
+    V,
+    Name extends NameField,
+    Label extends LabelPropsField,
+  >(obj: InputValidator<V, Name, Label>) {
     return typeof obj._validate === 'function'
       ? obj._validate(obj)
       : obj._validate;
   }
 
-  public _validate: ValidationsField<V, Name>['validate'] = false;
+  public _validate: ValidationsField<V, Name, Label>['validate'] =
+    false;
   public get validate() {
     return InputValidator.getValidation(this);
   }
@@ -63,7 +69,7 @@ export abstract class InputValidator<
 
   @observable public validations?: (
     | Validation
-    | ValidationFunction<V, Name>
+    | ValidationFunction<V, Name, Label>
   )[];
 
   private _globalProps?: GlobalProps;
@@ -80,7 +86,7 @@ export abstract class InputValidator<
     else this._globalProps = globalProps;
   }
 
-  constructor(props: PropsInput<V, Name>) {
+  constructor(props: PropsInput<V, Name, Label>) {
     super(props);
     makeObservable(this);
     const { validate, validations, value, globalProps } = props;

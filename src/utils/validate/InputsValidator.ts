@@ -15,6 +15,7 @@ import type {
   GetArrayValues,
   GetFields,
   value,
+  LabelPropsField,
 } from '../../types';
 import { Reducer } from '../types';
 
@@ -70,7 +71,7 @@ class InputsValidator<
     this.hasErrors = this.hasErrors.bind(this);
     this.getErrors = this.getErrors.bind(this);
     this.fields = fields.map(
-      (field) => new FieldBuilder<any, any>(field),
+      (field) => new FieldBuilder<value, any, any>(field),
     );
     for (const field of this.fields) {
       const name = field.name;
@@ -80,7 +81,7 @@ class InputsValidator<
 
   async callbackField(
     callback: (
-      field: FieldBuilder<value, keyof FieldsObject>,
+      field: FieldBuilder<value, keyof FieldsObject, LabelPropsField>,
       cancel: () => void,
     ) => void,
   ) {

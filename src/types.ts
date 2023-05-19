@@ -1,7 +1,6 @@
 import { JSXElementConstructor, ReactNode } from 'react';
-import { GridSize, GridProps } from '@mui/material/Grid';
+import { GridSize } from '@mui/material/Grid';
 import { OutlinedInputProps } from '@mui/material/OutlinedInput';
-import { StepperProps } from '@mui/material/Stepper';
 import { Breakpoint } from '@mui/material/styles';
 import { TextFieldProps } from '@mui/material/TextField';
 
@@ -20,7 +19,8 @@ export type GetArrayValues<T> = T[keyof T][];
 export type GetFields<FieldsObject> = {
   [Field in keyof FieldsObject]: FieldBuilder<
     FieldsObject[Field],
-    Field
+    Field,
+    LabelPropsField
   >;
 };
 
@@ -33,10 +33,7 @@ export interface Message {
   props?: any;
 }
 
-export interface EventField<
-  V = value,
-  Name extends NameField = string,
-> {
+export interface EventField<V, Name extends NameField> {
   name: Name;
   value: V;
   type?: string;
@@ -48,29 +45,32 @@ export interface EventChangeValue<V = value, Name = string> {
 }
 
 export type OnChangeFieldEvent<
-  V = value,
-  Name extends NameField = string,
+  V,
+  Name extends NameField,
+  Label extends LabelPropsField,
 > = EventField<V, Name> & {
-  field: FieldBuilder<V, Name>;
+  field: FieldBuilder<V, Name, Label>;
 };
 
 export type OnChangeField<
-  V = value,
-  Name extends NameField = string,
+  V,
+  Name extends NameField,
+  Label extends LabelPropsField,
 > = (
-  e: OnChangeFieldEvent<V, Name>,
+  e: OnChangeFieldEvent<V, Name, Label>,
   nativeEvent?: React.ChangeEvent<
     HTMLInputElement | HTMLTextAreaElement
   >,
 ) => void | (() => void);
 
 export type OnSetValue<
-  V = value,
-  Name extends NameField = string,
+  V,
+  Name extends NameField,
+  Label extends LabelPropsField,
 > = (e: {
   lastValue: V;
   newValue: V;
-  field: FieldBuilder<V, Name>;
+  field: FieldBuilder<V, Name, Label>;
 }) => void;
 
 export type value = any;
@@ -85,29 +85,6 @@ export interface InitialState {
 export interface GlobalPropsInterface {
   globalProps?: GlobalProps;
   children?: ReactNode;
-}
-
-export declare function buildFields(a: PropsField[]): PropsField[];
-
-export type FieldsAll = PropsField[];
-
-export interface InitialStateFields
-  extends InitialState,
-    GlobalPropsInterface {
-  validate?:
-    | boolean
-    | ((inputsValidator: InputsValidator) => boolean);
-  fields: PropsField[];
-}
-
-export interface ChangeValueField<V = value> {
-  field: FieldBuilder;
-  action: EventField<V>;
-}
-
-export interface ChangeValueFields<V = value> {
-  fieldsBuilder: FieldsBuilder;
-  action: EventField<V>;
 }
 
 export type ValidateInputsValidator<
@@ -145,18 +122,19 @@ export interface Validation extends Message {
 
 export type GenericFieldsBuilder = FieldsBuilder<
   string,
-  PropsField,
-  PropsField[],
+  PropsField<value, any, any>,
+  PropsField<value, any, any>[],
   Record<string, value>,
   true
 >;
 
 export interface AllPropsValidationFunction<
-  V = value,
-  Name extends NameField = string,
-> extends Partial<Validate<V, Name>> {
+  V,
+  Name extends NameField,
+  Label extends LabelPropsField,
+> extends Partial<Validate<V, Name, Label>> {
   fieldsBuilder?: GenericFieldsBuilder;
-  field: FieldBuilder<V, Name>;
+  field: FieldBuilder<V, Name, Label>;
   activeStep?: ActiveStep;
 }
 
@@ -177,28 +155,31 @@ export type ReturnValidationError =
   | void
   | ValidationError;
 export type ValidationFunction<
-  V = value,
-  Name extends NameField = string,
+  V,
+  Name extends NameField,
+  Label extends LabelPropsField,
 > = (
-  all: AllPropsValidationFunction<V, Name>,
+  all: AllPropsValidationFunction<V, Name, Label>,
 ) => ReturnValidationError | Promise<ReturnValidationError>;
 
 export interface Validations<
-  V = value,
-  Name extends NameField = string,
+  V,
+  Name extends NameField,
+  Label extends LabelPropsField,
 > {
   validate?: boolean | ((arg: any) => boolean);
   value: V;
-  validations?: (Validation | ValidationFunction<V, Name>)[];
+  validations?: (Validation | ValidationFunction<V, Name, Label>)[];
 }
 
 export interface ValidationsField<
-  V = value,
-  Name extends NameField = string,
-> extends Validations<V, Name> {
+  V,
+  Name extends NameField,
+  Label extends LabelPropsField,
+> extends Validations<V, Name, Label> {
   validate?:
     | boolean
-    | ((inputValidator: InputValidator<V, Name>) => boolean);
+    | ((inputValidator: InputValidator<V, Name, Label>) => boolean);
 }
 
 export interface ValidationsFields<
@@ -220,35 +201,39 @@ export interface ValidationsFields<
 }
 
 export type ChildrenRender = React.ReactElement<
-  FieldProps,
-  JSXElementConstructor<FieldProps>
+  FieldProps<unknown, string, LabelPropsField>,
+  JSXElementConstructor<FieldProps<unknown, string, LabelPropsField>>
 >;
 
 export type RenderField<
-  V = value,
-  Name extends NameField = string,
+  V,
+  Name extends NameField,
+  Label extends LabelPropsField,
 > = (element: {
   children: ChildrenRender;
-  props: FieldProps<V, Name>;
+  props: FieldProps<V, Name, Label>;
 }) => React.CElement<any, any>;
 
 export type ComponentField<
-  V = value,
-  Name extends NameField = string,
-> = React.ElementType<FieldProps<V, Name>>;
+  V,
+  Name extends NameField,
+  Label extends LabelPropsField,
+> = React.ElementType<FieldProps<V, Name, Label>>;
 
 export interface ComponentErrorsProps<
-  V = value,
-  Name extends NameField = string,
+  V,
+  Name extends NameField,
+  Label extends LabelPropsField,
 > {
   errors: ValidationErrors;
-  field?: FieldBuilder<V, Name>;
+  field?: FieldBuilder<V, Name, Label>;
 }
 
 export type ComponentErrors<
-  V = value,
-  Name extends NameField = string,
-> = React.ElementType<ComponentErrorsProps<V, Name>>;
+  V,
+  Name extends NameField,
+  Label extends LabelPropsField,
+> = React.ElementType<ComponentErrorsProps<V, Name, Label>>;
 
 export type TypeTextField =
   | 'date'
@@ -265,12 +250,6 @@ export type TypeTextField =
 
 export type TypeField = 'component' | TypeTextField;
 
-export function createField<
-  Name extends NameField = string,
-  V = value,
->(params: PropsField<V, Name>): PropsField<V, Name> {
-  return params;
-}
 export type TextFieldPropsField = Pick<
   TextFieldProps,
   | 'multiline'
@@ -296,21 +275,24 @@ export type TextFieldPropsField = Pick<
 
 export type LabelPropsField =
   | string
+  | null
+  | undefined
   | React.ReactElement<any>
   | Message;
 
 export type InputPropsField<
-  V = value,
-  Name extends NameField = string,
+  V,
+  Name extends NameField,
+  Label extends LabelPropsField,
 > =
   | ((
       a: {
-        type: InputProps['type'];
+        type: InputProps<V, Name, Label>['type'];
         changeType: (
-          type: InputProps['type'],
+          type: InputProps<V, Name, Label>['type'],
           callback?: () => void,
         ) => void;
-      } & BaseRender<V, Name>,
+      } & BaseRender<V, Name, Label>,
     ) => Partial<OutlinedInputProps>)
   | Partial<OutlinedInputProps>;
 
@@ -319,51 +301,60 @@ export type BreakpointsField = Partial<
 >;
 
 export interface PropsFieldBase<
-  V = value,
-  Name extends NameField = string,
+  V,
+  Name extends NameField,
+  Label extends LabelPropsField,
 > extends GlobalPropsInterface {
   type?: TypeField;
   name: Name;
   value: V;
   disabled?: boolean;
   defaultInputValue?: V;
-  label?: LabelPropsField;
-  onChange?: OnChangeField<V, Name>;
-  onSetValue?: OnSetValue<V, Name>;
+  label?: Label;
+  onChange?: OnChangeField<V, Name, Label>;
+  onSetValue?: OnSetValue<V, Name, Label>;
 }
 
 export interface PropsField<
-  V = value,
-  Name extends NameField = string,
-> extends PropsFieldBase<V, Name>,
-    ValidationsField<V, Name>,
+  V,
+  Name extends NameField,
+  Label extends LabelPropsField = LabelPropsField,
+> extends PropsFieldBase<V, Name, Label>,
+    ValidationsField<V, Name, Label>,
     InitialState,
     GridRender {
-  render?: RenderField<V, Name>;
+  render?: RenderField<V, Name, Label>;
   fullWidth?: boolean;
   errors?: ValidationErrors;
   autoComplete?: string;
-  InputProps?: InputPropsField<V, Name>;
+  InputProps?: InputPropsField<V, Name, Label>;
   textFieldProps?: TextFieldPropsField;
   breakpoints?: BreakpointsField;
-  component?: ComponentField<V, Name>;
-  renderErrors?: ComponentErrors<V, Name>;
+  component?: ComponentField<V, Name, Label>;
+  renderErrors?: ComponentErrors<V, Name, Label>;
 }
 
-export interface Validate<V = value, Name extends NameField = string>
-  extends Validations<V, Name> {
+export interface Validate<
+  V,
+  Name extends NameField,
+  Label extends LabelPropsField,
+> extends Validations<V, Name, Label> {
   state?: boolean;
 }
 
 export interface BaseRender<
-  V = value,
-  Name extends NameField = string,
+  V,
+  Name extends NameField,
+  Label extends LabelPropsField,
 > {
-  field: FieldBuilder<V, Name>;
+  field: FieldBuilder<V, Name, Label>;
 }
 
-export interface FieldProps<V = value, Name extends NameField = any>
-  extends BaseRender<V, Name>,
+export interface FieldProps<
+  V,
+  Name extends NameField,
+  Label extends LabelPropsField,
+> extends BaseRender<V, Name, Label>,
     GridRender {
   onChangeField?(
     event: EventField<V, Name>,
@@ -374,8 +365,9 @@ export interface FieldProps<V = value, Name extends NameField = any>
 }
 
 export interface InputProps<
-  Name extends NameField = string,
-  V = value,
-> extends FieldProps<V, Name> {
+  V,
+  Name extends NameField,
+  Label extends LabelPropsField,
+> extends FieldProps<V, Name, Label> {
   type?: TypeTextField;
 }
