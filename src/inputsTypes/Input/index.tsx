@@ -15,25 +15,28 @@ import type {
   value,
   TypeTextField,
   FieldProps,
+  LabelPropsField,
 } from '../../types';
 import classes from './Input.module.scss';
 
 export interface InputProps<
-  V = value,
-  Name extends NameField = string,
-> extends FieldProps<V, Name> {
+  V,
+  Name extends NameField,
+  Label extends LabelPropsField,
+> extends FieldProps<V, Name, Label> {
   type?: TypeTextField;
 }
 
 @observer
 export class Input<
-  V = value,
-  Name extends NameField = string,
+  V,
+  Name extends NameField,
+  Label extends LabelPropsField,
 > extends React.Component<
-  InputProps<V, Name>,
-  { type: InputProps['type'] }
+  InputProps<V, Name, Label>,
+  { type?: TypeTextField }
 > {
-  constructor(props: InputProps<V, Name>) {
+  constructor(props: InputProps<V, Name, Label>) {
     super(props);
     this.state = { type: props.type };
   }
@@ -50,7 +53,9 @@ export class Input<
     });
   }
 
-  getProps = (props: InputProps<V, Name>) => ({ ...props.field });
+  getProps = (props: InputProps<V, Name, Label>) => ({
+    ...props.field,
+  });
 
   getLastProps = () => this.getProps(this.props);
 
@@ -74,7 +79,7 @@ export class Input<
     const errorsNode =
       errors &&
       ((RenderErrors && <RenderErrors {...{ errors, field }} />) || (
-        <RenderErrorsDefault<V, Name> {...{ errors, field }} />
+        <RenderErrorsDefault<V, Name, Label> {...{ errors, field }} />
       ));
     return (
       <FormControl
