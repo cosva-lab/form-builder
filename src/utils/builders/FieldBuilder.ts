@@ -23,8 +23,8 @@ import { InputValidator } from '../validate/InputValidator';
 
 export class FieldBuilder<
     V,
-    Name extends NameField,
-    Label extends LabelPropsField = undefined,
+    Name extends NameField = any,
+    Label extends LabelPropsField = any,
   >
   extends InputValidator<V, Name, Label>
   implements PropsField<V, Name, Label>

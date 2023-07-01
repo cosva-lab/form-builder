@@ -15,18 +15,20 @@ import type {
 interface FieldRenderObserverProps<
   V = value,
   Name extends NameField = string,
+  Label extends LabelPropsField = any,
 > {
-  component: React.ElementType<FieldProps<V, Name, LabelPropsField>>;
-  propsForm: FieldProps<V, Name, LabelPropsField>;
+  component: React.ElementType<FieldProps<V, Name, Label>>;
+  propsForm: FieldProps<V, Name, Label>;
 }
 
 const FieldRenderObserver = <
   V = value,
   Name extends NameField = string,
+  Label extends LabelPropsField = any,
 >({
   component,
   propsForm,
-}: FieldRenderObserverProps<V, Name>) => {
+}: FieldRenderObserverProps<V, Name, Label>) => {
   let FieldComponent = component;
   try {
     FieldComponent = observer(component);
@@ -37,11 +39,9 @@ const FieldRenderObserver = <
 class FieldRender<
   V = value,
   Name extends NameField = string,
-> extends React.PureComponent<FieldProps<V, Name, LabelPropsField>> {
-  onChangeField: OnChangeField<V, Name, LabelPropsField> = (
-    e,
-    callback,
-  ) => {
+  Label extends LabelPropsField = any,
+> extends React.PureComponent<FieldProps<V, Name, Label>> {
+  onChangeField: OnChangeField<V, Name, Label> = (e, callback) => {
     const { onChangeField } = this.props;
     onChangeField?.(e, callback);
   };
@@ -64,7 +64,7 @@ class FieldRender<
         ? this.props.grid
         : true,
     } = field;
-    const propsForm: FieldProps<V, Name, LabelPropsField> = {
+    const propsForm: FieldProps<V, Name, Label> = {
       field,
       onChangeField: this.onChangeField,
     };
@@ -78,11 +78,7 @@ class FieldRender<
     if (type === 'component') {
       if (Component)
         Component.displayName = `[fields.${field.name.toString()}].component`;
-      if (
-        React.isValidElement<FieldProps<V, Name, LabelPropsField>>(
-          Component,
-        )
-      )
+      if (React.isValidElement<FieldProps<V, Name, Label>>(Component))
         return (
           <Component.type {...{ ...Component.props, ...propsForm }} />
         );

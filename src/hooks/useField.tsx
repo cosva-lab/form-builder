@@ -9,8 +9,17 @@ import { FieldBuilder } from '../utils/builders';
 
 export function useField<
   V,
-  Name extends NameField,
+  Name extends NameField = NameField,
   Label extends LabelPropsField = undefined,
+>(
+  props:
+    | PropsField<V, Name, Label>
+    | (() => PropsField<V, Name, Label>),
+): FieldBuilder<V, Name, Label>;
+export function useField<
+  V,
+  Name extends NameField,
+  Label extends LabelPropsField,
 >(
   props:
     | PropsField<V, Name, Label>

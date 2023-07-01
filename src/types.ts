@@ -156,8 +156,8 @@ export type ReturnValidationError =
   | ValidationError;
 export type ValidationFunction<
   V,
-  Name extends NameField,
-  Label extends LabelPropsField,
+  Name extends NameField = NameField,
+  Label extends LabelPropsField = any,
 > = (
   all: AllPropsValidationFunction<V, Name, Label>,
 ) => ReturnValidationError | Promise<ReturnValidationError>;
@@ -352,8 +352,8 @@ export interface BaseRender<
 
 export interface FieldProps<
   V,
-  Name extends NameField,
-  Label extends LabelPropsField,
+  Name extends NameField = any,
+  Label extends LabelPropsField = any,
 > extends BaseRender<V, Name, Label>,
     GridRender {
   onChangeField?(

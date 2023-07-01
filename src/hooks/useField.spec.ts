@@ -4,6 +4,18 @@ import { FieldBuilder } from '../utils';
 import { expect } from 'chai';
 
 describe('useField', () => {
+  it('How arrow function works', () => {
+    const {
+      result: { current: field },
+    } = renderHook(() =>
+      useField(() => ({
+        type: 'text',
+        name: 'name',
+        value: '',
+      })),
+    );
+    expect(field.label).to.eq(undefined);
+  });
   it('Label is undefined', () => {
     const {
       result: { current: field },
