@@ -1,6 +1,5 @@
 import { renderHook } from '@testing-library/react-hooks';
 import useField from './useField';
-import { FieldBuilder } from '../utils';
 import { expect } from 'chai';
 
 describe('useField', () => {

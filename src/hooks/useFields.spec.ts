@@ -21,14 +21,7 @@ describe('useFields', () => {
 
     const {
       result: {
-        current: {
-          fields,
-          get,
-          getField,
-          getValues,
-          onChangeField,
-          fieldsMap,
-        },
+        current: { fields, get, getValues, onChangeField },
       },
     } = renderHook(() =>
       useFields(
@@ -45,7 +38,6 @@ describe('useFields', () => {
                 (a) => {
                   const b = a.fieldsBuilder;
                   if (b) {
-                    const c = b.get('fds');
                   }
                 },
               ],
