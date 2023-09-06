@@ -57,7 +57,6 @@ module.exports = {
     '@typescript-eslint/explicit-member-accessibility': 'off',
     'no-invalid-this': 'off',
     'react/display-name': 'off',
-    'react/prop-types': 'off',
     'no-useless-rename': 'warn',
     'require-jsdoc': [
       'error',
