@@ -1,7 +1,5 @@
 import { JSXElementConstructor, ReactNode } from 'react';
-import { GridSize } from '@mui/material/Grid';
 import { OutlinedInputProps } from '@mui/material/OutlinedInput';
-import { Breakpoint } from '@mui/material/styles';
 import { TextFieldProps } from '@mui/material/TextField';
 
 import type { FieldsBuilder, FieldBuilder } from './utils/builders';
@@ -108,8 +106,7 @@ export interface FieldsProps<
   FieldsObject = Reducer<Fields>,
 > extends InitialState,
     GlobalPropsInterface,
-    ValidationsFields<Name, Item, Fields, FieldsObject>,
-    GridRender {
+    ValidationsFields<Name, Item, Fields, FieldsObject> {
   fields: [...Fields];
 }
 
@@ -296,10 +293,6 @@ export type InputPropsField<
     ) => Partial<OutlinedInputProps>)
   | Partial<OutlinedInputProps>;
 
-export type BreakpointsField = Partial<
-  Record<Breakpoint, boolean | GridSize>
->;
-
 export interface PropsFieldBase<
   V,
   Name extends NameField,
@@ -321,15 +314,13 @@ export interface PropsField<
   Label extends LabelPropsField = LabelPropsField,
 > extends PropsFieldBase<V, Name, Label>,
     ValidationsField<V, Name, Label>,
-    InitialState,
-    GridRender {
+    InitialState {
   render?: RenderField<V, Name, Label>;
   fullWidth?: boolean;
   errors?: ValidationErrors;
   autoComplete?: string;
   InputProps?: InputPropsField<V, Name, Label>;
   textFieldProps?: TextFieldPropsField;
-  breakpoints?: BreakpointsField;
   component?: ComponentField<V, Name, Label>;
   renderErrors?: ComponentErrors<V, Name, Label>;
 }
@@ -354,8 +345,7 @@ export interface FieldProps<
   V,
   Name extends NameField = any,
   Label extends LabelPropsField = any,
-> extends BaseRender<V, Name, Label>,
-    GridRender {
+> extends BaseRender<V, Name, Label> {
   onChangeField?(
     event: EventField<V, Name>,
     nativeEvent?: React.ChangeEvent<

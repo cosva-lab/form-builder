@@ -12,7 +12,6 @@ import type {
   PropsField,
   RenderField,
   ComponentField,
-  BreakpointsField,
   ComponentErrors,
   ValidationErrors,
   ReturnValidationError,
@@ -42,12 +41,10 @@ export class FieldBuilder<
 
   @observable public render?: RenderField<V, Name, Label> = undefined;
   @observable public fullWidth?: boolean = undefined;
-  @observable public grid?: boolean = undefined;
   @observable public autoComplete?: string = undefined;
   @observable public InputProps?: InputPropsField<V, Name, Label> =
     undefined;
   @observable public textFieldProps?: TextFieldPropsField = undefined;
-  @observable public breakpoints?: BreakpointsField = undefined;
   @observable public component?: ComponentField<V, Name, Label> =
     undefined;
   public renderErrors?: ComponentErrors<V, Name, Label>;
@@ -59,11 +56,9 @@ export class FieldBuilder<
       ns,
       render,
       fullWidth = true,
-      grid = true,
       autoComplete,
       InputProps,
       textFieldProps,
-      breakpoints,
       component,
       renderErrors,
     } = props;
@@ -73,11 +68,9 @@ export class FieldBuilder<
     this.ns = ns;
     this.render = render;
     this.fullWidth = fullWidth;
-    this.grid = grid;
     this.autoComplete = autoComplete;
     this.InputProps = InputProps;
     this.textFieldProps = textFieldProps;
-    this.breakpoints = breakpoints;
     this.component = component;
     this.renderErrors = renderErrors;
     this.getErrors = this.getErrors.bind(this);

@@ -1,11 +1,9 @@
 import React from 'react';
 import * as ReactIs from 'react-is';
 import { observer } from 'mobx-react';
-import Grid from '@mui/material/Grid';
 import Inputs from './Inputs';
 import type {
   OnChangeField,
-  BreakpointsField,
   value,
   NameField,
   FieldProps,
@@ -48,22 +46,7 @@ class FieldRender<
 
   public render() {
     const { field } = this.props;
-    const breakpoints: BreakpointsField = {
-      ...field.breakpoints,
-    };
-    const { xs = 12 } = breakpoints;
-    const { sm = xs } = breakpoints;
-    const { md = sm } = breakpoints;
-    const { lg = md } = breakpoints;
-    const { xl = lg } = breakpoints;
-    const {
-      component: Component,
-      render,
-      type,
-      grid = typeof this.props.grid !== 'undefined'
-        ? this.props.grid
-        : true,
-    } = field;
+    const { component: Component, render, type } = field;
     const propsForm: FieldProps<V, Name, Label> = {
       field,
       onChangeField: this.onChangeField,
@@ -92,13 +75,7 @@ class FieldRender<
         );
       return null;
     }
-    return grid ? (
-      <Grid item xs={xs} sm={sm} md={md} lg={lg} xl={xl}>
-        {formInput}
-      </Grid>
-    ) : (
-      formInput
-    );
+    return formInput;
   }
 }
 
