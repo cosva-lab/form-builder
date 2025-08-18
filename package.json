@@ -1,6 +1,6 @@
 {
   "name": "@cosva-lab/form-builder",
-  "version": "3.1.0",
+  "version": "3.2.0",
   "description": "React form builder.",
   "author": "andres112013",
   "license": "MIT",
@@ -29,7 +29,7 @@
     "test": "ts-mocha --require ignore-styles -r global-jsdom/register \"./src/{,/**/}*.spec.ts\""
   },
   "peerDependencies": {
-    "@mui/material": "^5.0.0",
+    "@mui/material": "^5.0.0 || ^6.0.0 || ^7.0.0",
     "clsx": "^1.0.0 || ^2.0.0",
     "mobx": "^6.0.0",
     "mobx-react": "^7.0.0",

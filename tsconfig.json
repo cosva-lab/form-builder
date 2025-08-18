@@ -4,6 +4,7 @@
     "target": "ES5",
     "strict": true,
     "skipLibCheck": true,
+    "moduleResolution": "node",
 
     // Added
     "jsx": "react",
