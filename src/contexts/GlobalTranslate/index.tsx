@@ -1,5 +1,6 @@
 import React, { CSSProperties } from 'react';
 import Grow from '@mui/material/Grow';
+
 import Loading from '../../Loading';
 import type { Message } from '../../types';
 
@@ -63,9 +64,4 @@ export const GlobalTranslate: React.FC<Props> = (props) => {
       <Comp {...rest} />
     </React.Suspense>
   );
-};
-
-GlobalTranslate.defaultProps = {
-  styles: {},
-  props: {},
 };

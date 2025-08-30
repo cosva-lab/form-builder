@@ -7,10 +7,8 @@ import {
   GetFields,
   GlobalPropsInterface,
   GridRender,
-  InitialState,
   LabelPropsField,
   NameField,
-  ValidationsFields,
   value,
 } from './types';
 
@@ -19,9 +17,7 @@ export interface FieldsRenderProps<
   Item extends FieldBuilder<value, Name, LabelPropsField>,
   Fields extends Item[],
   FieldsObject,
-> extends InitialState,
-    GlobalPropsInterface,
-    ValidationsFields<Name, Item, Fields, FieldsObject>,
+> extends GlobalPropsInterface,
     GridRender {
   onChangeField?<Field extends keyof FieldsObject>(
     event: EventField<FieldsObject[Field], Field>,
@@ -34,46 +30,33 @@ export interface FieldsRenderProps<
   fields: GetArrayValues<GetFields<FieldsObject>>;
 }
 
-export class FieldsRender<
+export const FieldsRender = <
   Name extends NameField,
   Item extends FieldBuilder<value, Name, LabelPropsField>,
   Fields extends Item[],
   FieldsObject,
-> extends React.PureComponent<
-  FieldsRenderProps<Name, Item, Fields, FieldsObject>
-> {
-  public static defaultProps = {
-    ns: 'inputs',
-    transPosition: '',
-  };
-
-  /**
-   *
-   *
-   * @return {JSX.Element}
-   * @memberof FieldsRender
-   */
-  public render() {
-    const { fields, globalProps, grid, onChangeField } = this.props;
-    return (
-      <>
-        {fields.map((field) => {
-          if (field instanceof FieldBuilder && globalProps)
-            field.globalProps = globalProps;
-          return (
-            <FieldRender<any, any>
-              key={field.name.toString()}
-              field={field}
-              onChangeField={onChangeField}
-              {...{
-                grid,
-              }}
-            />
-          );
-        })}
-      </>
-    );
-  }
-}
+>(
+  props: FieldsRenderProps<Name, Item, Fields, FieldsObject>,
+) => {
+  const { fields, globalProps, grid, onChangeField } = props;
+  return (
+    <>
+      {fields.map((field) => {
+        if (field instanceof FieldBuilder && globalProps)
+          field.globalProps = globalProps;
+        return (
+          <FieldRender<any, any>
+            key={field.name.toString()}
+            field={field}
+            onChangeField={onChangeField}
+            {...{
+              grid,
+            }}
+          />
+        );
+      })}
+    </>
+  );
+};
 
 export default FieldsRender;

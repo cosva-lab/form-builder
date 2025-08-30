@@ -1,42 +1,27 @@
-import React, { CSSProperties } from 'react';
+import React from 'react';
 import CircularProgress, {
   CircularProgressProps,
 } from '@mui/material/CircularProgress';
 
 import classes from './Loading.module.scss';
 
-interface Props {
-  style: CSSProperties;
-}
-
-class CircularIndeterminate extends React.PureComponent<
-  Props & CircularProgressProps
-> {
-  static defaultProps: Partial<Props & CircularProgressProps> = {
-    color: 'primary',
-    disableShrink: false,
-    size: 40,
-    thickness: 3.6,
-    variant: 'indeterminate',
-  };
-
-  public render() {
-    const { size, color, disableShrink, thickness, variant, style } =
-      this.props;
-    return (
-      <CircularProgress
-        variant={variant || 'indeterminate'}
-        className={classes.progress}
-        {...{
-          style,
-          size,
-          color,
-          disableShrink,
-          thickness,
-        }}
-      />
-    );
-  }
-}
+const CircularIndeterminate = ({
+  style,
+  color = 'primary',
+  disableShrink = false,
+  size = 40,
+  thickness = 3.6,
+  variant = 'indeterminate',
+}: CircularProgressProps) => (
+  <CircularProgress
+    variant={variant || 'indeterminate'}
+    className={classes.progress}
+    style={style}
+    size={size}
+    color={color}
+    disableShrink={disableShrink}
+    thickness={thickness}
+  />
+);
 
 export default CircularIndeterminate;
