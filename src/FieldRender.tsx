@@ -45,11 +45,12 @@ class FieldRender<
   };
 
   public render() {
-    const { field } = this.props;
+    const { field, globalProps } = this.props;
     const { component: Component, render, type } = field;
     const propsForm: FieldProps<V, Name, Label> = {
       field,
       onChangeField: this.onChangeField,
+      globalProps,
     };
     const formInput = <Inputs {...propsForm} />;
     if (render)

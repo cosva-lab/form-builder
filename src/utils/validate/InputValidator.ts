@@ -13,7 +13,6 @@ import type {
   ValidationErrors,
   ValidationError,
   PropsFieldBase,
-  GlobalProps,
   ValidationsField,
   NameField,
   LabelPropsField,
@@ -72,29 +71,14 @@ export abstract class InputValidator<
     | ValidationFunction<V, Name, Label>
   )[];
 
-  private _globalProps?: GlobalProps;
-  public get globalProps(): GlobalProps | undefined {
-    return (
-      (this.fieldsBuilder && this.fieldsBuilder.globalProps) ||
-      this._globalProps
-    );
-  }
-
-  public set globalProps(globalProps: GlobalProps | undefined) {
-    if (this.fieldsBuilder)
-      this.fieldsBuilder.globalProps = globalProps;
-    else this._globalProps = globalProps;
-  }
-
   constructor(props: PropsInput<V, Name, Label>) {
     super(props);
     makeObservable(this);
-    const { validate, validations, value, globalProps } = props;
+    const { validate, validations, value } = props;
     if (typeof validate !== 'undefined') this._validate = validate;
     // validations is an array of validation rules specific to a form
     this.validations = validations;
     this.originalProps = { value, validate };
-    this.globalProps = globalProps;
   }
 
   @action

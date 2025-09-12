@@ -72,17 +72,12 @@ export type OnSetValue<
 }) => void;
 
 export type value = any;
-export type GlobalProps = () => { [key: string]: any };
+export type GlobalProps = { [key: string]: any };
 export type transPosition = string | boolean;
 export type ActiveStep = number;
 
 export interface InitialState {
   ns?: string;
-}
-
-export interface GlobalPropsInterface {
-  globalProps?: GlobalProps;
-  children?: ReactNode;
 }
 
 export type ValidateInputsValidator<
@@ -92,20 +87,12 @@ export type ValidateInputsValidator<
   FieldsObject = Reducer<Fields>,
 > = ValidationsFields<Name, Item, Fields, FieldsObject>['validate'];
 
-export interface GridRender {
-  /**
-   * @default true
-   */
-  grid?: boolean;
-}
-
 export interface FieldsProps<
   Name extends NameField = string,
   Item extends PropsField<value, Name> = PropsField<value, Name>,
   Fields extends Item[] = Item[],
   FieldsObject = Reducer<Fields>,
 > extends InitialState,
-    GlobalPropsInterface,
     ValidationsFields<Name, Item, Fields, FieldsObject> {
   fields: [...Fields];
 }
@@ -297,7 +284,7 @@ export interface PropsFieldBase<
   V,
   Name extends NameField,
   Label extends LabelPropsField,
-> extends GlobalPropsInterface {
+> {
   type?: TypeField;
   name: Name;
   value: V;
@@ -352,6 +339,7 @@ export interface FieldProps<
       HTMLInputElement | HTMLTextAreaElement
     >,
   ): void | (() => void);
+  globalProps?: GlobalProps;
 }
 
 export interface InputProps<

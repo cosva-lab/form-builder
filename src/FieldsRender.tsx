@@ -5,20 +5,19 @@ import {
   EventField,
   GetArrayValues,
   GetFields,
-  GlobalPropsInterface,
-  GridRender,
+  GlobalProps,
   LabelPropsField,
   NameField,
   value,
 } from './types';
+import { Reducer } from './utils/types';
 
 export interface FieldsRenderProps<
   Name extends NameField,
   Item extends FieldBuilder<value, Name, LabelPropsField>,
   Fields extends Item[],
-  FieldsObject,
-> extends GlobalPropsInterface,
-    GridRender {
+  FieldsObject = Reducer<Fields>,
+> {
   onChangeField?<Field extends keyof FieldsObject>(
     event: EventField<FieldsObject[Field], Field>,
     nativeEvent?: React.ChangeEvent<
@@ -28,6 +27,7 @@ export interface FieldsRenderProps<
 
   children?: ReactNode;
   fields: GetArrayValues<GetFields<FieldsObject>>;
+  globalProps?: GlobalProps;
 }
 
 export const FieldsRender = <
@@ -38,23 +38,17 @@ export const FieldsRender = <
 >(
   props: FieldsRenderProps<Name, Item, Fields, FieldsObject>,
 ) => {
-  const { fields, globalProps, grid, onChangeField } = props;
+  const { fields, globalProps, onChangeField } = props;
   return (
     <>
-      {fields.map((field) => {
-        if (field instanceof FieldBuilder && globalProps)
-          field.globalProps = globalProps;
-        return (
-          <FieldRender<any, any>
-            key={field.name.toString()}
-            field={field}
-            onChangeField={onChangeField}
-            {...{
-              grid,
-            }}
-          />
-        );
-      })}
+      {fields.map((field) => (
+        <FieldRender<any, any>
+          key={field.name.toString()}
+          field={field}
+          onChangeField={onChangeField}
+          globalProps={globalProps}
+        />
+      ))}
     </>
   );
 };

@@ -1,7 +1,6 @@
 import { observable, toJS, makeObservable, action } from 'mobx';
 import InputsValidator from '../validate/InputsValidator';
 import type {
-  GlobalProps,
   FieldsProps,
   EventField,
   PropsField,
@@ -9,7 +8,6 @@ import type {
   NameField,
   GetArrayValues,
   value,
-  LabelPropsField,
 } from '../../types';
 import { Reducer } from '../types';
 import { GetFields } from '../../types';
@@ -31,7 +29,6 @@ export class FieldsBuilder<
     this._ns = ns;
   }
 
-  public globalProps?: GlobalProps;
   @observable public actionsExtra?: object;
   public get values() {
     return this.getValues();
@@ -45,9 +42,8 @@ export class FieldsBuilder<
   constructor(props: FieldsProps<Name, Item, Fields, FieldsObject>) {
     super(props);
     makeObservable(this);
-    const { ns, globalProps } = props;
+    const { ns } = props;
     this._ns = ns;
-    this.globalProps = globalProps;
 
     for (const field of this.fields) {
       field.fieldsBuilder = this as any;
