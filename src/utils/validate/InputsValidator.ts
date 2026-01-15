@@ -98,11 +98,16 @@ class InputsValidator<
   private async validityBase(args?: {
     setErrors?: boolean;
     throwFirstError?: boolean;
+    validateDisabled?: boolean;
   }) {
     this.valid = true;
-    const { setErrors = true, throwFirstError = false } = { ...args };
+    const {
+      setErrors = true,
+      throwFirstError = false,
+      validateDisabled = false,
+    } = { ...args };
     await this.callbackField(async (field, cancel) => {
-      if (field.enabled) {
+      if (field.enabled || validateDisabled) {
         const valid = setErrors
           ? await field.validity()
           : !(await field.hasErrors());
@@ -124,14 +129,20 @@ class InputsValidator<
   async hasErrors(params?: {
     setErrors?: boolean;
     throwFirstError?: boolean;
+    validateDisabled?: boolean;
   }) {
-    const { setErrors = false, throwFirstError = false } = {
+    const {
+      setErrors = false,
+      throwFirstError = false,
+      validateDisabled = false,
+    } = {
       ...params,
     };
     if (setErrors) this._validate = true;
     const valid = await this.validityBase({
       setErrors,
       throwFirstError,
+      validateDisabled,
     });
     return !valid;
   }
