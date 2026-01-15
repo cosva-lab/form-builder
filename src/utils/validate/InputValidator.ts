@@ -8,49 +8,38 @@ import {
 import type {
   Validation,
   ValidationFunction,
-  value,
   Validate,
   ValidationErrors,
   ValidationError,
   PropsFieldBase,
   ValidationsField,
-  NameField,
-  LabelPropsField,
+  FieldType,
 } from '../../types';
 import { StatusField } from '../../enums';
 import Field from '../builders/Field';
 import validators from '../validate/validators';
 
-type PropsInput<
-  V,
-  Name extends NameField,
-  Label extends LabelPropsField,
-> = Validate<V, Name, Label> & PropsFieldBase<V, Name, Label>;
-export abstract class InputValidator<
-    V extends value,
-    Name extends NameField,
-    Label extends LabelPropsField,
-  >
-  extends Field<V, Name, Label>
-  implements Validate<V, Name, Label>
+type PropsInput<Field extends FieldType> = Validate<Field> &
+  PropsFieldBase<Field>;
+
+export abstract class InputValidator<Field extends FieldType>
+  extends Field<Field>
+  implements Validate<Field>
 {
   public originalProps?: Pick<
-    PropsInput<V, Name, Label>,
+    PropsInput<Field>,
     'value' | 'validate'
   >;
 
-  static getValidation<
-    V,
-    Name extends NameField,
-    Label extends LabelPropsField,
-  >(obj: InputValidator<V, Name, Label>) {
+  static getValidation<Field extends FieldType>(
+    obj: InputValidator<Field>,
+  ) {
     return typeof obj._validate === 'function'
       ? obj._validate(obj)
       : obj._validate;
   }
 
-  public _validate: ValidationsField<V, Name, Label>['validate'] =
-    false;
+  public _validate: ValidationsField<Field>['validate'] = false;
   public get validate() {
     return InputValidator.getValidation(this);
   }
@@ -68,10 +57,10 @@ export abstract class InputValidator<
 
   @observable public validations?: (
     | Validation
-    | ValidationFunction<V, Name, Label>
+    | ValidationFunction<Field>
   )[];
 
-  constructor(props: PropsInput<V, Name, Label>) {
+  constructor(props: PropsInput<Field>) {
     super(props);
     makeObservable(this);
     const { validate, validations, value } = props;
@@ -115,7 +104,7 @@ export abstract class InputValidator<
         }
         if (
           typeof this.value === 'string' &&
-          validator((this.value || '').toString(), args) === boolean
+          validator(this.value, args) === boolean
         ) {
           this.status = StatusField.INVALID;
           return true;

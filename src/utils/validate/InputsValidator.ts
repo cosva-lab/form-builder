@@ -11,19 +11,20 @@ import type {
   ValidationErrors,
   ValidateInputsValidator,
   PropsField,
-  NameField,
   GetArrayValues,
   GetFields,
-  value,
-  LabelPropsField,
+  FieldType,
 } from '../../types';
 import { Reducer } from '../types';
 
 class InputsValidator<
-  Name extends NameField = any,
-  Item extends PropsField<value, Name> = PropsField<value, Name>,
+  Field extends FieldType,
+  Item extends PropsField<Field> = PropsField<Field>,
   Fields extends Item[] = Item[],
-  FieldsObject = Reducer<Fields>,
+  FieldsObject extends Record<
+    FieldType['name'],
+    FieldType
+  > = Reducer<Fields>,
 > {
   @observable public valid = true;
   public get invalid() {
@@ -34,7 +35,7 @@ class InputsValidator<
   public fieldsMap = {} as GetFields<FieldsObject>;
 
   @observable public _validate: ValidateInputsValidator<
-    Name,
+    Field,
     Item,
     Fields,
     FieldsObject
@@ -47,7 +48,7 @@ class InputsValidator<
 
   public set validate(
     validate:
-      | ValidateInputsValidator<Name, Item, Fields, FieldsObject>
+      | ValidateInputsValidator<Field, Item, Fields, FieldsObject>
       | undefined,
   ) {
     this._validate = validate;
@@ -61,7 +62,7 @@ class InputsValidator<
     fields,
     validate,
   }: Pick<
-    FieldsProps<Name, Item, Fields, FieldsObject>,
+    FieldsProps<Field, Item, Fields, FieldsObject>,
     'fields' | 'validate'
   >) {
     makeObservable(this);
@@ -71,8 +72,8 @@ class InputsValidator<
     this.hasErrors = this.hasErrors.bind(this);
     this.getErrors = this.getErrors.bind(this);
     this.fields = fields.map(
-      (field) => new FieldBuilder<value, any, any>(field),
-    );
+      (field) => new FieldBuilder(field),
+    ) as unknown as GetArrayValues<GetFields<FieldsObject>>;
     for (const field of this.fields) {
       const name = field.name;
       this.fieldsMap[name] = field;
@@ -81,7 +82,7 @@ class InputsValidator<
 
   async callbackField(
     callback: (
-      field: FieldBuilder<value, keyof FieldsObject, LabelPropsField>,
+      field: GetFields<FieldsObject>[keyof FieldsObject],
       cancel: () => void,
     ) => void,
   ) {

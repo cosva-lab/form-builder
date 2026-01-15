@@ -15,18 +15,13 @@ import type {
   ComponentErrors,
   ValidationErrors,
   ReturnValidationError,
-  NameField,
-  LabelPropsField,
+  FieldType,
 } from '../../types';
 import { InputValidator } from '../validate/InputValidator';
 
-export class FieldBuilder<
-    V,
-    Name extends NameField = any,
-    Label extends LabelPropsField = any,
-  >
-  extends InputValidator<V, Name, Label>
-  implements PropsField<V, Name, Label>
+export class FieldBuilder<Field extends FieldType>
+  extends InputValidator<Field>
+  implements PropsField<Field>
 {
   @observable private _ns?: string = undefined;
   public get ns(): string | undefined {
@@ -39,17 +34,15 @@ export class FieldBuilder<
     this._ns = ns;
   }
 
-  @observable public render?: RenderField<V, Name, Label> = undefined;
+  @observable public render?: RenderField<Field> = undefined;
   @observable public fullWidth?: boolean = undefined;
   @observable public autoComplete?: string = undefined;
-  @observable public InputProps?: InputPropsField<V, Name, Label> =
-    undefined;
+  @observable public InputProps?: InputPropsField<Field> = undefined;
   @observable public textFieldProps?: TextFieldPropsField = undefined;
-  @observable public component?: ComponentField<V, Name, Label> =
-    undefined;
-  public renderErrors?: ComponentErrors<V, Name, Label>;
+  @observable public component?: ComponentField<Field> = undefined;
+  public renderErrors?: ComponentErrors<Field>;
 
-  constructor(props: PropsField<V, Name, Label>) {
+  constructor(props: PropsField<Field>) {
     super(props);
     makeObservable(this);
     const {
@@ -62,9 +55,7 @@ export class FieldBuilder<
       component,
       renderErrors,
     } = props;
-    this.validate = InputValidator.getValidation<V, Name, Label>(
-      this,
-    );
+    this.validate = InputValidator.getValidation<Field>(this);
     this.ns = ns;
     this.render = render;
     this.fullWidth = fullWidth;
@@ -124,7 +115,7 @@ export class FieldBuilder<
   }
 
   @action
-  async setValue(value: V) {
+  async setValue(value: Field['value']) {
     runInAction(() => {
       this.value = value;
     });

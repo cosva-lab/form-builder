@@ -7,30 +7,26 @@ import type {
   TypeField,
   PropsFieldBase,
   NameField,
+  FieldType,
 } from '../../types';
 import { StatusField } from '../../enums';
 import { GenericFieldsBuilder } from '../../types';
 
-export class Field<
-  V,
-  Name extends NameField,
-  Label extends LabelPropsField,
-> implements PropsFieldBase<V, Name, Label>
+export class Field<Field extends FieldType>
+  implements PropsFieldBase<Field>
 {
   public fieldsBuilder?: GenericFieldsBuilder = undefined;
   @observable public type?: TypeField = undefined;
-  @observable public name: Name;
-  @observable public value: V;
-  @observable public defaultInputValue?: V = undefined;
-  @observable public label: Label;
+  @observable public name: Field['name'];
+  @observable public value: Field['value'];
+  @observable public defaultInputValue?: Field['value'] = undefined;
+  @observable public label: Field['label'];
   @observable public status?: StatusField;
   @observable public disabled: boolean = false;
   @observable public errors?: ValidationErrors = [];
   public inputRef?: HTMLInputElement | null;
-  @observable public onChange?: OnChangeField<V, Name, Label> =
-    undefined;
-  @observable public onSetValue?: OnSetValue<V, Name, Label> =
-    undefined;
+  @observable public onChange?: OnChangeField<Field> = undefined;
+  @observable public onSetValue?: OnSetValue<Field> = undefined;
 
   public pristine: boolean = true;
 
@@ -170,14 +166,14 @@ export class Field<
     label,
     onChange,
     onSetValue,
-  }: PropsFieldBase<V, Name, Label>) {
+  }: PropsFieldBase<Field>) {
     this.type = type;
     this.name = name;
     this.value = value;
     if (disabled) this.disable();
     else this.status = StatusField.VALID;
     this.defaultInputValue = defaultInputValue;
-    this.label = label as Label;
+    this.label = label as Field['label'];
     this.onChange = onChange;
     this.onSetValue = onSetValue;
     makeObservable(this);

@@ -8,17 +8,21 @@ import type {
   NameField,
   GetArrayValues,
   value,
+  FieldType,
 } from '../../types';
 import { Reducer } from '../types';
 import { GetFields } from '../../types';
 
 export class FieldsBuilder<
-  Name extends NameField = any,
-  Item extends PropsField<value, Name> = PropsField<value, Name>,
+  Field extends FieldType,
+  Item extends PropsField<Field> = PropsField<Field>,
   Fields extends Item[] = Item[],
-  FieldsObject = Reducer<Fields>,
+  FieldsObject extends Record<
+    FieldType['name'],
+    FieldType
+  > = Reducer<Fields>,
   Partial = false,
-> extends InputsValidator<Name, Item, Fields, FieldsObject> {
+> extends InputsValidator<Field, Item, Fields, FieldsObject> {
   @observable private _ns?: string = undefined;
 
   public get ns(): string | undefined {
@@ -35,11 +39,11 @@ export class FieldsBuilder<
   }
 
   private paramsLast?: Pick<
-    FieldsProps<Name, Item, Fields, FieldsObject>,
+    FieldsProps<Field, Item, Fields, FieldsObject>,
     'fields' | 'ns' | 'validate'
   >;
 
-  constructor(props: FieldsProps<Name, Item, Fields, FieldsObject>) {
+  constructor(props: FieldsProps<Field, Item, Fields, FieldsObject>) {
     super(props);
     makeObservable(this);
     const { ns } = props;
@@ -62,7 +66,7 @@ export class FieldsBuilder<
     this.getField = this.getField.bind(this);
   }
 
-  private setField(fieldOriginal: PropsField<value, NameField, any>) {
+  private setField(fieldOriginal: PropsField<Field>) {
     const field = this.fields.find(
       ({ name }) => fieldOriginal.name === name,
     );
@@ -73,7 +77,7 @@ export class FieldsBuilder<
     }
   }
 
-  private setFields(fields: PropsField<value, NameField, any>[]) {
+  private setFields(fields: PropsField<Field>[]) {
     fields.forEach((fieldOriginal) => this.setField(fieldOriginal));
   }
 
@@ -104,7 +108,8 @@ export class FieldsBuilder<
     const values: {
       [Key in keyof FieldsObject]: FieldsObject[Key];
     } = Object.create(null);
-    for (const { name, value } of this.fields) values[name] = value;
+    for (const { name, value } of this.fields)
+      values[name] = value as FieldsObject[keyof FieldsObject];
     return toJS(values);
   }
 
