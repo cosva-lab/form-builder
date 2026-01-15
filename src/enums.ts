@@ -1,10 +1,8 @@
 export enum StatusField {
   // This control has passed all validation checks.
-  'VALID' = 'VALID',
+  VALID = 'VALID',
   // This control has failed at least one validation check.
-  'INVALID' = 'INVALID',
+  INVALID = 'INVALID',
   // This control is in the midst of conducting a validation check.
-  'PENDING' = 'PENDING',
-  // This control is exempt from validation checks.
-  'DISABLED' = 'DISABLED',
+  PENDING = 'PENDING',
 }

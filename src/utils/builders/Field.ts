@@ -4,7 +4,6 @@ import type {
   OnSetValue,
   OnChangeField,
   LabelPropsField,
-  value,
   TypeField,
   PropsFieldBase,
   NameField,
@@ -25,6 +24,7 @@ export class Field<
   @observable public defaultInputValue?: V = undefined;
   @observable public label: Label;
   @observable public status?: StatusField;
+  @observable public disabled: boolean = false;
   @observable public errors?: ValidationErrors = [];
   public inputRef?: HTMLInputElement | null;
   @observable public onChange?: OnChangeField<V, Name, Label> =
@@ -48,7 +48,7 @@ export class Field<
   /**
    * A control is `valid` when its `status` is `VALID`.
    *
-   * @see {@link Field.status}
+   * @see {@link StatusField}
    *
    * @returns True if the control has passed all of its validation tests,
    * false otherwise.
@@ -82,21 +82,6 @@ export class Field<
   }
 
   /**
-   * A control is `disabled` when its `status` is `DISABLED`.
-   *
-   * Disabled controls are exempt from validation checks and
-   * are not included in the aggregate value of their ancestor
-   * controls.
-   *
-   * @see {@link Field.status}
-   *
-   * @returns True if the control is disabled, false otherwise.
-   */
-  get disabled(): boolean {
-    return this.status === StatusField.DISABLED;
-  }
-
-  /**
    * A control is `enabled` as long as its `status` is not `DISABLED`.
    *
    * @returns True if the control has any status other than 'DISABLED',
@@ -106,7 +91,7 @@ export class Field<
    *
    */
   get enabled(): boolean {
-    return this.status !== StatusField.DISABLED;
+    return !this.disabled;
   }
 
   /**
@@ -121,7 +106,7 @@ export class Field<
   disable(): void {
     // If parent has been marked artificially dirty we don't want to re-calculate the
     // parent's dirtiness based on the children.
-    this.status = StatusField.DISABLED;
+    this.disabled = true;
     this.errors = this.errors = [];
   }
 
@@ -138,6 +123,7 @@ export class Field<
   enable(): void {
     // If parent has been marked artificially dirty we don't want to re-calculate the
     // parent's dirtiness based on the children.
+    this.disabled = false;
     this.status = StatusField.VALID;
   }
 
@@ -172,9 +158,7 @@ export class Field<
 
   @action
   _setInitialStatus() {
-    this.status = this.disabled
-      ? StatusField.DISABLED
-      : StatusField.VALID;
+    this.status = StatusField.VALID;
   }
 
   constructor({

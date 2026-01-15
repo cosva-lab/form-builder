@@ -164,9 +164,7 @@ export abstract class InputValidator<
   }
 
   private _calculateStatus(): StatusField {
-    if (this.disabled) return StatusField.DISABLED;
-    else if (this.errors && this.errors.length)
-      return StatusField.INVALID;
+    if (this.errors && this.errors.length) return StatusField.INVALID;
     return StatusField.VALID;
   }
 
