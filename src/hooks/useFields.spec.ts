@@ -6,20 +6,18 @@ import chaiAsPromised from 'chai-as-promised';
 import { useFields } from './useFields';
 import { PropsField } from '../types';
 import { FieldsBuilder } from '../utils';
+import { field } from '../utils/builders/FieldBuilder';
 
 chai.use(chaiAsPromised);
 const expect = chai.expect;
 
 describe('useFields', () => {
   it('should return fields', () => {
-    function lastNameField(): PropsField<{
-      name: 'lastName';
-      value: string;
-    }> {
-      return {
+    function lastNameField() {
+      return field({
         name: 'lastName',
         value: '',
-      };
+      });
     }
 
     const {
@@ -30,15 +28,15 @@ describe('useFields', () => {
       useFields(
         new FieldsBuilder({
           fields: [
-            {
+            field({
               name: 'name' as const,
               value: '',
-            },
-            {
+            }),
+            field({
               name: 'age' as const,
               value: 220,
-            },
-            // lastNameField(),
+            }),
+            lastNameField(),
           ],
         }),
       ),
@@ -57,7 +55,7 @@ describe('useFields', () => {
     expect(lastName).to.be.equal('Maria');
 
     const fieldAge = fields[0];
-    if (fieldAge.name === 'age') {
+    if (fieldAge.name === 'name') {
       expect(fieldAge.value).to.be.equal(20);
     }
     expect(getValues().age).to.be.equal(20);

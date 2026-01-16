@@ -5,7 +5,7 @@ describe('FieldBuilder', () => {
     const field = new FieldBuilder({
       name: 'name',
       value: [],
-    } as const);
+    });
     expect(field.name).toBe(undefined);
   });
 });
