@@ -19,11 +19,6 @@ import type {
 } from '../../types';
 import { InputValidator } from '../validate/InputValidator';
 
-export function field<Name extends PropertyKey, Value>(
-  field: PropsField<FieldType<Name, Value>>,
-): FieldBuilder<PropsField<FieldType<Name, Value>>> {
-  return new FieldBuilder(field);
-}
 export class FieldBuilder<
   Field extends FieldType,
 > extends InputValidator<Field> {

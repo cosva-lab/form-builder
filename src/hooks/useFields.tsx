@@ -1,6 +1,7 @@
 import { useLocalObservable } from 'mobx-react';
 
-import { FieldBuilder, FieldsBuilder } from '../utils/builders';
+import type { FieldBuilder } from '../utils/builders/FieldBuilder';
+import type { FieldsBuilder } from '../utils/builders/FieldsBuilder';
 
 export function useFields<Fields extends FieldBuilder<any>[]>(
   initializer: FieldsBuilder<Fields> | (() => FieldsBuilder<Fields>),

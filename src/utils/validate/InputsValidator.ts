@@ -5,7 +5,7 @@ import {
   runInAction,
 } from 'mobx';
 
-import { FieldsProps } from '../..';
+import { FieldsProps } from '../../types';
 import FieldBuilder from '../builders/FieldBuilder';
 import type {
   ValidationErrors,

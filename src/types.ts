@@ -2,7 +2,8 @@ import { JSXElementConstructor } from 'react';
 import { OutlinedInputProps } from '@mui/material/OutlinedInput';
 import { TextFieldProps } from '@mui/material/TextField';
 
-import { FieldsBuilder, FieldBuilder } from './utils/builders';
+import type { FieldsBuilder } from './utils/builders/FieldsBuilder';
+import type { FieldBuilder } from './utils/builders/FieldBuilder';
 import { validators, InputsValidator } from './utils/validate';
 
 export type NameField = PropertyKey;

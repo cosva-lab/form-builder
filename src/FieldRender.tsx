@@ -3,7 +3,7 @@ import * as ReactIs from 'react-is';
 import { observer } from 'mobx-react';
 import Inputs from './Inputs';
 import type { FieldProps, FieldType, PropsField } from './types';
-import { FieldBuilder } from './utils';
+import type { FieldBuilder } from './utils/builders/FieldBuilder';
 
 interface FieldRenderObserverProps<Field extends PropsField> {
   component: React.ElementType<FieldProps<Field>>;

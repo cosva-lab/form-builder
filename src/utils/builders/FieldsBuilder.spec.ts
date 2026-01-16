@@ -3,7 +3,8 @@ import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import FieldsBuilder from './FieldsBuilder';
 import { PropsField } from '../../types';
-import FieldBuilder, { field } from './FieldBuilder';
+import FieldBuilder from './FieldBuilder';
+import { field } from '../field';
 
 chai.use(chaiAsPromised);
 const expect = chai.expect;

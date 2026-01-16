@@ -4,9 +4,8 @@ import { renderHook } from '@testing-library/react-hooks';
 import chaiAsPromised from 'chai-as-promised';
 
 import { useFields } from './useFields';
-import { PropsField } from '../types';
-import { FieldsBuilder } from '../utils';
-import { field } from '../utils/builders/FieldBuilder';
+import { FieldsBuilder } from '../utils/builders/FieldsBuilder';
+import { field } from '../utils/field';
 
 chai.use(chaiAsPromised);
 const expect = chai.expect;
