@@ -19,8 +19,9 @@ import { Reducer } from '../types';
 
 class InputsValidator<
   Field extends FieldType,
-  Fields extends PropsField<Field>[],
-  FieldsObject extends Reducer<Fields>,
+  Item extends PropsField<Field> = PropsField<Field>,
+  Fields extends Item[] = Item[],
+  FieldsObject extends Reducer<Fields> = Reducer<Fields>,
 > {
   @observable public valid = true;
   public get invalid() {
@@ -32,7 +33,9 @@ class InputsValidator<
 
   @observable public _validate: ValidateInputsValidator<
     Field,
-    Fields
+    Item,
+    Fields,
+    FieldsObject
   > = false;
   public get validate() {
     return typeof this._validate === 'function'
@@ -41,7 +44,9 @@ class InputsValidator<
   }
 
   public set validate(
-    validate: ValidateInputsValidator<Field, Fields> | undefined,
+    validate:
+      | ValidateInputsValidator<Field, Item, Fields, FieldsObject>
+      | undefined,
   ) {
     this._validate = validate;
     if (validate) this.validity();
@@ -53,9 +58,10 @@ class InputsValidator<
   constructor({
     fields,
     validate,
-  }: Pick<FieldsProps<Field, Fields>, 'fields' | 'validate'>) {
+  }: Pick<FieldsProps<Field, Item, Fields>, 'fields' | 'validate'>) {
     makeObservable(this);
-    if (typeof validate !== 'undefined') this._validate = validate;
+    if (typeof validate !== 'undefined')
+      this._validate = validate as any;
     this.callbackField = this.callbackField.bind(this);
     this.addErrors = this.addErrors.bind(this);
     this.hasErrors = this.hasErrors.bind(this);

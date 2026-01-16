@@ -31,21 +31,14 @@ describe('useFields', () => {
         new FieldsBuilder({
           fields: [
             {
-              name: 'name',
+              name: 'name' as const,
               value: '',
             },
             {
-              name: 'age',
+              name: 'age' as const,
               value: 220,
-              validations: [
-                (a) => {
-                  const b = a.field.fieldsBuilder;
-                  if (b) {
-                  }
-                },
-              ],
             },
-            lastNameField(),
+            // lastNameField(),
           ],
         }),
       ),

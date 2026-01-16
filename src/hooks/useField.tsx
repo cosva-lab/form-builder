@@ -3,7 +3,7 @@ import { useLocalObservable } from 'mobx-react';
 import type { PropsField, FieldType } from '../types';
 import { FieldBuilder } from '../utils/builders';
 
-export function useField<Field extends FieldType>(
+export function useField<Field extends FieldType | PropsField<FieldType>>(
   props: PropsField<Field> | (() => PropsField<Field>),
 ) {
   const field = useLocalObservable(() => {

@@ -8,7 +8,7 @@ type Callback<Item> = Item extends {
     ? Record<Name, Value>
     : never
   : never;
-export type Reducer<T extends Array<any>, Acc = {}> = T extends []
+export type Reducer<T, Acc = {}> = T extends []
   ? Acc
   : T extends [infer Head, ...infer Tail]
   ? Reducer<Tail, Acc & Callback<Head>>

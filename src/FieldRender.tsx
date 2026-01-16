@@ -5,12 +5,12 @@ import Inputs from './Inputs';
 import type { OnChangeField, FieldProps, FieldType } from './types';
 import { FieldBuilder } from './utils';
 
-interface FieldRenderObserverProps<Field extends FieldType> {
+interface FieldRenderObserverProps<Field extends FieldType | PropsField<FieldType>> {
   component: React.ElementType<FieldProps<Field>>;
   propsForm: FieldProps<Field>;
 }
 
-const FieldRenderObserver = <Field extends FieldType>({
+const FieldRenderObserver = <Field extends FieldType | PropsField<FieldType>>({
   component,
   propsForm,
 }: FieldRenderObserverProps<Field>) => {

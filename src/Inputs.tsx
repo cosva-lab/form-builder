@@ -2,7 +2,7 @@ import React from 'react';
 import { Input } from './inputsTypes';
 import type { FieldProps, FieldType } from './types';
 
-function Inputs<Field extends FieldType>(props: FieldProps<Field>) {
+function Inputs<Field extends FieldType | PropsField<FieldType>>(props: FieldProps<Field>) {
   const { onChangeField, field } = props;
   const { type } = field;
   switch (type) {

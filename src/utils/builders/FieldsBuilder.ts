@@ -13,10 +13,11 @@ import { GetFields } from '../../types';
 
 export class FieldsBuilder<
   Field extends FieldType,
-  Fields extends PropsField<Field>[],
+  Item extends PropsField<Field>,
+  Fields extends Item[],
   FieldsObject extends Reducer<Fields>,
   Partial = false,
-> extends InputsValidator<Field, Fields, FieldsObject> {
+> extends InputsValidator<Field, Item, Fields, FieldsObject> {
   @observable private _ns?: string = undefined;
 
   public get ns(): string | undefined {
@@ -33,11 +34,11 @@ export class FieldsBuilder<
   }
 
   private paramsLast?: Pick<
-    FieldsProps<Field, Fields>,
+    FieldsProps<Field, Item, Fields>,
     'fields' | 'ns' | 'validate'
   >;
 
-  constructor(props: FieldsProps<Field, Fields>) {
+  constructor(props: FieldsProps<Field, Item, Fields>) {
     super(props);
     makeObservable(this);
     const { ns } = props;
@@ -80,7 +81,7 @@ export class FieldsBuilder<
     this.paramsLast = {
       fields: toJS(fields as any),
       ns,
-      validate,
+      validate: validate as any,
     };
   }
 

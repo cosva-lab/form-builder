@@ -20,7 +20,7 @@ import type {
 import { InputValidator } from '../validate/InputValidator';
 
 export class FieldBuilder<
-  Field extends FieldType,
+  Field extends FieldType | PropsField<FieldType>,
 > extends InputValidator<Field> {
   @observable private _ns?: string = undefined;
   public get ns(): string | undefined {

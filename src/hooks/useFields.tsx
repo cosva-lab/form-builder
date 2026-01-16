@@ -5,14 +5,14 @@ import { FieldsBuilder } from '../utils/builders';
 import { Reducer } from '../utils/types';
 
 type Union<
-  Field extends FieldType,
+  Field extends FieldType | PropsField<FieldType>,
   Item extends PropsField<Field>,
   Fields extends Item[],
   FieldsObject extends Reducer<Fields>,
-> = FieldsBuilder<Field, Fields, FieldsObject>;
+> = FieldsBuilder<Field, Item, Fields, FieldsObject>;
 
 export function useFields<
-  Field extends FieldType,
+  Field extends FieldType | PropsField<FieldType>,
   Item extends PropsField<Field>,
   Fields extends Item[],
   FieldsObject extends Reducer<Fields>,
@@ -20,7 +20,7 @@ export function useFields<
   initializer:
     | Union<Field, Item, Fields, FieldsObject>
     | (() => Union<Field, Item, Fields, FieldsObject>),
-): FieldsBuilder<Field, Fields, FieldsObject> {
+): FieldsBuilder<Field, Item, Fields, FieldsObject> {
   const fields = useLocalObservable(() => {
     const result =
       typeof initializer === 'function' ? initializer() : initializer;

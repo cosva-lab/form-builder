@@ -3,11 +3,7 @@ import { OutlinedInputProps } from '@mui/material/OutlinedInput';
 import { TextFieldProps } from '@mui/material/TextField';
 
 import type { FieldsBuilder, FieldBuilder } from './utils/builders';
-import {
-  validators,
-  InputValidator,
-  InputsValidator,
-} from './utils/validate';
+import { validators, InputsValidator } from './utils/validate';
 import { Reducer } from './utils/types';
 
 export type NameField = PropertyKey;
@@ -42,21 +38,24 @@ export interface EventChangeValue<V = GenericValue, Name = string> {
   value: V;
 }
 
-export type OnChangeFieldEvent<Field extends FieldType> = EventField<
-  Field['value'],
-  Field['name']
-> & {
+export type OnChangeFieldEvent<
+  Field extends FieldType | PropsField<FieldType>,
+> = EventField<Field['value'], Field['name']> & {
   field: FieldBuilder<Field>;
 };
 
-export type OnChangeField<Field extends FieldType> = (
+export type OnChangeField<
+  Field extends FieldType | PropsField<FieldType>,
+> = (
   e: OnChangeFieldEvent<Field>,
   nativeEvent?: React.ChangeEvent<
     HTMLInputElement | HTMLTextAreaElement
   >,
 ) => void | (() => void);
 
-export type OnSetValue<Field extends FieldType> = (e: {
+export type OnSetValue<
+  Field extends FieldType | PropsField<FieldType>,
+> = (e: {
   lastValue: Field['value'];
   newValue: Field['value'];
   field: FieldBuilder<Field>;
@@ -73,16 +72,19 @@ export interface InitialState {
 
 export type ValidateInputsValidator<
   Field extends FieldType,
-  Fields extends PropsField<Field>[],
-> = ValidationsFields<Field, Fields>['validate'];
+  Item extends PropsField<Field>,
+  Fields extends Item[],
+  FieldsObject extends Reducer<Fields>,
+> = ValidationsFields<Field, Item, Fields, FieldsObject>['validate'];
 
 export type FieldsProps<
-  Field extends FieldType | PropsField<any>,
-  Fields extends PropsField<Field>[],
+  Field extends FieldType,
+  Item extends PropsField<Field>,
+  Fields extends Item[],
+  FieldsObject = Reducer<Fields>,
 > = {
-  fields: [...Fields];
-} & InitialState &
-  ValidationsFields<Field, Fields>;
+  fields: readonly [...Fields];
+};
 
 export type Rules = keyof typeof validators;
 
@@ -93,12 +95,15 @@ export interface Validation extends Message {
 
 export type GenericFieldsBuilder = FieldsBuilder<
   FieldType,
+  PropsField<FieldType>,
   PropsField<FieldType>[],
   Reducer<PropsField<any>[]>,
   true
 >;
 
-export interface AllPropsValidationFunction<Field extends FieldType> {
+export interface AllPropsValidationFunction<
+  Field extends FieldType | PropsField<FieldType>,
+> {
   field: FieldBuilder<NoInfer<Field>>;
   validate: boolean;
   value: NoInfer<Field>['value'];
@@ -120,32 +125,41 @@ export type ReturnValidationError =
   | undefined
   | void
   | ValidationError;
-export type ValidationFunction<Field extends FieldType> = (
+export type ValidationFunction<
+  Field extends FieldType | PropsField<FieldType>,
+> = (
   all: AllPropsValidationFunction<Field>,
 ) => ReturnValidationError | Promise<ReturnValidationError>;
 
-export interface Validations<Field extends FieldType> {
+export interface Validations<
+  Field extends FieldType | PropsField<FieldType>,
+> {
   validate?: boolean;
   value: Field['value'];
   validations?: (Validation | ValidationFunction<Field>)[];
 }
 
-export interface ValidationsField<Field extends FieldType> {
+export interface ValidationsField<
+  Field extends FieldType | PropsField<FieldType>,
+> {
   validate?: boolean | ((arg: any) => boolean);
   validations?: ValidationFunction<Field>[];
 }
 
 export interface ValidationsFields<
   Field extends FieldType,
-  Fields extends PropsField<Field>[],
+  Item extends PropsField<Field>,
+  Fields extends Item[],
+  FieldsObject extends Reducer<Fields>,
 > {
   validate?:
     | boolean
     | ((
         inputsValidator: InputsValidator<
           Field,
+          Item,
           Fields,
-          Reducer<Fields>
+          FieldsObject
         >,
       ) => boolean);
 }
@@ -155,21 +169,27 @@ export type ChildrenRender = React.ReactElement<
   JSXElementConstructor<FieldProps<FieldType>>
 >;
 
-export type RenderField<Field extends FieldType> = (element: {
+export type RenderField<
+  Field extends FieldType | PropsField<FieldType>,
+> = (element: {
   children: ChildrenRender;
   props: FieldProps<Field>;
 }) => React.CElement<any, any>;
 
-export type ComponentField<Field extends FieldType> =
-  React.ElementType<FieldProps<Field>>;
+export type ComponentField<
+  Field extends FieldType | PropsField<FieldType>,
+> = React.ElementType<FieldProps<Field>>;
 
-export interface ComponentErrorsProps<Field extends FieldType> {
+export interface ComponentErrorsProps<
+  Field extends FieldType | PropsField<FieldType>,
+> {
   errors: ValidationErrors;
   field?: FieldBuilder<Field>;
 }
 
-export type ComponentErrors<Field extends FieldType> =
-  React.ElementType<ComponentErrorsProps<Field>>;
+export type ComponentErrors<
+  Field extends FieldType | PropsField<FieldType>,
+> = React.ElementType<ComponentErrorsProps<Field>>;
 
 export type TypeTextField =
   | 'date'
@@ -216,7 +236,9 @@ export type LabelPropsField =
   | React.ReactElement<any>
   | Message;
 
-export type InputPropsField<Field extends FieldType> =
+export type InputPropsField<
+  Field extends FieldType | PropsField<FieldType>,
+> =
   | ((
       a: {
         type: Field['type'];
@@ -228,7 +250,9 @@ export type InputPropsField<Field extends FieldType> =
     ) => Partial<Field & OutlinedInputProps>)
   | Partial<Field & OutlinedInputProps>;
 
-export interface PropsFieldBase<Field extends FieldType> {
+export interface PropsFieldBase<
+  Field extends FieldType | PropsField<FieldType>,
+> {
   disabled?: boolean;
   defaultInputValue?: Field['value'];
   label?: Field['label'];
@@ -245,7 +269,9 @@ export interface FieldType {
 
 type NoInfer<T> = [T][T extends any ? 0 : never];
 
-export type PropsField<Field extends FieldType> = Field &
+export type PropsField<
+  Field extends FieldType | PropsField<FieldType>,
+> = Field &
   PropsFieldBase<Field> &
   InitialState & {
     render?: RenderField<Field>;
@@ -262,17 +288,21 @@ export type PropsField<Field extends FieldType> = Field &
     validations?: (Validation | ValidationFunction<Field>)[];
   };
 
-export interface Validate<Field extends FieldType>
-  extends Validations<Field> {
+export interface Validate<
+  Field extends FieldType | PropsField<FieldType>,
+> extends Validations<Field> {
   state?: boolean;
 }
 
-export interface BaseRender<Field extends FieldType> {
+export interface BaseRender<
+  Field extends FieldType | PropsField<FieldType>,
+> {
   field: FieldBuilder<Field>;
 }
 
-export interface FieldProps<Field extends FieldType>
-  extends BaseRender<Field> {
+export interface FieldProps<
+  Field extends FieldType | PropsField<FieldType>,
+> extends BaseRender<Field> {
   onChangeField?(
     event: EventField<Field['value'], Field['name']>,
     nativeEvent?: React.ChangeEvent<
@@ -282,7 +312,8 @@ export interface FieldProps<Field extends FieldType>
   globalProps?: GlobalProps;
 }
 
-export interface InputProps<Field extends FieldType>
-  extends FieldProps<Field> {
+export interface InputProps<
+  Field extends FieldType | PropsField<FieldType>,
+> extends FieldProps<Field> {
   type?: Field['type'];
 }

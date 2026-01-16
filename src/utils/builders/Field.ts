@@ -12,7 +12,7 @@ import type {
 import { StatusField } from '../../enums';
 import { GenericFieldsBuilder } from '../../types';
 
-export class Field<Field extends FieldType>
+export class Field<Field extends FieldType | PropsField<FieldType>>
   implements PropsFieldBase<Field>
 {
   public fieldsBuilder?: GenericFieldsBuilder = undefined;
