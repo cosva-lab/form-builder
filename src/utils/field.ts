@@ -1,7 +1,8 @@
-import type { PropsField, FieldType } from '../types';
+import type { PropsField, FieldType, NameField } from '../types';
 import { FieldBuilder } from './builders/FieldBuilder';
 
-export const field = <Name extends PropertyKey, Value>(
+export function field<Name extends NameField, Value>(
   field: PropsField<FieldType<Name, Value>>,
-): FieldBuilder<PropsField<FieldType<Name, Value>>> =>
-  new FieldBuilder(field);
+) {
+  return new FieldBuilder(field);
+}

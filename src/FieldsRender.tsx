@@ -3,18 +3,15 @@ import FieldRender from './FieldRender';
 import FieldBuilder from './utils/builders/FieldBuilder';
 import {
   EventField,
-  GetArrayValues,
-  GetFields,
   GlobalProps,
   FieldType,
   PropsField,
+  FieldsToObject,
 } from './types';
-import { Reducer } from './utils/types';
 
 export interface FieldsRenderProps<
-  Field extends FieldType,
-  Fields extends FieldBuilder<Field>[],
-  FieldsObject = Reducer<Fields>,
+  Fields extends FieldBuilder<any>[],
+  FieldsObject extends FieldsToObject<Fields>,
 > {
   onChangeField?<Field extends keyof FieldsObject>(
     event: EventField<FieldsObject[Field], Field>,
@@ -28,12 +25,8 @@ export interface FieldsRenderProps<
   globalProps?: GlobalProps;
 }
 
-export const FieldsRender = <
-  Field extends PropsField,
-  Item extends FieldBuilder<Field>,
-  Fields extends Item[],
->(
-  props: FieldsRenderProps<Field, Fields>,
+export const FieldsRender = <Fields extends FieldBuilder<any>[]>(
+  props: FieldsRenderProps<Fields, FieldsToObject<Fields>>,
 ) => {
   const { fields, globalProps } = props;
   return (
