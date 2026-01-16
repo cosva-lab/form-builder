@@ -10,33 +10,22 @@ import FieldBuilder from '../builders/FieldBuilder';
 import type {
   ValidationErrors,
   ValidateInputsValidator,
-  PropsField,
-  GetArrayValues,
-  GetFields,
   FieldType,
+  FieldsToObject,
+  PropsField,
 } from '../../types';
-import { Reducer } from '../types';
 
-class InputsValidator<
-  Field extends FieldType,
-  Item extends PropsField<Field> = PropsField<Field>,
-  Fields extends Item[] = Item[],
-  FieldsObject extends Reducer<Fields> = Reducer<Fields>,
-> {
+class InputsValidator<Fields extends FieldBuilder<any>[]> {
   @observable public valid = true;
   public get invalid() {
     return !this.valid;
   }
-  @observable public fields: GetArrayValues<GetFields<FieldsObject>>;
+  @observable public fields: Fields;
 
-  public fieldsMap = {} as GetFields<FieldsObject>;
+  public fieldsMap = {} as FieldsToObject<Fields>;
 
-  @observable public _validate: ValidateInputsValidator<
-    Field,
-    Item,
-    Fields,
-    FieldsObject
-  > = false;
+  @observable public _validate: ValidateInputsValidator<Fields> =
+    false;
   public get validate() {
     return typeof this._validate === 'function'
       ? this._validate(this)
@@ -44,9 +33,7 @@ class InputsValidator<
   }
 
   public set validate(
-    validate:
-      | ValidateInputsValidator<Field, Item, Fields, FieldsObject>
-      | undefined,
+    validate: ValidateInputsValidator<Fields> | undefined,
   ) {
     this._validate = validate;
     if (validate) this.validity();
@@ -58,7 +45,7 @@ class InputsValidator<
   constructor({
     fields,
     validate,
-  }: Pick<FieldsProps<Field, Item, Fields>, 'fields' | 'validate'>) {
+  }: Pick<FieldsProps<Fields>, 'fields' | 'validate'>) {
     makeObservable(this);
     if (typeof validate !== 'undefined')
       this._validate = validate as any;
@@ -66,18 +53,17 @@ class InputsValidator<
     this.addErrors = this.addErrors.bind(this);
     this.hasErrors = this.hasErrors.bind(this);
     this.getErrors = this.getErrors.bind(this);
-    this.fields = fields.map(
-      (field) => new FieldBuilder(field as any),
-    ) as unknown as GetArrayValues<GetFields<FieldsObject>>;
+    this.fields = fields;
     for (const field of this.fields) {
-      const name = field.name;
-      this.fieldsMap[name as keyof FieldsObject] = field;
+      const name = field.name as keyof FieldsToObject<Fields>;
+      this.fieldsMap[name] =
+        field as FieldsToObject<Fields>[keyof FieldsToObject<Fields>];
     }
   }
 
   async callbackField(
     callback: (
-      field: GetFields<FieldsObject>[keyof FieldsObject],
+      field: FieldBuilder<PropsField<FieldType>>,
       cancel: () => void,
     ) => void,
   ) {
@@ -165,11 +151,11 @@ class InputsValidator<
 
   async getErrors() {
     const fieldsErrors: {
-      [P in keyof FieldsObject]?: ValidationErrors;
+      [P in keyof FieldsToObject<Fields>]?: ValidationErrors;
     } = {};
     for (const { name, errors, enabled } of this.fields)
       if (errors && enabled)
-        fieldsErrors[name as keyof FieldsObject] = errors;
+        fieldsErrors[name as keyof FieldsToObject<Fields>] = errors;
     return fieldsErrors;
   }
 }

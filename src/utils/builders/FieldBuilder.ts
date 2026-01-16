@@ -19,8 +19,13 @@ import type {
 } from '../../types';
 import { InputValidator } from '../validate/InputValidator';
 
+export function field<Name extends PropertyKey, Value>(
+  field: PropsField<FieldType<Name, Value>>,
+): FieldBuilder<PropsField<FieldType<Name, Value>>> {
+  return new FieldBuilder(field);
+}
 export class FieldBuilder<
-  Field extends FieldType | PropsField<FieldType>,
+  Field extends FieldType,
 > extends InputValidator<Field> {
   @observable private _ns?: string = undefined;
   public get ns(): string | undefined {

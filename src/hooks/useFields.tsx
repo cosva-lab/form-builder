@@ -1,26 +1,16 @@
 import { useLocalObservable } from 'mobx-react';
 
-import type { PropsField, FieldType } from '../types';
+import type { FieldType, FieldsToObject, GetFields } from '../types';
 import { FieldsBuilder } from '../utils/builders';
-import { Reducer } from '../utils/types';
 
-type Union<
-  Field extends FieldType | PropsField<FieldType>,
-  Item extends PropsField<Field>,
-  Fields extends Item[],
-  FieldsObject extends Reducer<Fields>,
-> = FieldsBuilder<Field, Item, Fields, FieldsObject>;
+type Union<Fields extends readonly FieldType[]> = FieldsBuilder<
+  Fields,
+  GetFields<FieldsToObject<Fields>>
+>;
 
-export function useFields<
-  Field extends FieldType | PropsField<FieldType>,
-  Item extends PropsField<Field>,
-  Fields extends Item[],
-  FieldsObject extends Reducer<Fields>,
->(
-  initializer:
-    | Union<Field, Item, Fields, FieldsObject>
-    | (() => Union<Field, Item, Fields, FieldsObject>),
-): FieldsBuilder<Field, Item, Fields, FieldsObject> {
+export function useFields<Fields extends readonly FieldType[]>(
+  initializer: Union<Fields> | (() => Union<Fields>),
+): FieldsBuilder<Fields, GetFields<FieldsToObject<Fields>>> {
   const fields = useLocalObservable(() => {
     const result =
       typeof initializer === 'function' ? initializer() : initializer;

@@ -7,17 +7,14 @@ import type {
   EventChangeValue,
   GetArrayValues,
   FieldType,
+  FieldsToObject,
+  GetFieldsValue,
 } from '../../types';
-import { Reducer } from '../types';
-import { GetFields } from '../../types';
+import type FieldBuilder from './FieldBuilder';
 
 export class FieldsBuilder<
-  Field extends FieldType,
-  Item extends PropsField<Field>,
-  Fields extends Item[],
-  FieldsObject extends Reducer<Fields>,
-  Partial = false,
-> extends InputsValidator<Field, Item, Fields, FieldsObject> {
+  Fields extends FieldBuilder<any>[],
+> extends InputsValidator<Fields> {
   @observable private _ns?: string = undefined;
 
   public get ns(): string | undefined {
@@ -34,11 +31,11 @@ export class FieldsBuilder<
   }
 
   private paramsLast?: Pick<
-    FieldsProps<Field, Item, Fields>,
+    FieldsProps<Fields>,
     'fields' | 'ns' | 'validate'
   >;
 
-  constructor(props: FieldsProps<Field, Item, Fields>) {
+  constructor(props: FieldsProps<Fields>) {
     super(props);
     makeObservable(this);
     const { ns } = props;
@@ -101,58 +98,67 @@ export class FieldsBuilder<
 
   getValues() {
     const values: {
-      [Key in keyof FieldsObject]: FieldsObject[Key];
+      [Key in keyof GetFieldsValue<Fields>]: GetFieldsValue<Fields>[Key];
     } = Object.create(null);
     for (const { name, value } of this.fields)
-      values[name as keyof FieldsObject] =
-        value as FieldsObject[keyof FieldsObject];
+      values[name as keyof GetFieldsValue<Fields>] =
+        value as GetFieldsValue<Fields>[keyof GetFieldsValue<Fields>];
     return toJS(values);
   }
 
-  get<FieldName extends keyof FieldsObject>(
+  get<FieldName extends keyof FieldsToObject<Fields>>(
     fieldName: FieldName,
-  ):
-    | (Partial extends true ? undefined : never)
-    | GetFields<FieldsObject>[FieldName] {
+  ): FieldsToObject<Fields>[FieldName] {
     return this.fieldsMap[fieldName];
   }
 
-  getField<FieldName extends keyof FieldsObject>(
+  getField<FieldName extends keyof FieldsToObject<Fields>>(
     fieldName: FieldName,
-  ):
-    | (Partial extends true ? undefined : never)
-    | GetFields<FieldsObject>[FieldName] {
+  ): FieldsToObject<Fields>[FieldName] {
     return this.fieldsMap[fieldName];
   }
 
   @action
-  onChangeField<Field extends keyof FieldsObject>(
-    event: EventField<FieldsObject[Field], Field>,
+  onChangeField<FieldName extends keyof GetFieldsValue<Fields>>(
+    event: EventField<GetFieldsValue<Fields>[FieldName], FieldName>,
   ) {
     const { value, name } = event;
-    const field = this.fieldsMap[name];
+    const field = this.fieldsMap[name] as FieldBuilder<
+      PropsField<FieldType>
+    >;
     if (field) field.setValue(value as any);
     else console.warn(`Field ${name.toString()} not found`);
   }
 
   @action
-  onChangeFields<Fields extends keyof FieldsObject>(
+  onChangeFields<Values extends GetFieldsValue<Fields>>(
     events: GetArrayValues<{
-      [Field in Fields]: EventField<FieldsObject[Field], Field>;
+      [Field in keyof Values]: EventField<Values[Field], Field>;
     }>,
   ) {
-    events.forEach((event) => this.onChangeField(event));
+    events.forEach((event) => this.onChangeField(event as any));
   }
 
   @action
-  changeValue({ name, value }: EventChangeValue) {
-    const field = this.get(name as keyof FieldsObject);
-    if (field) field.value = value;
-    else console.warn(`Field ${name} not found`);
+  changeValue<FieldName extends keyof GetFieldsValue<Fields>>({
+    name,
+    value,
+  }: EventChangeValue<GetFieldsValue<Fields>[FieldName], FieldName>) {
+    const field = this.get(name as FieldName) as FieldBuilder<
+      PropsField<FieldType>
+    >;
+    if (field) field.setValue(value);
+    else console.warn(`Field ${name.toString()} not found`);
   }
-
   @action
-  changeValues(events: EventChangeValue[]) {
+  changeValues(
+    events: {
+      [K in keyof GetFieldsValue<Fields>]: EventChangeValue<
+        GetFieldsValue<Fields>[K],
+        K
+      >;
+    }[keyof GetFieldsValue<Fields>][],
+  ) {
     events.forEach((event) => this.changeValue(event));
   }
 

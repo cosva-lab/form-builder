@@ -3,11 +3,10 @@ import type {
   ValidationErrors,
   OnSetValue,
   OnChangeField,
-  LabelPropsField,
   TypeField,
   PropsFieldBase,
-  NameField,
   FieldType,
+  PropsField,
 } from '../../types';
 import { StatusField } from '../../enums';
 import { GenericFieldsBuilder } from '../../types';
