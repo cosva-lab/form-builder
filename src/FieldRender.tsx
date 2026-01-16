@@ -2,7 +2,7 @@ import React from 'react';
 import * as ReactIs from 'react-is';
 import { observer } from 'mobx-react';
 import Inputs from './Inputs';
-import type { OnChangeField, FieldProps, FieldType } from './types';
+import type { FieldProps, FieldType, PropsField } from './types';
 import { FieldBuilder } from './utils';
 
 interface FieldRenderObserverProps<Field extends PropsField> {
@@ -24,17 +24,11 @@ const FieldRenderObserver = <Field extends PropsField>({
 class FieldRender<
   Field extends FieldBuilder<FieldType>,
 > extends React.PureComponent<FieldProps<Field>> {
-  onChangeField: OnChangeField<Field> = (e, callback) => {
-    const { onChangeField } = this.props;
-    onChangeField?.(e, callback);
-  };
-
   public render() {
     const { field, globalProps } = this.props;
     const { component: Component, render, type } = field;
     const propsForm: FieldProps<Field> = {
       field,
-      onChangeField: this.onChangeField,
       globalProps,
     };
     const formInput = <Inputs {...propsForm} />;

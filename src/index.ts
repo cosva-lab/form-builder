@@ -2,7 +2,7 @@ export { default as FieldRender } from './FieldRender';
 export { default as FieldsRender } from './FieldsRender';
 export { Inputs } from './Inputs';
 export { RenderErrorsDefault } from './RenderErrorsDefault';
-export * from './hooks';
+export { useField, useFields } from './hooks';
 
 export * from './utils';
 export * from './contexts/GlobalTranslate';

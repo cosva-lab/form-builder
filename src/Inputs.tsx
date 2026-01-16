@@ -1,9 +1,9 @@
 import React from 'react';
 import { Input } from './inputsTypes';
-import type { FieldProps, FieldType } from './types';
+import type { FieldProps, PropsField } from './types';
 
 function Inputs<Field extends PropsField>(props: FieldProps<Field>) {
-  const { onChangeField, field } = props;
+  const { field } = props;
   const { type } = field;
   switch (type) {
     case 'date':
@@ -18,7 +18,7 @@ function Inputs<Field extends PropsField>(props: FieldProps<Field>) {
     case 'week':
     case 'datetime-local':
     case undefined:
-      return <Input<Field> {...{ field, onChangeField, type }} />;
+      return <Input<Field> {...{ field, type }} />;
     default:
       return null;
   }

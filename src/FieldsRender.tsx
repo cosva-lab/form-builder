@@ -7,11 +7,12 @@ import {
   GetFields,
   GlobalProps,
   FieldType,
+  PropsField,
 } from './types';
 import { Reducer } from './utils/types';
 
 export interface FieldsRenderProps<
-  Field extends PropsField,
+  Field extends FieldType,
   Fields extends FieldBuilder<Field>[],
   FieldsObject = Reducer<Fields>,
 > {
@@ -23,7 +24,7 @@ export interface FieldsRenderProps<
   ): void | (() => void);
 
   children?: ReactNode;
-  fields: GetArrayValues<GetFields<FieldsObject>>;
+  fields: Fields;
   globalProps?: GlobalProps;
 }
 
@@ -34,14 +35,13 @@ export const FieldsRender = <
 >(
   props: FieldsRenderProps<Field, Fields>,
 ) => {
-  const { fields, globalProps, onChangeField } = props;
+  const { fields, globalProps } = props;
   return (
     <>
       {fields.map((field) => (
         <FieldRender<FieldBuilder<FieldType>>
-          key={`${field.name}`}
+          key={field.name.toString()}
           field={field as any}
-          onChangeField={onChangeField}
           globalProps={globalProps}
         />
       ))}

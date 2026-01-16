@@ -1,12 +1,12 @@
 import React from 'react';
-import { FieldType, PropsField } from '../types';
+import { PropsField } from '../types';
 import { GlobalTranslate } from '../contexts/GlobalTranslate';
 
-export const TransformLabel = <Field extends PropsField>({
+export const TransformLabel = ({
   ns,
   name,
   label,
-}: Pick<PropsField<Field>, 'ns' | 'name' | 'label'>) => {
+}: Pick<PropsField, 'ns' | 'name' | 'label'>) => {
   if (React.isValidElement<any>(label)) return label;
   let message: string;
   let props;

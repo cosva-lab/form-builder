@@ -16,13 +16,13 @@ import type {
 } from '../../types';
 import classes from './Input.module.scss';
 
-export interface InputProps<Field extends PropsField>
+export interface InputProps<Field extends FieldType>
   extends FieldProps<Field> {
   type?: Field['type'];
 }
 
 @observer
-export class Input<Field extends PropsField> extends React.Component<
+export class Input<Field extends FieldType> extends React.Component<
   InputProps<Field>,
   { type?: Field['type'] }
 > {

@@ -111,7 +111,7 @@ export interface AllPropsValidationFunction<
 > {
   field: FieldBuilder<Field>;
   validate: boolean;
-  value: NoInfer<Field['value']>;
+  value: Field['value'];
 }
 
 /**
@@ -238,8 +238,8 @@ export interface PropsFieldBase<Field extends PropsField> {
   disabled?: boolean;
   defaultInputValue?: Field['value'];
   label?: Field['label'];
-  onChange?: OnChangeField<NoInfer<Field>>;
-  onSetValue?: OnSetValue<NoInfer<Field>>;
+  onChange?: OnChangeField<Field>;
+  onSetValue?: OnSetValue<Field>;
 }
 
 export interface FieldType<

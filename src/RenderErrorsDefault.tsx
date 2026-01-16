@@ -24,7 +24,7 @@ const Text = ({ children }: SpanFullWidthProps) => (
   <div>{children}</div>
 );
 
-export const RenderErrorsDefault = <Field extends PropsField>({
+export const RenderErrorsDefault = <Field extends FieldType>({
   errors,
   field,
 }: ComponentErrorsProps<Field>) => {

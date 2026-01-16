@@ -13,19 +13,16 @@ import type {
   ValidationError,
   PropsFieldBase,
   ValidationsField,
-  FieldType,
   PropsField,
 } from '../../types';
 import { StatusField } from '../../enums';
 import Field from '../builders/Field';
 import validators from '../validate/validators';
 
-type PropsInput<Field extends PropsField> =
-  Validate<Field> & PropsFieldBase<Field>;
+type PropsInput<Field extends PropsField> = Validate<Field> &
+  PropsFieldBase<Field>;
 
-export abstract class InputValidator<
-    Field extends PropsField,
-  >
+export abstract class InputValidator<Field extends PropsField>
   extends Field<Field>
   implements Validate<Field>
 {
@@ -34,9 +31,9 @@ export abstract class InputValidator<
     'value' | 'validate'
   >;
 
-  static getValidation<
-    Field extends PropsField,
-  >(obj: InputValidator<Field>) {
+  static getValidation<Field extends PropsField>(
+    obj: InputValidator<Field>,
+  ) {
     return typeof obj._validate === 'function'
       ? obj._validate(obj)
       : obj._validate;
