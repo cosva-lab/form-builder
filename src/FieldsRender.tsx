@@ -11,7 +11,7 @@ import {
 import { Reducer } from './utils/types';
 
 export interface FieldsRenderProps<
-  Field extends FieldType | PropsField<FieldType>,
+  Field extends PropsField,
   Fields extends FieldBuilder<Field>[],
   FieldsObject = Reducer<Fields>,
 > {
@@ -28,7 +28,7 @@ export interface FieldsRenderProps<
 }
 
 export const FieldsRender = <
-  Field extends FieldType | PropsField<FieldType>,
+  Field extends PropsField,
   Item extends FieldBuilder<Field>,
   Fields extends Item[],
 >(

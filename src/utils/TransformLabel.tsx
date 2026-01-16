@@ -2,7 +2,7 @@ import React from 'react';
 import { FieldType, PropsField } from '../types';
 import { GlobalTranslate } from '../contexts/GlobalTranslate';
 
-export const TransformLabel = <Field extends FieldType | PropsField<FieldType>>({
+export const TransformLabel = <Field extends PropsField>({
   ns,
   name,
   label,
