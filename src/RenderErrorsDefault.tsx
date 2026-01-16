@@ -2,9 +2,8 @@ import React from 'react';
 
 import type {
   ComponentErrorsProps,
-  LabelPropsField,
+  FieldType,
   Message,
-  NameField,
 } from './types';
 import { useFieldError } from './FieldError';
 import { TranslateFieldError } from './contexts/TranslateFieldErrorProvider';
@@ -25,14 +24,10 @@ const Text = ({ children }: SpanFullWidthProps) => (
   <div>{children}</div>
 );
 
-export const RenderErrorsDefault = <
-  V,
-  Name extends NameField,
-  Label extends LabelPropsField,
->({
+export const RenderErrorsDefault = <Field extends FieldType>({
   errors,
   field,
-}: ComponentErrorsProps<V, Name, Label>) => {
+}: ComponentErrorsProps<Field>) => {
   const ns = field && field.ns;
   const common = useFieldError();
   return (

@@ -4,14 +4,14 @@ import { observer } from 'mobx-react';
 import Inputs from './Inputs';
 import type {
   OnChangeField,
-  value,
+  GenericValue,
   NameField,
   FieldProps,
   LabelPropsField,
 } from './types';
 
 interface FieldRenderObserverProps<
-  V = value,
+  V = GenericValue,
   Name extends NameField = string,
   Label extends LabelPropsField = any,
 > {
@@ -20,7 +20,7 @@ interface FieldRenderObserverProps<
 }
 
 const FieldRenderObserver = <
-  V = value,
+  V = GenericValue,
   Name extends NameField = string,
   Label extends LabelPropsField = any,
 >({
@@ -35,7 +35,7 @@ const FieldRenderObserver = <
 };
 
 class FieldRender<
-  V = value,
+  V = GenericValue,
   Name extends NameField = string,
   Label extends LabelPropsField = any,
 > extends React.PureComponent<FieldProps<V, Name, Label>> {

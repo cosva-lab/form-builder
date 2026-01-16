@@ -19,12 +19,8 @@ import { Reducer } from '../types';
 
 class InputsValidator<
   Field extends FieldType,
-  Item extends PropsField<Field> = PropsField<Field>,
-  Fields extends Item[] = Item[],
-  FieldsObject extends Record<
-    FieldType['name'],
-    FieldType
-  > = Reducer<Fields>,
+  Fields extends PropsField<Field>[],
+  FieldsObject extends Reducer<Fields>,
 > {
   @observable public valid = true;
   public get invalid() {
@@ -36,7 +32,6 @@ class InputsValidator<
 
   @observable public _validate: ValidateInputsValidator<
     Field,
-    Item,
     Fields,
     FieldsObject
   > = false;
@@ -48,7 +43,7 @@ class InputsValidator<
 
   public set validate(
     validate:
-      | ValidateInputsValidator<Field, Item, Fields, FieldsObject>
+      | ValidateInputsValidator<Field, Fields, FieldsObject>
       | undefined,
   ) {
     this._validate = validate;
@@ -62,7 +57,7 @@ class InputsValidator<
     fields,
     validate,
   }: Pick<
-    FieldsProps<Field, Item, Fields, FieldsObject>,
+    FieldsProps<Field, Fields, FieldsObject>,
     'fields' | 'validate'
   >) {
     makeObservable(this);
@@ -72,11 +67,11 @@ class InputsValidator<
     this.hasErrors = this.hasErrors.bind(this);
     this.getErrors = this.getErrors.bind(this);
     this.fields = fields.map(
-      (field) => new FieldBuilder(field),
+      (field) => new FieldBuilder(field as any),
     ) as unknown as GetArrayValues<GetFields<FieldsObject>>;
     for (const field of this.fields) {
       const name = field.name;
-      this.fieldsMap[name] = field;
+      this.fieldsMap[name as keyof FieldsObject] = field;
     }
   }
 
@@ -173,7 +168,8 @@ class InputsValidator<
       [P in keyof FieldsObject]?: ValidationErrors;
     } = {};
     for (const { name, errors, enabled } of this.fields)
-      if (errors && enabled) fieldsErrors[name] = errors;
+      if (errors && enabled)
+        fieldsErrors[name as keyof FieldsObject] = errors;
     return fieldsErrors;
   }
 }

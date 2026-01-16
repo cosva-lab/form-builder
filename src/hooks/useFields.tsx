@@ -4,14 +4,14 @@ import type {
   FieldsProps,
   NameField,
   PropsField,
-  value,
+  GenericValue,
 } from '../types';
 import { FieldsBuilder } from '../utils/builders';
 import { Reducer } from '../utils/types';
 
 type Union<
   Name extends NameField,
-  Value extends value,
+  Value extends GenericValue,
   Item extends PropsField<Value, Name>,
   Fields extends Item[],
   FieldsObject extends Reducer<Fields>,
@@ -19,7 +19,7 @@ type Union<
 
 export function useFields<
   Name extends NameField,
-  Value extends value,
+  Value extends GenericValue,
   Item extends PropsField<Value, Name>,
   Fields extends Item[],
   FieldsObject extends Reducer<Fields>,

@@ -5,9 +5,7 @@ import type {
   EventField,
   PropsField,
   EventChangeValue,
-  NameField,
   GetArrayValues,
-  value,
   FieldType,
 } from '../../types';
 import { Reducer } from '../types';
@@ -15,14 +13,11 @@ import { GetFields } from '../../types';
 
 export class FieldsBuilder<
   Field extends FieldType,
-  Item extends PropsField<Field> = PropsField<Field>,
-  Fields extends Item[] = Item[],
-  FieldsObject extends Record<
-    FieldType['name'],
-    FieldType
-  > = Reducer<Fields>,
+  Item extends PropsField<Field>,
+  Fields extends Item[],
+  FieldsObject extends Reducer<Fields>,
   Partial = false,
-> extends InputsValidator<Field, Item, Fields, FieldsObject> {
+> extends InputsValidator<Field, Fields, FieldsObject> {
   @observable private _ns?: string = undefined;
 
   public get ns(): string | undefined {
@@ -39,11 +34,11 @@ export class FieldsBuilder<
   }
 
   private paramsLast?: Pick<
-    FieldsProps<Field, Item, Fields, FieldsObject>,
+    FieldsProps<Field, Fields, FieldsObject>,
     'fields' | 'ns' | 'validate'
   >;
 
-  constructor(props: FieldsProps<Field, Item, Fields, FieldsObject>) {
+  constructor(props: FieldsProps<Field, Fields, FieldsObject>) {
     super(props);
     makeObservable(this);
     const { ns } = props;
@@ -66,7 +61,7 @@ export class FieldsBuilder<
     this.getField = this.getField.bind(this);
   }
 
-  private setField(fieldOriginal: PropsField<Field>) {
+  private setField(fieldOriginal: PropsField<FieldType>) {
     const field = this.fields.find(
       ({ name }) => fieldOriginal.name === name,
     );
@@ -77,7 +72,7 @@ export class FieldsBuilder<
     }
   }
 
-  private setFields(fields: PropsField<Field>[]) {
+  private setFields(fields: PropsField<FieldType>[]) {
     fields.forEach((fieldOriginal) => this.setField(fieldOriginal));
   }
 
@@ -109,7 +104,8 @@ export class FieldsBuilder<
       [Key in keyof FieldsObject]: FieldsObject[Key];
     } = Object.create(null);
     for (const { name, value } of this.fields)
-      values[name] = value as FieldsObject[keyof FieldsObject];
+      values[name as keyof FieldsObject] =
+        value as FieldsObject[keyof FieldsObject];
     return toJS(values);
   }
 
@@ -135,7 +131,7 @@ export class FieldsBuilder<
   ) {
     const { value, name } = event;
     const field = this.fieldsMap[name];
-    if (field) field.setValue(value);
+    if (field) field.setValue(value as any);
     else console.warn(`Field ${name.toString()} not found`);
   }
 

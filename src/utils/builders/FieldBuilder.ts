@@ -19,10 +19,9 @@ import type {
 } from '../../types';
 import { InputValidator } from '../validate/InputValidator';
 
-export class FieldBuilder<Field extends FieldType>
-  extends InputValidator<Field>
-  implements PropsField<Field>
-{
+export class FieldBuilder<
+  Field extends FieldType,
+> extends InputValidator<Field> {
   @observable private _ns?: string = undefined;
   public get ns(): string | undefined {
     return typeof this._ns === 'undefined'
@@ -42,7 +41,7 @@ export class FieldBuilder<Field extends FieldType>
   @observable public component?: ComponentField<Field> = undefined;
   public renderErrors?: ComponentErrors<Field>;
 
-  constructor(props: PropsField<Field>) {
+  constructor(props: Field & PropsField<Field>) {
     super(props);
     makeObservable(this);
     const {
@@ -86,7 +85,6 @@ export class FieldBuilder<Field extends FieldType>
         } else if (typeof validation === 'function') {
           error = await validation({
             field: this,
-            fieldsBuilder: this.fieldsBuilder as any,
             validate,
             value,
           });

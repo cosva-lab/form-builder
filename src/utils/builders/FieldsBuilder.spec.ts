@@ -1,7 +1,7 @@
 import { describe } from 'mocha';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import { PropsField } from '../../types';
+import { PropsField, ValidationFunction2 } from '../../types';
 import FieldsBuilder from './FieldsBuilder';
 
 chai.use(chaiAsPromised);
@@ -9,34 +9,48 @@ const expect = chai.expect;
 
 describe('FieldsBuilder', () => {
   it('should return fields', () => {
-    function lastNameField(): PropsField<string, 'lastName'> {
+    function lastNameField(): PropsField<{
+      value: string;
+      name: 'lastName';
+      label: string;
+      type: 'text';
+    }> {
       return {
         name: 'lastName',
         value: '',
+        label: '',
+        type: 'text',
       };
     }
+    lastNameField().type;
 
-    const {
-      fields,
-      get,
-      getField,
-      getValues,
-      onChangeField,
-      fieldsMap,
-    } = new FieldsBuilder({
-      fields: [
-        {
-          name: 'name',
-          value: '',
-        },
-        {
-          name: 'age',
-          value: 22,
-          label: 'Age',
-        },
-        lastNameField(),
-      ],
-    });
+    const { fields, get, getValues, onChangeField } =
+      new FieldsBuilder({
+        fields: [
+          {
+            name: 'name',
+            value: '',
+          },
+          {
+            name: 'age',
+            value: 22,
+            label: 'Age',
+          },
+          lastNameField(),
+          {
+            name: 'date',
+            value: '',
+            label: '',
+            type: 'date',
+            validations: [
+              ({ field }) => {
+                field.type;
+                //
+              },
+            ],
+          },
+        ],
+      });
 
     onChangeField({
       name: 'age',

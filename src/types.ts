@@ -75,8 +75,8 @@ export type ValidateInputsValidator<
 > = ValidationsFields<Field, Fields, FieldsObject>['validate'];
 
 export interface FieldsProps<
-  Field extends FieldType,
-  Fields extends Field[],
+  Field extends PropsField<FieldType>,
+  Fields extends PropsField<Field>[],
   FieldsObject extends Reducer<Fields>,
 > extends InitialState,
     ValidationsFields<Field, Fields, FieldsObject> {
@@ -92,13 +92,16 @@ export interface Validation extends Message {
 
 export type GenericFieldsBuilder = FieldsBuilder<
   FieldType,
+  PropsField<FieldType>,
   PropsField<FieldType>[],
-  Reducer<PropsField<FieldType>[]>,
+  Reducer<PropsField<any>[]>,
   true
 >;
 
 export interface AllPropsValidationFunction<Field extends FieldType> {
-  readonly field: FieldBuilder<() => Field>;
+  field: FieldBuilder<NoInfer<Field>>;
+  validate: boolean;
+  value: NoInfer<Field>['value'];
 }
 
 /**
@@ -127,8 +130,10 @@ export interface Validations<Field extends FieldType> {
   validations?: (Validation | ValidationFunction<Field>)[];
 }
 
-export type ValidationsField<Field extends FieldType> =
-  Validations<Field>;
+export interface ValidationsField<Field extends FieldType> {
+  validate?: boolean | ((arg: any) => boolean);
+  validations?: ValidationFunction<Field>[];
+}
 
 export interface ValidationsFields<
   Field extends FieldType,
@@ -227,6 +232,8 @@ export interface PropsFieldBase<Field extends FieldType> {
   disabled?: boolean;
   defaultInputValue?: Field['value'];
   label?: Field['label'];
+  onChange?: OnChangeField<NoInfer<Field>>;
+  onSetValue?: OnSetValue<NoInfer<Field>>;
 }
 
 export interface FieldType {
@@ -236,15 +243,20 @@ export interface FieldType {
   label?: LabelPropsField;
 }
 
-export interface PropsField<Field extends FieldType>
-  extends PropsFieldBase<Field>,
-    ValidationsField<Field>,
-    InitialState {
-  fullWidth?: boolean;
-  errors?: ValidationErrors;
-  autoComplete?: string;
-  textFieldProps?: TextFieldPropsField;
-}
+type NoInfer<T> = [T][T extends any ? 0 : never];
+
+export type PropsField<Field extends FieldType> =
+  PropsFieldBase<Field> &
+    InitialState & {
+      disabled?: boolean;
+      defaultInputValue?: Field['value'];
+      label?: Field['label'];
+      fullWidth?: boolean;
+      errors?: ValidationErrors;
+      autoComplete?: string;
+      textFieldProps?: TextFieldPropsField;
+      validations?: ValidationFunction<Field>[];
+    };
 
 export interface Validate<Field extends FieldType>
   extends Validations<Field> {

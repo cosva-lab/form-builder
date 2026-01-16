@@ -8,13 +8,13 @@ import {
   GlobalProps,
   LabelPropsField,
   NameField,
-  value,
+  GenericValue,
 } from './types';
 import { Reducer } from './utils/types';
 
 export interface FieldsRenderProps<
   Name extends NameField,
-  Item extends FieldBuilder<value, Name, LabelPropsField>,
+  Item extends FieldBuilder<GenericValue, Name, LabelPropsField>,
   Fields extends Item[],
   FieldsObject = Reducer<Fields>,
 > {
@@ -32,7 +32,7 @@ export interface FieldsRenderProps<
 
 export const FieldsRender = <
   Name extends NameField,
-  Item extends FieldBuilder<value, Name, LabelPropsField>,
+  Item extends FieldBuilder<GenericValue, Name, LabelPropsField>,
   Fields extends Item[],
   FieldsObject,
 >(
