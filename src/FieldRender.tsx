@@ -2,31 +2,18 @@ import React from 'react';
 import * as ReactIs from 'react-is';
 import { observer } from 'mobx-react';
 import Inputs from './Inputs';
-import type {
-  OnChangeField,
-  GenericValue,
-  NameField,
-  FieldProps,
-  LabelPropsField,
-} from './types';
+import type { OnChangeField, FieldProps, FieldType } from './types';
+import { FieldBuilder } from './utils';
 
-interface FieldRenderObserverProps<
-  V = GenericValue,
-  Name extends NameField = string,
-  Label extends LabelPropsField = any,
-> {
-  component: React.ElementType<FieldProps<V, Name, Label>>;
-  propsForm: FieldProps<V, Name, Label>;
+interface FieldRenderObserverProps<Field extends FieldType> {
+  component: React.ElementType<FieldProps<Field>>;
+  propsForm: FieldProps<Field>;
 }
 
-const FieldRenderObserver = <
-  V = GenericValue,
-  Name extends NameField = string,
-  Label extends LabelPropsField = any,
->({
+const FieldRenderObserver = <Field extends FieldType>({
   component,
   propsForm,
-}: FieldRenderObserverProps<V, Name, Label>) => {
+}: FieldRenderObserverProps<Field>) => {
   let FieldComponent = component;
   try {
     FieldComponent = observer(component);
@@ -35,11 +22,9 @@ const FieldRenderObserver = <
 };
 
 class FieldRender<
-  V = GenericValue,
-  Name extends NameField = string,
-  Label extends LabelPropsField = any,
-> extends React.PureComponent<FieldProps<V, Name, Label>> {
-  onChangeField: OnChangeField<V, Name, Label> = (e, callback) => {
+  Field extends FieldBuilder<FieldType>,
+> extends React.PureComponent<FieldProps<Field>> {
+  onChangeField: OnChangeField<Field> = (e, callback) => {
     const { onChangeField } = this.props;
     onChangeField?.(e, callback);
   };
@@ -47,7 +32,7 @@ class FieldRender<
   public render() {
     const { field, globalProps } = this.props;
     const { component: Component, render, type } = field;
-    const propsForm: FieldProps<V, Name, Label> = {
+    const propsForm: FieldProps<Field> = {
       field,
       onChangeField: this.onChangeField,
       globalProps,
@@ -62,7 +47,7 @@ class FieldRender<
     if (type === 'component') {
       if (Component)
         Component.displayName = `[fields.${field.name.toString()}].component`;
-      if (React.isValidElement<FieldProps<V, Name, Label>>(Component))
+      if (React.isValidElement<FieldProps<Field>>(Component))
         return (
           <Component.type {...{ ...Component.props, ...propsForm }} />
         );

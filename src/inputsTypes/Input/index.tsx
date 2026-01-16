@@ -11,11 +11,7 @@ import { TransformLabel } from '../../utils/TransformLabel';
 import { RenderErrorsDefault } from '../../RenderErrorsDefault';
 import type {
   ValidationErrors,
-  NameField,
-  GenericValue,
-  TypeTextField,
   FieldProps,
-  LabelPropsField,
   FieldType,
 } from '../../types';
 import classes from './Input.module.scss';

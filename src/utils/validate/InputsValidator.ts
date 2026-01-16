@@ -32,8 +32,7 @@ class InputsValidator<
 
   @observable public _validate: ValidateInputsValidator<
     Field,
-    Fields,
-    FieldsObject
+    Fields
   > = false;
   public get validate() {
     return typeof this._validate === 'function'
@@ -42,9 +41,7 @@ class InputsValidator<
   }
 
   public set validate(
-    validate:
-      | ValidateInputsValidator<Field, Fields, FieldsObject>
-      | undefined,
+    validate: ValidateInputsValidator<Field, Fields> | undefined,
   ) {
     this._validate = validate;
     if (validate) this.validity();
@@ -56,10 +53,7 @@ class InputsValidator<
   constructor({
     fields,
     validate,
-  }: Pick<
-    FieldsProps<Field, Fields, FieldsObject>,
-    'fields' | 'validate'
-  >) {
+  }: Pick<FieldsProps<Field, Fields>, 'fields' | 'validate'>) {
     makeObservable(this);
     if (typeof validate !== 'undefined') this._validate = validate;
     this.callbackField = this.callbackField.bind(this);

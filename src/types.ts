@@ -14,10 +14,13 @@ export type NameField = PropertyKey;
 
 export type GetArrayValues<T> = T[keyof T][];
 
-export type GetFields<
-  FieldsObject extends Record<string, FieldType>,
-> = {
-  [Field in keyof FieldsObject]: FieldBuilder<FieldsObject[Field]>;
+export type GetFields<FieldsObject> = {
+  [Field in keyof FieldsObject]: FieldsObject extends Record<
+    string,
+    FieldType
+  >
+    ? FieldBuilder<FieldsObject[Field]>
+    : never;
 };
 
 export interface Message {
@@ -71,17 +74,15 @@ export interface InitialState {
 export type ValidateInputsValidator<
   Field extends FieldType,
   Fields extends PropsField<Field>[],
-  FieldsObject extends Reducer<Fields>,
-> = ValidationsFields<Field, Fields, FieldsObject>['validate'];
+> = ValidationsFields<Field, Fields>['validate'];
 
-export interface FieldsProps<
-  Field extends PropsField<FieldType>,
+export type FieldsProps<
+  Field extends FieldType | PropsField<any>,
   Fields extends PropsField<Field>[],
-  FieldsObject extends Reducer<Fields>,
-> extends InitialState,
-    ValidationsFields<Field, Fields, FieldsObject> {
+> = {
   fields: [...Fields];
-}
+} & InitialState &
+  ValidationsFields<Field, Fields>;
 
 export type Rules = keyof typeof validators;
 
@@ -92,7 +93,6 @@ export interface Validation extends Message {
 
 export type GenericFieldsBuilder = FieldsBuilder<
   FieldType,
-  PropsField<FieldType>,
   PropsField<FieldType>[],
   Reducer<PropsField<any>[]>,
   true
@@ -138,12 +138,15 @@ export interface ValidationsField<Field extends FieldType> {
 export interface ValidationsFields<
   Field extends FieldType,
   Fields extends PropsField<Field>[],
-  FieldsObject extends Reducer<Fields>,
 > {
   validate?:
     | boolean
     | ((
-        inputsValidator: InputsValidator<Field, Fields, FieldsObject>,
+        inputsValidator: InputsValidator<
+          Field,
+          Fields,
+          Reducer<Fields>
+        >,
       ) => boolean);
 }
 
@@ -226,9 +229,6 @@ export type InputPropsField<Field extends FieldType> =
   | Partial<Field & OutlinedInputProps>;
 
 export interface PropsFieldBase<Field extends FieldType> {
-  type?: Field['type'];
-  name: Field['name'];
-  value: Field['value'];
   disabled?: boolean;
   defaultInputValue?: Field['value'];
   label?: Field['label'];
@@ -245,18 +245,22 @@ export interface FieldType {
 
 type NoInfer<T> = [T][T extends any ? 0 : never];
 
-export type PropsField<Field extends FieldType> =
+export type PropsField<Field extends FieldType> = Field &
   PropsFieldBase<Field> &
-    InitialState & {
-      disabled?: boolean;
-      defaultInputValue?: Field['value'];
-      label?: Field['label'];
-      fullWidth?: boolean;
-      errors?: ValidationErrors;
-      autoComplete?: string;
-      textFieldProps?: TextFieldPropsField;
-      validations?: ValidationFunction<Field>[];
-    };
+  InitialState & {
+    render?: RenderField<Field>;
+    InputProps?: InputPropsField<Field>;
+    component?: ComponentField<Field>;
+    renderErrors?: ComponentErrors<Field>;
+    disabled?: boolean;
+    defaultInputValue?: Field['value'];
+    label?: Field['label'];
+    fullWidth?: boolean;
+    errors?: ValidationErrors;
+    autoComplete?: string;
+    textFieldProps?: TextFieldPropsField;
+    validations?: (Validation | ValidationFunction<Field>)[];
+  };
 
 export interface Validate<Field extends FieldType>
   extends Validations<Field> {

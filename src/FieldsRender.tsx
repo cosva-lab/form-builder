@@ -6,16 +6,13 @@ import {
   GetArrayValues,
   GetFields,
   GlobalProps,
-  LabelPropsField,
-  NameField,
-  GenericValue,
+  FieldType,
 } from './types';
 import { Reducer } from './utils/types';
 
 export interface FieldsRenderProps<
-  Name extends NameField,
-  Item extends FieldBuilder<GenericValue, Name, LabelPropsField>,
-  Fields extends Item[],
+  Field extends FieldType,
+  Fields extends FieldBuilder<Field>[],
   FieldsObject = Reducer<Fields>,
 > {
   onChangeField?<Field extends keyof FieldsObject>(
@@ -31,20 +28,19 @@ export interface FieldsRenderProps<
 }
 
 export const FieldsRender = <
-  Name extends NameField,
-  Item extends FieldBuilder<GenericValue, Name, LabelPropsField>,
+  Field extends FieldType,
+  Item extends FieldBuilder<Field>,
   Fields extends Item[],
-  FieldsObject,
 >(
-  props: FieldsRenderProps<Name, Item, Fields, FieldsObject>,
+  props: FieldsRenderProps<Field, Fields>,
 ) => {
   const { fields, globalProps, onChangeField } = props;
   return (
     <>
       {fields.map((field) => (
-        <FieldRender<any, any>
-          key={field.name.toString()}
-          field={field}
+        <FieldRender<FieldBuilder<FieldType>>
+          key={`${field.name}`}
+          field={field as any}
           onChangeField={onChangeField}
           globalProps={globalProps}
         />

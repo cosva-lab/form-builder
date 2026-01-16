@@ -1,33 +1,26 @@
 import { useLocalObservable } from 'mobx-react';
 
-import type {
-  FieldsProps,
-  NameField,
-  PropsField,
-  GenericValue,
-} from '../types';
+import type { PropsField, FieldType } from '../types';
 import { FieldsBuilder } from '../utils/builders';
 import { Reducer } from '../utils/types';
 
 type Union<
-  Name extends NameField,
-  Value extends GenericValue,
-  Item extends PropsField<Value, Name>,
+  Field extends FieldType,
+  Item extends PropsField<Field>,
   Fields extends Item[],
   FieldsObject extends Reducer<Fields>,
-> = FieldsBuilder<Name, Item, Fields, FieldsObject>;
+> = FieldsBuilder<Field, Fields, FieldsObject>;
 
 export function useFields<
-  Name extends NameField,
-  Value extends GenericValue,
-  Item extends PropsField<Value, Name>,
+  Field extends FieldType,
+  Item extends PropsField<Field>,
   Fields extends Item[],
   FieldsObject extends Reducer<Fields>,
 >(
   initializer:
-    | Union<Name, Value, Item, Fields, FieldsObject>
-    | (() => Union<Name, Value, Item, Fields, FieldsObject>),
-): FieldsBuilder<Name, Item, Fields, FieldsObject> {
+    | Union<Field, Item, Fields, FieldsObject>
+    | (() => Union<Field, Item, Fields, FieldsObject>),
+): FieldsBuilder<Field, Fields, FieldsObject> {
   const fields = useLocalObservable(() => {
     const result =
       typeof initializer === 'function' ? initializer() : initializer;

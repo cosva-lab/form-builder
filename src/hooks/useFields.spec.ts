@@ -12,7 +12,10 @@ const expect = chai.expect;
 
 describe('useFields', () => {
   it('should return fields', () => {
-    function lastNameField(): PropsField<string, 'lastName'> {
+    function lastNameField(): PropsField<{
+      name: 'lastName';
+      value: string;
+    }> {
       return {
         name: 'lastName',
         value: '',
@@ -36,7 +39,7 @@ describe('useFields', () => {
               value: 220,
               validations: [
                 (a) => {
-                  const b = a.fieldsBuilder;
+                  const b = a.field.fieldsBuilder;
                   if (b) {
                   }
                 },

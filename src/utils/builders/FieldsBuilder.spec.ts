@@ -1,7 +1,7 @@
 import { describe } from 'mocha';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import { PropsField, ValidationFunction2 } from '../../types';
+import { PropsField } from '../../types';
 import FieldsBuilder from './FieldsBuilder';
 
 chai.use(chaiAsPromised);
