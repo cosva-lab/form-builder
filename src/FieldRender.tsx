@@ -2,7 +2,13 @@ import React from 'react';
 import * as ReactIs from 'react-is';
 import { observer } from 'mobx-react';
 import Inputs from './Inputs';
-import type { FieldProps, FieldType, PropsField } from './types';
+import type {
+  EventField,
+  FieldProps,
+  FieldType,
+  GlobalProps,
+  PropsField,
+} from './types';
 import type { FieldBuilder } from './utils/builders/FieldBuilder';
 
 interface FieldRenderObserverProps<Field extends PropsField> {
@@ -21,13 +27,26 @@ const FieldRenderObserver = <Field extends PropsField>({
   return <FieldComponent {...propsForm} />;
 };
 
-class FieldRender<
+export interface FieldRenderProps<
   Field extends FieldBuilder<FieldType>,
-> extends React.PureComponent<FieldProps<Field>> {
+> {
+  field: Field;
+  onChangeField?(
+    event: EventField<Field['value'], Field['name']>,
+    nativeEvent?: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement
+    >,
+  ): void | (() => void);
+  globalProps?: GlobalProps;
+}
+
+class FieldRender<
+  Field extends FieldBuilder<any>,
+> extends React.PureComponent<FieldRenderProps<Field>> {
   public render() {
     const { field, globalProps } = this.props;
     const { component: Component, render, type } = field;
-    const propsForm: FieldProps<Field> = {
+    const propsForm: FieldRenderProps<Field> = {
       field,
       globalProps,
     };
@@ -41,7 +60,7 @@ class FieldRender<
     if (type === 'component') {
       if (Component)
         Component.displayName = `[fields.${field.name.toString()}].component`;
-      if (React.isValidElement<FieldProps<Field>>(Component))
+      if (React.isValidElement<FieldRenderProps<Field>>(Component))
         return (
           <Component.type {...{ ...Component.props, ...propsForm }} />
         );

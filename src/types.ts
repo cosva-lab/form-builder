@@ -69,13 +69,10 @@ export type OnChangeField<Field extends PropsField> = (
   >,
 ) => void | (() => void);
 
-export type OnSetValue<
-  Field extends PropsField,
-  Validations extends CommonValidations | undefined = undefined,
-> = (e: {
+export type OnSetValue<Field extends PropsField> = (e: {
   lastValue: Field['value'];
   newValue: Field['value'];
-  field: FieldBuilder<Field, Validations>;
+  field: FieldBuilder<Field>;
 }) => void;
 
 export type GenericValue = any;
@@ -100,7 +97,7 @@ export type FieldsToObject<
   [F in Fields[number] as F['name']]: F;
 };
 
-export type FieldsProps<Fields extends FieldBuilder<any, any>[]> = {
+export type FieldsProps<Fields extends FieldBuilder<any>[]> = {
   fields: [...Fields];
 } & ValidationsFields<Fields> &
   InitialState;
@@ -145,19 +142,15 @@ export type ValidationFunction<Field extends PropsField> = (
   all: AllPropsValidationFunction<Field>,
 ) => ReturnValidationError | Promise<ReturnValidationError>;
 
-export interface ValidationsProps<
-  Field extends PropsField,
-  V extends CommonValidations | undefined = undefined,
-> {
-  validate?: ValidateField<Field, V>;
+export interface ValidationsProps<Field extends PropsField> {
+  validate?: ValidateField<Field>;
   value: Field['value'];
-  validations?: V;
+  validations?: Field['validations'];
 }
 
-export type ValidateField<
-  Field extends FieldType,
-  Validations extends CommonValidations | undefined = undefined,
-> = boolean | ((arg: InputValidator<Field, Validations>) => boolean);
+export type ValidateField<Field extends FieldType> =
+  | boolean
+  | ((arg: InputValidator<Field>) => boolean);
 
 export interface ValidationsFields<
   Fields extends FieldBuilder<any>[],
@@ -248,17 +241,18 @@ export type InputPropsField<Field extends PropsField> =
 export interface FieldType<
   Name extends NameField = NameField,
   Value = any,
+  Validations extends CommonValidations | undefined =
+    | undefined
+    | any[],
 > {
   name: Name;
   value: Value;
   type?: TypeField;
   label?: LabelPropsField;
+  validations?: Validations;
 }
 
-export interface PropsFieldBase<
-  Field extends PropsField,
-  Validations extends CommonValidations | undefined = undefined,
-> {
+export interface PropsFieldBase<Field extends PropsField> {
   readonly name: Field['name'];
   value: Field['value'];
   type?: Field['type'];
@@ -266,7 +260,7 @@ export interface PropsFieldBase<
   defaultInputValue?: Field['value'];
   label?: Field['label'];
   onChange?: OnChangeField<Field>;
-  onSetValue?: OnSetValue<Field, Validations>;
+  onSetValue?: OnSetValue<Field>;
 }
 
 export type CommonValidations = (
@@ -284,19 +278,17 @@ export type GetErrors<
   Validations extends CommonValidations | undefined,
 > = Validations extends undefined
   ? undefined
-  : {
+  : Validations extends Array<any>
+  ? {
       [K in keyof Validations]: ValidationResult<Validations[K]>;
-    };
+    }
+  : never;
 
-export type PropsField<
-  Field extends FieldType = FieldType,
-  Validations extends CommonValidations | undefined = undefined,
-> = { validations?: Validations } & PropsFieldBase<
-  Field,
-  Validations
-> &
+export type PropsField<Field extends FieldType = FieldType> = {
+  validations?: Field['validations'];
+} & PropsFieldBase<Field> &
   InitialState & {
-    validate?: ValidateField<Field, Validations>;
+    validate?: ValidateField<Field>;
     render?: RenderField<Field>;
     InputProps?: InputPropsField<Field>;
     component?: ComponentField<Field>;
@@ -304,15 +296,13 @@ export type PropsField<
     defaultInputValue?: Field['value'];
     label?: Field['label'];
     fullWidth?: boolean;
-    errors?: GetErrors<Validations> | [];
+    errors?: GetErrors<Field['validations']> | [];
     autoComplete?: string;
     textFieldProps?: TextFieldPropsField;
   };
 
-export interface Validate<
-  Field extends PropsField,
-  V extends CommonValidations | undefined = undefined,
-> extends ValidationsProps<Field, V> {
+export interface Validate<Field extends PropsField>
+  extends ValidationsProps<Field> {
   state?: boolean;
 }
 
@@ -329,9 +319,4 @@ export interface FieldProps<Field extends PropsField>
     >,
   ): void | (() => void);
   globalProps?: GlobalProps;
-}
-
-export interface InputProps<Field extends PropsField>
-  extends FieldProps<Field> {
-  type?: Field['type'];
 }

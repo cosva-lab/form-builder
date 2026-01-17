@@ -13,7 +13,6 @@ import type {
   RenderField,
   ComponentField,
   ReturnValidationError,
-  CommonValidations,
   FieldType,
   GetErrors,
 } from '../../types';
@@ -21,8 +20,7 @@ import { InputValidator } from '../validate/InputValidator';
 
 export class FieldBuilder<
   Field extends FieldType,
-  Validations extends CommonValidations | undefined = undefined,
-> extends InputValidator<Field, Validations> {
+> extends InputValidator<Field> {
   @observable private _ns?: string = undefined;
   public get ns(): string | undefined {
     return typeof this._ns === 'undefined'
@@ -41,7 +39,7 @@ export class FieldBuilder<
   @observable public textFieldProps?: TextFieldPropsField = undefined;
   @observable public component?: ComponentField<Field> = undefined;
 
-  constructor(props: PropsField<Field, Validations>) {
+  constructor(props: PropsField<Field>) {
     super(props);
     makeObservable(this);
     const {
@@ -53,9 +51,7 @@ export class FieldBuilder<
       textFieldProps,
       component,
     } = props;
-    this.validate = InputValidator.getValidation<Field, Validations>(
-      this,
-    );
+    this.validate = InputValidator.getValidation<Field>(this);
     this.ns = ns;
     this.render = render;
     this.fullWidth = fullWidth;
@@ -68,13 +64,14 @@ export class FieldBuilder<
 
   protected async getErrorsBase(props?: {
     sequential: boolean;
-  }): Promise<GetErrors<Validations> | undefined> {
+  }): Promise<GetErrors<Field['validations']> | undefined> {
     const { sequential = false } = { ...props };
     const { validations, value } = this;
 
     if (typeof this.validate !== 'function') this._validate = true;
     const validate = this.validate;
-    let errors: GetErrors<Validations> | undefined = undefined;
+    let errors: GetErrors<Field['validations']> | undefined =
+      undefined;
     if (!validate && !this.dirty && !this.enabled) return errors;
 
     if (Array.isArray(validations) && validate) {
@@ -90,10 +87,12 @@ export class FieldBuilder<
           });
         }
         if (error) {
-          errors = [
-            ...(errors || []),
-            error,
-          ] as unknown as GetErrors<Validations>;
+          if (Array.isArray(errors))
+            errors = [
+              ...(errors || []),
+              error,
+            ] as unknown as GetErrors<Field['validations']>;
+
           if (sequential) break;
         }
       }
@@ -101,7 +100,9 @@ export class FieldBuilder<
     return errors?.length ? errors : undefined;
   }
 
-  public getErrors(): Promise<GetErrors<Validations> | undefined> {
+  public getErrors(): Promise<
+    GetErrors<Field['validations']> | undefined
+  > {
     return this.getErrorsBase();
   }
 

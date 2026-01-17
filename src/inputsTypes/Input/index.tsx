@@ -59,7 +59,7 @@ export class Input<Field extends FieldType> extends React.Component<
     } = field;
 
     const { type } = this.state;
-    const errorsNode = errors && (
+    const errorsNode = Array.isArray(errors) && (
       <RenderErrorsDefault {...{ errors, field }} />
     );
     return (

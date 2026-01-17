@@ -13,7 +13,7 @@ import type {
 import type FieldBuilder from './FieldBuilder';
 
 export class FieldsBuilder<
-  Fields extends FieldBuilder<any, any>[],
+  Fields extends FieldBuilder<any>[],
 > extends InputsValidator<Fields> {
   @observable private _ns?: string = undefined;
 

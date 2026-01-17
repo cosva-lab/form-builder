@@ -13,16 +13,16 @@ export function useField<
   const Name extends NameField,
   Validations extends CommonValidations | undefined = undefined,
 >(
-  props: () => PropsField<FieldType<Name, V>, Validations>,
-): FieldBuilder<FieldType<Name, V>, Validations>;
+  props: () => PropsField<FieldType<Name, V, Validations>>,
+): FieldBuilder<FieldType<Name, V, Validations>>;
 
 export function useField<
   const V,
   const Name extends NameField,
   Validations extends CommonValidations | undefined = undefined,
 >(
-  props: PropsField<FieldType<Name, V>, Validations>,
-): FieldBuilder<FieldType<Name, V>, Validations>;
+  props: PropsField<FieldType<Name, V, Validations>>,
+): FieldBuilder<FieldType<Name, V, Validations>>;
 
 export function useField<
   const V,
@@ -30,12 +30,12 @@ export function useField<
   Validations extends CommonValidations | undefined = undefined,
 >(
   props:
-    | PropsField<FieldType<Name, V>, Validations>
-    | (() => PropsField<FieldType<Name, V>, Validations>),
+    | PropsField<FieldType<Name, V, Validations>>
+    | (() => PropsField<FieldType<Name, V, Validations>>),
 ) {
   const field = useLocalObservable(() => {
     const fieldProps = typeof props === 'function' ? props() : props;
-    return new FieldBuilder<FieldType<Name, V>, Validations>(
+    return new FieldBuilder<FieldType<Name, V, Validations>>(
       fieldProps,
     );
   });

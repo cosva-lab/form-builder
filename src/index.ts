@@ -1,3 +1,6 @@
+export { GlobalTranslateProvider } from './contexts/GlobalTranslate';
+export { TranslateFieldErrorProvider } from './contexts/TranslateFieldErrorProvider';
+
 export { default as FieldRender } from './FieldRender';
 export { default as FieldsRender } from './FieldsRender';
 export { RenderErrorsDefault } from './RenderErrorsDefault';
@@ -13,5 +16,6 @@ export type {
   Validation,
   ValidationErrors,
   ValidationFunction,
+  FieldType,
 } from './types';
 export { useField, useFields } from './hooks';

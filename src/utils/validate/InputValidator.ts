@@ -12,44 +12,37 @@ import type {
   ValidateField,
   PropsField,
   FieldType,
-  CommonValidations,
   GetErrors,
 } from '../../types';
 import { StatusField } from '../../enums';
 import Field from '../builders/Field';
 import validators from '../validate/validators';
 
-type PropsInput<
-  Field extends FieldType,
-  Validations extends CommonValidations | undefined = undefined,
-> = Validate<Field, Validations> & PropsField<Field, Validations>;
+type PropsInput<Field extends FieldType> = Validate<Field> &
+  PropsField<Field>;
 
 export abstract class InputValidator<
   Field extends FieldType,
-  Validations extends CommonValidations | undefined = undefined,
-> extends Field<Field, Validations> {
+> extends Field<Field> {
   public originalProps?: Pick<
-    PropsInput<Field, Validations>,
+    PropsInput<Field>,
     'value' | 'validate'
   >;
 
-  static getValidation<
-    Field extends PropsField<any>,
-    Validations extends CommonValidations | undefined = undefined,
-  >(obj: InputValidator<Field, Validations>) {
+  static getValidation<Field extends PropsField<any>>(
+    obj: InputValidator<Field>,
+  ) {
     return typeof obj._validate === 'function'
       ? obj._validate(obj)
       : obj._validate;
   }
 
-  public _validate?: ValidateField<Field, Validations> = false;
+  public _validate?: ValidateField<Field> = false;
   public get validate() {
     return !!InputValidator.getValidation(this);
   }
 
-  public set validate(
-    validate: ValidateField<Field, Validations> | undefined,
-  ) {
+  public set validate(validate: ValidateField<Field> | undefined) {
     this._validate = validate;
     if (validate) this.validity();
     else this.errors = undefined;
@@ -60,9 +53,9 @@ export abstract class InputValidator<
     return !this.touched;
   }
 
-  @observable public validations?: Validations;
+  @observable public validations?: Field['validations'];
 
-  constructor(props: PropsInput<Field, Validations>) {
+  constructor(props: PropsInput<Field>) {
     super(props);
     makeObservable(this);
     const { validate, validations, value } = props;
@@ -117,8 +110,8 @@ export abstract class InputValidator<
   }
 
   public abstract getErrors():
-    | Promise<GetErrors<Validations> | undefined>
-    | GetErrors<Validations>
+    | Promise<GetErrors<Field['validations']> | undefined>
+    | GetErrors<Field['validations']>
     | undefined;
 
   public markAsTouched() {
@@ -197,10 +190,12 @@ export abstract class InputValidator<
   addErrors(errors: ValidationError[]) {
     this.status = StatusField.INVALID;
     const oldErrors = this.errors || [];
-    this.errors = [
-      ...(errors || []),
-      ...oldErrors,
-    ] as unknown as GetErrors<Validations>;
+    if (Array.isArray(oldErrors)) {
+      this.errors = [
+        ...(errors || []),
+        ...oldErrors,
+      ] as unknown as GetErrors<Field['validations']>;
+    }
   }
 
   setError(error: ValidationError) {

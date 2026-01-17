@@ -2,8 +2,6 @@ import { describe } from 'mocha';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import FieldsBuilder from './FieldsBuilder';
-import { PropsField } from '../../types';
-import FieldBuilder from './FieldBuilder';
 import { field } from '../field';
 
 chai.use(chaiAsPromised);

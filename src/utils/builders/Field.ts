@@ -13,7 +13,7 @@ import { GenericFieldsBuilder } from '../../types';
 
 export class Field<
   Field extends FieldType,
-  Validations extends CommonValidations | undefined = undefined,
+  
 > {
   public fieldsBuilder?: GenericFieldsBuilder = undefined;
   @observable public type?: TypeField = undefined;
@@ -23,10 +23,10 @@ export class Field<
   @observable public label: Field['label'];
   @observable public status?: StatusField;
   @observable public disabled: boolean = false;
-  @observable public errors?: GetErrors<Validations> | [] = undefined;
+  @observable public errors?: GetErrors<Field['validations']> | [] = undefined;
   public inputRef?: HTMLInputElement | null;
   @observable public onChange?: OnChangeField<Field> = undefined;
-  @observable public onSetValue?: OnSetValue<Field, Validations> =
+  @observable public onSetValue?: OnSetValue<Field> =
     undefined;
 
   public pristine: boolean = true;
@@ -162,7 +162,7 @@ export class Field<
     label,
     onChange,
     onSetValue,
-  }: PropsField<Field, Validations>) {
+  }: PropsField<Field>) {
     this.type = type;
     this.name = name;
     this.value = value;
