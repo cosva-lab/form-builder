@@ -13,7 +13,11 @@ import type { FieldProps, FieldType } from '../../types';
 import classes from './Input.module.scss';
 
 export interface InputProps<Field extends FieldType>
-  extends FieldProps<Field> {
+  extends FieldProps<
+    Field['value'],
+    Field['name'],
+    Field['validations']
+  > {
   type?: Field['type'];
 }
 

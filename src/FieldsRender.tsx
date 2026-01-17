@@ -7,18 +7,18 @@ import {
   FieldType,
   PropsField,
   FieldsToObject,
+  GetFieldsValue,
 } from './types';
 
 export interface FieldsRenderProps<
   Fields extends FieldBuilder<any>[],
-  FieldsObject extends FieldsToObject<Fields>,
 > {
-  onChangeField?<Field extends keyof FieldsObject>(
-    event: EventField<FieldsObject[Field], Field>,
+  onChangeField<FieldName extends keyof GetFieldsValue<Fields>>(
+    event: EventField<GetFieldsValue<Fields>[FieldName], FieldName>,
     nativeEvent?: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement
     >,
-  ): void | (() => void);
+  ): void;
 
   children?: ReactNode;
   fields: Fields;
@@ -26,7 +26,7 @@ export interface FieldsRenderProps<
 }
 
 export const FieldsRender = <Fields extends FieldBuilder<any>[]>(
-  props: FieldsRenderProps<Fields, FieldsToObject<Fields>>,
+  props: FieldsRenderProps<Fields>,
 ) => {
   const { fields, globalProps } = props;
   return (

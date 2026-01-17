@@ -7,27 +7,27 @@ import type {
   PropsField,
   CommonValidations,
   GetErrors,
+  LabelPropsField,
 } from '../../types';
 import { StatusField } from '../../enums';
 import { GenericFieldsBuilder } from '../../types';
 
-export class Field<
-  Field extends FieldType,
-  
-> {
+export class Field<Field extends FieldType> {
   public fieldsBuilder?: GenericFieldsBuilder = undefined;
   @observable public type?: TypeField = undefined;
   @observable public name: Field['name'];
   @observable public value: Field['value'];
   @observable public defaultInputValue?: Field['value'] = undefined;
-  @observable public label: Field['label'];
+  @observable public label?: Field['label'] extends LabelPropsField
+    ? Field['label']
+    : LabelPropsField;
   @observable public status?: StatusField;
   @observable public disabled: boolean = false;
-  @observable public errors?: GetErrors<Field['validations']> | [] = undefined;
+  @observable public errors?: GetErrors<Field['validations']> | [] =
+    undefined;
   public inputRef?: HTMLInputElement | null;
   @observable public onChange?: OnChangeField<Field> = undefined;
-  @observable public onSetValue?: OnSetValue<Field> =
-    undefined;
+  @observable public onSetValue?: OnSetValue<Field> = undefined;
 
   public pristine: boolean = true;
 
@@ -169,7 +169,7 @@ export class Field<
     if (disabled) this.disable();
     else this.status = StatusField.VALID;
     this.defaultInputValue = defaultInputValue;
-    this.label = label as Field['label'];
+    this.label = label;
     this.onChange = onChange;
     this.onSetValue = onSetValue;
     makeObservable(this);

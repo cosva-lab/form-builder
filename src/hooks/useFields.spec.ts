@@ -5,7 +5,7 @@ import chaiAsPromised from 'chai-as-promised';
 
 import { useFields } from './useFields';
 import { FieldsBuilder } from '../utils/builders/FieldsBuilder';
-import { field } from '../utils/field';
+import { buildField } from '../utils/buildField';
 
 chai.use(chaiAsPromised);
 const expect = chai.expect;
@@ -13,7 +13,7 @@ const expect = chai.expect;
 describe('useFields', () => {
   it('should return fields', () => {
     function lastNameField() {
-      return field({
+      return buildField({
         name: 'lastName',
         value: '',
       });
@@ -27,11 +27,11 @@ describe('useFields', () => {
       useFields(
         new FieldsBuilder({
           fields: [
-            field({
+            buildField({
               name: 'name' as const,
               value: '',
             }),
-            field({
+            buildField({
               name: 'age' as const,
               value: 220,
             }),

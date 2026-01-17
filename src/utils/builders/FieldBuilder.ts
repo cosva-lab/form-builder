@@ -12,7 +12,7 @@ import type {
   PropsField,
   RenderField,
   ComponentField,
-  ReturnValidationError,
+  FieldError,
   FieldType,
   GetErrors,
 } from '../../types';
@@ -76,7 +76,7 @@ export class FieldBuilder<
 
     if (Array.isArray(validations) && validate) {
       for (const validation of validations) {
-        let error: ReturnValidationError | undefined;
+        let error: FieldError | undefined;
         if (typeof validation === 'object') {
           if (this.hasValidationError(validation)) error = validation;
         } else if (typeof validation === 'function') {

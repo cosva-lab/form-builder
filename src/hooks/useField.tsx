@@ -1,45 +1,27 @@
 import { useLocalObservable } from 'mobx-react';
 
-import type {
-  PropsField,
-  NameField,
-  FieldType,
-  CommonValidations,
-} from '../types';
+import type { PropsField, FieldType, Simplify } from '../types';
 import { FieldBuilder } from '../utils/builders/FieldBuilder';
 
 export function useField<
-  const V,
-  const Name extends NameField,
-  Validations extends CommonValidations | undefined = undefined,
+  const P extends PropsField<FieldType<any, any, any>>,
 >(
-  props: () => PropsField<FieldType<Name, V, Validations>>,
-): FieldBuilder<FieldType<Name, V, Validations>>;
-
-export function useField<
-  const V,
-  const Name extends NameField,
-  Validations extends CommonValidations | undefined = undefined,
->(
-  props: PropsField<FieldType<Name, V, Validations>>,
-): FieldBuilder<FieldType<Name, V, Validations>>;
-
-export function useField<
-  const V,
-  const Name extends NameField,
-  Validations extends CommonValidations | undefined = undefined,
->(
-  props:
-    | PropsField<FieldType<Name, V, Validations>>
-    | (() => PropsField<FieldType<Name, V, Validations>>),
-) {
+  props: P | (() => P),
+): FieldBuilder<
+  Simplify<
+    FieldType<
+      P['name'],
+      P['value'],
+      P extends { validations: infer V } ? V : undefined
+    >
+  >
+> {
   const field = useLocalObservable(() => {
     const fieldProps = typeof props === 'function' ? props() : props;
-    return new FieldBuilder<FieldType<Name, V, Validations>>(
-      fieldProps,
-    );
+    return new FieldBuilder(fieldProps as any);
   });
-  return field;
+
+  return field as any;
 }
 
 export default useField;

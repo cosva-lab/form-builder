@@ -2,7 +2,7 @@ import { describe } from 'mocha';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import FieldsBuilder from './FieldsBuilder';
-import { field } from '../field';
+import { buildField } from '../buildField';
 
 chai.use(chaiAsPromised);
 const expect = chai.expect;
@@ -10,7 +10,7 @@ const expect = chai.expect;
 describe('FieldsBuilder', () => {
   it('should return fields', () => {
     function lastNameField() {
-      return field({
+      return buildField({
         name: 'lastName',
         value: '',
         label: '',
@@ -21,17 +21,17 @@ describe('FieldsBuilder', () => {
     const { fields, get, getValues, onChangeField, getErrors } =
       new FieldsBuilder({
         fields: [
-          field({
+          buildField({
             name: 'name',
             value: '',
           }),
-          field({
+          buildField({
             name: 'age',
             value: 22,
             label: 'Age',
           }),
           lastNameField(),
-          field({
+          buildField({
             name: 'date',
             value: '' as 'add' | 'sub',
             label: '',

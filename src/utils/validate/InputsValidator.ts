@@ -8,7 +8,6 @@ import {
 import { FieldsProps } from '../../types';
 import FieldBuilder from '../builders/FieldBuilder';
 import type {
-  ValidationErrors,
   ValidateInputsValidator,
   FieldType,
   FieldsToObject,

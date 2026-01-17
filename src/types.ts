@@ -111,9 +111,7 @@ export interface Validation extends Message {
 
 export type GenericFieldsBuilder = FieldsBuilder<FieldBuilder<any>[]>;
 
-export interface AllPropsValidationFunction<
-  Field extends PropsField,
-> {
+export interface AllPropsValidationFunction<Field extends FieldType> {
   field: FieldBuilder<Field>;
   validate: boolean;
   value: Field['value'];
@@ -130,17 +128,17 @@ export type ValidationError =
   | React.ReactElement<any>
   | Message;
 
-export type ValidationErrors<Field extends FieldBuilder<any>> =
-  Field['errors'];
-
-export type ReturnValidationError =
-  | undefined
-  | void
+export type FieldError =
   | ValidationError
-  | Record<string, any>;
-export type ValidationFunction<Field extends PropsField> = (
+  | Record<string, any>
+  | undefined
+  | void;
+
+export type FieldErrors = undefined | void | FieldError[];
+
+export type ValidationFunction<Field extends FieldType> = (
   all: AllPropsValidationFunction<Field>,
-) => ReturnValidationError | Promise<ReturnValidationError>;
+) => FieldError | Promise<FieldError>;
 
 export interface ValidationsProps<Field extends PropsField> {
   validate?: ValidateField<Field>;
@@ -161,17 +159,23 @@ export interface ValidationsFields<
 }
 
 export type ChildrenRender = React.ReactElement<
-  FieldProps<FieldType>,
-  JSXElementConstructor<FieldProps<FieldType>>
+  FieldProps<any, any, any>,
+  JSXElementConstructor<FieldProps<any, any, any>>
 >;
 
 export type RenderField<Field extends PropsField> = (element: {
   children: ChildrenRender;
-  props: FieldProps<Field>;
+  props: FieldProps<
+    Field['value'],
+    Field['name'],
+    Field['validations']
+  >;
 }) => React.CElement<any, any>;
 
 export type ComponentField<Field extends PropsField> =
-  React.ElementType<FieldProps<Field>>;
+  React.ElementType<
+    FieldProps<Field['value'], Field['name'], Field['validations']>
+  >;
 
 export interface ComponentErrorsProps<Field extends PropsField> {
   errors: any[];
@@ -227,15 +231,14 @@ export type LabelPropsField =
   | Message;
 
 export type InputPropsField<Field extends PropsField> =
-  | ((
-      a: {
-        type: Field['type'];
-        changeType: (
-          type: Field['type'],
-          callback?: () => void,
-        ) => void;
-      } & BaseRender<Field>,
-    ) => Partial<Field & OutlinedInputProps>)
+  | ((a: {
+      type: Field['type'];
+      changeType: (
+        type: Field['type'],
+        callback?: () => void,
+      ) => void;
+      field: FieldBuilder<Field>;
+    }) => Partial<Field & OutlinedInputProps>)
   | Partial<Field & OutlinedInputProps>;
 
 export interface FieldType<
@@ -263,9 +266,9 @@ export interface PropsFieldBase<Field extends PropsField> {
   onSetValue?: OnSetValue<Field>;
 }
 
-export type CommonValidations = (
+export type CommonValidations<Field extends FieldType = any> = (
   | Validation
-  | ValidationFunction<any>
+  | ValidationFunction<Field>
 )[];
 
 type ValidationResult<V> = V extends Promise<infer R>
@@ -294,7 +297,6 @@ export type PropsField<Field extends FieldType = FieldType> = {
     component?: ComponentField<Field>;
     disabled?: boolean;
     defaultInputValue?: Field['value'];
-    label?: Field['label'];
     fullWidth?: boolean;
     errors?: GetErrors<Field['validations']> | [];
     autoComplete?: string;
@@ -306,14 +308,24 @@ export interface Validate<Field extends PropsField>
   state?: boolean;
 }
 
-export interface BaseRender<Field extends PropsField> {
-  field: FieldBuilder<Field>;
-}
+export interface FieldProps<
+  Value = any,
+  Name extends NameField = any,
+  Validations extends CommonValidations | undefined =
+    | undefined
+    | any[],
+> {
+  field: FieldBuilder<
+    Simplify<
+      Pick<
+        FieldType<Name, Value, Validations>,
+        'name' | 'value' | 'validations'
+      >
+    >
+  >;
 
-export interface FieldProps<Field extends PropsField>
-  extends BaseRender<Field> {
   onChangeField?(
-    event: EventField<Field['value'], Field['name']>,
+    event: EventField<Value, Name>,
     nativeEvent?: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement
     >,

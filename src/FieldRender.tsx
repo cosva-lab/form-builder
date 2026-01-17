@@ -12,8 +12,14 @@ import type {
 import type { FieldBuilder } from './utils/builders/FieldBuilder';
 
 interface FieldRenderObserverProps<Field extends PropsField> {
-  component: React.ElementType<FieldProps<Field>>;
-  propsForm: FieldProps<Field>;
+  component: React.ElementType<
+    FieldProps<Field['value'], Field['name'], Field['validations']>
+  >;
+  propsForm: FieldProps<
+    Field['value'],
+    Field['name'],
+    Field['validations']
+  >;
 }
 
 const FieldRenderObserver = <Field extends PropsField>({

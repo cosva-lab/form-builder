@@ -6,20 +6,24 @@ import type {
 } from '../types';
 import { FieldBuilder } from './builders/FieldBuilder';
 
-export function field<Name extends NameField, Value>(
+export function buildField<Name extends NameField, Value>(
   field: PropsField<FieldType<Name, Value, undefined>>,
 ): FieldBuilder<FieldType<Name, Value, undefined>>;
 
-export function field<
+export function buildField<
+  Name extends NameField,
+  Value,
+  V extends CommonValidations,
+>(
+  field: PropsField<FieldType<Name, Value, V>>,
+): FieldBuilder<FieldType<Name, Value, V>>;
+
+export function buildField<
   Name extends NameField,
   Value,
   V extends CommonValidations | undefined,
 >(
   field: PropsField<FieldType<Name, Value, V>>,
-): FieldBuilder<FieldType<Name, Value, V>>;
-
-export function field<Field extends FieldType>(
-  field: PropsField<Field>,
-): FieldBuilder<Field> {
+): FieldBuilder<FieldType<Name, Value, V>> {
   return new FieldBuilder(field);
 }

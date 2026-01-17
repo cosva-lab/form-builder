@@ -2,7 +2,13 @@ import React from 'react';
 import { Input } from './inputsTypes';
 import type { FieldProps, PropsField } from './types';
 
-function Inputs<Field extends PropsField>(props: FieldProps<Field>) {
+function Inputs<Field extends PropsField>(
+  props: FieldProps<
+    Field['value'],
+    Field['name'],
+    Field['validations']
+  >,
+) {
   const { field } = props;
   const { type } = field;
   switch (type) {
