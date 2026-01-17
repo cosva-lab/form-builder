@@ -12,15 +12,17 @@ import type {
   PropsField,
   RenderField,
   ComponentField,
-  ComponentErrors,
-  ValidationErrors,
   ReturnValidationError,
+  CommonValidations,
+  FieldType,
+  GetErrors,
 } from '../../types';
 import { InputValidator } from '../validate/InputValidator';
 
 export class FieldBuilder<
-  Field extends PropsField,
-> extends InputValidator<Field> {
+  Field extends FieldType,
+  Validations extends CommonValidations | undefined = undefined,
+> extends InputValidator<Field, Validations> {
   @observable private _ns?: string = undefined;
   public get ns(): string | undefined {
     return typeof this._ns === 'undefined'
@@ -38,9 +40,8 @@ export class FieldBuilder<
   @observable public InputProps?: InputPropsField<Field> = undefined;
   @observable public textFieldProps?: TextFieldPropsField = undefined;
   @observable public component?: ComponentField<Field> = undefined;
-  public renderErrors?: ComponentErrors<Field>;
 
-  constructor(props: Field & PropsField<Field>) {
+  constructor(props: PropsField<Field, Validations>) {
     super(props);
     makeObservable(this);
     const {
@@ -51,9 +52,10 @@ export class FieldBuilder<
       InputProps,
       textFieldProps,
       component,
-      renderErrors,
     } = props;
-    this.validate = InputValidator.getValidation<Field>(this);
+    this.validate = InputValidator.getValidation<Field, Validations>(
+      this,
+    );
     this.ns = ns;
     this.render = render;
     this.fullWidth = fullWidth;
@@ -61,19 +63,18 @@ export class FieldBuilder<
     this.InputProps = InputProps;
     this.textFieldProps = textFieldProps;
     this.component = component;
-    this.renderErrors = renderErrors;
     this.getErrors = this.getErrors.bind(this);
   }
 
   protected async getErrorsBase(props?: {
     sequential: boolean;
-  }): Promise<ValidationErrors | undefined> {
+  }): Promise<GetErrors<Validations> | undefined> {
     const { sequential = false } = { ...props };
     const { validations, value } = this;
 
     if (typeof this.validate !== 'function') this._validate = true;
     const validate = this.validate;
-    let errors: ValidationErrors = [];
+    let errors: GetErrors<Validations> | undefined = undefined;
     if (!validate && !this.dirty && !this.enabled) return errors;
 
     if (Array.isArray(validations) && validate) {
@@ -89,15 +90,18 @@ export class FieldBuilder<
           });
         }
         if (error) {
-          errors = [...errors, error];
+          errors = [
+            ...(errors || []),
+            error,
+          ] as unknown as GetErrors<Validations>;
           if (sequential) break;
         }
       }
     }
-    return errors.length ? errors : undefined;
+    return errors?.length ? errors : undefined;
   }
 
-  public getErrors(): Promise<ValidationErrors | undefined> {
+  public getErrors(): Promise<GetErrors<Validations> | undefined> {
     return this.getErrorsBase();
   }
 
@@ -127,12 +131,11 @@ export class FieldBuilder<
         this.updateValueAndValidity();
       });
     }
-    this.onSetValue &&
-      this.onSetValue({
-        lastValue: toJS(this.value),
-        newValue: value,
-        field: this,
-      });
+    this.onSetValue?.({
+      lastValue: toJS(this.value),
+      newValue: value,
+      field: this,
+    });
   }
 }
 

@@ -1,19 +1,20 @@
 import { observable, makeObservable, action } from 'mobx';
 import type {
-  ValidationErrors,
   OnSetValue,
   OnChangeField,
   TypeField,
-  PropsFieldBase,
   FieldType,
   PropsField,
+  CommonValidations,
+  GetErrors,
 } from '../../types';
 import { StatusField } from '../../enums';
 import { GenericFieldsBuilder } from '../../types';
 
-export class Field<Field extends PropsField>
-  implements PropsFieldBase<Field>
-{
+export class Field<
+  Field extends FieldType,
+  Validations extends CommonValidations | undefined = undefined,
+> {
   public fieldsBuilder?: GenericFieldsBuilder = undefined;
   @observable public type?: TypeField = undefined;
   @observable public name: Field['name'];
@@ -22,10 +23,11 @@ export class Field<Field extends PropsField>
   @observable public label: Field['label'];
   @observable public status?: StatusField;
   @observable public disabled: boolean = false;
-  @observable public errors?: ValidationErrors = [];
+  @observable public errors?: GetErrors<Validations> | [] = undefined;
   public inputRef?: HTMLInputElement | null;
   @observable public onChange?: OnChangeField<Field> = undefined;
-  @observable public onSetValue?: OnSetValue<Field> = undefined;
+  @observable public onSetValue?: OnSetValue<Field, Validations> =
+    undefined;
 
   public pristine: boolean = true;
 
@@ -55,7 +57,6 @@ export class Field<Field extends PropsField>
   /**
    * A control is `invalid` when its `status` is `INVALID`.
    *
-   * @see {@link Field.status}
    *
    * @returns True if this control has failed one or more of its validation checks,
    * false otherwise.
@@ -67,7 +68,6 @@ export class Field<Field extends PropsField>
   /**
    * A control is `pending` when its `status` is `PENDING`.
    *
-   * @see {@link Field.status}
    *
    * @returns True if this control is in the process of conducting a validation check,
    * false otherwise.
@@ -82,7 +82,6 @@ export class Field<Field extends PropsField>
    * @returns True if the control has any status other than 'DISABLED',
    * false if the status is 'DISABLED'.
    *
-   * @see {@link Field.status}
    *
    */
   get enabled(): boolean {
@@ -95,14 +94,13 @@ export class Field<Field extends PropsField>
    *
    * If the control has children, all children are also disabled.
    *
-   * @see {@link Field.status}
    */
   @action
   disable(): void {
     // If parent has been marked artificially dirty we don't want to re-calculate the
     // parent's dirtiness based on the children.
     this.disabled = true;
-    this.errors = this.errors = [];
+    this.errors = undefined;
   }
 
   /**
@@ -112,7 +110,6 @@ export class Field<Field extends PropsField>
    *
    * By default, if the control has children, all children are enabled.
    *
-   * @see {@link Field.status}
    */
   @action
   enable(): void {
@@ -165,7 +162,7 @@ export class Field<Field extends PropsField>
     label,
     onChange,
     onSetValue,
-  }: PropsFieldBase<Field>) {
+  }: PropsField<Field, Validations>) {
     this.type = type;
     this.name = name;
     this.value = value;

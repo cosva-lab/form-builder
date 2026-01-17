@@ -9,11 +9,7 @@ import FormHelperText from '@mui/material/FormHelperText';
 import { isEmpty } from '../../utils/isEmpty';
 import { TransformLabel } from '../../utils/TransformLabel';
 import { RenderErrorsDefault } from '../../RenderErrorsDefault';
-import type {
-  ValidationErrors,
-  FieldProps,
-  FieldType,
-} from '../../types';
+import type { FieldProps, FieldType } from '../../types';
 import classes from './Input.module.scss';
 
 export interface InputProps<Field extends FieldType>
@@ -30,8 +26,6 @@ export class Input<Field extends FieldType> extends React.Component<
     super(props);
     this.state = { type: props.type };
   }
-
-  errors: ValidationErrors = [];
 
   animation = true;
 
@@ -62,15 +56,12 @@ export class Input<Field extends FieldType> extends React.Component<
       InputProps,
       textFieldProps,
       value,
-      renderErrors: RenderErrors,
     } = field;
 
     const { type } = this.state;
-    const errorsNode =
-      errors &&
-      ((RenderErrors && <RenderErrors {...{ errors, field }} />) || (
-        <RenderErrorsDefault<Field> {...{ errors, field }} />
-      ));
+    const errorsNode = errors && (
+      <RenderErrorsDefault {...{ errors, field }} />
+    );
     return (
       <FormControl
         {...{ fullWidth }}

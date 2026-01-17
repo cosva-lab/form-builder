@@ -12,16 +12,15 @@ const expect = chai.expect;
 describe('FieldsBuilder', () => {
   it('should return fields', () => {
     function lastNameField() {
-      return new FieldBuilder({
+      return field({
         name: 'lastName',
         value: '',
         label: '',
         type: 'text',
       });
     }
-    lastNameField().type;
 
-    const { fields, get, getValues, onChangeField } =
+    const { fields, get, getValues, onChangeField, getErrors } =
       new FieldsBuilder({
         fields: [
           field({
@@ -41,13 +40,21 @@ describe('FieldsBuilder', () => {
             type: 'date',
             validations: [
               ({ field }) => {
-                field.name;
+                return {
+                  date: {
+                    message: 'This field can not be empty',
+                  },
+                };
                 //
               },
             ],
           }),
         ],
       });
+
+    getErrors().then((errors) => {
+      errors.date;
+    });
 
     onChangeField({
       name: 'age',
@@ -61,6 +68,8 @@ describe('FieldsBuilder', () => {
       name: 'date',
       value: 'add',
     });
+
+    const lastNameErrors = get('lastName').errors;
 
     const lastName = get('lastName').value;
     expect(lastName).to.be.equal('Maria');

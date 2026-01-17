@@ -13,6 +13,7 @@ import type {
   FieldType,
   FieldsToObject,
   PropsField,
+  ValidationError,
 } from '../../types';
 
 class InputsValidator<Fields extends FieldBuilder<any>[]> {
@@ -130,32 +131,37 @@ class InputsValidator<Fields extends FieldBuilder<any>[]> {
   }
 
   @action
-  addErrors(errors: Record<string, ValidationErrors>) {
+  addErrors<Field extends Fields[number]>(
+    errors: Record<Field['name'], ValidationError[]>,
+  ) {
     if (!this.validate) this.validate = true;
     for (const key in errors) {
       if (errors.hasOwnProperty(key)) {
-        const error = errors[key];
+        const error = errors[key as keyof typeof errors];
         this.callbackField((field) => {
-          const keys = [field.name];
-          if (keys.some((name) => name === key))
-            field.addErrors(error);
+          if (field.name === key)
+            field.addErrors(error as ValidationError[]);
         });
       }
     }
   }
 
   @action
-  setErrors(errors?: Record<string, ValidationErrors>) {
+  setErrors<Field extends Fields[number]>(
+    errors?: Record<Field['name'], ValidationError[]>,
+  ) {
     errors && this.addErrors(errors);
   }
 
   async getErrors() {
-    const fieldsErrors: {
-      [P in keyof FieldsToObject<Fields>]?: ValidationErrors;
-    } = {};
+    type ObjectFields = FieldsToObject<Fields>;
+    const fieldsErrors = {} as {
+      [P in keyof ObjectFields]: ObjectFields[P]['errors'];
+    };
     for (const { name, errors, enabled } of this.fields)
       if (errors && enabled)
-        fieldsErrors[name as keyof FieldsToObject<Fields>] = errors;
+        fieldsErrors[name as keyof FieldsToObject<Fields>] =
+          errors as unknown as any;
     return fieldsErrors;
   }
 }

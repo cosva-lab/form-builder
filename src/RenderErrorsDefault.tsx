@@ -32,32 +32,35 @@ export const RenderErrorsDefault = <Field extends FieldType>({
   const common = useFieldError();
   return (
     <>
-      {errors.map((error, i) => {
-        if (React.isValidElement<any>(error))
-          return <error.type {...error.props} key={error.key || i} />;
-        return typeof error === 'string' ? (
-          <Text key={i}>{error}</Text>
-        ) : isMessage(error) ? (
-          <Text key={i}>
-            <TranslateFieldError {...{ ns, ...common, ...error }} />
-          </Text>
-        ) : (
-          Object.values(error).map((e, j) => {
+      {Array.isArray(errors) &&
+        errors.map((error, i) => {
+          if (React.isValidElement<any>(error))
             return (
-              <Text key={j}>
-                {typeof e === 'string'
-                  ? e
-                  : (isMessage(e) && (
-                      <TranslateFieldError
-                        {...{ ns, ...common, ...e }}
-                      />
-                    )) ||
-                    null}
-              </Text>
+              <error.type {...error.props} key={error.key || i} />
             );
-          })
-        );
-      })}
+          return typeof error === 'string' ? (
+            <Text key={i}>{error}</Text>
+          ) : isMessage(error) ? (
+            <Text key={i}>
+              <TranslateFieldError {...{ ns, ...common, ...error }} />
+            </Text>
+          ) : (
+            Object.values(error).map((e, j) => {
+              return (
+                <Text key={j}>
+                  {typeof e === 'string'
+                    ? e
+                    : (isMessage(e) && (
+                        <TranslateFieldError
+                          {...{ ns, ...common, ...e }}
+                        />
+                      )) ||
+                      null}
+                </Text>
+              );
+            })
+          );
+        })}
     </>
   );
 };

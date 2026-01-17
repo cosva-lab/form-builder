@@ -7,47 +7,52 @@ import {
 
 import type {
   Validation,
-  ValidationFunction,
   Validate,
-  ValidationErrors,
   ValidationError,
-  PropsFieldBase,
-  ValidationsField,
+  ValidateField,
   PropsField,
+  FieldType,
+  CommonValidations,
+  GetErrors,
 } from '../../types';
 import { StatusField } from '../../enums';
 import Field from '../builders/Field';
 import validators from '../validate/validators';
 
-type PropsInput<Field extends PropsField> = Validate<Field> &
-  PropsFieldBase<Field>;
+type PropsInput<
+  Field extends FieldType,
+  Validations extends CommonValidations | undefined = undefined,
+> = Validate<Field, Validations> & PropsField<Field, Validations>;
 
-export abstract class InputValidator<Field extends PropsField>
-  extends Field<Field>
-  implements Validate<Field>
-{
+export abstract class InputValidator<
+  Field extends FieldType,
+  Validations extends CommonValidations | undefined = undefined,
+> extends Field<Field, Validations> {
   public originalProps?: Pick<
-    PropsInput<Field>,
+    PropsInput<Field, Validations>,
     'value' | 'validate'
   >;
 
-  static getValidation<Field extends PropsField>(
-    obj: InputValidator<Field>,
-  ) {
+  static getValidation<
+    Field extends PropsField<any>,
+    Validations extends CommonValidations | undefined = undefined,
+  >(obj: InputValidator<Field, Validations>) {
     return typeof obj._validate === 'function'
       ? obj._validate(obj)
       : obj._validate;
   }
 
-  public _validate: ValidationsField<Field>['validate'] = false;
+  public _validate?: ValidateField<Field, Validations> = false;
   public get validate() {
-    return InputValidator.getValidation(this);
+    return !!InputValidator.getValidation(this);
   }
 
-  public set validate(validate: boolean | undefined) {
+  public set validate(
+    validate: ValidateField<Field, Validations> | undefined,
+  ) {
     this._validate = validate;
     if (validate) this.validity();
-    else this.errors = [];
+    else this.errors = undefined;
   }
 
   public touched?: boolean;
@@ -55,12 +60,9 @@ export abstract class InputValidator<Field extends PropsField>
     return !this.touched;
   }
 
-  @observable public validations?: (
-    | Validation
-    | ValidationFunction<Field>
-  )[];
+  @observable public validations?: Validations;
 
-  constructor(props: PropsInput<Field>) {
+  constructor(props: PropsInput<Field, Validations>) {
     super(props);
     makeObservable(this);
     const { validate, validations, value } = props;
@@ -115,8 +117,8 @@ export abstract class InputValidator<Field extends PropsField>
   }
 
   public abstract getErrors():
-    | Promise<ValidationErrors | undefined>
-    | ValidationErrors
+    | Promise<GetErrors<Validations> | undefined>
+    | GetErrors<Validations>
     | undefined;
 
   public markAsTouched() {
@@ -135,7 +137,7 @@ export abstract class InputValidator<Field extends PropsField>
         this.errors = errors;
         this.status = StatusField.INVALID;
       } else {
-        this.errors = this.errors = [];
+        this.errors = [];
         this.status = StatusField.VALID;
       }
     });
@@ -153,7 +155,7 @@ export abstract class InputValidator<Field extends PropsField>
   }
 
   private _calculateStatus(): StatusField {
-    if (this.errors && this.errors.length) return StatusField.INVALID;
+    if (this.errors?.length) return StatusField.INVALID;
     return StatusField.VALID;
   }
 
@@ -187,22 +189,25 @@ export abstract class InputValidator<Field extends PropsField>
       if (this.status !== StatusField.INVALID)
         this.status = StatusField.INVALID;
       if (!this.errors) this.errors = [];
-      this.errors.unshift(error);
+      this.errors.unshift(error as never);
     }
   }
 
   @action
-  addErrors(errors: ValidationErrors) {
+  addErrors(errors: ValidationError[]) {
     this.status = StatusField.INVALID;
     const oldErrors = this.errors || [];
-    this.errors = [...errors, ...oldErrors];
+    this.errors = [
+      ...(errors || []),
+      ...oldErrors,
+    ] as unknown as GetErrors<Validations>;
   }
 
   setError(error: ValidationError) {
     this.addError(error);
   }
 
-  setErrors(errors: ValidationErrors) {
+  setErrors(errors: ValidationError[]) {
     this.addErrors(errors);
   }
 }
