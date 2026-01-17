@@ -9,7 +9,7 @@ import FormHelperText from '@mui/material/FormHelperText';
 import { isEmpty } from '../../utils/isEmpty';
 import { TransformLabel } from '../../utils/TransformLabel';
 import { RenderErrorsDefault } from '../../RenderErrorsDefault';
-import type { FieldProps, FieldType } from '../../types';
+import type { FieldProps, FieldType, TypeField } from '../../types';
 import classes from './Input.module.scss';
 
 export interface InputProps<Field extends FieldType>
@@ -24,7 +24,7 @@ export interface InputProps<Field extends FieldType>
 @observer
 export class Input<Field extends FieldType> extends React.Component<
   InputProps<Field>,
-  { type?: Field['type'] }
+  { type?: TypeField }
 > {
   constructor(props: InputProps<Field>) {
     super(props);
@@ -79,7 +79,7 @@ export class Input<Field extends FieldType> extends React.Component<
           InputProps={
             typeof InputProps === 'function'
               ? InputProps({
-                  type,
+                  type: type as TypeField,
                   field,
                   changeType: (type, callback) => {
                     if (type !== this.state.type)

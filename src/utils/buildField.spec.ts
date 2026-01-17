@@ -6,7 +6,9 @@ buildField({
   type: 'component',
   component: ({ field }) => null,
   validations: [
-    ({ value }) =>
-      value ? undefined : { rule: 'isEmpty', message: 'required' },
+    ({ value }) => {
+      const x: 'a' | 'b' | null | undefined = value;
+      return value ? undefined : { rule: 'isEmpty', message: 'required' };
+    },
   ],
 });

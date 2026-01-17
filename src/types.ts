@@ -232,11 +232,8 @@ export type LabelPropsField =
 
 export type InputPropsField<Field extends PropsField> =
   | ((a: {
-      type: Field['type'];
-      changeType: (
-        type: Field['type'],
-        callback?: () => void,
-      ) => void;
+      type: TypeField;
+      changeType: (type: TypeField, callback?: () => void) => void;
       field: FieldBuilder<Field>;
     }) => Partial<Field & OutlinedInputProps>)
   | Partial<Field & OutlinedInputProps>;
@@ -244,9 +241,9 @@ export type InputPropsField<Field extends PropsField> =
 export interface FieldType<
   Name extends NameField = NameField,
   Value = any,
-  Validations extends CommonValidations | undefined =
-    | undefined
-    | any[],
+  Validations extends CommonValidations<any> | undefined =
+    | CommonValidations<any>
+    | undefined,
 > {
   name: Name;
   value: Value;
@@ -255,7 +252,7 @@ export interface FieldType<
   validations?: Validations;
 }
 
-export interface PropsFieldBase<Field extends PropsField> {
+export interface PropsFieldBase<Field extends FieldType> {
   readonly name: Field['name'];
   value: Field['value'];
   type?: Field['type'];
@@ -288,7 +285,7 @@ export type GetErrors<
   : never;
 
 export type PropsField<Field extends FieldType = FieldType> = {
-  validations?: Field['validations'];
+  validations?: CommonValidations<Field>;
 } & PropsFieldBase<Field> &
   InitialState & {
     validate?: ValidateField<Field>;

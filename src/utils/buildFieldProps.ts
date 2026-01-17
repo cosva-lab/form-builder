@@ -5,24 +5,14 @@ import type {
   CommonValidations,
 } from '../types';
 
-export function buildFieldProps<Name extends NameField, Value>(
-  field: PropsField<FieldType<Name, Value, undefined>>,
-): PropsField<FieldType<Name, Value, undefined>>;
-
 export function buildFieldProps<
-  Name extends NameField,
   Value,
-  V extends CommonValidations<FieldType<Name, Value>>,
->(
-  field: PropsField<FieldType<Name, Value, V>>,
-): PropsField<FieldType<Name, Value, V>>;
-
-export function buildFieldProps<
   Name extends NameField,
-  Value,
-  V extends CommonValidations<FieldType<Name, Value>> | undefined,
+  Validations extends
+    | CommonValidations<FieldType<Name, Value, any>>
+    | undefined,
 >(
-  field: PropsField<FieldType<Name, Value, V>>,
-): PropsField<FieldType<Name, Value, V>> {
+  field: PropsField<FieldType<Name, Value, Validations>>,
+): PropsField<FieldType<Name, Value, Validations>> {
   return field;
 }
