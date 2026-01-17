@@ -74,8 +74,8 @@ describe('FieldsBuilder', () => {
     const lastName = get('lastName').value;
     expect(lastName).to.be.equal('Maria');
 
-    const fieldAge = fields[0];
-    if (fieldAge.name === 'name') {
+    const fieldAge = fields[1];
+    if (fieldAge.name === 'age') {
       expect(fieldAge.value).to.be.equal(20);
     }
     expect(getValues().age).to.be.equal(20);
