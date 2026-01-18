@@ -5,7 +5,6 @@ import type {
   TypeField,
   FieldType,
   PropsField,
-  CommonValidations,
   GetErrors,
   LabelPropsField,
 } from '../../types';

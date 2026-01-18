@@ -22,14 +22,14 @@ type PropsInput<Field extends FieldType> = Validate<Field> &
   PropsField<Field>;
 
 export abstract class InputValidator<
-  Field extends FieldType,
+  Field extends FieldType<any, any, any>,
 > extends Field<Field> {
   public originalProps?: Pick<
     PropsInput<Field>,
     'value' | 'validate'
   >;
 
-  static getValidation<Field extends PropsField<any>>(
+  static getValidation<Field extends FieldType>(
     obj: InputValidator<Field>,
   ) {
     return typeof obj._validate === 'function'
@@ -53,7 +53,7 @@ export abstract class InputValidator<
     return !this.touched;
   }
 
-  @observable public validations?: Field['validations'];
+  @observable public validations: Field['validations'];
 
   constructor(props: PropsInput<Field>) {
     super(props);
@@ -62,7 +62,10 @@ export abstract class InputValidator<
     if (typeof validate !== 'undefined') this._validate = validate;
     // validations is an array of validation rules specific to a form
     this.validations = validations;
-    this.originalProps = { value, validate };
+    this.originalProps = {
+      value,
+      validate: validate as PropsInput<Field>['validate'],
+    };
   }
 
   @action

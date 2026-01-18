@@ -7,12 +7,10 @@ import type {
 
 export function buildFieldProps<
   Value,
-  Name extends NameField,
-  Validations extends
-    | CommonValidations<FieldType<Name, Value, any>>
-    | undefined,
+  const Name extends NameField,
+  const Validations extends CommonValidations<any> | undefined,
 >(
   field: PropsField<FieldType<Name, Value, Validations>>,
-): PropsField<FieldType<Name, Value, Validations>> {
-  return field;
+): PropsField<PropsField<FieldType<Name, Value, Validations>>> {
+  return field as any;
 }

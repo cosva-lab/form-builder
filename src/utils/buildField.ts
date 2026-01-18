@@ -8,12 +8,14 @@ import { FieldBuilder } from './builders/FieldBuilder';
 
 export function buildField<
   Value,
-  Name extends NameField,
-  Validations extends
-    | CommonValidations<FieldType<Name, Value, any>>
-    | undefined,
+  const Name extends NameField,
+  const Validations extends CommonValidations<any> | undefined,
 >(
   field: PropsField<FieldType<Name, Value, Validations>>,
-): FieldBuilder<FieldType<Name, Value, Validations>> {
-  return new FieldBuilder(field);
+): FieldBuilder<PropsField<FieldType<Name, Value, Validations>>> {
+  return new FieldBuilder(field as any) as any;
 }
+
+type A = FieldType<any, any, any>;
+
+type B = PropsField<A>['validations'];

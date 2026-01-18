@@ -1,3 +1,4 @@
+import { expect } from 'chai';
 import { buildFieldProps } from './buildFieldProps';
 
 describe('buildFieldProps', () => {
@@ -12,5 +13,14 @@ describe('buildFieldProps', () => {
         },
       ],
     });
+    expect(props.name).to.eq('test');
+    expect(props.value).to.eq(123);
+  });
+  it('should infer the value type in value type', () => {
+    const props = buildFieldProps({
+      name: 'test',
+      value: 123 as number | string,
+    });
+    expect(props.value).to.eq(123);
   });
 });
