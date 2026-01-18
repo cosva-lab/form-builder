@@ -245,6 +245,7 @@ export type FieldType<
 > = {
   name: Name;
   value: Value;
+  label?: LabelPropsField;
   validations?: NormalizeArray<Validations>;
 };
 
