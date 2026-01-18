@@ -245,9 +245,7 @@ export type FieldType<
 > = {
   name: Name;
   value: Value;
-  type?: TypeField;
-  label?: LabelPropsField;
-  validations?: Validations;
+  validations?: NormalizeArray<Validations>;
 };
 
 type WithConditionalValidations<Field> = Field extends {
@@ -261,10 +259,10 @@ type WithConditionalValidations<Field> = Field extends {
 export type PropsFieldBase<Field extends FieldType> = {
   readonly name: Field['name'];
   value: Field['value'];
-  type?: Field['type'];
+  type?: TypeField;
+  label?: LabelPropsField;
   disabled?: boolean;
   defaultInputValue?: Field['value'];
-  label?: Field['label'];
   onChange?: OnChangeField<Field>;
   onSetValue?: OnSetValue<Field>;
 } & WithConditionalValidations<Field>;

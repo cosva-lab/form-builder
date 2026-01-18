@@ -117,4 +117,22 @@ describe('useField', () => {
     expect(field.name).to.eq(BovineFields.developmentStage);
     expect(field.value).to.be.an('array').with.lengthOf(0);
   });
+
+  it('should work with props', () => {
+    const {
+      result: { current: field },
+    } = renderHook(() =>
+      useField({
+        name: 'code',
+        value: '' as string | number,
+        ns: 'general',
+        validate: false,
+        type: 'number',
+        validations: [
+          { rule: 'isEmpty', message: 'required' },
+          { rule: 'isNumeric', message: 'numeric' },
+        ],
+      }),
+    );
+  });
 });

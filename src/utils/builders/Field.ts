@@ -17,9 +17,7 @@ export class Field<Field extends FieldType> {
   @observable public name: Field['name'];
   @observable public value: Field['value'];
   @observable public defaultInputValue?: Field['value'] = undefined;
-  @observable public label?: Field['label'] extends LabelPropsField
-    ? Field['label']
-    : LabelPropsField;
+  @observable public label?: LabelPropsField;
   @observable public status?: StatusField;
   @observable public disabled: boolean = false;
   @observable public errors?: GetErrors<Field['validations']> | [] =

@@ -18,7 +18,7 @@ export interface InputProps<Field extends FieldType>
     Field['name'],
     Field['validations']
   > {
-  type?: Field['type'];
+  type?: TypeField;
 }
 
 @observer
