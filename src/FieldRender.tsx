@@ -3,30 +3,29 @@ import * as ReactIs from 'react-is';
 import { observer } from 'mobx-react';
 import Inputs from './Inputs';
 import type {
-  OnChangeField,
-  value,
-  NameField,
+  EventField,
   FieldProps,
-  LabelPropsField,
+  FieldType,
+  GlobalProps,
+  PropsField,
 } from './types';
+import type { FieldBuilder } from './utils/builders/FieldBuilder';
 
-interface FieldRenderObserverProps<
-  V = value,
-  Name extends NameField = string,
-  Label extends LabelPropsField = any,
-> {
-  component: React.ElementType<FieldProps<V, Name, Label>>;
-  propsForm: FieldProps<V, Name, Label>;
+interface FieldRenderObserverProps<Field extends PropsField> {
+  component: React.ElementType<
+    FieldProps<Field['value'], Field['name'], Field['validations']>
+  >;
+  propsForm: FieldProps<
+    Field['value'],
+    Field['name'],
+    Field['validations']
+  >;
 }
 
-const FieldRenderObserver = <
-  V = value,
-  Name extends NameField = string,
-  Label extends LabelPropsField = any,
->({
+const FieldRenderObserver = <Field extends PropsField>({
   component,
   propsForm,
-}: FieldRenderObserverProps<V, Name, Label>) => {
+}: FieldRenderObserverProps<Field>) => {
   let FieldComponent = component;
   try {
     FieldComponent = observer(component);
@@ -34,22 +33,27 @@ const FieldRenderObserver = <
   return <FieldComponent {...propsForm} />;
 };
 
-class FieldRender<
-  V = value,
-  Name extends NameField = string,
-  Label extends LabelPropsField = any,
-> extends React.PureComponent<FieldProps<V, Name, Label>> {
-  onChangeField: OnChangeField<V, Name, Label> = (e, callback) => {
-    const { onChangeField } = this.props;
-    onChangeField?.(e, callback);
-  };
+export interface FieldRenderProps<
+  Field extends FieldBuilder<FieldType>,
+> {
+  field: Field;
+  onChangeField?(
+    event: EventField<Field['value'], Field['name']>,
+    nativeEvent?: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement
+    >,
+  ): void | (() => void);
+  globalProps?: GlobalProps;
+}
 
+class FieldRender<
+  Field extends FieldBuilder<any>,
+> extends React.PureComponent<FieldRenderProps<Field>> {
   public render() {
     const { field, globalProps } = this.props;
     const { component: Component, render, type } = field;
-    const propsForm: FieldProps<V, Name, Label> = {
+    const propsForm: FieldRenderProps<Field> = {
       field,
-      onChangeField: this.onChangeField,
       globalProps,
     };
     const formInput = <Inputs {...propsForm} />;
@@ -62,7 +66,7 @@ class FieldRender<
     if (type === 'component') {
       if (Component)
         Component.displayName = `[fields.${field.name.toString()}].component`;
-      if (React.isValidElement<FieldProps<V, Name, Label>>(Component))
+      if (React.isValidElement<FieldRenderProps<Field>>(Component))
         return (
           <Component.type {...{ ...Component.props, ...propsForm }} />
         );

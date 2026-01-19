@@ -9,39 +9,27 @@ import FormHelperText from '@mui/material/FormHelperText';
 import { isEmpty } from '../../utils/isEmpty';
 import { TransformLabel } from '../../utils/TransformLabel';
 import { RenderErrorsDefault } from '../../RenderErrorsDefault';
-import type {
-  ValidationErrors,
-  NameField,
-  value,
-  TypeTextField,
-  FieldProps,
-  LabelPropsField,
-} from '../../types';
+import type { FieldProps, FieldType, TypeField } from '../../types';
 import classes from './Input.module.scss';
 
-export interface InputProps<
-  V,
-  Name extends NameField,
-  Label extends LabelPropsField,
-> extends FieldProps<V, Name, Label> {
-  type?: TypeTextField;
+export interface InputProps<Field extends FieldType>
+  extends FieldProps<
+    Field['value'],
+    Field['name'],
+    Field['validations']
+  > {
+  type?: TypeField;
 }
 
 @observer
-export class Input<
-  V,
-  Name extends NameField,
-  Label extends LabelPropsField,
-> extends React.Component<
-  InputProps<V, Name, Label>,
-  { type?: TypeTextField }
+export class Input<Field extends FieldType> extends React.Component<
+  InputProps<Field>,
+  { type?: TypeField }
 > {
-  constructor(props: InputProps<V, Name, Label>) {
+  constructor(props: InputProps<Field>) {
     super(props);
     this.state = { type: props.type };
   }
-
-  errors: ValidationErrors = [];
 
   animation = true;
 
@@ -53,7 +41,7 @@ export class Input<
     });
   }
 
-  getProps = (props: InputProps<V, Name, Label>) => ({
+  getProps = (props: InputProps<Field>) => ({
     ...props.field,
   });
 
@@ -72,15 +60,12 @@ export class Input<
       InputProps,
       textFieldProps,
       value,
-      renderErrors: RenderErrors,
     } = field;
 
     const { type } = this.state;
-    const errorsNode =
-      errors &&
-      ((RenderErrors && <RenderErrors {...{ errors, field }} />) || (
-        <RenderErrorsDefault<V, Name, Label> {...{ errors, field }} />
-      ));
+    const errorsNode = Array.isArray(errors) && (
+      <RenderErrorsDefault {...{ errors, field }} />
+    );
     return (
       <FormControl
         {...{ fullWidth }}
@@ -94,7 +79,7 @@ export class Input<
           InputProps={
             typeof InputProps === 'function'
               ? InputProps({
-                  type,
+                  type: type as TypeField,
                   field,
                   changeType: (type, callback) => {
                     if (type !== this.state.type)
@@ -114,7 +99,7 @@ export class Input<
           }}
           onChange={(e) => {
             const onChange = field.onChange;
-            const value = e.target.value as V;
+            const value = e.target.value as Field['value'];
             if (onChange)
               onChange({ name: field.name, value, field }, e);
             else field.setValue(value);

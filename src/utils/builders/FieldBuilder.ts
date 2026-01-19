@@ -12,22 +12,15 @@ import type {
   PropsField,
   RenderField,
   ComponentField,
-  ComponentErrors,
-  ValidationErrors,
-  ReturnValidationError,
-  NameField,
-  LabelPropsField,
+  FieldError,
+  FieldType,
+  GetErrors,
 } from '../../types';
 import { InputValidator } from '../validate/InputValidator';
 
 export class FieldBuilder<
-    V,
-    Name extends NameField = any,
-    Label extends LabelPropsField = any,
-  >
-  extends InputValidator<V, Name, Label>
-  implements PropsField<V, Name, Label>
-{
+  Field extends FieldType<any, any, any, any>,
+> extends InputValidator<Field> {
   @observable private _ns?: string = undefined;
   public get ns(): string | undefined {
     return typeof this._ns === 'undefined'
@@ -39,17 +32,14 @@ export class FieldBuilder<
     this._ns = ns;
   }
 
-  @observable public render?: RenderField<V, Name, Label> = undefined;
+  @observable public render?: RenderField<Field> = undefined;
   @observable public fullWidth?: boolean = undefined;
   @observable public autoComplete?: string = undefined;
-  @observable public InputProps?: InputPropsField<V, Name, Label> =
-    undefined;
+  @observable public InputProps?: InputPropsField<Field> = undefined;
   @observable public textFieldProps?: TextFieldPropsField = undefined;
-  @observable public component?: ComponentField<V, Name, Label> =
-    undefined;
-  public renderErrors?: ComponentErrors<V, Name, Label>;
+  @observable public component?: ComponentField<Field> = undefined;
 
-  constructor(props: PropsField<V, Name, Label>) {
+  constructor(props: PropsField<Field>) {
     super(props);
     makeObservable(this);
     const {
@@ -60,11 +50,8 @@ export class FieldBuilder<
       InputProps,
       textFieldProps,
       component,
-      renderErrors,
     } = props;
-    this.validate = InputValidator.getValidation<V, Name, Label>(
-      this,
-    );
+    this.validate = InputValidator.getValidation<Field>(this);
     this.ns = ns;
     this.render = render;
     this.fullWidth = fullWidth;
@@ -72,44 +59,50 @@ export class FieldBuilder<
     this.InputProps = InputProps;
     this.textFieldProps = textFieldProps;
     this.component = component;
-    this.renderErrors = renderErrors;
     this.getErrors = this.getErrors.bind(this);
   }
 
   protected async getErrorsBase(props?: {
     sequential: boolean;
-  }): Promise<ValidationErrors | undefined> {
+  }): Promise<GetErrors<Field['validations']> | undefined> {
     const { sequential = false } = { ...props };
     const { validations, value } = this;
 
     if (typeof this.validate !== 'function') this._validate = true;
     const validate = this.validate;
-    let errors: ValidationErrors = [];
+    let errors: GetErrors<Field['validations']> | undefined =
+      undefined;
     if (!validate && !this.dirty && !this.enabled) return errors;
 
     if (Array.isArray(validations) && validate) {
       for (const validation of validations) {
-        let error: ReturnValidationError | undefined;
+        let error: FieldError | undefined;
         if (typeof validation === 'object') {
           if (this.hasValidationError(validation)) error = validation;
         } else if (typeof validation === 'function') {
           error = await validation({
             field: this,
-            fieldsBuilder: this.fieldsBuilder as any,
             validate,
             value,
           });
         }
         if (error) {
-          errors = [...errors, error];
+          if (Array.isArray(errors))
+            errors = [
+              ...(errors || []),
+              error,
+            ] as unknown as GetErrors<Field['validations']>;
+
           if (sequential) break;
         }
       }
     }
-    return errors.length ? errors : undefined;
+    return errors?.length ? errors : undefined;
   }
 
-  public getErrors(): Promise<ValidationErrors | undefined> {
+  public getErrors(): Promise<
+    GetErrors<Field['validations']> | undefined
+  > {
     return this.getErrorsBase();
   }
 
@@ -124,7 +117,7 @@ export class FieldBuilder<
   }
 
   @action
-  async setValue(value: V) {
+  async setValue(value: Field['value']) {
     runInAction(() => {
       this.value = value;
     });
@@ -139,12 +132,11 @@ export class FieldBuilder<
         this.updateValueAndValidity();
       });
     }
-    this.onSetValue &&
-      this.onSetValue({
-        lastValue: toJS(this.value),
-        newValue: value,
-        field: this,
-      });
+    this.onSetValue?.({
+      lastValue: toJS(this.value),
+      newValue: value,
+      field: this,
+    });
   }
 }
 

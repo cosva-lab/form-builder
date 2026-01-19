@@ -5,20 +5,16 @@ import type {
   EventField,
   PropsField,
   EventChangeValue,
-  NameField,
   GetArrayValues,
-  value,
+  FieldType,
+  FieldsToObject,
+  GetFieldsValue,
 } from '../../types';
-import { Reducer } from '../types';
-import { GetFields } from '../../types';
+import type FieldBuilder from './FieldBuilder';
 
 export class FieldsBuilder<
-  Name extends NameField = any,
-  Item extends PropsField<value, Name> = PropsField<value, Name>,
-  Fields extends Item[] = Item[],
-  FieldsObject = Reducer<Fields>,
-  Partial = false,
-> extends InputsValidator<Name, Item, Fields, FieldsObject> {
+  Fields extends FieldBuilder<any>[],
+> extends InputsValidator<Fields> {
   @observable private _ns?: string = undefined;
 
   public get ns(): string | undefined {
@@ -30,39 +26,28 @@ export class FieldsBuilder<
   }
 
   @observable public actionsExtra?: object;
+
   public get values() {
     return this.getValues();
   }
 
   private paramsLast?: Pick<
-    FieldsProps<Name, Item, Fields, FieldsObject>,
+    FieldsProps<Fields>,
     'fields' | 'ns' | 'validate'
   >;
 
-  constructor(props: FieldsProps<Name, Item, Fields, FieldsObject>) {
+  constructor(props: FieldsProps<Fields>) {
     super(props);
     makeObservable(this);
-    const { ns } = props;
-    this._ns = ns;
+    this._ns = props.ns;
 
     for (const field of this.fields) {
       field.fieldsBuilder = this as any;
     }
     this.validate = this._validate;
-    this.saveData = this.saveData.bind(this);
-    this.restore = this.restore.bind(this);
-    this.restoreLast = this.restoreLast.bind(this);
-    this.onChangeField = this.onChangeField.bind(this);
-    this.onChangeFields = this.onChangeFields.bind(this);
-    this.setValidation = this.setValidation.bind(this);
-    this.setErrors = this.setErrors.bind(this);
-    this.getErrors = this.getErrors.bind(this);
-    this.getValues = this.getValues.bind(this);
-    this.get = this.get.bind(this);
-    this.getField = this.getField.bind(this);
   }
 
-  private setField(fieldOriginal: PropsField<value, NameField, any>) {
+  private setField(fieldOriginal: PropsField<FieldType>) {
     const field = this.fields.find(
       ({ name }) => fieldOriginal.name === name,
     );
@@ -73,90 +58,101 @@ export class FieldsBuilder<
     }
   }
 
-  private setFields(fields: PropsField<value, NameField, any>[]) {
+  private setFields(fields: PropsField<FieldType>[]) {
     fields.forEach((fieldOriginal) => this.setField(fieldOriginal));
   }
 
-  saveData() {
-    const { fields, ns, validate } = this;
+  @action.bound
+  public saveData() {
     this.paramsLast = {
-      fields: toJS(fields as any),
-      ns,
-      validate,
+      fields: toJS(this.fields as any),
+      ns: this.ns,
+      validate: this.validate as any,
     };
   }
 
-  restore() {
-    for (const field of this.fields) {
-      field.reset();
-    }
+  @action.bound
+  public restore() {
+    this.fields.forEach((field) => field.reset());
   }
 
-  restoreLast() {
+  @action.bound
+  public restoreLast() {
     if (this.paramsLast) {
-      const { fields } = this.paramsLast;
-      this.setFields(fields as any);
+      this.setFields(this.paramsLast.fields as any);
       this.paramsLast = undefined;
     }
   }
 
-  getValues() {
-    const values: {
-      [Key in keyof FieldsObject]: FieldsObject[Key];
-    } = Object.create(null);
-    for (const { name, value } of this.fields) values[name] = value;
+  @action.bound
+  public getValues(): GetFieldsValue<Fields> {
+    const values = this.fields.reduce((acc, { name, value }) => {
+      acc[name as keyof GetFieldsValue<Fields>] = value as any;
+      return acc;
+    }, {} as GetFieldsValue<Fields>);
+
     return toJS(values);
   }
 
-  get<FieldName extends keyof FieldsObject>(
+  @action.bound
+  public get<FieldName extends keyof FieldsToObject<Fields>>(
     fieldName: FieldName,
-  ):
-    | (Partial extends true ? undefined : never)
-    | GetFields<FieldsObject>[FieldName] {
+  ): FieldsToObject<Fields>[FieldName] {
     return this.fieldsMap[fieldName];
   }
 
-  getField<FieldName extends keyof FieldsObject>(
+  @action.bound
+  public getField<FieldName extends keyof FieldsToObject<Fields>>(
     fieldName: FieldName,
-  ):
-    | (Partial extends true ? undefined : never)
-    | GetFields<FieldsObject>[FieldName] {
-    return this.fieldsMap[fieldName];
+  ): FieldsToObject<Fields>[FieldName] {
+    return this.get(fieldName);
   }
 
-  @action
-  onChangeField<Field extends keyof FieldsObject>(
-    event: EventField<FieldsObject[Field], Field>,
-  ) {
-    const { value, name } = event;
-    const field = this.fieldsMap[name];
-    if (field) field.setValue(value);
-    else console.warn(`Field ${name.toString()} not found`);
+  @action.bound
+  public onChangeField<
+    FieldName extends keyof GetFieldsValue<Fields>,
+  >(event: EventField<GetFieldsValue<Fields>[FieldName], FieldName>) {
+    this.changeValue(event as any);
   }
 
-  @action
-  onChangeFields<Fields extends keyof FieldsObject>(
+  @action.bound
+  public onChangeFields<Values extends GetFieldsValue<Fields>>(
     events: GetArrayValues<{
-      [Field in Fields]: EventField<FieldsObject[Field], Field>;
+      [Field in keyof Values]: EventField<Values[Field], Field>;
     }>,
   ) {
-    events.forEach((event) => this.onChangeField(event));
+    events.forEach((event) => this.onChangeField(event as any));
   }
 
-  @action
-  changeValue({ name, value }: EventChangeValue) {
-    const field = this.get(name as keyof FieldsObject);
-    if (field) field.value = value;
-    else console.warn(`Field ${name} not found`);
+  @action.bound
+  public changeValue<FieldName extends keyof GetFieldsValue<Fields>>({
+    name,
+    value,
+  }: EventChangeValue<GetFieldsValue<Fields>[FieldName], FieldName>) {
+    const field = this.get(
+      name as any,
+    ) as unknown as FieldBuilder<any>;
+    if (field) {
+      field.setValue(value);
+    } else {
+      console.warn(`Field ${name.toString()} not found`);
+    }
   }
 
-  @action
-  changeValues(events: EventChangeValue[]) {
+  @action.bound
+  public changeValues(
+    events: {
+      [K in keyof GetFieldsValue<Fields>]: EventChangeValue<
+        GetFieldsValue<Fields>[K],
+        K
+      >;
+    }[keyof GetFieldsValue<Fields>][],
+  ) {
     events.forEach((event) => this.changeValue(event));
   }
 
-  @action
-  setValidation(validate: boolean) {
+  @action.bound
+  public setValidation(validate: boolean) {
     this.validate = validate;
   }
 }

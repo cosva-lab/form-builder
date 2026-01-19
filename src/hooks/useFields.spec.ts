@@ -4,19 +4,19 @@ import { renderHook } from '@testing-library/react-hooks';
 import chaiAsPromised from 'chai-as-promised';
 
 import { useFields } from './useFields';
-import { PropsField } from '../types';
-import { FieldsBuilder } from '../utils';
+import { FieldsBuilder } from '../utils/builders/FieldsBuilder';
+import { buildField } from '../utils/buildField';
 
 chai.use(chaiAsPromised);
 const expect = chai.expect;
 
 describe('useFields', () => {
   it('should return fields', () => {
-    function lastNameField(): PropsField<string, 'lastName'> {
-      return {
+    function lastNameField() {
+      return buildField({
         name: 'lastName',
         value: '',
-      };
+      });
     }
 
     const {
@@ -27,21 +27,14 @@ describe('useFields', () => {
       useFields(
         new FieldsBuilder({
           fields: [
-            {
-              name: 'name',
+            buildField({
+              name: 'name' as const,
               value: '',
-            },
-            {
-              name: 'age',
+            }),
+            buildField({
+              name: 'age' as const,
               value: 220,
-              validations: [
-                (a) => {
-                  const b = a.fieldsBuilder;
-                  if (b) {
-                  }
-                },
-              ],
-            },
+            }),
             lastNameField(),
           ],
         }),
@@ -60,7 +53,7 @@ describe('useFields', () => {
     const lastName = get('lastName').value;
     expect(lastName).to.be.equal('Maria');
 
-    const fieldAge = fields[0];
+    const fieldAge = fields[1];
     if (fieldAge.name === 'age') {
       expect(fieldAge.value).to.be.equal(20);
     }

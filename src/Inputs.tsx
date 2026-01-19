@@ -1,13 +1,15 @@
 import React from 'react';
 import { Input } from './inputsTypes';
-import type { FieldProps, LabelPropsField, NameField } from './types';
+import type { FieldProps, PropsField } from './types';
 
-function Inputs<
-  V,
-  Name extends NameField,
-  Label extends LabelPropsField,
->(props: FieldProps<V, Name, Label>) {
-  const { onChangeField, field } = props;
+function Inputs<Field extends PropsField>(
+  props: FieldProps<
+    Field['value'],
+    Field['name'],
+    Field['validations']
+  >,
+) {
+  const { field } = props;
   const { type } = field;
   switch (type) {
     case 'date':
@@ -22,9 +24,7 @@ function Inputs<
     case 'week':
     case 'datetime-local':
     case undefined:
-      return (
-        <Input<V, Name, Label> {...{ field, onChangeField, type }} />
-      );
+      return <Input {...{ field, type }} />;
     default:
       return null;
   }

@@ -3,49 +3,38 @@ import FieldRender from './FieldRender';
 import FieldBuilder from './utils/builders/FieldBuilder';
 import {
   EventField,
-  GetArrayValues,
-  GetFields,
   GlobalProps,
-  LabelPropsField,
-  NameField,
-  value,
+  FieldType,
+  PropsField,
+  FieldsToObject,
+  GetFieldsValue,
 } from './types';
-import { Reducer } from './utils/types';
 
 export interface FieldsRenderProps<
-  Name extends NameField,
-  Item extends FieldBuilder<value, Name, LabelPropsField>,
-  Fields extends Item[],
-  FieldsObject = Reducer<Fields>,
+  Fields extends FieldBuilder<any>[],
 > {
-  onChangeField?<Field extends keyof FieldsObject>(
-    event: EventField<FieldsObject[Field], Field>,
+  onChangeField<FieldName extends keyof GetFieldsValue<Fields>>(
+    event: EventField<GetFieldsValue<Fields>[FieldName], FieldName>,
     nativeEvent?: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement
     >,
-  ): void | (() => void);
+  ): void;
 
   children?: ReactNode;
-  fields: GetArrayValues<GetFields<FieldsObject>>;
+  fields: Fields;
   globalProps?: GlobalProps;
 }
 
-export const FieldsRender = <
-  Name extends NameField,
-  Item extends FieldBuilder<value, Name, LabelPropsField>,
-  Fields extends Item[],
-  FieldsObject,
->(
-  props: FieldsRenderProps<Name, Item, Fields, FieldsObject>,
+export const FieldsRender = <Fields extends FieldBuilder<any>[]>(
+  props: FieldsRenderProps<Fields>,
 ) => {
-  const { fields, globalProps, onChangeField } = props;
+  const { fields, globalProps } = props;
   return (
     <>
       {fields.map((field) => (
-        <FieldRender<any, any>
+        <FieldRender<FieldBuilder<FieldType>>
           key={field.name.toString()}
-          field={field}
-          onChangeField={onChangeField}
+          field={field as any}
           globalProps={globalProps}
         />
       ))}

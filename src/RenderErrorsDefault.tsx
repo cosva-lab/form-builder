@@ -2,9 +2,8 @@ import React from 'react';
 
 import type {
   ComponentErrorsProps,
-  LabelPropsField,
+  FieldType,
   Message,
-  NameField,
 } from './types';
 import { useFieldError } from './FieldError';
 import { TranslateFieldError } from './contexts/TranslateFieldErrorProvider';
@@ -25,44 +24,43 @@ const Text = ({ children }: SpanFullWidthProps) => (
   <div>{children}</div>
 );
 
-export const RenderErrorsDefault = <
-  V,
-  Name extends NameField,
-  Label extends LabelPropsField,
->({
+export const RenderErrorsDefault = <Field extends FieldType>({
   errors,
   field,
-}: ComponentErrorsProps<V, Name, Label>) => {
+}: ComponentErrorsProps<Field>) => {
   const ns = field && field.ns;
   const common = useFieldError();
   return (
     <>
-      {errors.map((error, i) => {
-        if (React.isValidElement<any>(error))
-          return <error.type {...error.props} key={error.key || i} />;
-        return typeof error === 'string' ? (
-          <Text key={i}>{error}</Text>
-        ) : isMessage(error) ? (
-          <Text key={i}>
-            <TranslateFieldError {...{ ns, ...common, ...error }} />
-          </Text>
-        ) : (
-          Object.values(error).map((e, j) => {
+      {Array.isArray(errors) &&
+        errors.map((error, i) => {
+          if (React.isValidElement<any>(error))
             return (
-              <Text key={j}>
-                {typeof e === 'string'
-                  ? e
-                  : (isMessage(e) && (
-                      <TranslateFieldError
-                        {...{ ns, ...common, ...e }}
-                      />
-                    )) ||
-                    null}
-              </Text>
+              <error.type {...error.props} key={error.key || i} />
             );
-          })
-        );
-      })}
+          return typeof error === 'string' ? (
+            <Text key={i}>{error}</Text>
+          ) : isMessage(error) ? (
+            <Text key={i}>
+              <TranslateFieldError {...{ ns, ...common, ...error }} />
+            </Text>
+          ) : (
+            Object.values(error).map((e, j) => {
+              return (
+                <Text key={j}>
+                  {typeof e === 'string'
+                    ? e
+                    : (isMessage(e) && (
+                        <TranslateFieldError
+                          {...{ ns, ...common, ...e }}
+                        />
+                      )) ||
+                      null}
+                </Text>
+              );
+            })
+          );
+        })}
     </>
   );
 };

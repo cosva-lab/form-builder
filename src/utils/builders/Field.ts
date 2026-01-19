@@ -1,36 +1,29 @@
 import { observable, makeObservable, action } from 'mobx';
 import type {
-  ValidationErrors,
   OnSetValue,
   OnChangeField,
-  LabelPropsField,
   TypeField,
-  PropsFieldBase,
-  NameField,
+  FieldType,
+  PropsField,
+  GetErrors,
 } from '../../types';
 import { StatusField } from '../../enums';
 import { GenericFieldsBuilder } from '../../types';
 
-export class Field<
-  V,
-  Name extends NameField,
-  Label extends LabelPropsField,
-> implements PropsFieldBase<V, Name, Label>
-{
+export class Field<Field extends FieldType<any, any, any, any>> {
   public fieldsBuilder?: GenericFieldsBuilder = undefined;
   @observable public type?: TypeField = undefined;
-  @observable public name: Name;
-  @observable public value: V;
-  @observable public defaultInputValue?: V = undefined;
-  @observable public label: Label;
+  @observable public name: Field['name'];
+  @observable public value: Field['value'];
+  @observable public defaultInputValue?: Field['value'] = undefined;
+  @observable public label: Field['label'];
   @observable public status?: StatusField;
   @observable public disabled: boolean = false;
-  @observable public errors?: ValidationErrors = [];
+  @observable public errors?: GetErrors<Field['validations']> | [] =
+    undefined;
   public inputRef?: HTMLInputElement | null;
-  @observable public onChange?: OnChangeField<V, Name, Label> =
-    undefined;
-  @observable public onSetValue?: OnSetValue<V, Name, Label> =
-    undefined;
+  @observable public onChange?: OnChangeField<Field> = undefined;
+  @observable public onSetValue?: OnSetValue<Field> = undefined;
 
   public pristine: boolean = true;
 
@@ -60,7 +53,6 @@ export class Field<
   /**
    * A control is `invalid` when its `status` is `INVALID`.
    *
-   * @see {@link Field.status}
    *
    * @returns True if this control has failed one or more of its validation checks,
    * false otherwise.
@@ -72,7 +64,6 @@ export class Field<
   /**
    * A control is `pending` when its `status` is `PENDING`.
    *
-   * @see {@link Field.status}
    *
    * @returns True if this control is in the process of conducting a validation check,
    * false otherwise.
@@ -87,7 +78,6 @@ export class Field<
    * @returns True if the control has any status other than 'DISABLED',
    * false if the status is 'DISABLED'.
    *
-   * @see {@link Field.status}
    *
    */
   get enabled(): boolean {
@@ -100,14 +90,13 @@ export class Field<
    *
    * If the control has children, all children are also disabled.
    *
-   * @see {@link Field.status}
    */
   @action
   disable(): void {
     // If parent has been marked artificially dirty we don't want to re-calculate the
     // parent's dirtiness based on the children.
     this.disabled = true;
-    this.errors = this.errors = [];
+    this.errors = undefined;
   }
 
   /**
@@ -117,7 +106,6 @@ export class Field<
    *
    * By default, if the control has children, all children are enabled.
    *
-   * @see {@link Field.status}
    */
   @action
   enable(): void {
@@ -170,14 +158,14 @@ export class Field<
     label,
     onChange,
     onSetValue,
-  }: PropsFieldBase<V, Name, Label>) {
+  }: PropsField<Field>) {
     this.type = type;
     this.name = name;
     this.value = value;
     if (disabled) this.disable();
     else this.status = StatusField.VALID;
     this.defaultInputValue = defaultInputValue;
-    this.label = label as Label;
+    this.label = label;
     this.onChange = onChange;
     this.onSetValue = onSetValue;
     makeObservable(this);
