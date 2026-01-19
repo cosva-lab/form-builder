@@ -63,7 +63,7 @@ class InputsValidator<Fields extends FieldBuilder<any>[]> {
 
   async callbackField(
     callback: (
-      field: FieldBuilder<PropsField<FieldType>>,
+      field: FieldBuilder<FieldType>,
       cancel: () => void,
     ) => void,
   ) {

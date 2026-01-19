@@ -12,7 +12,7 @@ export function buildField<
   const Validations extends CommonValidations<any> | undefined,
 >(
   field: PropsField<FieldType<Name, Value, Validations>>,
-): FieldBuilder<PropsField<FieldType<Name, Value, Validations>>> {
+): FieldBuilder<FieldType<Name, Value, Validations>> {
   return new FieldBuilder(field as any) as any;
 }
 

@@ -11,6 +11,6 @@ export function buildFieldProps<
   const Validations extends CommonValidations<any> | undefined,
 >(
   field: PropsField<FieldType<Name, Value, Validations>>,
-): PropsField<PropsField<FieldType<Name, Value, Validations>>> {
+): PropsField<FieldType<Name, Value, Validations>> {
   return field as any;
 }

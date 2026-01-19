@@ -6,20 +6,17 @@ import type {
   FieldType,
   PropsField,
   GetErrors,
-  LabelPropsField,
 } from '../../types';
 import { StatusField } from '../../enums';
 import { GenericFieldsBuilder } from '../../types';
 
-export class Field<Field extends FieldType> {
+export class Field<Field extends FieldType<any, any, any, any>> {
   public fieldsBuilder?: GenericFieldsBuilder = undefined;
   @observable public type?: TypeField = undefined;
   @observable public name: Field['name'];
   @observable public value: Field['value'];
   @observable public defaultInputValue?: Field['value'] = undefined;
-  @observable public label?: Field['label'] extends LabelPropsField
-    ? Field['label']
-    : LabelPropsField;
+  @observable public label: Field['label'];
   @observable public status?: StatusField;
   @observable public disabled: boolean = false;
   @observable public errors?: GetErrors<Field['validations']> | [] =

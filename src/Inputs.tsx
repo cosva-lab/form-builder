@@ -24,7 +24,7 @@ function Inputs<Field extends PropsField>(
     case 'week':
     case 'datetime-local':
     case undefined:
-      return <Input<Field> {...{ field, type }} />;
+      return <Input {...{ field, type }} />;
     default:
       return null;
   }

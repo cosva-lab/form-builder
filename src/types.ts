@@ -111,11 +111,15 @@ export interface Validation extends Message {
 
 export type GenericFieldsBuilder = FieldsBuilder<FieldBuilder<any>[]>;
 
-export interface AllPropsValidationFunction<Field extends FieldType> {
-  field: FieldBuilder<Field>;
+export interface AllPropsValidationFunction<V = any> {
+  field: FieldBuilder<any>;
   validate: boolean;
-  value: Field['value'];
+  value: V;
 }
+
+export type ValidationFunction<V = any> = (
+  all: AllPropsValidationFunction<V>,
+) => FieldError | Promise<FieldError>;
 
 /**
  * @description
@@ -135,10 +139,6 @@ export type FieldError =
   | void;
 
 export type FieldErrors = undefined | void | FieldError[];
-
-export type ValidationFunction<Field extends FieldType> = (
-  all: AllPropsValidationFunction<Field>,
-) => FieldError | Promise<FieldError>;
 
 export interface ValidationsProps<Field extends FieldType> {
   validate?: ValidateField<Field>;
@@ -177,13 +177,16 @@ export type ComponentField<Field extends FieldType> =
     FieldProps<Field['value'], Field['name'], Field['validations']>
   >;
 
-export interface ComponentErrorsProps<Field extends PropsField> {
+export interface ComponentErrorsProps<
+  Field extends FieldType<any, any, any, any>,
+> {
   errors: any[];
   field?: FieldBuilder<Field>;
 }
 
-export type ComponentErrors<Field extends PropsField> =
-  React.ElementType<ComponentErrorsProps<Field>>;
+export type ComponentErrors<
+  Field extends FieldType<any, any, any, any>,
+> = React.ElementType<ComponentErrorsProps<Field>>;
 
 export type TypeTextField =
   | 'date'
@@ -239,38 +242,32 @@ export type InputPropsField<Field extends FieldType> =
   | Partial<Field & OutlinedInputProps>;
 
 export type FieldType<
-  Name extends NameField = NameField,
+  Name extends NameField = any,
   Value = any,
-  Validations = CommonValidations<any> | undefined,
+  Validations = any,
+  Label = any,
 > = {
   name: Name;
   value: Value;
-  label?: LabelPropsField;
-  validations?: NormalizeArray<Validations>;
+  label: Label;
+  validations: Validations;
 };
-
-type WithConditionalValidations<Field> = Field extends {
-  validations?: infer V;
-}
-  ? { validations?: V }
-  : Field extends { validations: infer V }
-  ? { validations: V }
-  : { validations: undefined };
 
 export type PropsFieldBase<Field extends FieldType> = {
   readonly name: Field['name'];
-  value: Field['value'];
   type?: TypeField;
-  label?: LabelPropsField;
   disabled?: boolean;
   defaultInputValue?: Field['value'];
   onChange?: OnChangeField<Field>;
   onSetValue?: OnSetValue<Field>;
-} & WithConditionalValidations<Field>;
+  value: Field['value'];
+  label: Field['label'];
+  validations: Field['validations'];
+};
 
-export type CommonValidations<Field extends FieldType = any> = (
+export type CommonValidations<V = any> = (
   | Validation
-  | ValidationFunction<Field>
+  | ValidationFunction<V>
 )[];
 
 type ValidationResult<V> = V extends Promise<infer R>
@@ -290,16 +287,21 @@ export type GetErrors<
     }>
   : never;
 
-export type PropsField<
-  Field extends FieldType<any, any, any> = FieldType<any, any, any>,
-> = PropsFieldBase<Field> &
-  InitialState & {
+export type PropsField<Field extends FieldType = any> = {
+  readonly name: Field['name'];
+  type?: TypeField;
+  disabled?: boolean;
+  defaultInputValue?: Field['value'];
+  onChange?: OnChangeField<Field>;
+  onSetValue?: OnSetValue<Field>;
+  value: Field['value'];
+  label?: Field['label'];
+  validations?: Field['validations'];
+} & InitialState & {
     validate?: ValidateField<Field>;
     render?: RenderField<Field>;
     InputProps?: InputPropsField<Field>;
     component?: ComponentField<Field>;
-    disabled?: boolean;
-    defaultInputValue?: Field['value'];
     fullWidth?: boolean;
     errors?: GetErrors<Field['validations']> | [];
     autoComplete?: string;

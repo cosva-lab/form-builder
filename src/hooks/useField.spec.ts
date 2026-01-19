@@ -7,13 +7,15 @@ describe('useField', () => {
     const {
       result: { current: field },
     } = renderHook(() =>
-      useField(() => ({
+      useField({
         type: 'text',
         name: 'name',
         value: '',
-      })),
+        label: 'Name',
+      }),
     );
-    expect(field.label).to.eq(undefined);
+    const label = field.label;
+    expect(field.label).to.eq('Name');
     expect(field.name).to.eq('name');
   });
 
@@ -65,6 +67,7 @@ describe('useField', () => {
       useField({
         name: 'type',
         value: '' as string | number,
+        label: 'Type',
         validations: [
           ({ value }) => {
             // This is primarily a type check test
@@ -118,21 +121,53 @@ describe('useField', () => {
     expect(field.value).to.be.an('array').with.lengthOf(0);
   });
 
-  it('should work with props', () => {
+  it('should work with label', () => {
     const {
       result: { current: field },
     } = renderHook(() =>
       useField({
         name: 'code',
         value: '' as string | number,
-        ns: 'general',
-        validate: false,
-        type: 'number',
+        label: 'Code',
+      }),
+    );
+    field.label satisfies string;
+  });
+  it('should work without label', () => {
+    const {
+      result: { current: field },
+    } = renderHook(() =>
+      useField({
+        name: 'code',
+        value: '' as string | number,
+      }),
+    );
+    field.label satisfies unknown;
+  });
+  it('should work with validations', () => {
+    const {
+      result: { current: field },
+    } = renderHook(() =>
+      useField({
+        name: 'code',
+        value: '' as string | number,
         validations: [
           { rule: 'isEmpty', message: 'required' },
           { rule: 'isNumeric', message: 'numeric' },
         ],
       }),
     );
+    field.validations satisfies Array<any> | undefined
+  });
+  it('should work without validations', () => {
+    const {
+      result: { current: field },
+    } = renderHook(() =>
+      useField({
+        name: 'code',
+        value: '' as string | number,
+      }),
+    );
+    field.validations satisfies unknown;
   });
 });

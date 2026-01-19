@@ -4,42 +4,28 @@ import type {
   PropsField,
   FieldType,
   Simplify,
-  CommonValidations,
   NameField,
+  CommonValidations,
 } from '../types';
 import { FieldBuilder } from '../utils/builders/FieldBuilder';
 
 export function useField<
+  Name extends NameField,
   Value,
-  const Name extends NameField,
-  const Validations extends CommonValidations<any> | undefined,
+  Validations extends CommonValidations<Value> | undefined,
+  Label,
 >(
-  initializer: () => PropsField<FieldType<Name, Value, Validations>>,
-): FieldBuilder<
-  PropsField<Simplify<FieldType<Name, Value, Validations>>>
->;
-
+  props: PropsField<FieldType<Name, Value, Validations, Label>>,
+): FieldBuilder<Simplify<FieldType<Name, Value, Validations, Label>>>;
 export function useField<
+  Name extends NameField,
   Value,
-  const Name extends NameField,
-  const Validations extends CommonValidations<any> | undefined,
+  Validations extends CommonValidations<Value> | undefined,
+  Label,
 >(
-  props: PropsField<FieldType<Name, Value, Validations>>,
-): FieldBuilder<
-  PropsField<Simplify<FieldType<Name, Value, Validations>>>
->;
-
-export function useField<
-  Value,
-  const Name extends NameField,
-  const Validations extends CommonValidations<any> | undefined,
->(
-  props:
-    | PropsField<FieldType<Name, Value, Validations>>
-    | (() => PropsField<FieldType<Name, Value, Validations>>),
-): FieldBuilder<
-  PropsField<Simplify<FieldType<Name, Value, Validations>>>
-> {
+  props: () => PropsField<FieldType<Name, Value, Validations, Label>>,
+): FieldBuilder<Simplify<FieldType<Name, Value, Validations, Label>>>;
+export function useField(props: any): any {
   const field = useLocalObservable(() => {
     const fieldProps = typeof props === 'function' ? props() : props;
     return new FieldBuilder(fieldProps as any);
