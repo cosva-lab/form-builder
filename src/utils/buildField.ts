@@ -3,24 +3,17 @@ import type {
   FieldType,
   Simplify,
   CommonValidations,
+  NameField,
 } from '../types';
 import { FieldBuilder } from './builders/FieldBuilder';
 
 export function buildField<
   V,
+  const N extends NameField,
   Validations extends CommonValidations<V> | undefined,
-  const P extends PropsField<FieldType<any, V, Validations, any>>,
+  L,
 >(
-  field: P & { value: V; validations?: Validations },
-): FieldBuilder<
-  Simplify<
-    FieldType<
-      P['name'],
-      V,
-      Validations,
-      P['label']
-    >
-  >
-> {
+  field: PropsField<FieldType<N, V, Validations, L>>,
+): FieldBuilder<Simplify<FieldType<N, V, Validations, L>>> {
   return new FieldBuilder(field as any) as any;
 }

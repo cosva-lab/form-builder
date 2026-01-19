@@ -5,20 +5,20 @@ import type {
   FieldType,
   Simplify,
   CommonValidations,
+  NameField,
 } from '../types';
 import { FieldBuilder } from '../utils/builders/FieldBuilder';
 
 export function useField<
   V,
+  const N extends NameField,
   Validations extends CommonValidations<V> | undefined,
-  const P extends PropsField<FieldType<any, V, Validations, any>>,
+  L,
 >(
   props:
-    | (P & { value: V; validations?: Validations })
-    | (() => P & { value: V; validations?: Validations }),
-): FieldBuilder<
-  Simplify<FieldType<P['name'], V, Validations, P['label']>>
-> {
+    | PropsField<FieldType<N, V, Validations, L>>
+    | (() => PropsField<FieldType<N, V, Validations, L>>),
+): FieldBuilder<Simplify<FieldType<N, V, Validations, L>>> {
   const field = useLocalObservable(() => {
     const fieldProps =
       typeof props === 'function' ? props() : (props as any);

@@ -12,12 +12,26 @@ describe('buildField', () => {
         ({ value }) => {
           // Type check
           const x: 'a' | 'b' | null | undefined = value;
-          return value ? undefined : { rule: 'isEmpty', message: 'required' };
+          return value
+            ? undefined
+            : { rule: 'isEmpty', message: 'required' };
         },
       ],
     });
 
     expect(field.name).to.eq('breed');
     expect(field.value).to.eq(undefined);
+  });
+
+  it('should infer the number type in value', () => {
+    const field = buildField({
+      name: 'age',
+      value: 22,
+      label: 'Age',
+    });
+    expect(field.value).to.eq(22);
+    field.value satisfies number;
+    // This proves it's widened to number and not the literal 22
+    field.setValue(23);
   });
 });

@@ -78,4 +78,21 @@ describe('FieldsBuilder', () => {
     }
     expect(getValues().age).to.be.equal(20);
   });
+
+  it('should build fields from a function', () => {
+    const getBasicFields = () => [
+      buildField({
+        name: 'name',
+        value: '',
+      }),
+      buildField({
+        name: 'age',
+        value: 22,
+        label: 'Age',
+      }),
+    ];
+    const { fields } = new FieldsBuilder({
+      fields: [...getBasicFields()],
+    });
+  });
 });
