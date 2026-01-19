@@ -253,18 +253,6 @@ export type FieldType<
   validations: Validations;
 };
 
-export type PropsFieldBase<Field extends FieldType> = {
-  readonly name: Field['name'];
-  type?: TypeField;
-  disabled?: boolean;
-  defaultInputValue?: Field['value'];
-  onChange?: OnChangeField<Field>;
-  onSetValue?: OnSetValue<Field>;
-  value: Field['value'];
-  label: Field['label'];
-  validations: Field['validations'];
-};
-
 export type CommonValidations<V = any> = (
   | Validation
   | ValidationFunction<V>

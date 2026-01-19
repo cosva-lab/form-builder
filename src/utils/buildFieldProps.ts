@@ -1,16 +1,18 @@
 import type {
   PropsField,
   FieldType,
-  NameField,
   CommonValidations,
 } from '../types';
 
 export function buildFieldProps<
-  Value,
-  const Name extends NameField,
-  const Validations extends CommonValidations<any> | undefined,
+  V,
+  Validations extends CommonValidations<V> | undefined,
+  const P extends PropsField<FieldType<any, V, Validations, any>>,
 >(
-  field: PropsField<FieldType<Name, Value, Validations>>,
-): PropsField<FieldType<Name, Value, Validations>> {
+  field: P & { value: V; validations?: Validations },
+): P &
+  (P['validations'] extends CommonValidations<V>
+    ? { validations: P['validations'] }
+    : { validations: unknown }) {
   return field as any;
 }

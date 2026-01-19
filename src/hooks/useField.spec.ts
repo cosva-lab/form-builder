@@ -1,6 +1,7 @@
 import { renderHook } from '@testing-library/react-hooks';
 import useField from './useField';
 import { expect } from 'chai';
+import { buildFieldProps } from '../utils/buildFieldProps';
 
 describe('useField', () => {
   it('should work with arrow function initializer', () => {
@@ -157,7 +158,7 @@ describe('useField', () => {
         ],
       }),
     );
-    field.validations satisfies Array<any> | undefined
+    field.validations satisfies Array<any> | undefined;
   });
   it('should work without validations', () => {
     const {
@@ -169,5 +170,30 @@ describe('useField', () => {
       }),
     );
     field.validations satisfies unknown;
+  });
+  it('Using buildFieldProps', () => {
+    const emailOrPhoneNumber = () =>
+      buildFieldProps({
+        name: 'emailOrPhoneNumberName',
+        value: '' as string,
+        autoComplete: 'email',
+        onChange: ({ field, value }, nativeEvent) => {
+          let cb: (() => void) | undefined;
+          const target = nativeEvent?.target;
+          if (target instanceof HTMLInputElement) {
+            const start = target.selectionStart;
+            const end = target.selectionEnd;
+            cb = () =>
+              start && end && target.setSelectionRange(start, end);
+          }
+          field?.setValue(value.trim().toLowerCase());
+          return () => cb && cb();
+        },
+      });
+
+    const {
+      result: { current: field },
+    } = renderHook(() => useField(emailOrPhoneNumber()));
+    field.validations;
   });
 });
