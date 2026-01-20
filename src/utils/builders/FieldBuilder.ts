@@ -87,11 +87,10 @@ export class FieldBuilder<
           });
         }
         if (error) {
-          if (Array.isArray(errors))
-            errors = [
-              ...(errors || []),
-              error,
-            ] as unknown as GetErrors<Field['validations']>;
+          errors = [
+            ...((errors || []) as unknown as Record<string, any>[]),
+            error,
+          ] as GetErrors<Field['validations']>;
 
           if (sequential) break;
         }
