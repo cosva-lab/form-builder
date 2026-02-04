@@ -98,7 +98,7 @@ export class Input<Field extends FieldType> extends React.Component<
             },
           }}
           onChange={(e) => {
-            const onChange = field.onChange;
+            const onChange = field.onChange || onChangeField;
             const value = e.target.value as Field['value'];
             if (onChange)
               onChange({ name: field.name, value, field }, e);

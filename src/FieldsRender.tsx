@@ -28,7 +28,7 @@ export interface FieldsRenderProps<
 export const FieldsRender = <Fields extends FieldBuilder<any>[]>(
   props: FieldsRenderProps<Fields>,
 ) => {
-  const { fields, globalProps } = props;
+  const { fields, globalProps, onChangeField } = props;
   return (
     <>
       {fields.map((field) => (
@@ -36,6 +36,7 @@ export const FieldsRender = <Fields extends FieldBuilder<any>[]>(
           key={field.name.toString()}
           field={field as any}
           globalProps={globalProps}
+          onChangeField={onChangeField}
         />
       ))}
     </>

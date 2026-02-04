@@ -33,28 +33,35 @@ const FieldRenderObserver = <Field extends PropsField>({
   return <FieldComponent {...propsForm} />;
 };
 
+export type OnChangeField<Field extends FieldBuilder<any>> = (
+  event: EventField<Field['value'], Field['name']>,
+  nativeEvent?: React.ChangeEvent<
+    HTMLInputElement | HTMLTextAreaElement
+  >,
+) => void | (() => void);
+
 export interface FieldRenderProps<
   Field extends FieldBuilder<FieldType>,
 > {
   field: Field;
-  onChangeField?(
-    event: EventField<Field['value'], Field['name']>,
-    nativeEvent?: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement
-    >,
-  ): void | (() => void);
+  onChangeField: OnChangeField<Field>;
   globalProps?: GlobalProps;
 }
 
 class FieldRender<
   Field extends FieldBuilder<any>,
 > extends React.PureComponent<FieldRenderProps<Field>> {
+  onChangeField: OnChangeField<Field> = (e, callback) => {
+    const { onChangeField } = this.props;
+    onChangeField?.(e, callback);
+  };
   public render() {
     const { field, globalProps } = this.props;
     const { component: Component, render, type } = field;
     const propsForm: FieldRenderProps<Field> = {
       field,
       globalProps,
+      onChangeField: this.onChangeField,
     };
     const formInput = <Inputs {...propsForm} />;
     if (render)
