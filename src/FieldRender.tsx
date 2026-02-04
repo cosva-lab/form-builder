@@ -44,7 +44,7 @@ export interface FieldRenderProps<
   Field extends FieldBuilder<FieldType>,
 > {
   field: Field;
-  onChangeField: OnChangeField<Field>;
+  onChangeField?: OnChangeField<Field>;
   globalProps?: GlobalProps;
 }
 
