@@ -310,11 +310,8 @@ export interface FieldProps<
 > {
   field: FieldBuilder<Simplify<FieldType<Name, Value, Validations>>>;
 
-  onChangeField?(
-    event: EventField<Value, Name>,
-    nativeEvent?: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement
-    >,
-  ): void | (() => void);
+  onChangeField?: OnChangeField<
+    Simplify<FieldType<Name, Value, Validations>>
+  >;
   globalProps?: GlobalProps;
 }

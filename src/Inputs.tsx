@@ -1,13 +1,10 @@
 import React from 'react';
 import { Input } from './inputsTypes';
 import type { FieldProps, PropsField } from './types';
+import FieldBuilder from './utils/builders/FieldBuilder';
 
-function Inputs<Field extends PropsField>(
-  props: FieldProps<
-    Field['value'],
-    Field['name'],
-    Field['validations']
-  >,
+function Inputs<Field extends FieldBuilder<any>>(
+  props: FieldProps<Field>,
 ) {
   const { field } = props;
   const { type } = field;

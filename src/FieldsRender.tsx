@@ -5,8 +5,6 @@ import {
   EventField,
   GlobalProps,
   FieldType,
-  PropsField,
-  FieldsToObject,
   GetFieldsValue,
 } from './types';
 
