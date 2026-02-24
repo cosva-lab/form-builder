@@ -14,7 +14,6 @@ export type {
   LabelPropsField,
   NameField,
   PropsField,
-  Validation,
   FieldErrors,
   ValidationFunction,
   FieldType,
