@@ -17,5 +17,6 @@ export type {
   FieldErrors,
   ValidationFunction,
   FieldType,
+  CommonValidations,
 } from './types';
 export { useField, useFields } from './hooks';
