@@ -124,6 +124,7 @@ export type ValidationError =
 export type FieldError =
   | ValidationError
   | Record<string, any>
+  | boolean
   | undefined
   | void;
 

@@ -153,8 +153,15 @@ describe('useField', () => {
         name: 'code',
         value: '' as string | number,
         validations: [
-          { rule: 'isEmpty', message: 'required' },
-          { rule: 'isNumeric', message: 'numeric' },
+          (field) =>
+            typeof field.value === 'string' &&
+            field.value.length > 0 && {
+              message: 'required',
+            },
+          (field) =>
+            typeof field.value === 'number' && {
+              message: 'numeric',
+            },
         ],
       }),
     );

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Input } from './inputsTypes';
-import type { FieldProps, PropsField } from './types';
+import type { FieldProps } from './types';
 import FieldBuilder from './utils/builders/FieldBuilder';
 
 function Inputs<Field extends FieldBuilder<any>>(
