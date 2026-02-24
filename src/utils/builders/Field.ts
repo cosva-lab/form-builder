@@ -91,7 +91,7 @@ export class Field<Field extends FieldType<any, any, any, any>> {
    * If the control has children, all children are also disabled.
    *
    */
-  @action
+  @action.bound
   disable(): void {
     // If parent has been marked artificially dirty we don't want to re-calculate the
     // parent's dirtiness based on the children.
@@ -107,7 +107,7 @@ export class Field<Field extends FieldType<any, any, any, any>> {
    * By default, if the control has children, all children are enabled.
    *
    */
-  @action
+  @action.bound
   enable(): void {
     // If parent has been marked artificially dirty we don't want to re-calculate the
     // parent's dirtiness based on the children.
@@ -124,9 +124,9 @@ export class Field<Field extends FieldType<any, any, any, any>> {
    * @see `markAsPristine()`
    *
    */
-  markAsDirty(): void {
+  markAsDirty = (): void => {
     this.pristine = false;
-  }
+  };
 
   /**
    * Marks the control as `pristine`.
@@ -140,11 +140,11 @@ export class Field<Field extends FieldType<any, any, any, any>> {
    * @see `markAsDirty()`
    *
    */
-  markAsPristine(): void {
+  markAsPristine = (): void => {
     this.pristine = true;
-  }
+  };
 
-  @action
+  @action.bound
   _setInitialStatus() {
     this.status = StatusField.VALID;
   }

@@ -117,15 +117,15 @@ export abstract class InputValidator<
     | GetErrors<Field['validations']>
     | undefined;
 
-  public markAsTouched() {
+  public markAsTouched = () => {
     this.touched = true;
-  }
+  };
 
-  public markAsUntouched() {
+  public markAsUntouched = () => {
     this.touched = false;
-  }
+  };
 
-  @action
+  @action.bound
   private async validityBase() {
     const errors = await this.getErrors();
     runInAction(() => {
@@ -144,7 +144,7 @@ export abstract class InputValidator<
    * @description Returns true if the field is valid
    * @return {Promise<boolean>}
    */
-  @action
+  @action.bound
   public async validity() {
     this._validate = true;
     return this.validityBase();
@@ -155,7 +155,7 @@ export abstract class InputValidator<
     return StatusField.VALID;
   }
 
-  @action
+  @action.bound
   async updateValueAndValidity() {
     this._setInitialStatus();
     if (this.enabled) {
@@ -166,7 +166,7 @@ export abstract class InputValidator<
     }
   }
 
-  @action
+  @action.bound
   public reset() {
     this.markAsPristine();
     this.markAsUntouched();
@@ -179,7 +179,7 @@ export abstract class InputValidator<
     }
   }
 
-  @action
+  @action.bound
   addError(error: ValidationError) {
     if (error) {
       if (this.status !== StatusField.INVALID)
@@ -189,7 +189,7 @@ export abstract class InputValidator<
     }
   }
 
-  @action
+  @action.bound
   addErrors(errors: ValidationError[]) {
     this.status = StatusField.INVALID;
     const oldErrors = this.errors || [];
@@ -201,13 +201,13 @@ export abstract class InputValidator<
     }
   }
 
-  setError(error: ValidationError) {
+  setError = (error: ValidationError) => {
     this.addError(error);
-  }
+  };
 
-  setErrors(errors: ValidationError[]) {
+  setErrors = (errors: ValidationError[]) => {
     this.addErrors(errors);
-  }
+  };
 }
 
 export default InputValidator;

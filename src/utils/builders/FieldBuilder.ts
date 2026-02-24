@@ -59,7 +59,6 @@ export class FieldBuilder<
     this.InputProps = InputProps;
     this.textFieldProps = textFieldProps;
     this.component = component;
-    this.getErrors = this.getErrors.bind(this);
   }
 
   protected async getErrorsBase(props?: {
@@ -99,23 +98,23 @@ export class FieldBuilder<
     return errors?.length ? errors : undefined;
   }
 
-  public getErrors(): Promise<
+  public getErrors = (): Promise<
     GetErrors<Field['validations']> | undefined
-  > {
+  > => {
     return this.getErrorsBase();
-  }
+  };
 
-  public async hasErrors(): Promise<boolean> {
+  public hasErrors = async (): Promise<boolean> => {
     const errors = await this.getErrorsBase({ sequential: true });
     return !!(errors && errors.length);
-  }
+  };
 
-  public async hasValid(): Promise<boolean> {
+  public hasValid = async (): Promise<boolean> => {
     const hasErrors = await this.hasErrors();
     return !hasErrors;
-  }
+  };
 
-  @action
+  @action.bound
   async setValue(value: Field['value']) {
     runInAction(() => {
       this.value = value;
