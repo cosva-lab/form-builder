@@ -123,6 +123,7 @@ export abstract class InputValidator<
     this.markAsUntouched();
     this._setInitialStatus();
     const { originalProps } = this;
+    this.errors = undefined;
     if (originalProps) {
       const { validate, value } = originalProps;
       this._validate = validate;

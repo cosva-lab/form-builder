@@ -31,11 +31,6 @@ export class FieldsBuilder<
     return this.getValues();
   }
 
-  private paramsLast?: Pick<
-    FieldsProps<Fields>,
-    'fields' | 'ns' | 'validate'
-  >;
-
   constructor(props: FieldsProps<Fields>) {
     super(props);
     makeObservable(this);
@@ -57,31 +52,9 @@ export class FieldsBuilder<
       field.errors = fieldOriginal.errors;
     }
   }
-
-  private setFields(fields: PropsField<FieldType>[]) {
-    fields.forEach((fieldOriginal) => this.setField(fieldOriginal));
-  }
-
-  @action.bound
-  public saveData() {
-    this.paramsLast = {
-      fields: toJS(this.fields as any),
-      ns: this.ns,
-      validate: this.validate as any,
-    };
-  }
-
   @action.bound
   public restore() {
     this.fields.forEach((field) => field.reset());
-  }
-
-  @action.bound
-  public restoreLast() {
-    if (this.paramsLast) {
-      this.setFields(this.paramsLast.fields as any);
-      this.paramsLast = undefined;
-    }
   }
 
   @action.bound

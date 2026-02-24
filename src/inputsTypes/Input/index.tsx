@@ -11,6 +11,7 @@ import { TransformLabel } from '../../utils/TransformLabel';
 import { RenderErrorsDefault } from '../../RenderErrorsDefault';
 import type { FieldProps, FieldType, TypeField } from '../../types';
 import classes from './Input.module.scss';
+import { hasErrors } from '../../utils/hasErrors';
 
 export interface InputProps<Field extends FieldType>
   extends FieldProps<
@@ -63,9 +64,11 @@ export class Input<Field extends FieldType> extends React.Component<
     } = field;
 
     const { type } = this.state;
-    const errorsNode = Array.isArray(errors) && (
+
+    const errorsNode = hasErrors(errors) && (
       <RenderErrorsDefault {...{ errors, field }} />
     );
+
     return (
       <FormControl
         {...{ fullWidth }}

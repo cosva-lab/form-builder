@@ -6,7 +6,7 @@ import FieldBuilder from './utils/builders/FieldBuilder';
 function Inputs<Field extends FieldBuilder<any>>(
   props: FieldProps<Field>,
 ) {
-  const { field } = props;
+  const { field, onChangeField } = props;
   const { type } = field;
   switch (type) {
     case 'date':
@@ -21,7 +21,7 @@ function Inputs<Field extends FieldBuilder<any>>(
     case 'week':
     case 'datetime-local':
     case undefined:
-      return <Input {...{ field, type }} />;
+      return <Input {...{ field, type, onChangeField }} />;
     default:
       return null;
   }

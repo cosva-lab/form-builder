@@ -3,6 +3,7 @@ import {
   action,
   makeObservable,
   runInAction,
+  toJS,
 } from 'mobx';
 
 import { FieldsProps } from '../../types';
@@ -11,9 +12,9 @@ import type {
   ValidateInputsValidator,
   FieldType,
   FieldsToObject,
-  PropsField,
   ValidationError,
 } from '../../types';
+import { hasErrors } from '../hasErrors';
 
 class InputsValidator<Fields extends FieldBuilder<any>[]> {
   @observable public valid = true;
@@ -50,9 +51,6 @@ class InputsValidator<Fields extends FieldBuilder<any>[]> {
     if (typeof validate !== 'undefined')
       this._validate = validate as any;
     this.callbackField = this.callbackField.bind(this);
-    this.addErrors = this.addErrors.bind(this);
-    this.hasErrors = this.hasErrors.bind(this);
-    this.getErrors = this.getErrors.bind(this);
     this.fields = fields;
     for (const field of this.fields) {
       const name = field.name as keyof FieldsToObject<Fields>;
@@ -107,7 +105,7 @@ class InputsValidator<Fields extends FieldBuilder<any>[]> {
     return this.validityBase();
   }
 
-  @action
+  @action.bound
   async hasErrors(params?: {
     setErrors?: boolean;
     throwFirstError?: boolean;
@@ -129,7 +127,7 @@ class InputsValidator<Fields extends FieldBuilder<any>[]> {
     return !valid;
   }
 
-  @action
+  @action.bound
   addErrors<Field extends Fields[number]>(
     errors: Record<Field['name'], ValidationError[]>,
   ) {
@@ -145,23 +143,24 @@ class InputsValidator<Fields extends FieldBuilder<any>[]> {
     }
   }
 
-  @action
+  @action.bound
   setErrors<Field extends Fields[number]>(
     errors?: Record<Field['name'], ValidationError[]>,
   ) {
     errors && this.addErrors(errors);
   }
 
+  @action.bound
   async getErrors() {
     type ObjectFields = FieldsToObject<Fields>;
     const fieldsErrors = {} as {
       [P in keyof ObjectFields]: ObjectFields[P]['errors'];
     };
     for (const { name, errors, enabled } of this.fields)
-      if (errors && enabled)
+      if (hasErrors(errors) && enabled)
         fieldsErrors[name as keyof FieldsToObject<Fields>] =
           errors as unknown as any;
-    return fieldsErrors;
+    return toJS(fieldsErrors);
   }
 }
 
