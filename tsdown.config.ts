@@ -11,11 +11,10 @@ const packageJson = JSON.parse(
 const mainDir = path.dirname(packageJson.main);
 const moduleDir = path.dirname(packageJson.module);
 const esmDir = path.dirname(packageJson.esnext);
-const typesDir = path.dirname(packageJson.types);
 
 const plugins = [
   postcss({
-    extract: 'index.css',
+    extract: 'styles.css',
     minimize: true,
   }),
 ];
