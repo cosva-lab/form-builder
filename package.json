@@ -19,8 +19,6 @@
     "clean": "rm -Rf ./lib/* ./dist/*",
     "prebuild": "npm run clean",
     "build": "tsdown",
-    "postbuild": "npm run build:copy-files",
-    "build:copy-files": "node ./scripts/copy-files.js",
     "start": "npx tsc -w --outDir ./example/src/@cosva-lab/form-builder",
     "release": "npm run build && npm publish dist/",
     "predeploy": "cd example && npm install && npm run build",
@@ -32,8 +30,8 @@
     "clsx": "^1.0.0 || ^2.0.0",
     "mobx": "^6.0.0",
     "mobx-react": "^7.0.0",
-    "react": "^16.0.0 || ^17.0.0 || ^18.0.0",
-    "react-is": "^16.0.0 || ^17.0.0 || ^18.0.0"
+    "react": "^17.0.0 || ^18.0.0 || ^19.0.0",
+    "react-is": "^17.0.0 || ^18.0.0 || ^19.0.0"
   },
   "devDependencies": {
     "@emotion/react": "^11.11.1",

@@ -2,6 +2,7 @@ import path from 'path';
 import fs from 'fs';
 import { defineConfig } from 'tsdown';
 import postcss from 'rollup-plugin-postcss';
+import { copyFilesPlugin } from './scripts/copy-files-plugin';
 
 const packageJson = JSON.parse(
   fs.readFileSync('./package.json', 'utf-8'),
@@ -19,7 +20,9 @@ const plugins = [
   }),
 ];
 
+const copyFilesHooks = copyFilesPlugin().hooks;
 const exclude = ['!src/**/*.spec.ts', '!src/**/*.test.ts'];
+
 export default defineConfig([
   {
     entry: ['src/**/*.ts', ...exclude],
@@ -29,6 +32,7 @@ export default defineConfig([
     clean: true,
     unbundle: true,
     plugins,
+    hooks: copyFilesHooks,
   },
   {
     entry: ['src/**/*.ts', ...exclude],
@@ -38,6 +42,7 @@ export default defineConfig([
     clean: true,
     unbundle: true,
     plugins,
+    hooks: copyFilesHooks,
   },
   {
     entry: ['src/**/*.ts', ...exclude],
@@ -47,5 +52,6 @@ export default defineConfig([
     clean: true,
     unbundle: true,
     plugins,
+    hooks: copyFilesHooks,
   },
 ]);
