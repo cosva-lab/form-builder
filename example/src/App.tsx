@@ -1,25 +1,19 @@
 import React from 'react';
-import { Theme, adaptV4Theme } from '@mui/material/styles';
-import createStyles from '@mui/styles/createStyles';
-import makeStyles from '@mui/styles/makeStyles';
 import {
   FieldsRender,
   FieldsBuilder,
-  FieldTranslateProvider,
-} from './@cosva-lab/form-builder';
-import { Grid, Button, ButtonGroup } from '@mui/material';
-import { darken, ThemeProvider, StyledEngineProvider, createTheme } from '@mui/material/styles';
-
+  GlobalTranslateProvider,
+  buildField,
+} from '@cosva-lab/form-builder';
+import { Grid, Button, ButtonGroup, Box } from '@mui/material';
+import {
+  darken,
+  ThemeProvider,
+  createTheme,
+} from '@mui/material/styles';
 import { teal, grey, blue } from '@mui/material/colors';
 
-
-declare module '@mui/styles/defaultTheme' {
-  // eslint-disable-next-line @typescript-eslint/no-empty-interface
-  interface DefaultTheme extends Theme {}
-}
-
-
-const theme = createTheme(adaptV4Theme({
+const theme = createTheme({
   palette: {
     primary: {
       main: teal[400],
@@ -36,94 +30,70 @@ const theme = createTheme(adaptV4Theme({
     fontFamily:
       '"Quicksand","Roboto", "Helvetica", "Arial", sans-serif',
   },
-}));
-
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    container: {
-      display: 'flex',
-      flexWrap: 'wrap',
-      padding: theme.spacing(3),
-    },
-    buttons: {
-      padding: theme.spacing(3),
-      '& button': { margin: theme.spacing(1) },
-    },
-  }),
-);
+});
 
 function initForm() {
   return new FieldsBuilder({
     fields: [
-      {
+      buildField({
         name: 'name',
         label: 'Name',
         value: '',
         validate: false,
-        breakpoints: {
-          sm: 6,
-        },
         validations: [
-          {
-            rule: 'isEmpty',
-            message: 'This field can not be empty',
-          },
+          (value) =>
+            !value && {
+              rule: 'isEmpty',
+              message: 'This field can not be empty',
+            },
         ],
-      },
-      {
+      }),
+      buildField({
         name: 'age',
         label: 'Age',
         value: '',
-        breakpoints: {
-          sm: 6,
-        },
         validations: [
-          {
-            rule: 'isEmpty',
-            message: 'This field can not be empty',
-          },
+          (value) =>
+            !value && {
+              message: 'This field can not be empty',
+            },
         ],
-      },
-      {
+      }),
+      buildField({
         name: 'birth_date',
         label: 'Birth date',
         type: 'date',
         value: '',
-        breakpoints: {
-          sm: 6,
-        },
         validations: [
-          {
-            rule: 'isEmpty',
-            message: 'This field can not be empty',
-          },
+          (value) =>
+            !value && {
+              message: 'This field can not be empty',
+            },
         ],
-      },
-      {
+      }),
+      buildField({
         name: 'email',
         label: 'Email',
         value: '',
-        breakpoints: {
-          sm: 6,
-        },
         validations: [
-          {
-            rule: 'isEmpty',
-            message: 'This field can not be empty',
-          },
+          (value) =>
+            !value && {
+              message: 'This field can not be empty',
+            },
         ],
-        onChange: ({ field, target }) => {
+        onChange: ({ field }) => {
           let cb = () => {};
+          const target = field.inputRef;
           if (target instanceof HTMLInputElement) {
             const start = target.selectionStart;
             const end = target.selectionEnd;
             cb = () =>
               start && end && target.setSelectionRange(start, end);
+            field.setValue(target.value.trim().toLowerCase());
           }
-          field && field.setValue(target.value.trim().toLowerCase());
           return () => cb && cb();
         },
-      },
+      }),
     ],
   });
 }
@@ -132,89 +102,97 @@ export default function App() {
   const [fieldsBuilder] = React.useState(initForm());
   const {
     fields,
-    changeField,
+    changeValue,
     validate,
     restoreLast,
     saveData,
     restore,
     getErrors,
   } = fieldsBuilder;
-  const classes = useStyles();
-  console.log(fields);
 
   return (
-    <StyledEngineProvider injectFirst>
-      <ThemeProvider theme={theme}>
-        <FieldTranslateProvider translator={({ message }) => message}>
-          <div className={classes.container}>
-            <Grid container>
-              <ButtonGroup
-                fullWidth
-                aria-label="full width outlined button group"
-              >
-                <Button
-                  onClick={async () => {
-                    restore();
-                  }}>
-                  Reset
-                </Button>
-                <Button
-                  onClick={async () => {
-                    restoreLast();
-                  }}>
-                  Restore
-                </Button>
-                <Button
-                  onClick={async () => {
-                    saveData();
-                  }}>
-                  Save
-                </Button>
-              </ButtonGroup>
-            </Grid>
-            <Grid container spacing={4}>
-              <FieldsRender
-                {...{
-                  fields,
-                  changeField: changeField(),
-                  validate,
-                }}
-              />
-            </Grid>
-            <Grid
-              container
-              className={classes.buttons}
-              justifyContent="flex-end"
+    <ThemeProvider theme={theme}>
+      <GlobalTranslateProvider translator={({ message }) => message}>
+        <Box
+          sx={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            padding: 3,
+          }}
+        >
+          <Grid container>
+            <ButtonGroup
+              fullWidth
+              aria-label="full width outlined button group"
             >
               <Button
-                variant="outlined"
-                color="primary"
                 onClick={async () => {
-                  if (
-                    await fieldsBuilder.hasErrors({
-                      setErrors: true,
-                    })
-                  )
-                    console.log(await getErrors());
+                  restore();
                 }}
               >
-                Validate
+                Reset
               </Button>
               <Button
-                variant="outlined"
-                color="secondary"
                 onClick={async () => {
-                  if (!(await fieldsBuilder.hasErrors())) {
-                    console.log(fieldsBuilder.getValues());
-                  }
+                  restoreLast();
                 }}
               >
-                Get Values
+                Restore
               </Button>
-            </Grid>
-          </div>
-        </FieldTranslateProvider>
-      </ThemeProvider>
-    </StyledEngineProvider>
+              <Button
+                onClick={async () => {
+                  saveData();
+                }}
+              >
+                Save
+              </Button>
+            </ButtonGroup>
+          </Grid>
+          <Grid container spacing={4}>
+            <FieldsRender
+              {...{
+                fields,
+                onChangeField: changeValue,
+                validate,
+              }}
+            />
+          </Grid>
+          <Grid
+            container
+            sx={{
+              padding: 3,
+              '& button': { margin: 1 },
+            }}
+            justifyContent="flex-end"
+          >
+            <Button
+              variant="outlined"
+              color="primary"
+              onClick={async () => {
+                if (
+                  await fieldsBuilder.hasErrors({
+                    setErrors: true,
+                  })
+                )
+                  console.log(await getErrors());
+              }}
+            >
+              Validate
+            </Button>
+            <Button
+              variant="outlined"
+              color="secondary"
+              onClick={async () => {
+                if (!(await fieldsBuilder.hasErrors())) {
+                  console.log(fieldsBuilder.getValues());
+                }
+              }}
+            >
+              Get Values
+            </Button>
+          </Grid>
+        </Box>
+      </GlobalTranslateProvider>
+    </ThemeProvider>
   );
 }
