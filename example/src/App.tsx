@@ -41,7 +41,7 @@ function initForm() {
         value: '',
         validate: false,
         validations: [
-          (value) =>
+          ({ value }) =>
             !value && {
               rule: 'isEmpty',
               message: 'This field can not be empty',
@@ -53,7 +53,7 @@ function initForm() {
         label: 'Age',
         value: '',
         validations: [
-          (value) =>
+          ({ value }) =>
             !value && {
               message: 'This field can not be empty',
             },
@@ -65,7 +65,7 @@ function initForm() {
         type: 'date',
         value: '',
         validations: [
-          (value) =>
+          ({ value }) =>
             !value && {
               message: 'This field can not be empty',
             },
@@ -76,7 +76,7 @@ function initForm() {
         label: 'Email',
         value: '',
         validations: [
-          (value) =>
+          ({ value }) =>
             !value && {
               message: 'This field can not be empty',
             },
@@ -100,27 +100,14 @@ function initForm() {
 
 export default function App() {
   const [fieldsBuilder] = React.useState(initForm());
-  const {
-    fields,
-    changeValue,
-    validate,
-    restoreLast,
-    saveData,
-    restore,
-    getErrors,
-  } = fieldsBuilder;
+  const { fields, onChangeField, validate, getErrors, restore } =
+    fieldsBuilder;
 
   return (
     <ThemeProvider theme={theme}>
       <GlobalTranslateProvider translator={({ message }) => message}>
-        <Box
-          sx={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            padding: 3,
-          }}
-        >
-          <Grid container>
+        <Box sx={{ padding: 3 }}>
+          <Grid container sx={{ marginBottom: 2 }}>
             <ButtonGroup
               fullWidth
               aria-label="full width outlined button group"
@@ -132,27 +119,13 @@ export default function App() {
               >
                 Reset
               </Button>
-              <Button
-                onClick={async () => {
-                  restoreLast();
-                }}
-              >
-                Restore
-              </Button>
-              <Button
-                onClick={async () => {
-                  saveData();
-                }}
-              >
-                Save
-              </Button>
             </ButtonGroup>
           </Grid>
           <Grid container spacing={4}>
             <FieldsRender
               {...{
                 fields,
-                onChangeField: changeValue,
+                onChangeField: onChangeField,
                 validate,
               }}
             />
@@ -169,12 +142,10 @@ export default function App() {
               variant="outlined"
               color="primary"
               onClick={async () => {
-                if (
-                  await fieldsBuilder.hasErrors({
-                    setErrors: true,
-                  })
-                )
-                  console.log(await getErrors());
+                const hasErrors = await fieldsBuilder.hasErrors({
+                  setErrors: true,
+                });
+                console.log({ hasErrors, errors: await getErrors() });
               }}
             >
               Validate
@@ -183,9 +154,7 @@ export default function App() {
               variant="outlined"
               color="secondary"
               onClick={async () => {
-                if (!(await fieldsBuilder.hasErrors())) {
-                  console.log(fieldsBuilder.getValues());
-                }
+                console.log(fieldsBuilder.getValues());
               }}
             >
               Get Values
