@@ -76,9 +76,8 @@ export class FieldBuilder<
     if (Array.isArray(validations) && validate) {
       for (const validation of validations) {
         let error: FieldError | undefined;
-        if (typeof validation === 'object') {
-          if (this.hasValidationError(validation)) error = validation;
-        } else if (typeof validation === 'function') {
+        if (typeof validation === 'object') error = validation;
+        else if (typeof validation === 'function') {
           error = await validation({
             field: this,
             validate,

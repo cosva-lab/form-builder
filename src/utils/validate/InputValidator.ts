@@ -6,7 +6,6 @@ import {
 } from 'mobx';
 
 import type {
-  Validation,
   Validate,
   ValidationError,
   ValidateField,
@@ -16,7 +15,6 @@ import type {
 } from '../../types';
 import { StatusField } from '../../enums';
 import Field from '../builders/Field';
-import validators from '../validate/validators';
 
 type PropsInput<Field extends FieldType> = Validate<Field> &
   PropsField<Field>;
@@ -66,50 +64,6 @@ export abstract class InputValidator<
       value,
       validate: validate as PropsInput<Field>['validate'],
     };
-  }
-
-  @action
-  protected hasValidationError(validation: Validation): boolean {
-    let rule = validation.rule || 'isEmpty';
-    const { args = [] } = validation;
-    if (
-      ![
-        'contains',
-        'equals',
-        'isAfter',
-        'isAlpha',
-        'isAlphanumeric',
-        'isAscii',
-        'isDecimal',
-        'isEmail',
-        'isEmpty',
-        'isFloat',
-        'isNumeric',
-      ].includes(rule)
-    ) {
-      console.error(rule, `the rule don't exists`);
-      rule = 'isEmpty';
-    } else {
-      const validator = validators[rule];
-      if (validator) {
-        let boolean = false;
-        switch (rule) {
-          case 'isEmpty':
-            boolean = true;
-            break;
-          default:
-            break;
-        }
-        if (
-          typeof this.value === 'string' &&
-          validator(this.value, args) === boolean
-        ) {
-          this.status = StatusField.INVALID;
-          return true;
-        } else this.status = StatusField.VALID;
-      }
-    }
-    return false;
   }
 
   public abstract getErrors():

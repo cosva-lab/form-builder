@@ -4,11 +4,7 @@ import { TextFieldProps } from '@mui/material/TextField';
 
 import type { FieldsBuilder } from './utils/builders/FieldsBuilder';
 import type { FieldBuilder } from './utils/builders/FieldBuilder';
-import {
-  validators,
-  InputsValidator,
-  InputValidator,
-} from './utils/validate';
+import { InputsValidator, InputValidator } from './utils/validate';
 
 export type NameField = PropertyKey;
 
@@ -101,13 +97,6 @@ export type FieldsProps<Fields extends FieldBuilder<any>[]> = {
   fields: [...Fields];
 } & ValidationsFields<Fields> &
   InitialState;
-
-export type Rules = keyof typeof validators;
-
-export interface Validation extends Message {
-  rule: Rules;
-  args?: any;
-}
 
 export type GenericFieldsBuilder = FieldsBuilder<FieldBuilder<any>[]>;
 
@@ -253,10 +242,7 @@ export type FieldType<
   validations: Validations;
 };
 
-export type CommonValidations<V = any> = (
-  | Validation
-  | ValidationFunction<V>
-)[];
+export type CommonValidations<V = any> = ValidationFunction<V>[];
 
 type ValidationResult<V> = V extends Promise<infer R>
   ? R
