@@ -6,11 +6,19 @@
   "license": "MIT",
   "homepage": "https://cosva-lab.github.io/form-builder",
   "repository": "https://github.com/cosva-lab/form-builder.git",
-  "sideEffects": false,
+  "sideEffects": ["*.css"],
   "main": "dist/cjs/index.cjs",
   "module": "dist/index.mjs",
   "esnext": "dist/esm/index.mjs",
   "types": "dist/esm/index.d.mts",
+  "exports": {
+    ".": {
+      "import": "./index.mjs",
+      "require": "./cjs/index.cjs",
+      "types": "./esm/index.d.mts"
+    },
+    "./styles.css": "./styles.css"
+  },
   "engines": {
     "node": ">=14",
     "npm": ">=6"
