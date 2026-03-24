@@ -128,9 +128,9 @@ class InputsValidator<Fields extends FieldBuilder<any>[]> {
   }
 
   @action.bound
-  addErrors<Field extends Fields[number]>(
-    errors: Record<Field['name'], ValidationError[]>,
-  ) {
+  addErrors<Field extends Fields[number]>(errors: {
+    [key in Field['name']]?: ValidationError[];
+  }) {
     if (!this.validate) this.validate = true;
     for (const key in errors) {
       if (errors.hasOwnProperty(key)) {
@@ -144,9 +144,9 @@ class InputsValidator<Fields extends FieldBuilder<any>[]> {
   }
 
   @action.bound
-  setErrors<Field extends Fields[number]>(
-    errors?: Record<Field['name'], ValidationError[]>,
-  ) {
+  setErrors<Field extends Fields[number]>(errors?: {
+    [key in Field['name']]?: ValidationError[];
+  }) {
     errors && this.addErrors(errors);
   }
 
